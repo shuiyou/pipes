@@ -76,8 +76,8 @@ def test_f0001_case():
     _assert_union_multi_to_multi_df('f0001')
 
 
-def test_f002_case():
-    _assert_union_multi_to_multi_df('f002')
+def test_f0002_case():
+    _assert_union_multi_to_multi_df('f0002')
 
 
 def test_f0003_case():

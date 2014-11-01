@@ -32,7 +32,8 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
     # 每组字段种类
     field_count = 0
 
-    insert_key_array.append(key_word_sub_table)
+    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
+        insert_key_array.append(key_word_sub_table)
         # 主表要插入字段
     if (len(title_array) > 0):
         for info in title_array:
@@ -58,9 +59,9 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
                     data.append(key_word_sub_sub_table_value)
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
-                        value = str(info.split('=')[1])
-                        if len(value) > 0:
-                            data.append(value)
+                        info_value = str(detail.split('=')[1])
+                        if len(info_value) > 0:
+                            data.append(info_value)
                         else:
                             data.append('Null')
                 data.append('\''+expired_at+'\'')
@@ -230,9 +231,9 @@ def _insert_main_1_table_sub_data(title,df_main_id_array):
                 number = 0
                 for detail in value_array:
                     if detail.find('['+str(i)+'-'+str(j)+']')>=0:
-                        value = str(detail.split('=')[1])
-                        if len(value) > 0:
-                            data.append(value)
+                        detail_value = str(detail.split('=')[1])
+                        if len(detail_value) > 0:
+                            data.append(detail_value)
                         else:
                             data.append('Null')
                         number = 1
@@ -284,9 +285,9 @@ def _insert_main_table_sub_data(title, df_main_id):
                 data = []
                 for detail in value_array:
                     if detail.find('[' + str(i) + ']') >= 0:
-                        value = str(detail.split('=')[1])
-                        if len(value) > 0:
-                            data.append(value)
+                        detail_value = str(detail.split('=')[1])
+                        if len(detail_value) > 0:
+                            data.append(detail_value)
                         else:
                             data.append('Null')
                 key_value_array.append(data)
