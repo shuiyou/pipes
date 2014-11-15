@@ -1,7 +1,7 @@
-from data.data_deposit import deposit
-from data.data_single_three_structure import single_three_deposit
-from data.data_union_multi_to_multi_deposit import unit_multi_deposit
-from data.data_union_multi_to_one_deposit import unit_deposit
+from tests.data.data_deposit import deposit
+from tests.data.data_single_three_structure import single_three_deposit
+from tests.data.data_union_multi_to_multi_deposit import unit_multi_deposit
+from tests.data.data_union_multi_to_one_deposit import unit_deposit
 
 
 def test_01001_case():
