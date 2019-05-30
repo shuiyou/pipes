@@ -11,7 +11,6 @@ from six import integer_types, string_types
 from logstash_async.constants import constants
 import logstash_async
 
-
 try:
     import json
 except ImportError:
@@ -27,7 +26,7 @@ class LogstashFormatter(logging.Formatter):
             tags=None,
             fqdn=False,
             extra_prefix=None,
-            extra=None,
+            extra={'app_name': 'pipes'},
             ensure_ascii=True):
         super(LogstashFormatter, self).__init__()
         self._message_type = message_type

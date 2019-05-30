@@ -1,14 +1,12 @@
 import logging
-from logging.config import fileConfig
 
-fileConfig('logging.conf', disable_existing_loggers=True)
-extra = {'app_name': 'pipes'}
+# import pandas as pd
+# from metabasepy import Client
+from logger.logger_util import LoggerUtil
 
-logger = logging.getLogger(__name__)
-
-logger = logging.LoggerAdapter(logger, extra)
-
+logger = LoggerUtil().logger(__name__)
 logger.info('python-logstash-async: test logstash info message.')
+
 # token = None
 # with open("token.txt", "r") as myfile:
 #     lines = myfile.readlines()
