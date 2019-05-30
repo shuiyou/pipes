@@ -4,3 +4,7 @@
 ```bash
 $ docker-compose up -d --no-recreate --scale app=5
 ```
+
+
+### 日志管理
+日志会打到logstash里去， 使用 [python-logstash-async](https://python-logstash-async.readthedocs.io/en/stable/config.html)
