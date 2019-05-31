@@ -20,5 +20,10 @@ def dispatch():
     return jsonify(json_data)
 
 
+@app.route("/health", methods=['GET'])
+def health_check():
+    return 'up'
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
