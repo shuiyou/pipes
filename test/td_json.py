@@ -1,6 +1,7 @@
-#jason解析
+# jason解析
 import pandas as pd
 import json as simplejson
+
 from_df=pd.read_excel('data/td_risk.xlsx')
 index_name=from_df.index.name
 row_list=[]
@@ -9,7 +10,7 @@ for index,col in from_df.iterrows():
     row_dict=simplejson.loads(row_str)
     row_dict[index_name]=str(index)
     row_list.append(row_dict)
-df=pd.DataFrame(row_list)
+df = pd.DataFrame(row_list)
 df.columns
 new_lst = []
 for _, row in df.iterrows():
@@ -21,5 +22,5 @@ for _, row in df.iterrows():
     for i in range(len(row.platform_detail)):
         new_dct[row.platform_detail[i].split(':')[0]] = row.platform_detail[i].split(':')[1]
     new_lst.append(new_dct)
-    
+
 new_df = pd.DataFrame(new_lst)
