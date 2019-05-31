@@ -3,3 +3,4 @@ gunicorn
 pandas
 python-logstash-async
 pytest
+python-dateutil

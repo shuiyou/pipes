@@ -10,6 +10,9 @@ def client():
 
 
 def test_dispatch(client):
-    rp = client.get('/')
-    assert rp.status_code == 200
-    print(str(rp.data))
+    rv = client.post('/', json={
+        'usename': 'flask',
+        'password': 'secret'
+    })
+    assert rv.status_code == 200
+    print(rv.get_json())
