@@ -1,7 +1,7 @@
 #jason解析
 import pandas as pd
 import json as simplejson
-from_df=pd.read_excel('C:/data/td_risk.xlsx')
+from_df=pd.read_excel('data/td_risk.xlsx')
 index_name=from_df.index.name
 row_list=[]
 for index,col in from_df.iterrows():
