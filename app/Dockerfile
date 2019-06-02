@@ -1,13 +1,16 @@
-FROM python:3.7-alpine
+FROM alpine:3.9
 
-RUN apk update
+RUN apk add --no-cache python3-dev libstdc++ && \
+    apk add --no-cache --virtual .build-deps g++ && \
+    ln -s /usr/include/locale.h /usr/include/xlocale.h && \
+    apk del .build-deps
+
+COPY requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY requirements.txt /usr/src/app
-
-RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
 EXPOSE 5000
 
