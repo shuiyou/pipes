@@ -1,6 +1,16 @@
 # 决策引擎数据映射服务
 使用python来解决数据转换到决策引擎需要的数据结构
 
+
+## 决策前置的输入及输出
+1. 输入请求：
+```json
+{
+   
+}
+
+```
+
 ## Usage
 
 1. 本地安装好git
@@ -34,6 +44,7 @@ $ docker-compose up -d --no-recreate --scale app=5
 
 
 ### 单元测试
+1. [如何使用pycharm运行单元测试](https://blog.csdn.net/chenmozhe22/article/details/81700504)
 1. 使用vscode 需要在.vscode/settings.json文件里添加如下内容,需要设置你本地的python3.7的路径
 ```
    {

@@ -8,12 +8,12 @@
             "Body": {
                 "Application": {
                     "Variables": {
-
                     }
                 }
             }
         }
     },
+
     "success_response": {
         "StrategyOneResponse": {
             "Header": {
@@ -75,6 +75,7 @@
             }
         }
     },
+
     "error_response": {
         "StrategyOneResponse": {
             "Header": {

@@ -5,7 +5,7 @@ import logging
 from logger.logger_util import LoggerUtil
 
 logger = LoggerUtil().logger(__name__)
-logger.info('python-logstash-async: test logstash info message.')
+logger.info('python-logstash-async: tests logstash info message.')
 
 # token = None
 # with open("token.txt", "r") as myfile:
