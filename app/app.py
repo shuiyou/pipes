@@ -22,7 +22,7 @@ def dispatch():
 
 @app.route("/health", methods=['GET'])
 def health_check():
-    return 'up'
+    return 'pipes is up'
 
 
 if __name__ == '__main__':

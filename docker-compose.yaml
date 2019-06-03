@@ -2,6 +2,9 @@ version: '3'
 
 services:
   app:
+    environment:
+      - STRATEGY_URL=http://192.168.1.20:8091
+      - ENV=PROD
     volumes:
       - './app:/usr/src/app'
     build: ./app

@@ -8,5 +8,5 @@ python-dateutil==2.8.0
 python-logstash-async
 pytz==2019.1
 six==1.12.0
-pytest
+
 

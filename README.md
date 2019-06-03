@@ -30,10 +30,12 @@ $ docker-compose up -d --no-recreate --scale app=5
 ### 开发流程
 使用gitflow分支管理策略
 
+推荐使用pycharm进行开发
+
 
 ### 单元测试
 1. 使用vscode 需要在.vscode/settings.json文件里添加如下内容,需要设置你本地的python3.7的路径
-   ```
+```
    {
     "python.pythonPath": "/usr/local/opt/python/bin/python3.7",
     "python.testing.pyTestArgs": [
@@ -43,10 +45,11 @@ $ docker-compose up -d --no-recreate --scale app=5
     "python.testing.nosetestsEnabled": false,
     "python.testing.pyTestEnabled": true
 }
-   ```
+```
 
 2. 安装python test插件
 
+`pip3 install pytest`
 ### 日志管理
 日志会打到logstash里去， 使用 [python-logstash-async](https://python-logstash-async.readthedocs.io/en/stable/config.html)
 
