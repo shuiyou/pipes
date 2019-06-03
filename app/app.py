@@ -1,11 +1,9 @@
-import os
-
 import requests
 from flask import Flask, request, jsonify
 
+from config import STRATEGY_URL
+
 app = Flask(__name__)
-# 配置使用的决策引擎
-app.config['STRATEGY_URL'] = os.getenv('STRATEGY_URL', 'http://192.168.1.20:8091/rest/S1Public')
 
 
 def _build_request(input):
@@ -34,7 +32,7 @@ def dispatch():
     # TODO: 实现dispatcher, 根据json_data的指令去获取数据，做对应的数据处理，然后调用对应的决策
     strategy_request = _build_request(json_data)
     # 调用决策引擎
-    strategy_response = requests.post(app.config['STRATEGY_URL'], json=strategy_request)
+    strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
     # TODO：需要转换成约定好的输出schema形势
     return jsonify(build_response(strategy_response.json()))
 

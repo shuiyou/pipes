@@ -4,6 +4,7 @@
 import pytest
 
 from app import app
+from mapping import mysql_reader
 
 
 @pytest.fixture
@@ -19,3 +20,8 @@ def test_dispatch(client):
     })
     assert rv.status_code == 200
     print(rv.get_json())
+
+
+def test_sql_to_df():
+    df = mysql_reader.sql_to_df("channel")
+    print(df)
