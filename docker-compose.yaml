@@ -7,8 +7,8 @@ services:
       - STRATEGY_URL=http://192.168.1.20:8091
       - ENV=PROD
     volumes:
-      - './app:/usr/src/app'
-    build: ./app
+      - './src:/usr/src/app'
+    build: ./src
   loadbalancer:
     image: 'dockercloud/haproxy:latest'
     links:
