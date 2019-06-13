@@ -23,16 +23,18 @@ def build_response(json):
 
 @app.route("/", methods=['POST'])
 def dispatch():
-    '''
+    """
     应用的统一入口，获取数据分发给不通的数据映射和决策，然后返回结果
     :return:
-    '''
+    """
     # 获取请求参数
     json_data = request.get_json()
+
     # TODO: 实现dispatcher, 根据json_data的指令去获取数据，做对应的数据处理，然后调用对应的决策
     strategy_request = _build_request(json_data)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+
     # TODO：需要转换成约定好的输出schema形势
     return jsonify(build_response(strategy_response.json()))
 
