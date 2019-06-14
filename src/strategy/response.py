@@ -1,22 +1,22 @@
+# This code parses date/times, so please
+#
+#     pip install python-dateutil
+#
 # To use this code, make sure you
 #
 #     import json
 #
 # and then, to convert JSON from a string, do
 #
-#     result = response_from_dict(json.loads(json_string)
-#    StragetyOne决策引擎的Response
+#     result = response_from_dict(json.loads(json_string))
 
 from dataclasses import dataclass
 from typing import Optional, Any, List, TypeVar, Type, cast, Callable
 from datetime import datetime
 import dateutil.parser
 
+
 T = TypeVar("T")
-
-
-def from_datetime(x: Any) -> datetime:
-    return dateutil.parser.parse(x)
 
 
 def from_str(x: Any) -> str:
@@ -43,14 +43,13 @@ def to_class(c: Type[T], x: Any) -> dict:
     return cast(Any, x).to_dict()
 
 
-def from_int(x: Any) -> int:
-    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
+def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
+    assert isinstance(x, list)
+    return [f(y) for y in x]
 
 
-def from_float(x: Any) -> float:
-    assert isinstance(x, (float, int)) and not isinstance(x, bool)
-    return float(x)
+def from_datetime(x: Any) -> datetime:
+    return dateutil.parser.parse(x)
 
 
 def is_type(t: Type[T], x: Any) -> T:
@@ -58,14 +57,9 @@ def is_type(t: Type[T], x: Any) -> T:
     return x
 
 
-def to_float(x: Any) -> float:
-    assert isinstance(x, float)
+def from_int(x: Any) -> int:
+    assert isinstance(x, int) and not isinstance(x, bool)
     return x
-
-
-def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-    assert isinstance(x, list)
-    return [f(y) for y in x]
 
 
 @dataclass
@@ -124,65 +118,15 @@ class Category:
 
 @dataclass
 class ApplicationVariables:
-    out_is_query: Optional[str]
-    out_strategy_branch: Optional[int]
-    out_result: Optional[str]
-    td_risk_tel_hit_high_att: Optional[int]
-    risk_score_level1: Optional[int]
-    temp_hd_score: Optional[float]
-    temp_hf_score: Optional[int]
-    temp_jxl_score: Optional[float]
-    temp_qh_score: Optional[int]
-    temp_td_score: Optional[float]
-    temp_hf_other_max_level: Optional[int]
-    temp_model_score: Optional[int]
-    temp_risk_native: Optional[int]
-    temp_hf_pub_info_max_level: Optional[int]
-    temp_hf_tax_arrears_max_level: Optional[int]
+    pass
 
     @staticmethod
     def from_dict(obj: Any) -> 'ApplicationVariables':
         assert isinstance(obj, dict)
-        out_is_query = from_union([from_str, from_none], obj.get("out_isQuery"))
-        out_strategy_branch = from_union([from_none, lambda x: int(from_str(x))], obj.get("out_strategyBranch"))
-        out_result = from_union([from_str, from_none], obj.get("out_result"))
-        td_risk_tel_hit_high_att = from_union([from_int, from_none], obj.get("td_risk_tel_hit_high_att"))
-        risk_score_level1 = from_union([from_int, from_none], obj.get("risk_score_level1"))
-        temp_hd_score = from_union([from_float, from_none], obj.get("temp_hd_score"))
-        temp_hf_score = from_union([from_int, from_none], obj.get("temp_hf_score"))
-        temp_jxl_score = from_union([from_float, from_none], obj.get("temp_jxl_score"))
-        temp_qh_score = from_union([from_int, from_none], obj.get("temp_qh_score"))
-        temp_td_score = from_union([from_float, from_none], obj.get("temp_td_score"))
-        temp_hf_other_max_level = from_union([from_int, from_none], obj.get("temp_hf_other_max_level"))
-        temp_model_score = from_union([from_int, from_none], obj.get("temp_model_score"))
-        temp_risk_native = from_union([from_int, from_none], obj.get("temp_risk_native"))
-        temp_hf_pub_info_max_level = from_union([from_int, from_none], obj.get("temp_hf_pub_info_max_level"))
-        temp_hf_tax_arrears_max_level = from_union([from_int, from_none], obj.get("temp_hf_tax_arrears_max_level"))
-        return ApplicationVariables(out_is_query, out_strategy_branch, out_result, td_risk_tel_hit_high_att,
-                                    risk_score_level1, temp_hd_score, temp_hf_score, temp_jxl_score, temp_qh_score,
-                                    temp_td_score, temp_hf_other_max_level, temp_model_score, temp_risk_native,
-                                    temp_hf_pub_info_max_level, temp_hf_tax_arrears_max_level)
+        return ApplicationVariables()
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["out_isQuery"] = from_union([from_str, from_none], self.out_is_query)
-        result["out_strategyBranch"] = from_union([lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                                                   lambda x: from_str(
-                                                       (lambda x: str((lambda x: is_type(int, x))(x)))(x))],
-                                                  self.out_strategy_branch)
-        result["out_result"] = from_union([from_str, from_none], self.out_result)
-        result["td_risk_tel_hit_high_att"] = from_union([from_int, from_none], self.td_risk_tel_hit_high_att)
-        result["risk_score_level1"] = from_union([from_int, from_none], self.risk_score_level1)
-        result["temp_hd_score"] = from_union([to_float, from_none], self.temp_hd_score)
-        result["temp_hf_score"] = from_union([from_int, from_none], self.temp_hf_score)
-        result["temp_jxl_score"] = from_union([to_float, from_none], self.temp_jxl_score)
-        result["temp_qh_score"] = from_union([from_int, from_none], self.temp_qh_score)
-        result["temp_td_score"] = from_union([to_float, from_none], self.temp_td_score)
-        result["temp_hf_other_max_level"] = from_union([from_int, from_none], self.temp_hf_other_max_level)
-        result["temp_model_score"] = from_union([from_int, from_none], self.temp_model_score)
-        result["temp_risk_native"] = from_union([from_int, from_none], self.temp_risk_native)
-        result["temp_hf_pub_info_max_level"] = from_union([from_int, from_none], self.temp_hf_pub_info_max_level)
-        result["temp_hf_tax_arrears_max_level"] = from_union([from_int, from_none], self.temp_hf_tax_arrears_max_level)
         return result
 
 
@@ -201,8 +145,7 @@ class Application:
     def to_dict(self) -> dict:
         result: dict = {}
         result["Variables"] = from_union([lambda x: to_class(ApplicationVariables, x), from_none], self.variables)
-        result["Categories"] = from_union([lambda x: from_list(lambda x: to_class(Category, x), x), from_none],
-                                          self.categories)
+        result["Categories"] = from_union([lambda x: from_list(lambda x: to_class(Category, x), x), from_none], self.categories)
         return result
 
 
@@ -219,6 +162,34 @@ class Body:
     def to_dict(self) -> dict:
         result: dict = {}
         result["Application"] = from_union([lambda x: to_class(Application, x), from_none], self.application)
+        return result
+
+
+@dataclass
+class Error:
+    inquiry_date: Optional[datetime]
+    code: Optional[int]
+    description: Optional[str]
+    engine_version: Optional[str]
+    engine_stack_trace: Optional[str]
+
+    @staticmethod
+    def from_dict(obj: Any) -> 'Error':
+        assert isinstance(obj, dict)
+        inquiry_date = from_union([from_datetime, from_none], obj.get("InquiryDate"))
+        code = from_union([from_none, lambda x: int(from_str(x))], obj.get("Code"))
+        description = from_union([from_str, from_none], obj.get("Description"))
+        engine_version = from_union([from_str, from_none], obj.get("EngineVersion"))
+        engine_stack_trace = from_union([from_str, from_none], obj.get("EngineStackTrace"))
+        return Error(inquiry_date, code, description, engine_version, engine_stack_trace)
+
+    def to_dict(self) -> dict:
+        result: dict = {}
+        result["InquiryDate"] = from_union([lambda x: x.isoformat(), from_none], self.inquiry_date)
+        result["Code"] = from_union([lambda x: from_none((lambda x: is_type(type(None), x))(x)), lambda x: from_str((lambda x: str((lambda x: is_type(int, x))(x)))(x))], self.code)
+        result["Description"] = from_union([from_str, from_none], self.description)
+        result["EngineVersion"] = from_union([from_str, from_none], self.engine_version)
+        result["EngineStackTrace"] = from_union([from_str, from_none], self.engine_stack_trace)
         return result
 
 
@@ -251,35 +222,6 @@ class Header:
 
 
 @dataclass
-class Error:
-    inquiry_date: Optional[datetime]
-    code: Optional[int]
-    description: Optional[str]
-    engine_version: Optional[str]
-    engine_stack_trace: Optional[str]
-
-    @staticmethod
-    def from_dict(obj: Any) -> 'Error':
-        assert isinstance(obj, dict)
-        inquiry_date = from_union([from_datetime, from_none], obj.get("InquiryDate"))
-        code = from_union([from_none, lambda x: int(from_str(x))], obj.get("Code"))
-        description = from_union([from_str, from_none], obj.get("Description"))
-        engine_version = from_union([from_str, from_none], obj.get("EngineVersion"))
-        engine_stack_trace = from_union([from_str, from_none], obj.get("EngineStackTrace"))
-        return Error(inquiry_date, code, description, engine_version, engine_stack_trace)
-
-    def to_dict(self) -> dict:
-        result: dict = {}
-        result["InquiryDate"] = from_union([lambda x: x.isoformat(), from_none], self.inquiry_date)
-        result["Code"] = from_union([lambda x: from_none((lambda x: is_type(type(None), x))(x)),
-                                     lambda x: from_str((lambda x: str((lambda x: is_type(int, x))(x)))(x))], self.code)
-        result["Description"] = from_union([from_str, from_none], self.description)
-        result["EngineVersion"] = from_union([from_str, from_none], self.engine_version)
-        result["EngineStackTrace"] = from_union([from_str, from_none], self.engine_stack_trace)
-        return result
-
-
-@dataclass
 class StrategyOneResponse:
     header: Optional[Header]
     body: Optional[Body]
@@ -290,7 +232,8 @@ class StrategyOneResponse:
         assert isinstance(obj, dict)
         header = from_union([Header.from_dict, from_none], obj.get("Header"))
         body = from_union([Body.from_dict, from_none], obj.get("Body"))
-        return StrategyOneResponse(header, body)
+        error = from_union([Error.from_dict, from_none], obj.get("Error"))
+        return StrategyOneResponse(header, body, error)
 
     def to_dict(self) -> dict:
         result: dict = {}

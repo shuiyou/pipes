@@ -4,8 +4,13 @@
 import pytest
 
 from app import app
+from logger.logger_util import LoggerUtil
 from mapping import mysql_reader
+from strategy import response
+from strategy.response import Response
 
+
+logger = LoggerUtil().logger(__name__)
 
 @pytest.fixture
 def client():
@@ -15,11 +20,10 @@ def client():
 
 def test_dispatch(client):
     rv = client.post('/', json={
-        'usename': 'flask',
-        'password': 'secret'
+        'ProcessCode': 'JB_WZ_CJR2'
     })
     assert rv.status_code == 200
-    print(rv.get_json())
+    logger.info(rv.get_json())
 
 
 def test_sql_to_df():

@@ -1,20 +1,30 @@
+import uuid
+
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Blueprint
+from werkzeug.exceptions import HTTPException
 
 from config import STRATEGY_URL
+from exceptions import APIException, ServerException
+from logger.logger_util import LoggerUtil
+from strategy.request import empty_instance, Request
+
+logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
 
 
-def _build_request(input):
+def _build_request(input) -> Request:
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
     :return:
     """
     # TODO: 实现请求，数据映射的代码请写在mapping包里
-    return {"StrategyOneRequest": {
-        "Header": {"InquiryCode": "c3ef30f0ad5646d8a25136f98532ec9f", "ProcessCode": "JB_WZ_CJR2"},
-        "Body": {"Application": {"Variables": {}}}}}
+    strategy_request = empty_instance()
+    strategy_request.strategy_one_request.header.process_code = input['ProcessCode']
+    strategy_request.strategy_one_request.header.inquiry_code = str(uuid.uuid4())
+
+    return strategy_request
 
 
 def build_response(json):
@@ -31,7 +41,8 @@ def dispatch():
     json_data = request.get_json()
 
     # TODO: 实现dispatcher, 根据json_data的指令去获取数据，做对应的数据处理，然后调用对应的决策
-    strategy_request = _build_request(json_data)
+    strategy_request = _build_request(json_data).to_dict()
+    logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
 
@@ -42,6 +53,27 @@ def dispatch():
 @app.route("/health", methods=['GET'])
 def health_check():
     return 'pipes is up'
+
+
+@app.errorhandler(Exception)
+def flask_global_exception_handler(e):
+    # 判断异常是不是APIException
+    if isinstance(e, APIException):
+        return e
+    # 判断异常是不是HTTPException
+    elif isinstance(e, HTTPException):
+        error = APIException()
+        error.code = e.code
+        error.description = e.description
+        return error
+    # 异常肯定是Exception
+    else:
+        from flask import current_app
+        # 如果是调试模式,则返回e的具体异常信息。否则返回json格式的ServerException对象！
+        if current_app.config["DEBUG"]:
+            return e
+        else:
+            return ServerException()
 
 
 if __name__ == '__main__':

@@ -9,7 +9,6 @@
 from dataclasses import dataclass
 from typing import Any, Optional, TypeVar, Type, cast
 
-
 T = TypeVar("T")
 
 
@@ -133,7 +132,8 @@ class Request:
 
     def to_dict(self) -> dict:
         result: dict = {}
-        result["StrategyOneRequest"] = from_union([lambda x: to_class(StrategyOneRequest, x), from_none], self.strategy_one_request)
+        result["StrategyOneRequest"] = from_union([lambda x: to_class(StrategyOneRequest, x), from_none],
+                                                  self.strategy_one_request)
         return result
 
 
@@ -143,3 +143,13 @@ def request_from_dict(s: Any) -> Request:
 
 def request_to_dict(x: Request) -> Any:
     return to_class(Request, x)
+
+
+def empty_instance() -> Request:
+    """
+    初始化一个空的请求对象
+    :return:
+    """
+    return request_from_dict({"StrategyOneRequest": {
+        "Header": {"InquiryCode": "", "ProcessCode": ""},
+        "Body": {"Application": {"Variables": {}}}}})
