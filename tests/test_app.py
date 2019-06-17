@@ -16,15 +16,9 @@ def client():
     yield client
 
 
-def test_dispatch(client):
-    rv = client.post('/', json={
-        "productCode": "JB_WZ_CJR2",
-        "bizTypes": ["aaa","bbb"],
-        "queryData": {
-            "name": "",
-            "idno": "",
-            "phone": ""
-        }
+def test_shake_hand(client):
+    rv = client.get('/shake-hand', json={
+        "productCode": "JB_WZ_CJR2"
     })
     assert rv.status_code == 200
     logger.info(rv.get_json())

@@ -1,7 +1,7 @@
 import uuid
 
 import requests
-from flask import Flask, request, jsonify, Blueprint
+from flask import Flask, request, jsonify
 from werkzeug.exceptions import HTTPException
 
 from config import STRATEGY_URL
@@ -23,11 +23,11 @@ def _build_request(input):
         "StrategyOneRequest": {
             "Header": {
                 "InquiryCode": str(uuid.uuid4()),
-                "ProcessCode": input['productCode']
+                "ProcessCode": input.get('productCode')
             },
             "Body": {
                 "Application": {
-                    "Variables": input['queryData']
+                    "Variables": input.get('queryData') if input.get('queryData') is not None else {}
                 }
             }
         }
@@ -39,7 +39,17 @@ def build_response(json):
     return json
 
 
-@app.route("/", methods=['POST'])
+@app.route("/shake-hand", methods=['GET'])
+def shake_hand():
+    # 获取请求参数
+    json_data = request.get_json()
+    strategy_request = _build_request(json_data)
+    # 调用决策引擎
+    response = requests.post(STRATEGY_URL, json=strategy_request)
+    return jsonify(response.json())
+
+
+@app.route("/dispatch", methods=['POST'])
 def dispatch():
     """
     应用的统一入口，获取数据分发给不通的数据映射和决策，然后返回结果
