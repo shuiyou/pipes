@@ -7,23 +7,31 @@ from werkzeug.exceptions import HTTPException
 from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
-from strategy.request import empty_instance, Request
 
 logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
 
 
-def _build_request(input) -> Request:
+def _build_request(input):
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
     :return:
     """
     # TODO: 实现请求，数据映射的代码请写在mapping包里
-    strategy_request = empty_instance()
-    strategy_request.strategy_one_request.header.process_code = input['ProcessCode']
-    strategy_request.strategy_one_request.header.inquiry_code = str(uuid.uuid4())
-
+    strategy_request = {
+        "StrategyOneRequest": {
+            "Header": {
+                "InquiryCode": str(uuid.uuid4()),
+                "ProcessCode": input['ProcessCode']
+            },
+            "Body": {
+                "Application": {
+                    "Variables": input['Variables']
+                }
+            }
+        }
+    }
     return strategy_request
 
 
@@ -41,7 +49,7 @@ def dispatch():
     json_data = request.get_json()
 
     # TODO: 实现dispatcher, 根据json_data的指令去获取数据，做对应的数据处理，然后调用对应的决策
-    strategy_request = _build_request(json_data).to_dict()
+    strategy_request = _build_request(json_data)
     logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)

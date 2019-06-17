@@ -6,8 +6,6 @@ import pytest
 from app import app
 from logger.logger_util import LoggerUtil
 from mapping import mysql_reader
-from strategy import response
-from strategy.response import Response
 
 
 logger = LoggerUtil().logger(__name__)
