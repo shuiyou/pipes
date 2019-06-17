@@ -23,11 +23,11 @@ def _build_request(input):
         "StrategyOneRequest": {
             "Header": {
                 "InquiryCode": str(uuid.uuid4()),
-                "ProcessCode": input['ProcessCode']
+                "ProcessCode": input['productCode']
             },
             "Body": {
                 "Application": {
-                    "Variables": input['Variables']
+                    "Variables": input['queryData']
                 }
             }
         }

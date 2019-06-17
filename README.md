@@ -8,10 +8,12 @@
 1. 输入请求：
 ```json
 {
-  "prodCode": "abc",
-  "bizTypes": [],
-  "": {
-  
+  "productCode": "产品编码",
+  "bizTypes": ["aaa","bbb"],
+  "queryData": {
+    "name": "",
+    "idno": "",
+    "phone": ""
   }
    
 }

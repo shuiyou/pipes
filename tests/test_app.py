@@ -18,7 +18,13 @@ def client():
 
 def test_dispatch(client):
     rv = client.post('/', json={
-        'ProcessCode': 'JB_WZ_CJR2'
+        "productCode": "JB_WZ_CJR2",
+        "bizTypes": ["aaa","bbb"],
+        "queryData": {
+            "name": "",
+            "idno": "",
+            "phone": ""
+        }
     })
     assert rv.status_code == 200
     logger.info(rv.get_json())
