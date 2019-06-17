@@ -1,5 +1,5 @@
 -i https://pypi.org/simple
-Flask
+Flask==1.0.3
 gunicorn
 numpy==1.16.3
 pandas==0.24.2
@@ -13,3 +13,4 @@ SQLAlchemy
 pymysql
 pyecharts
 jsonschema
+jsonpath

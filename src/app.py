@@ -2,6 +2,7 @@ import uuid
 
 import requests
 from flask import Flask, request, jsonify
+from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
 from config import STRATEGY_URL
@@ -46,7 +47,9 @@ def shake_hand():
     strategy_request = _build_request(json_data)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
-    return jsonify(response.json())
+    json = response.json()
+    res = jsonpath(json, '$..out_strategyBranch')
+    return jsonify(res)
 
 
 @app.route("/dispatch", methods=['POST'])
