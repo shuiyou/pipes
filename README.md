@@ -1,5 +1,7 @@
 # 决策引擎数据映射服务
-使用python来解决数据转换到决策引擎需要的数据结构
+使用python来解决数据转换到决策引擎需要的数据结构。 本项目基于flask，pandas等框架实现。
+[flask大概介绍](https://www.cnblogs.com/franknihao/p/7118469.html)
+[pandas exercises](https://github.com/guipsamora/pandas_exercises)
 
 
 ## 决策前置的输入及输出
