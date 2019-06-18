@@ -11,6 +11,7 @@ class LoggerUtil:
             app_env = os.getenv("ENV", 'prod').lower()
             print("app_env is :" + app_env)
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            self.__LOGGER_CONFIG = fileConfig(fname=root_dir + '/logger/logging-' + app_env + '.conf')
+            conf_file = os.path.join(root_dir, 'logger', 'logging-' + app_env + '.conf')
+            self.__LOGGER_CONFIG = fileConfig(fname=conf_file)
         logger = logging.getLogger(module_name)
         return logger
