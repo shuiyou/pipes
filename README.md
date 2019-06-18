@@ -117,6 +117,8 @@ $ docker-compose up -d --no-recreate --scale app=5
 }
 ```
 
+* 使用faker和[faker2db](https://github.com/emirozer/fake2db)来构建测试数据
+
 2. 安装python test插件
 
 `pip3 install pytest`
