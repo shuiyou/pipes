@@ -40,7 +40,7 @@ def build_response(json):
     return json
 
 
-@app.route("/biz-types", methods=['GET'])
+@app.route("/biz-types", methods=['POST'])
 def biz_types():
     """
     根据产品编码获取该产品对应的业务类型

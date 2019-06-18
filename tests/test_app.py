@@ -18,7 +18,7 @@ def client():
 
 
 def test_shake_hand(client):
-    rv = client.get('/biz-types', json={
+    rv = client.post('/biz-types', json={
         "reqNo": uuid.uuid4(),
         "productCode": "JB_WZ_CJR2"
     })
