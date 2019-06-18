@@ -23,7 +23,7 @@ def _build_request(input):
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
-                "InquiryCode": str(uuid.uuid4()),
+                "InquiryCode": input.get('reqNo'),
                 "ProcessCode": input.get('productCode')
             },
             "Body": {
@@ -40,22 +40,33 @@ def build_response(json):
     return json
 
 
-@app.route("/shake-hand", methods=['GET'])
-def shake_hand():
+@app.route("/biz-types", methods=['GET'])
+def biz_types():
+    """
+    根据产品编码获取该产品对应的业务类型
+    :return:
+    """
     # 获取请求参数
     json_data = request.get_json()
     strategy_request = _build_request(json_data)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
-    json = response.json()
-    res = jsonpath(json, '$..out_strategyBranch')
-    return jsonify(res)
+    if response.status_code == 200:
+        json = response.json()
+        res = jsonpath(json, '$..out_strategyBranch')
+        if isinstance(res, list) and len(res) > 0:
+            result = res[0].split(',')
+        else:
+            result = []
+        return jsonify(result)
+    else:
+        raise ServerException(code=response.status_code, description=response.text)
 
 
-@app.route("/dispatch", methods=['POST'])
-def dispatch():
+@app.route("/strategy", methods=['POST'])
+def strategy():
     """
-    应用的统一入口，获取数据分发给不通的数据映射和决策，然后返回结果
+    决策调用，然后返回结果
     :return:
     """
     # 获取请求参数
@@ -73,7 +84,11 @@ def dispatch():
 
 @app.route("/health", methods=['GET'])
 def health_check():
-    return 'pipes is up'
+    """
+    检查当前应用的健康情况
+    :return:
+    """
+    return 'pipes is running'
 
 
 @app.errorhandler(Exception)

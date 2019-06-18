@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import uuid
 
 import pytest
 
@@ -17,11 +18,15 @@ def client():
 
 
 def test_shake_hand(client):
-    rv = client.get('/shake-hand', json={
+    rv = client.get('/biz-types', json={
+        "reqNo": uuid.uuid4(),
         "productCode": "JB_WZ_CJR2"
     })
     assert rv.status_code == 200
-    logger.info(rv.get_json())
+    v = rv.get_json()
+    assert len(v) == 2
+    assert v[0] == '10000100'
+    print(v)
 
 
 def test_sql_to_df():

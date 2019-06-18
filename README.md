@@ -9,7 +9,7 @@
 ```json
 {
   "productCode": "产品编码",
-  "bizTypes": ["aaa","bbb"],
+  "reqNo": "xxxx",
   "queryData": {
     "name": "",
     "idno": "",
