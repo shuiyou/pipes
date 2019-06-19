@@ -65,8 +65,9 @@ class PublicSecurity(Transformer):
         return df
 
     def _ps_crime_type(self, df=None):
-        if df is not None and 'crime_type' in df.columns:
-            crime_type = df['crime_type'].split(',')
+        if df is not None and 'crime_type' in df.columns and len(df) == 1:
+            value = df['crime_type'][0]
+            crime_type = [x.strip() for x in value.split(',')] if ',' in value else value
             if 'AT_LARGE' in crime_type:
                 self.variables['ps_run'] = 1
             if 'DRUG' in crime_type:
