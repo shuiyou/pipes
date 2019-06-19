@@ -9,7 +9,7 @@
 ```json
 {
   "productCode": "产品编码",
-  "bizTypes": ["aaa","bbb"],
+  "reqNo": "xxxx",
   "queryData": {
     "name": "",
     "idno": "",
@@ -116,6 +116,8 @@ $ docker-compose up -d --no-recreate --scale app=5
     "python.testing.pyTestEnabled": true
 }
 ```
+
+* 使用faker和[faker2db](https://github.com/emirozer/fake2db)来构建测试数据
 
 2. 安装python test插件
 

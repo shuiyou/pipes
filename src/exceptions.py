@@ -24,3 +24,10 @@ class ServerException(APIException):
     # 重写父类的属性
     code = None
     description = "server unknown error..."
+
+    def __init__(self, description=None, response=None, code=None):
+        super().__init__(description, response)
+        self.code = code
+        self.description = description
+
+
