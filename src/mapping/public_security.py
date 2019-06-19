@@ -19,6 +19,7 @@ class PublicSecurity(Transformer):
         self.user_name = user_name
         self.id_card_no = id_card_no
 
+        # 1: 命中， 0：未命中
         self.variables = {
             'ps_name_id': 0,
             'ps_run': 0,
