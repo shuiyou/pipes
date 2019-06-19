@@ -58,7 +58,11 @@ def biz_types():
             result = res[0].split(',')
         else:
             result = []
-        return jsonify(result)
+        resp = {
+            'reqNo': json_data.get('reqNo'),
+            'bizTypes': result
+        }
+        return jsonify(resp)
     else:
         raise ServerException(code=response.status_code, description=response.text)
 

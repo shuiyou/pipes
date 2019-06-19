@@ -24,8 +24,7 @@ def test_shake_hand(client):
     })
     assert rv.status_code == 200
     v = rv.get_json()
-    assert len(v) == 2
-    assert v[0] == '10000100'
+    assert v.get('bizTypes')[0] == '10000100'
     print(v)
 
 

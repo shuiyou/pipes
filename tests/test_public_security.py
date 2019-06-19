@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from mapping.public_security import PublicSecurity
 
 
