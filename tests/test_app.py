@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import uuid
 
 import pytest
 
@@ -17,18 +16,23 @@ def client():
     yield client
 
 
-def test_shake_hand(client):
-    rv = client.post('/biz-types', json={
-        "reqNo": uuid.uuid4(),
-        "productCode": "JB_WZ_CJR2"
+def test_dispatch(client):
+    rv = client.post('/', json={
+        "productCode": "JB_WZ_CJR2",
+        "bizTypes": ["aaa","bbb"],
+        "queryData": {
+            "name": "",
+            "idno": ""
+        }
     })
     assert rv.status_code == 200
-    v = rv.get_json()
-    assert len(v) == 2
-    assert v[0] == '10000100'
-    print(v)
+    logger.info(rv.get_json())
 
 
 def test_sql_to_df():
     df = mysql_reader.sql_to_df("channel")
     print(df)
+
+
+def test_print():
+    print('hello world')

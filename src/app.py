@@ -39,6 +39,24 @@ def _build_request(input):
 def build_response(json):
     return json
 
+@app.route("/shake_hand", methods=['GET'])
+def shake_hand():
+    json_data = request.get_json()
+    strategy_request = {
+        "StrategyOneRequest": {
+            "Header": {
+                "InquiryCode": str(uuid.uuid4()),
+                "ProcessCode": input['productCode']
+            },
+            "Body": {
+                "Application": {
+
+                }
+            }
+        }
+    }
+    return requests.post(STRATEGY_URL, json=strategy_request)
+
 
 @app.route("/biz-types", methods=['POST'])
 def biz_types():

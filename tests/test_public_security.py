@@ -6,3 +6,4 @@ def test_ps_name_id():
     result = ps.ps_name_id()
     print("result is" + str(result))
     assert result == 0
+
