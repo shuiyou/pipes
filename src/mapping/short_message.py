@@ -127,4 +127,19 @@ class Shortmessage(Transformer):
         self.variables['hd_max_loan'] = df['loan_amount'].max()
 
 
+    ##  执行变量转换
+    def transform(self):
+
+        self._hd_reg_cnt(self._info_sms_loan_platform())
+        self._hd_reg_cnt_bank_3m(self._info_sms_loan_platform())
+        self._hd_reg_cnt_other_3m(self._info_sms_loan_platform())
+        self._hd_app_cnt(self._info_sms_loan_apply())
+        self._hd_max_apply(self._info_sms_loan_apply())
+        self._hd_loan_cnt(self._info_sms_loan())
+        self._hd_max_loan(self._info_sms_loan())
+
+    ##  返回转换好的结果
+    def variables_result(self):
+
+        return self.variables
 
