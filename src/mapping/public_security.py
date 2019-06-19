@@ -7,6 +7,13 @@ class PublicSecurity(Transformer):
     公安相关的变量模块
     """
 
+    def get_biz_type(self):
+        """
+        返回这个转换对应的biz type
+        :return:
+        """
+        return ''
+
     def __init__(self, user_name, id_card_no) -> None:
         super().__init__()
         self.user_name = user_name
