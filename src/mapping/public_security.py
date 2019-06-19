@@ -11,7 +11,7 @@ class PublicSecurity:
         self.user_name = user_name
         self.id_card_no = id_card_no
 
-        self.ps_dict = {
+        self.variables = {
             'ps_name_id': 0,
             'ps_run': 0,
             'ps_drug': 0,
@@ -44,7 +44,7 @@ class PublicSecurity:
         result = 0
         if len(df) == 1 and df['result'][0] == b'\x01':
             result = 1
-        self.ps_dict['ps_name_id'] = result
+        self.variables['ps_name_id'] = result
 
     def crime_type_df(self):
         info_criminal_case = """
@@ -60,18 +60,33 @@ class PublicSecurity:
     def ps_crime_type(self, df=crime_type_df):
         crime_type = df['crime_type'].split(',')
         if 'AT_LARGE' in crime_type:
-            self.ps_dict['ps_run'] = 1
+            self.variables['ps_run'] = 1
         if 'DRUG' in crime_type:
-            self.ps_dict['ps_drug'] = 1
+            self.variables['ps_drug'] = 1
         if "DRUG_RELATED" in crime_type or "ILLEGAL_F" in crime_type:
-            self.ps_dict['ps_involve_drug'] = 1
+            self.variables['ps_involve_drug'] = 1
         if 'ILLEGAL_B' in crime_type:
-            self.ps_dict['ps_seri_crim'] = 1
+            self.variables['ps_seri_crim'] = 1
         if 'ILLEGAL_C' in crime_type:
-            self.ps_dict['ps_mali_crim'] = 1
+            self.variables['ps_mali_crim'] = 1
         if 'ILLEGAL_E' in crime_type:
-            self.ps_dict['ps_econ_crim'] = 1
+            self.variables['ps_econ_crim'] = 1
         if 'REVOKE' in crime_type:
-            self.ps_dict['ps_amend_staff'] = 1
+            self.variables['ps_amend_staff'] = 1
         if 'ILLEGAL_A' in crime_type:
-            self.ps_dict['ps_illeg_crim'] = 1
+            self.variables['ps_illeg_crim'] = 1
+
+    def run(self):
+        """
+        执行变量转换
+        :return:
+        """
+        self.ps_name_id(self.info_certification_df())
+        self.ps_crime_type(self.crime_type_df())
+
+    def get_variable(self):
+        """
+        返回转换好的结果
+        :return: dict对象，包含对应的变量
+        """
+        return self.variables
