@@ -7,8 +7,13 @@ class Transformer(object):
 
     @abstractmethod
     def transform(self):
+        """
+        变量转换方法
+        :return:
+        """
         pass
 
     @abstractmethod
     def variables_result(self):
+        """获取转换后的结果"""
         pass
