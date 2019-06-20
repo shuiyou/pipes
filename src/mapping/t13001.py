@@ -2,6 +2,9 @@ from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 import pandas as pd
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None)
+
 ## 短信核查相关的变量模块
 class T13001(Transformer):
 
@@ -41,8 +44,8 @@ class T13001(Transformer):
 
         sql1 = '''
             SELECT * FROM info_sms_loan_platform  WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         sql2 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
@@ -61,22 +64,24 @@ class T13001(Transformer):
     ## 计算短信核查_近3个月内银行类注册次数
     def _hd_reg_cnt_bank_3m(self, df=None):
 
-        df_1 = df.loc[df['date_dif'] < 3 and df['platform_type'] == 'BANK',:].copy()
-        self.variables['hd_reg_cnt_bank_3m'] = len(df_1)
+        if len(df) != 0:
+            df_1 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'BANK'),:].copy()
+            self.variables['hd_reg_cnt_bank_3m'] = len(df_1)
 
     ## 计算短信核查_近3个月内非银行类注册次数
     def _hd_reg_cnt_other_3m(self, df=None):
 
-        df_1 = df.loc[df['date_dif'] < 3 and df['platform_type'] == 'NON_BANK',:].copy()
-        self.variables['hd_reg_cnt_other_3m'] = len(df_1)
+        if len(df) != 0:
+            df_2 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'NON_BANK'),:].copy()
+            self.variables['hd_reg_cnt_other_3m'] = len(df_2)
 
     ## 获取目标数据集2
     def _info_sms_loan_apply(self):
 
         sql = '''
             SELECT * FROM info_sms_loan_apply WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
@@ -103,8 +108,8 @@ class T13001(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_loan WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
@@ -131,8 +136,8 @@ class T13001(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_loan_reject WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
@@ -147,8 +152,8 @@ class T13001(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_overdue_platform WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
@@ -175,13 +180,13 @@ class T13001(Transformer):
 
         sql1 = '''
             SELECT * FROM info_sms_debt WHERE sms_id 
-            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            ORDER BY id DESC LIMIT 1) as sms);
         '''
         sql2 = '''
              SELECT platform_code,overdue_time FROM info_sms_overdue_platform WHERE sms_id
-             IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1);
+             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+             ORDER BY id DESC LIMIT 1) as sms);
         '''
         sql3 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
@@ -213,28 +218,31 @@ class T13001(Transformer):
 
     ## 计算短信核查_近6个月内欠款次数
     def _hd_owe_cnt_6m(self,df=None):
-        
-        df_1 = df.loc[df['date_dif'] < 6,:].copy()
-        self.variables['hd_owe_cnt_6m'] = len(df_1)
+
+        if len(df) != 0:
+            df_1 = df.loc[df['date_dif'] < 6,:].copy()
+            self.variables['hd_owe_cnt_6m'] = len(df_1)
         
     ## 计算短信核查_近6-12个月内欠款次数
     def _hd_owe_cnt_6_12m(self,df=None):
-        
-        df_2 = df.loc[df['date_dif'] >= 6 and df['date_dif'] < 12,:].copy()
-        self.variables['hd_owe_cnt_6_12m'] = len(df_2)
+
+        if len(df) != 0:
+            df_2 = df.loc[(df['date_dif'] >= 6) & (df['date_dif'] < 12),:].copy()
+            self.variables['hd_owe_cnt_6_12m'] = len(df_2)
         
     ## 计算'hd_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
     def _hd_max_owe_6m(self,df=None):
-        
-        df_3 = df.loc[df['date_dif'] < 6, :].copy()
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0W～0.2W", value=1)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.5W～1W", value=3)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="1W～3W", value=4)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="3W～5W", value=5)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="5W～10W", value=6)
-        df_3['debt_money'] = df_3['debt_money'].replace(to_replace="10W以上", value=7)
-        self.variables['hd_max_owe_6m'] = df_3['debt_money'].max()
+
+        if len(df) != 0:
+            df_3 = df.loc[df['date_dif'] < 6, :].copy()
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0W～0.2W", value=1)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.5W～1W", value=3)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="1W～3W", value=4)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="3W～5W", value=5)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="5W～10W", value=6)
+            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="10W以上", value=7)
+            self.variables['hd_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
     def transform(self):
@@ -260,6 +268,3 @@ class T13001(Transformer):
 
         return self.variables
 
-ps = T13001('沈陈康','330402198203030937','13017757777')
-ps.transform()
-ps.variables_result()
