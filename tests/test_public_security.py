@@ -6,7 +6,7 @@ from mapping.t06001 import T06001
 
 
 def test_ps_name_id():
-    ps = T05002(user_name='任震东', id_card_no='150304197609302532')
+    ps = T05002()
     mock_df = pd.DataFrame({
         'result': [b'\x01']
     })
@@ -15,7 +15,8 @@ def test_ps_name_id():
 
 
 def test_ps_crime_type():
-    ps = T06001(user_name='任震东', id_card_no='150304197609302532')
+    ps = T06001()
+
     ps._ps_crime_type(pd.DataFrame({
         'crime_type': [''],
         'case_period': ['[0,3)']
