@@ -7,17 +7,8 @@ class T05002(Transformer):
     公安相关的变量模块
     """
 
-    def get_biz_type(self):
-        """
-        返回这个转换对应的biz type
-        :return:
-        """
-        return ''
-
-    def __init__(self, user_name, id_card_no) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.user_name = user_name
-        self.id_card_no = id_card_no
 
         self.variables = {
             'ps_name_id': 1
@@ -45,16 +36,12 @@ class T05002(Transformer):
             if len(df) == 1 and df['result'][0] == b'\x01':
                 self.variables['ps_name_id'] = 0
 
-    def transform(self):
+    def transform(self, user_name=None, id_card_no=None, phone=None):
         """
         执行变量转换
         :return:
         """
+        self.user_name = user_name
+        self.id_card_no = id_card_no
         self._ps_name_id(self._info_certification_df())
 
-    def variables_result(self):
-        """
-        返回转换好的结果
-        :return: dict对象，包含对应的变量
-        """
-        return self.variables

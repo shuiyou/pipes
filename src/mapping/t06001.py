@@ -7,18 +7,8 @@ class T06001(Transformer):
     公安相关的变量模块
     """
 
-    def get_biz_type(self):
-        """
-        返回这个转换对应的biz type
-        :return:
-        """
-        return ''
-
-    def __init__(self, user_name, id_card_no) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-
         self.variables = {
             'ps_run': 0,
             'ps_drug': 0,
@@ -27,12 +17,13 @@ class T06001(Transformer):
             'ps_mali_crim': 0,
             'ps_econ_crim': 0,
             'ps_amend_staff': 0,
-            'ps_ileg_crim': 0
+            'ps_ileg_crim': 0,
+            'ps_illegal_record_time': 0
         }
 
     def _crime_type_df(self):
         info_criminal_case = """
-            SELECT crime_type FROM info_criminal_case 
+            SELECT crime_type, case_period FROM info_criminal_case 
             WHERE certification_type = 'ID_NAME' AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s
             ORDER BY expired_at DESC LIMIT 1;
@@ -61,17 +52,26 @@ class T06001(Transformer):
                 self.variables['ps_amend_staff'] = 1
             if 'ILLEGAL_A' in crime_type:
                 self.variables['ps_illeg_crim'] = 1
+                cp = df['case_period'][0]
+                if ',' in cp:
+                    r = cp.replace('[', '').replace(')', '')
+                    max_month = int(r.split(',')[1])
+                    year = max_month / 12
+                    if year <= 1:
+                        self.variables['ps_illegal_record_time'] = 1
+                    elif year <= 2:
+                        self.variables['ps_illegal_record_time'] = 2
+                    elif year <= 5:
+                        self.variables['ps_illegal_record_time'] = 3
+                    else:
+                        self.variables['ps_illegal_record_time'] = 4
 
-    def transform(self):
+    def transform(self, user_name=None, id_card_no=None, phone=None):
         """
         执行变量转换
         :return:
         """
+        self.id_card_no = user_name
+        self.user_name = id_card_no
         self._ps_crime_type(self._crime_type_df())
 
-    def variables_result(self):
-        """
-        返回转换好的结果
-        :return: dict对象，包含对应的变量
-        """
-        return self.variables
