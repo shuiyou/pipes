@@ -7,11 +7,8 @@ class T08001(Transformer):
     欺诈咨询相关的变量模块
     """
 
-    def __init__(self, user_name, id_card_no, phone) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self.variables = {
             "qh_fraudinfo_isMachdBlMakt": 0,
             "qh_fraudinfo_isMachCraCall": 0,
@@ -52,16 +49,13 @@ class T08001(Transformer):
             if df['match_sz_no']:
                 self.variables['qh_fraudinfo_isMachSZNo'] = 1
 
-    def transform(self):
+    def transform(self, user_name=None, id_card_no=None, phone=None):
         """
         执行变量转换
         :return:
         """
+        self.user_name = user_name
+        self.id_card_no = id_card_no
+        self.phone = phone
         self._info_risk_anti_fraud(self._info_risk_anti_fraud_df())
 
-    def variables_result(self):
-        """
-        返回转换好的结果
-        :return: dict对象，包含对应的变量
-        """
-        return self.variables
