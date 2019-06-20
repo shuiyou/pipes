@@ -260,3 +260,6 @@ class T13001(Transformer):
 
         return self.variables
 
+ps = T13001('沈陈康','330402198203030937','13017757777')
+ps.transform()
+ps.variables_result()
