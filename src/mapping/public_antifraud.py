@@ -65,4 +65,3 @@ class InfoRiskAntiFraud(Transformer):
         :return: dict对象，包含对应的变量
         """
         return self.variables
-
