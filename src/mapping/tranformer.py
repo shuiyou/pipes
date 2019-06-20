@@ -18,10 +18,3 @@ class Transformer(object):
         """获取转换后的结果"""
         pass
 
-    @abstractmethod
-    def get_biz_type(self):
-        """
-        获取对应的业务类型
-        :return:
-        """
-        pass

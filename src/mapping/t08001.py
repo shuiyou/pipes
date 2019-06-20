@@ -2,7 +2,7 @@ from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
 
-class InfoRiskAntiFraud(Transformer):
+class T08001(Transformer):
     """
     欺诈咨询相关的变量模块
     """
@@ -31,25 +31,25 @@ class InfoRiskAntiFraud(Transformer):
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
             ORDER BY expired_at DESC LIMIT 1;
         """
-        df = sql_to_df(sql=(info_risk_anti_fraud),
+        df = sql_to_df(sql=info_risk_anti_fraud,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     def _info_risk_anti_fraud(self, df=None):
         if df is not None:
-            if df['match_blacklist'] == True:
+            if df['match_blacklist']:
                 self.variables['qh_fraudinfo_isMachdBlMakt'] = 1
-            if df['match_crank_call'] == True:
+            if df['match_crank_call']:
                 self.variables['qh_fraudinfo_isMachCraCall'] = 1
-            if df['match_fraud'] == True:
+            if df['match_fraud']:
                 self.variables['qh_fraudinfo_isMachFraud'] = 1
-            if df['match_empty_number'] == True:
+            if df['match_empty_number']:
                 self.variables['qh_fraudinfo_isMachEmpty'] = 1
-            if df['match_verification_mobile'] == True:
+            if df['match_verification_mobile']:
                 self.variables['qh_fraudinfo_isMachYZmobile'] = 1
-            if df['match_small_no'] == True:
+            if df['match_small_no']:
                 self.variables['qh_fraudinfo_isMachSmallNo'] = 1
-            if df['match_sz_no'] == True:
+            if df['match_sz_no']:
                 self.variables['qh_fraudinfo_isMachSZNo'] = 1
 
     def transform(self):

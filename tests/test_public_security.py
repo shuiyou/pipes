@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+from mapping.t05002 import T05002
 from mapping.t06001 import T06001
 
 
 def test_ps_name_id():
-    ps = T06001(user_name='任震东', id_card_no='150304197609302532')
-    ps._ps_name_id()
-    result = ps.variables_result()
-    assert result['ps_name_id'] == 0
+    ps = T05002(user_name='任震东', id_card_no='150304197609302532')
     mock_df = pd.DataFrame({
         'result': [b'\x01']
     })
     ps._ps_name_id(df=mock_df)
-    assert ps.variables['ps_name_id'] == 1
+    assert ps.variables['ps_name_id'] == 0
 
 
 def test_ps_crime_type():
     ps = T06001(user_name='任震东', id_card_no='150304197609302532')
     ps._ps_crime_type(pd.DataFrame({
-        'crime_type': []
+        'crime_type': [''],
+        'case_period': ['[0,3)']
     }))
     print(ps.variables)
 
