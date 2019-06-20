@@ -1,5 +1,3 @@
-import uuid
-
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -36,30 +34,8 @@ def _build_request(input):
     return strategy_request
 
 
-def build_response(json):
-    return json
-
-@app.route("/shake_hand", methods=['GET'])
-def shake_hand():
-    json_data = request.get_json()
-    strategy_request = {
-        "StrategyOneRequest": {
-            "Header": {
-                "InquiryCode": str(uuid.uuid4()),
-                "ProcessCode": input['productCode']
-            },
-            "Body": {
-                "Application": {
-
-                }
-            }
-        }
-    }
-    return requests.post(STRATEGY_URL, json=strategy_request)
-
-
 @app.route("/biz-types", methods=['POST'])
-def biz_types():
+def shake_hand():
     """
     根据产品编码获取该产品对应的业务类型
     :return:
@@ -71,18 +47,23 @@ def biz_types():
     response = requests.post(STRATEGY_URL, json=strategy_request)
     if response.status_code == 200:
         json = response.json()
-        res = jsonpath(json, '$..out_strategyBranch')
-        if isinstance(res, list) and len(res) > 0:
-            result = res[0].split(',')
-        else:
-            result = []
         resp = {
+            'productCode': json_data.get('productCode'),
             'reqNo': json_data.get('reqNo'),
-            'bizTypes': result
+            'bizTypes': _get_biz_types(json)
         }
         return jsonify(resp)
     else:
         raise ServerException(code=response.status_code, description=response.text)
+
+
+def _get_biz_types(json):
+    res = jsonpath(json, '$..out_strategyBranch')
+    if isinstance(res, list) and len(res) > 0:
+        biz_types = res[0].split(',')
+    else:
+        biz_types = []
+    return biz_types
 
 
 @app.route("/strategy", methods=['POST'])
@@ -94,14 +75,20 @@ def strategy():
     # 获取请求参数
     json_data = request.get_json()
 
-    # TODO: 实现dispatcher, 根据json_data的指令去获取数据，做对应的数据处理，然后调用对应的决策
     strategy_request = _build_request(json_data)
     logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-
-    # TODO：需要转换成约定好的输出schema形势
-    return jsonify(build_response(strategy_response.json()))
+    if strategy_response.status_code == 200:
+        json = strategy_response.json()
+        resp = {
+            'reqNo': json_data.get('reqNo'),
+            'bizTypes': _get_biz_types(json),
+            'data': json
+        }
+        return jsonify(resp)
+    else:
+        raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
 
 
 @app.route("/health", methods=['GET'])
