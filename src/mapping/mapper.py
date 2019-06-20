@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 
+from app import logger
 from mapping.tranformer import Transformer
 
 
@@ -38,7 +39,11 @@ def get_transformer(code) -> Transformer:
     :param code:
     :return:
     """
-    model = importlib.import_module("mapping.t" + str(code))
-    api_class = getattr(model, "T" + str(code))
-    api_instance = api_class()
-    return api_instance
+    try:
+        model = importlib.import_module("mapping.t" + str(code))
+        api_class = getattr(model, "T" + str(code))
+        api_instance = api_class()
+        return api_instance
+    except ModuleNotFoundError as err:
+        logger.error(str(err))
+        return Transformer()

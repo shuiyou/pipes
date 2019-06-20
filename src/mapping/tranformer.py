@@ -10,7 +10,7 @@ class Transformer(object):
         self.id_card_no = None
         self.user_name = None
         self.phone = None
-        self.variables = None
+        self.variables = {}
 
     @abstractmethod
     def transform(self, user_name=None, id_card_no=None, phone=None):

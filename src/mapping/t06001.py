@@ -21,15 +21,16 @@ class T06001(Transformer):
             'ps_illegal_record_time': 0
         }
 
-    def _crime_type_df(self):
+    @staticmethod
+    def _crime_type_df(user_name, id_card_no):
         info_criminal_case = """
             SELECT crime_type, case_period FROM info_criminal_case 
-            WHERE certification_type = 'ID_NAME' AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+            WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s
             ORDER BY expired_at DESC LIMIT 1;
         """
         df = sql_to_df(sql=info_criminal_case,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"user_name": user_name, "id_card_no": id_card_no})
         return df
 
     def _ps_crime_type(self, df=None):
@@ -73,5 +74,4 @@ class T06001(Transformer):
         """
         self.id_card_no = user_name
         self.user_name = id_card_no
-        self._ps_crime_type(self._crime_type_df())
-
+        self._ps_crime_type(T06001._crime_type_df(self.user_name, self.id_card_no))
