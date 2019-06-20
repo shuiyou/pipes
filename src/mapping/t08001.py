@@ -24,7 +24,7 @@ class InfoRiskAntiFraud(Transformer):
 
     def _info_risk_anti_fraud_df(self):
         info_risk_anti_fraud = """
-            SELECT user_name, id_card_no,phone,match_blacklist,match_crank_call,match_fraud,
+            SELECT user_name, id_card_no,phone,expired_at,match_blacklist,match_crank_call,match_fraud,
             match_empty_number,match_verification_mobile,match_small_no,match_sz_no
             FROM info_risk_anti_fraud 
             WHERE  unix_timestamp(NOW()) < unix_timestamp(expired_at)
