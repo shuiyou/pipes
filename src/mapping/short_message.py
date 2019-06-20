@@ -41,11 +41,11 @@ class Shortmessage(Transformer):
 
         sql1 = '''
             SELECT * FROM info_sms_loan_platform  WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         sql2 = '''
-            SELECT id sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
         df1 = sql_to_df(sql=(sql1), params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         df2 = sql_to_df(sql=(sql2), params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -75,7 +75,7 @@ class Shortmessage(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_loan_apply WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -103,7 +103,7 @@ class Shortmessage(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_loan WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -131,7 +131,7 @@ class Shortmessage(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_loan_reject WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -147,7 +147,7 @@ class Shortmessage(Transformer):
 
         sql = '''
             SELECT * FROM info_sms_overdue_platform WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -175,16 +175,16 @@ class Shortmessage(Transformer):
 
         sql1 = '''
             SELECT * FROM info_sms_debt WHERE sms_id 
-            IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         sql2 = '''
              SELECT platform_code,overdue_time FROM info_sms_overdue_platform WHERE sms_id
-             IN (SELECT id sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+             IN (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1);
         '''
         sql3 = '''
-            SELECT id sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
         df1 = sql_to_df(sql=(sql1),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         df2 = sql_to_df(sql=(sql2),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -246,23 +246,14 @@ class Shortmessage(Transformer):
         self._hd_max_apply(self._info_sms_loan_apply())
         self._hd_loan_cnt(self._info_sms_loan())
         self._hd_max_loan(self._info_sms_loan())
-
-
-
-        self._hd_reject_cnt(self._info_sms_loan_reject)
-        self._hd_reg_cnt_bank_3m(self._info_sms_loan_platform())
-        self._hd_reg_cnt_other_3m(self._info_sms_loan_platform())
-        self._hd_app_cnt(self._info_sms_loan_apply())
-        self._hd_max_apply(self._info_sms_loan_apply())
-        self._hd_loan_cnt(self._info_sms_loan())
-        self._hd_max_loan(self._info_sms_loan())
-
-
-
-
-
-
-
+        self._hd_reject_cnt(self._info_sms_loan_reject())
+        self._hd_overdue_cnt(self._info_sms_overdue_platform())
+        self._hd_max_overdue(self._info_sms_overdue_platform())
+        self._hd_owe_cnt(self._info_sms_debt())
+        self._hd_max_owe(self._info_sms_debt())
+        self._hd_owe_cnt_6m(self._info_sms_debt())
+        self._hd_owe_cnt_6_12m(self._info_sms_debt())
+        self._hd_max_owe_6m(self._info_sms_debt())
 
     ##  返回转换好的结果
     def variables_result(self):
