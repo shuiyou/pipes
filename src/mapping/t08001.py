@@ -33,7 +33,7 @@ class T08001(Transformer):
         return df
 
     def _info_risk_anti_fraud(self, df=None):
-        if df is not None:
+        if df is not None and len(df) > 0:
             if df['match_blacklist']:
                 self.variables['qh_fraudinfo_isMachdBlMakt'] = 1
             if df['match_crank_call']:
