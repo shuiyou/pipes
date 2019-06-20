@@ -3,7 +3,7 @@ from mapping.tranformer import Transformer
 import pandas as pd
 
 ## 短信核查相关的变量模块
-class Shortmessage(Transformer):
+class T13001(Transformer):
 
     def get_biz_type(self):
         """
