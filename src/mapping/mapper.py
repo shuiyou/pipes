@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+
+import pandas as pd
+
 
 def translate(product_code):
     """
@@ -7,4 +11,12 @@ def translate(product_code):
     :param product_code:
     :return: 一个dict对象包含产品所需要的变量
     """
+    product_df = read_product(product_code)
+
     pass
+
+
+def read_product(product_code):
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    excel_file = os.path.join(root_dir, 'product', product_code + '.xlsx')
+    return pd.read_excel(excel_file, usecols=[0, 1], dtype={'code': str})

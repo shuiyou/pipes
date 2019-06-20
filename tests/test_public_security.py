@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
-from mapping.public_security import PublicSecurity
+from mapping.t06001 import T06001
 
 
 def test_ps_name_id():
-    ps = PublicSecurity(user_name='任震东', id_card_no='150304197609302532')
+    ps = T06001(user_name='任震东', id_card_no='150304197609302532')
     ps._ps_name_id()
     result = ps.variables_result()
     assert result['ps_name_id'] == 0
@@ -17,7 +17,7 @@ def test_ps_name_id():
 
 
 def test_ps_crime_type():
-    ps = PublicSecurity(user_name='任震东', id_card_no='150304197609302532')
+    ps = T06001(user_name='任震东', id_card_no='150304197609302532')
     ps._ps_crime_type(pd.DataFrame({
         'crime_type': []
     }))
