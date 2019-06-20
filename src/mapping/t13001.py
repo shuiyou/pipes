@@ -1,26 +1,20 @@
+import pandas as pd
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
-import pandas as pd
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
-## 短信核查相关的变量模块
+
 class T13001(Transformer):
+    """
+    短信核查相关的变量模块
+    """
 
-    def get_biz_type(self):
-        """
-        返回这个转换对应的biz type
-        :return:
-        """
-        return ''
-
-    def __init__(self, user_name, id_card_no, phone) -> None:
+    def __init__(self) -> None:
 
         super().__init__()
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self.variables = {
             'hd_reg_cnt': 0,  # 短信核查_注册总次数
             'hd_reg_cnt_bank_3m': 0,  # 短信核查_近3个月内银行类注册次数
@@ -28,9 +22,9 @@ class T13001(Transformer):
             'hd_app_cnt': 0,  # 短信核查_申请总次数
             'hd_max_apply': 0,  # 短信核查_申请金额最大等级
             'hd_loan_cnt': 0,  # 短信核查_放款总次数
-            'hd_max_loan': 0, # 短信核查_放款金额最大等级
-            'hd_reject_cnt': 0, # 短信核查_驳回总次数
-            'hd_overdue_cnt': 0, # 短信核查_逾期总次数
+            'hd_max_loan': 0,  # 短信核查_放款金额最大等级
+            'hd_reject_cnt': 0,  # 短信核查_驳回总次数
+            'hd_overdue_cnt': 0,  # 短信核查_逾期总次数
             'hd_max_overdue': 0,  # 短信核查_逾期金额最大等级
             'hd_owe_cnt': 0,  # 短信核查_欠款总次数
             'hd_max_owe': 0,  # 短信核查_欠款金额最大等级
@@ -50,9 +44,11 @@ class T13001(Transformer):
         sql2 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1), params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2), params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df = pd.merge(df1,df2,how='left',on='sms_id')
+        df1 = sql_to_df(sql=(sql1),
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df2 = sql_to_df(sql=(sql2),
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = pd.merge(df1, df2, how='left', on='sms_id')
         df['date_dif'] = (df['create_time'] - df['register_time']).map(lambda x: x.days / 30)
         return df
 
@@ -65,14 +61,14 @@ class T13001(Transformer):
     def _hd_reg_cnt_bank_3m(self, df=None):
 
         if len(df) != 0:
-            df_1 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'BANK'),:].copy()
+            df_1 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'BANK'), :].copy()
             self.variables['hd_reg_cnt_bank_3m'] = len(df_1)
 
     ## 计算短信核查_近3个月内非银行类注册次数
     def _hd_reg_cnt_other_3m(self, df=None):
 
         if len(df) != 0:
-            df_2 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'NON_BANK'),:].copy()
+            df_2 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'NON_BANK'), :].copy()
             self.variables['hd_reg_cnt_other_3m'] = len(df_2)
 
     ## 获取目标数据集2
@@ -83,7 +79,8 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     ## 计算短信核查_申请总次数
@@ -111,7 +108,8 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     ## 计算短信核查_放款总次数
@@ -139,7 +137,8 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     ## 计算短信核查_驳回总次数
@@ -155,16 +154,17 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     ## 计算短信核查_逾期总次数
-    def _hd_overdue_cnt(self,df=None):
+    def _hd_overdue_cnt(self, df=None):
 
         self.variables['hd_overdue_cnt'] = len(df)
 
     ## 计算短信核查_逾期金额最大等级
-    def _hd_max_overdue(self,df=None):
+    def _hd_max_overdue(self, df=None):
 
         df['overdue_money'] = df['overdue_money'].replace(to_replace="0W～0.2W", value=1)
         df['overdue_money'] = df['overdue_money'].replace(to_replace="0.2W～0.5W", value=2)
@@ -191,21 +191,24 @@ class T13001(Transformer):
         sql3 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df3 = sql_to_df(sql=(sql3),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        merge1 = pd.merge(df1,df2,how='left',on='platform_code')
-        df = pd.merge(merge1,df3, how='left', on='sms_id')
-        df['date_dif'] = (df['create_time'] - df['overdue_time']).map(lambda x:x.days/30)
+        df1 = sql_to_df(sql=(sql1),
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df2 = sql_to_df(sql=(sql2),
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df3 = sql_to_df(sql=(sql3),
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        merge1 = pd.merge(df1, df2, how='left', on='platform_code')
+        df = pd.merge(merge1, df3, how='left', on='sms_id')
+        df['date_dif'] = (df['create_time'] - df['overdue_time']).map(lambda x: x.days / 30)
         return df
 
     ## 计算短信核查_欠款总次数
-    def _hd_owe_cnt(self,df=None):
+    def _hd_owe_cnt(self, df=None):
 
         self.variables['hd_owe_cnt'] = len(df)
 
     ## 计算短信核查_欠款金额最大等级
-    def _hd_max_owe(self,df=None):
+    def _hd_max_owe(self, df=None):
 
         df['debt_money'] = df['debt_money'].replace(to_replace="0W～0.2W", value=1)
         df['debt_money'] = df['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
@@ -217,21 +220,21 @@ class T13001(Transformer):
         self.variables['hd_max_owe'] = df['debt_money'].max()
 
     ## 计算短信核查_近6个月内欠款次数
-    def _hd_owe_cnt_6m(self,df=None):
+    def _hd_owe_cnt_6m(self, df=None):
 
         if len(df) != 0:
-            df_1 = df.loc[df['date_dif'] < 6,:].copy()
+            df_1 = df.loc[df['date_dif'] < 6, :].copy()
             self.variables['hd_owe_cnt_6m'] = len(df_1)
-        
+
     ## 计算短信核查_近6-12个月内欠款次数
-    def _hd_owe_cnt_6_12m(self,df=None):
+    def _hd_owe_cnt_6_12m(self, df=None):
 
         if len(df) != 0:
-            df_2 = df.loc[(df['date_dif'] >= 6) & (df['date_dif'] < 12),:].copy()
+            df_2 = df.loc[(df['date_dif'] >= 6) & (df['date_dif'] < 12), :].copy()
             self.variables['hd_owe_cnt_6_12m'] = len(df_2)
-        
+
     ## 计算'hd_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
-    def _hd_max_owe_6m(self,df=None):
+    def _hd_max_owe_6m(self, df=None):
 
         if len(df) != 0:
             df_3 = df.loc[df['date_dif'] < 6, :].copy()
@@ -245,7 +248,10 @@ class T13001(Transformer):
             self.variables['hd_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
-    def transform(self):
+    def transform(self, user_name=None, id_card_no=None, phone=None):
+        self.user_name = user_name
+        self.id_card_no = id_card_no
+        self.phone = phone
 
         self._hd_reg_cnt(self._info_sms_loan_platform())
         self._hd_reg_cnt_bank_3m(self._info_sms_loan_platform())
@@ -262,9 +268,3 @@ class T13001(Transformer):
         self._hd_owe_cnt_6m(self._info_sms_debt())
         self._hd_owe_cnt_6_12m(self._info_sms_debt())
         self._hd_max_owe_6m(self._info_sms_debt())
-
-    ##  返回转换好的结果
-    def variables_result(self):
-
-        return self.variables
-
