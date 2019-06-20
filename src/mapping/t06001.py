@@ -56,11 +56,18 @@ class T06001(Transformer):
             if 'ILLEGAL_A' in crime_type:
                 self.variables['ps_illeg_crim'] = 1
                 cp = df['case_period'][0]
-                self.variables['ps_illegal_record_time'] = 1
-                self.variables['ps_illegal_record_time'] = 2
-                self.variables['ps_illegal_record_time'] = 3
-                self.variables['ps_illegal_record_time'] = 4
-
+                if ',' in cp:
+                    r = cp.replace('[', '').replace(')', '')
+                    max_month = int(r.split(',')[1])
+                    year = max_month / 12
+                    if year <= 1:
+                        self.variables['ps_illegal_record_time'] = 1
+                    elif year <= 2:
+                        self.variables['ps_illegal_record_time'] = 2
+                    elif year <= 5:
+                        self.variables['ps_illegal_record_time'] = 3
+                    else:
+                        self.variables['ps_illegal_record_time'] = 4
 
     def transform(self):
         """

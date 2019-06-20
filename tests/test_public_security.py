@@ -33,3 +33,31 @@ def test_ps_crime_type():
     }))
     assert ps.variables['ps_involve_drug'] == 1
     assert ps.variables['ps_drug'] == 1
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[0, 12)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 1
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[12, 24)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 2
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[24, 50)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 3
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[60, 61)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 4
