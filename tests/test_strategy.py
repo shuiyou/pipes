@@ -1,9 +1,5 @@
-import json
-
-import jsonschema
-
 from logger.logger_util import LoggerUtil
-from strategy.request import request_schema, validate_input
+from strategy.request import validate_input
 
 LoggerUtil().logger(__name__)
 

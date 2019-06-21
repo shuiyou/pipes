@@ -1,5 +1,3 @@
-import logging
-
 # import pandas as pd
 # from metabasepy import Client
 import pandas as pd
@@ -33,5 +31,3 @@ def read_as_df(database_name, query):
 
 df = read_as_df(database_name="金融产品部", query="select cont_amt from acc_loan")
 print(df.shape)
-
-
