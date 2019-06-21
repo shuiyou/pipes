@@ -7,7 +7,7 @@ node {
          env.GIT_URL = scmVars.GIT_URL
     }
 
-    stage('clean') {
+    stage('login docker repository') {
         sh "chmod +x build.sh"
         sh "docker login -u admin@magfin.cn -p qwertyuiop1 registry.cn-shanghai.aliyuncs.com"
     }
