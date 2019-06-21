@@ -49,7 +49,7 @@ class T08001(Transformer):
             if df['match_sz_no'][0]:
                 self.variables['qh_fraudinfo_isMachSZNo'] = 1
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         """
         执行变量转换
         :return:
