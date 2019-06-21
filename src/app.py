@@ -6,27 +6,27 @@ from werkzeug.exceptions import HTTPException
 from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
+from mapping.mapper import translate
 
 logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
 
 
-def _build_request(input):
+def _build_request(req_no, product_code, variables={}):
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
     :return:
     """
-    # TODO: 实现请求，数据映射的代码请写在mapping包里
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
-                "InquiryCode": input.get('reqNo'),
-                "ProcessCode": input.get('productCode')
+                "InquiryCode": req_no,
+                "ProcessCode": product_code
             },
             "Body": {
                 "Application": {
-                    "Variables": input.get('queryData') if input.get('queryData') is not None else {}
+                    "Variables": variables
                 }
             }
         }
@@ -42,7 +42,9 @@ def shake_hand():
     """
     # 获取请求参数
     json_data = request.get_json()
-    strategy_request = _build_request(json_data)
+    req_no = json_data.get('reqNo')
+    product_code = json_data.get('productCode')
+    strategy_request = _build_request(req_no, product_code)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
     if response.status_code == 200:
@@ -70,19 +72,25 @@ def _get_biz_types(json):
 def strategy():
     """
     决策调用，然后返回结果
+    输入参数是一个json对象
     :return:
     """
     # 获取请求参数
     json_data = request.get_json()
-
-    strategy_request = _build_request(json_data)
+    req_no = json_data.get('reqNo')
+    product_code = json_data.get('productCode')
+    user_name = json_data.get('userName')
+    id_card_no = json_data.get('idCardNo')
+    phone = json_data.get('phone')
+    variables = translate(product_code, user_name, id_card_no, phone)
+    strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
     if strategy_response.status_code == 200:
         json = strategy_response.json()
         resp = {
-            'reqNo': json_data.get('reqNo'),
+            'reqNo': req_no,
             'bizTypes': _get_biz_types(json),
             'data': json
         }
