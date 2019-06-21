@@ -1,2 +1,3 @@
 #!/bin/bash
-docker build . -t registry.cn-shanghai.aliyuncs.com/transformer/defensor
+docker build ./src -t registry.cn-shanghai.aliyuncs.com/transformer/defensor
+docker push registry.cn-shanghai.aliyuncs.com/transformer/defensor
