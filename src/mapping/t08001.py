@@ -24,7 +24,7 @@ class T08001(Transformer):
             SELECT user_name, id_card_no,phone,expired_at,match_blacklist,match_crank_call,match_fraud,
             match_empty_number,match_verification_mobile,match_small_no,match_sz_no
             FROM info_risk_anti_fraud 
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(expired_at)
+            WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
             ORDER BY expired_at DESC LIMIT 1;
         """
@@ -58,4 +58,3 @@ class T08001(Transformer):
         self.id_card_no = id_card_no
         self.phone = phone
         self._info_risk_anti_fraud(self._info_risk_anti_fraud_df())
-
