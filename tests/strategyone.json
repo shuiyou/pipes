@@ -8,13 +8,14 @@
             "Body": {
                 "Application": {
                     "Variables": {
+
                     }
                 }
             }
         }
     },
 
-    "success_response": {
+    "response": {
         "StrategyOneResponse": {
             "Header": {
                 "InquiryCode": "a855b0c78cd146688b33441769c6cbb4",
@@ -72,24 +73,6 @@
                         }
                     ]
                 }
-            }
-        }
-    },
-
-    "error_response": {
-        "StrategyOneResponse": {
-            "Header": {
-                "InquiryCode": "c3ef30f0ad5646d8a25136f98532ec9f",
-                "ProcessCode": "JB_WZ_CJR2",
-                "ProcessVersion": 12,
-                "LayoutVersion": 6
-            },
-            "Error": {
-                "InquiryDate": "2019-05-30T18:27:06.373",
-                "Code": "30",
-                "Description": "Input Error. Invalid JSON Format. Invalid token=NULL at (line no=1, column no=150, offset=149). Expected tokens are: [STRING]. (Row 1, Col 150)",
-                "EngineVersion": "6.2.0.236",
-                "EngineStackTrace": " - Processing Input - Processing DecisionProcess JB_WZ_CJR2 "
             }
         }
     }

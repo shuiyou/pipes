@@ -1,11 +1,20 @@
 # 决策引擎数据映射服务
-使用python来解决数据转换到决策引擎需要的数据结构
+使用python来解决数据转换到决策引擎需要的数据结构。 本项目基于flask，pandas等框架实现。
+[flask大概介绍](https://www.cnblogs.com/franknihao/p/7118469.html)
+[pandas exercises](https://github.com/guipsamora/pandas_exercises)
 
 
 ## 决策前置的输入及输出
 1. 输入请求：
 ```json
 {
+  "productCode": "产品编码",
+  "reqNo": "xxxx",
+  "queryData": {
+    "name": "",
+    "idno": "",
+    "phone": ""
+  }
    
 }
 
@@ -21,16 +30,66 @@
 6. python代码写到app目录下
 ```
 .
+├── Dockerfile
+├── __pycache__
+│   ├── app.cpython-36.pyc
+│   ├── app.cpython-37.pyc
+│   ├── config.cpython-36.pyc
+│   └── config.cpython-37.pyc
+├── app.py
+├── config.py
+├── echarts
+│   ├── __init__.py
+│   ├── bar.py
+│   └── scatter.py
+├── exceptions.py
+├── logger
+│   ├── __init__.py
+│   ├── __pycache__
+│   ├── logger_util.py
+│   ├── logging-dev.conf
+│   ├── logging-fat.conf
+│   ├── logging-prod.conf
+│   └── logstash.py
+├── mapping
+│   ├── __init__.py
+│   └── mysql_reader.py
+├── requirements.txt
+└── strategy
+    ├── __init__.py
+    ├── request.py
+    └── response.py
+
+6 directories, 23 files
+ luokui@MacBook-Pro  ~/work/pipes/src   develop ●  cd ..                                                        ✔  3922  14:33:11
+ luokui@MacBook-Pro  ~/work/pipes   develop ●  tree . -L 2                                                      ✔  3923  14:33:32
+.
 ├── README.md
-├── app
-│   ├── Dockerfile
-│   ├── app.py      -- 应用的启动文件
-│   ├── logger      -- 日志配置文件，日志会打印在本地控台和logstash
-│   ├── logstash.db
-│   ├── metabase    -- metabase相关代码
-│   ├── requirements.txt  --依赖的包
-│   └── views.py
-└── docker-compose.yaml
+├── build.sh
+├── docker-compose.yaml
+├── docs
+│   └── index.md
+├── src
+│   ├── Dockerfile
+│   ├── __pycache__
+│   ├── app.py
+│   ├── config.py
+│   ├── echarts
+│   ├── exceptions.py
+│   ├── logger
+│   ├── mapping
+│   ├── requirements.txt
+│   └── strategy
+└── tests
+    ├── __init__.py
+    ├── data
+    ├── logstash.db
+    ├── metabase
+    ├── strategyone.json
+    ├── td_json.py
+    ├── test_app.py
+    └── test_strategy.py
+
 ```
    
 ```bash
@@ -57,6 +116,8 @@ $ docker-compose up -d --no-recreate --scale app=5
     "python.testing.pyTestEnabled": true
 }
 ```
+
+* 使用faker和[faker2db](https://github.com/emirozer/fake2db)来构建测试数据
 
 2. 安装python test插件
 

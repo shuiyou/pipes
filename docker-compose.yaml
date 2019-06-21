@@ -2,12 +2,10 @@ version: '3'
 
 services:
   app:
+    image: registry.cn-shanghai.aliyuncs.com/transformer/pipes:latest
     environment:
       - STRATEGY_URL=http://192.168.1.20:8091
       - ENV=PROD
-    volumes:
-      - './app:/usr/src/app'
-    build: ./app
   loadbalancer:
     image: 'dockercloud/haproxy:latest'
     links:
