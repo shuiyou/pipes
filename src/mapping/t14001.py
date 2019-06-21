@@ -1,6 +1,5 @@
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
-import datetime
 
 
 def months(var1, var2):
@@ -110,8 +109,6 @@ class T14001(Transformer):
         df = sql_to_df(sql=(info_searched_history),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
 
-
-
         return df
 
     def _searched_history(self, df=None):
@@ -125,13 +122,7 @@ class T14001(Transformer):
         执行变量转换
         :return:
         """
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self._blacklist(self._info_social_blacklist_df())
         self._social_gray(self._info_social_gray_df())
         self._social_register(self._info_social_register_df())
         self._searched_history(self._info_searched_history_df())
-
-
-

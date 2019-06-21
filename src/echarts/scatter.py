@@ -27,15 +27,15 @@ y_data = [d[1] for d in data]
 
 result = (
     Scatter()
-    .add_xaxis(xaxis_data=x_data)
-    .add_yaxis(
+        .add_xaxis(xaxis_data=x_data)
+        .add_yaxis(
         series_name="",
         y_axis=y_data,
         symbol_size=20,
         label_opts=opts.LabelOpts(is_show=False),
     )
-    .set_series_opts()
-    .set_global_opts(
+        .set_series_opts()
+        .set_global_opts(
         xaxis_opts=opts.AxisOpts(
             type_="value", splitline_opts=opts.SplitLineOpts(is_show=True)
         ),
@@ -46,7 +46,7 @@ result = (
         ),
         tooltip_opts=opts.TooltipOpts(is_show=False),
     )
-    .dump_options()
+        .dump_options()
 )
 
 print(result)

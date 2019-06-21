@@ -7,7 +7,9 @@ import pandas as pd
 # from app import logger
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
+
 logger = LoggerUtil().logger(__name__)
+
 
 def translate(product_code, user_name=None, id_card_no=None, phone=None):
     """
@@ -20,10 +22,10 @@ def translate(product_code, user_name=None, id_card_no=None, phone=None):
     variables = {}
     for c in codes:
         trans = get_transformer(c)
-        trans.transform(user_name=user_name,
-                        id_card_no=id_card_no,
-                        phone=phone)
-        variables.update(trans.variables)
+        trans_result = trans.run(user_name=user_name,
+                                 id_card_no=id_card_no,
+                                 phone=phone)
+        variables.update(trans_result)
 
     return variables
 

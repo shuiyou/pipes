@@ -8,8 +8,8 @@ from app import app
 from logger.logger_util import LoggerUtil
 from mapping import mysql_reader
 
-
 logger = LoggerUtil().logger(__name__)
+
 
 @pytest.fixture
 def client():

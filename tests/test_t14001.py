@@ -1,7 +1,9 @@
+from datetime import datetime
 
 import pandas as pd
+
 from mapping.t14001 import T14001
-from datetime import datetime
+
 
 def test_blacklist():
     ps = T14001()
@@ -32,6 +34,7 @@ def test_social_gray():
     assert ps.variables['jxl_indir_in_black_rate'] == None
     assert ps.variables['jxl_dir_rel_indir_rate'] == 0.523
 
+
 def test_social_gray():
     ps = T14001()
     mock_df = pd.DataFrame({
@@ -39,6 +42,7 @@ def test_social_gray():
     })
     ps._social_register(df=mock_df)
     assert ps.variables['jxl_reg_app_cnt'] == 100
+
 
 def test_searched_history():
     ps = T14001()
