@@ -5,6 +5,7 @@ import os
 import pandas as pd
 
 # from app import logger
+from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
 
@@ -20,12 +21,16 @@ def translate(product_code, user_name=None, id_card_no=None, phone=None):
     product_df = read_product(product_code)
     codes = product_df['code'].unique()
     variables = {}
-    for c in codes:
-        trans = get_transformer(c)
-        trans_result = trans.run(user_name=user_name,
-                                 id_card_no=id_card_no,
-                                 phone=phone)
-        variables.update(trans_result)
+    try:
+        for c in codes:
+            trans = get_transformer(c)
+            trans_result = trans.run(user_name=user_name,
+                                     id_card_no=id_card_no,
+                                     phone=phone)
+            variables.update(trans_result)
+    except Exception as err:
+        logger.error(">>> translate error: " + str(err))
+        raise ServerException(code=500, description=str(err))
 
     return variables
 
