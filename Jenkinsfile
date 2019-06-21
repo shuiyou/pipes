@@ -12,7 +12,11 @@ node {
         sh "docker login -u admin@magfin.cn -p qwertyuiop1 registry.cn-shanghai.aliyuncs.com"
     }
 
-    stage('packaging') {
+    stage('build image') {
         sh "sh build.sh"
+    }
+
+    stage('push image') {
+        sh "docker push registry.cn-shanghai.aliyuncs.com/transformer/pipes"
     }
 }

@@ -1,3 +1,6 @@
+import os
+import sys
+
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -9,6 +12,9 @@ from logger.logger_util import LoggerUtil
 from mapping.mapper import translate
 
 logger = LoggerUtil().logger(__name__)
+
+file_dir = os.path.dirname(__file__)
+sys.path.append(file_dir)
 
 app = Flask(__name__)
 
