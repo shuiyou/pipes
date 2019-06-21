@@ -54,7 +54,4 @@ class T08001(Transformer):
         执行变量转换
         :return:
         """
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self._info_risk_anti_fraud(self._info_risk_anti_fraud_df())
