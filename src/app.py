@@ -19,6 +19,11 @@ sys.path.append(file_dir)
 app = Flask(__name__)
 
 
+def _get_process_code(product_code):
+    # TODO 需要配置一下product_code 和 决策的process code映射表
+    return 'Level1_m'
+
+
 def _build_request(req_no, product_code, variables={}):
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
@@ -28,7 +33,7 @@ def _build_request(req_no, product_code, variables={}):
         "StrategyOneRequest": {
             "Header": {
                 "InquiryCode": req_no,
-                "ProcessCode": product_code
+                "ProcessCode": _get_process_code(product_code)
             },
             "Body": {
                 "Application": {
