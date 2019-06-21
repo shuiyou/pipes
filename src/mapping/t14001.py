@@ -100,7 +100,7 @@ class T14001(Transformer):
     def _info_searched_history_df(self):
         info_searched_history = """
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.expired_at,a.create_time,
-            b.org_self,b.searcheed_date
+            b.org_self,b.searched_date
             FROM info_social as a
             left join info_social_searched_history as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -113,7 +113,7 @@ class T14001(Transformer):
 
     def _searched_history(self, df=None):
         if df is not None and len(df) > 0:
-            df['mth'] = df.apply(lambda x: months(x['searcheed_date'], x['create_time']), axis=1)
+            df['mth'] = df.apply(lambda x: months(x['searched_date'], x['create_time']), axis=1)
             self.variables['jxl_query_else_cnt'] = df[df['org_self'] == False].shape[0]
             self.variables['jxl_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df['mth'] < 6)].shape[0]
 
