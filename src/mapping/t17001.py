@@ -155,6 +155,33 @@ class T17001(Transformer):
     # 计算客户行为检测模块字段
     def _cus_behav(self, df=None):
 
+        dict_init = {
+            '1天内设备关联手机号数':0,
+            '1天内设备关联身份证数':0,
+            '1天内身份证关联设备数':0,
+            '1天内手机号关联设备数':0,
+            '7天内设备申请次数':0,
+            '7天内身份证申请次数':0,
+            '7天内手机号申请次数':0,
+            '7天内设备关联身份证数':0,
+            '7天内设备关联手机号数':0,
+            '7天内身份证关联设备数':0,
+            '7天内手机号关联设备数':0,
+            '1个月内设备申请次数':0,
+            '1个月内身份证申请次数':0,
+            '1个月内手机号申请次数':0,
+            '1个月内身份证关联设备数':0,
+            '3个月家庭地址关联身份证数':0,
+            '3个月内银行卡_姓名关联多个身份证':0,
+            '3个月身份证关联家庭地址数':0,
+            '3个月身份证关联手机号数':0,
+            '3个月身份证关联银行卡预留手机号数':0,
+            '3个月身份证关联邮箱数':0,
+            '3个月手机号关联银行卡预留手机号数':0,
+            '3个月邮箱关联身份证数':0,
+            '3个月手机号码关联身份证数':0
+        }
+
         if len(df[df['item_group'] == '客户行为检测']) != 0:
             df1  = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] != ''),:].copy()
             row_list = []
@@ -171,5 +198,32 @@ class T17001(Transformer):
                     row.frequency_detail_list[i].get('detail').split('：')[1]
                 new_lst.append(new_dct)
             df3 = pd.DataFrame(new_lst)
-
+            df3['identity'] = 'user'
+            df4 = pd.pivot_table(df3, index='identity', aggfunc=max, fill_value=0)
+            df5 = df4.reset_index()
+            new_dict = dict(next(df5.iterrows())[1])
+            dict_init['1天内设备关联手机号数'] = new_dict.get('1天内设备关联手机号数',0)
+            dict_init['1天内设备关联身份证数'] = new_dict.get('1天内设备关联身份证数',0)
+            dict_init['1天内身份证关联设备数'] = new_dict.get('1天内身份证关联设备数',0)
+            dict_init['1天内手机号关联设备数'] = new_dict.get('1天内手机号关联设备数',0)
+            dict_init['7天内设备申请次数'] = new_dict.get('7天内设备申请次数',0)
+            dict_init['7天内身份证申请次数'] = new_dict.get('7天内身份证申请次数',0)
+            dict_init['7天内手机号申请次数'] = new_dict.get('7天内手机号申请次数',0)
+            dict_init['7天内设备关联身份证数'] = new_dict.get('7天内设备关联身份证数',0)
+            dict_init['7天内设备关联手机号数'] = new_dict.get('7天内设备关联手机号数',0)
+            dict_init['7天内身份证关联设备数'] = new_dict.get('7天内身份证关联设备数',0)
+            dict_init['7天内手机号关联设备数'] = new_dict.get('7天内手机号关联设备数',0)
+            dict_init['1个月内设备申请次数'] = new_dict.get('1个月内设备申请次数',0)
+            dict_init['1个月内身份证申请次数'] = new_dict.get('1个月内身份证申请次数',0)
+            dict_init['1个月内手机号申请次数'] = new_dict.get('1个月内手机号申请次数',0)
+            dict_init['1个月内身份证关联设备数'] = new_dict.get('1个月内身份证关联设备数',0)
+            dict_init['3个月家庭地址关联身份证数'] = new_dict.get('3个月家庭地址关联身份证数',0)
+            dict_init['3个月内银行卡_姓名关联多个身份证'] = new_dict.get('3个月内银行卡_姓名关联多个身份证',0)
+            dict_init['3个月身份证关联家庭地址数'] = new_dict.get('3个月身份证关联家庭地址数',0)
+            dict_init['3个月身份证关联手机号数'] = new_dict.get('3个月身份证关联手机号数',0)
+            dict_init['3个月身份证关联银行卡预留手机号数'] = new_dict.get('3个月身份证关联银行卡预留手机号数',0)
+            dict_init['3个月身份证关联邮箱数'] = new_dict.get('3个月身份证关联邮箱数',0)
+            dict_init['3个月手机号关联银行卡预留手机号数'] = new_dict.get('3个月手机号关联银行卡预留手机号数',0)
+            dict_init['3个月邮箱关联身份证数'] = new_dict.get('3个月邮箱关联身份证数',0)
+            dict_init['3个月手机号码关联身份证数'] = new_dict.get('3个月手机号码关联身份证数',0)
 
