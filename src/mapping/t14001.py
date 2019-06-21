@@ -6,7 +6,7 @@ import datetime
 def months(var1, var2):
     year1 = var1.year
     year2 = var2.year
-    month1  = var1.month
+    month1 = var1.month
     month2 = var2.month
     num = (year2 - year1) * 12 + (month2 - month1)
     return num
@@ -117,8 +117,8 @@ class T14001(Transformer):
     def _searched_history(self, df=None):
         if df is not None and len(df) > 0:
             df['mth'] = df.apply(lambda x: months(x['searcheed_date'], x['create_time']), axis=1)
-            self.variables['jxl_query_else_cnt'] = df[df['org_self'] == False].count()
-            self.variables['jxl_query_else_cnt_6m'] = df[df['org_self'] == False and df['mth'] < 6].count()
+            self.variables['jxl_query_else_cnt'] = df[df['org_self'] == False].shape[0]
+            self.variables['jxl_query_else_cnt_6m'] = df[df['org_self'] == False and df['mth'] < 6].shape[0]
 
     def transform(self, user_name=None, id_card_no=None, phone=None):
         """
