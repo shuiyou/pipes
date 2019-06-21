@@ -46,4 +46,3 @@ class T05002(Transformer):
         self.user_name = user_name
         self.id_card_no = id_card_no
         self._ps_name_id(self._info_certification_df())
-

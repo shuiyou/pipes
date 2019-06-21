@@ -1,12 +1,11 @@
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
-import datetime
 
 
 def months(var1, var2):
     year1 = var1.year
     year2 = var2.year
-    month1  = var1.month
+    month1 = var1.month
     month2 = var2.month
     num = (year2 - year1) * 12 + (month2 - month1)
     return num
@@ -110,8 +109,6 @@ class T14001(Transformer):
         df = sql_to_df(sql=(info_searched_history),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
 
-
-
         return df
 
     def _searched_history(self, df=None):
@@ -132,6 +129,3 @@ class T14001(Transformer):
         self._social_gray(self._info_social_gray_df())
         self._social_register(self._info_social_register_df())
         self._searched_history(self._info_searched_history_df())
-
-
-

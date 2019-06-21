@@ -29,5 +29,3 @@ class ServerException(APIException):
         super().__init__(description, response)
         self.code = code
         self.description = description
-
-
