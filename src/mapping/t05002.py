@@ -9,7 +9,6 @@ class T05002(Transformer):
 
     def __init__(self) -> None:
         super().__init__()
-
         self.variables = {
             'ps_name_id': 1
         }
@@ -36,12 +35,9 @@ class T05002(Transformer):
             if len(df) == 1 and df['result'][0] == b'\x01':
                 self.variables['ps_name_id'] = 0
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         """
         执行变量转换
         :return:
         """
-        self.user_name = user_name
-        self.id_card_no = id_card_no
         self._ps_name_id(self._info_certification_df())
-

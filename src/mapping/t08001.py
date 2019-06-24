@@ -34,27 +34,24 @@ class T08001(Transformer):
 
     def _info_risk_anti_fraud(self, df=None):
         if df is not None and len(df) > 0:
-            if df['match_blacklist']:
+            if df['match_blacklist'][0]:
                 self.variables['qh_fraudinfo_isMachdBlMakt'] = 1
-            if df['match_crank_call']:
+            if df['match_crank_call'][0]:
                 self.variables['qh_fraudinfo_isMachCraCall'] = 1
-            if df['match_fraud']:
+            if df['match_fraud'][0]:
                 self.variables['qh_fraudinfo_isMachFraud'] = 1
-            if df['match_empty_number']:
+            if df['match_empty_number'][0]:
                 self.variables['qh_fraudinfo_isMachEmpty'] = 1
-            if df['match_verification_mobile']:
+            if df['match_verification_mobile'][0]:
                 self.variables['qh_fraudinfo_isMachYZmobile'] = 1
-            if df['match_small_no']:
+            if df['match_small_no'][0]:
                 self.variables['qh_fraudinfo_isMachSmallNo'] = 1
-            if df['match_sz_no']:
+            if df['match_sz_no'][0]:
                 self.variables['qh_fraudinfo_isMachSZNo'] = 1
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         """
         执行变量转换
         :return:
         """
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self._info_risk_anti_fraud(self._info_risk_anti_fraud_df())

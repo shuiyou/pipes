@@ -19,6 +19,16 @@ sys.path.append(file_dir)
 app = Flask(__name__)
 
 
+def _get_process_code(product_code):
+    """
+    根据产品编码得到对应的process code： 决策引擎的流程编码
+    :param product_code:
+    :return:
+    """
+    # TODO 需要配置一下product_code 和 决策的process code映射表
+    return 'Level1_m'
+
+
 def _build_request(req_no, product_code, variables={}):
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
@@ -28,7 +38,7 @@ def _build_request(req_no, product_code, variables={}):
         "StrategyOneRequest": {
             "Header": {
                 "InquiryCode": req_no,
-                "ProcessCode": product_code
+                "ProcessCode": _get_process_code(product_code)
             },
             "Body": {
                 "Application": {
@@ -53,16 +63,19 @@ def shake_hand():
     strategy_request = _build_request(req_no, product_code)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
-    if response.status_code == 200:
-        json = response.json()
-        resp = {
-            'productCode': json_data.get('productCode'),
-            'reqNo': json_data.get('reqNo'),
-            'bizTypes': _get_biz_types(json)
-        }
-        return jsonify(resp)
-    else:
-        raise ServerException(code=response.status_code, description=response.text)
+    try:
+        if response.status_code == 200:
+            json = response.json()
+            resp = {
+                'productCode': json_data.get('productCode'),
+                'reqNo': json_data.get('reqNo'),
+                'bizTypes': _get_biz_types(json)
+            }
+            return jsonify(resp)
+        else:
+            raise ServerException(code=response.status_code, description=response.text)
+    except Exception as err:
+        raise ServerException(code=500, description=str(err))
 
 
 def _get_biz_types(json):
@@ -83,26 +96,29 @@ def strategy():
     """
     # 获取请求参数
     json_data = request.get_json()
-    req_no = json_data.get('reqNo')
-    product_code = json_data.get('productCode')
-    user_name = json_data.get('userName')
-    id_card_no = json_data.get('idCardNo')
-    phone = json_data.get('phone')
-    variables = translate(product_code, user_name, id_card_no, phone)
+    strategy_param = json_data.get('strategyParam')
+    req_no = strategy_param.get('reqNo')
+    product_code = strategy_param.get('productCode')
+    query_data = strategy_param.get('queryData')
+    user_name = query_data.get('name')
+    id_card_no = query_data.get('idno')
+    phone = query_data.get('phone')
+    codes = strategy_param.get('bizTypes')
+    variables = translate(codes, user_name, id_card_no, phone)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-    if strategy_response.status_code == 200:
-        json = strategy_response.json()
-        resp = {
-            'reqNo': req_no,
-            'bizTypes': _get_biz_types(json),
-            'data': json
-        }
-        return jsonify(resp)
-    else:
-        raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+    try:
+        if strategy_response.status_code == 200:
+            strategy_resp = strategy_response.json()
+            strategy_param['bizTypes']=_get_biz_types(strategy_resp)
+            json_data['strategyResult'] = strategy_resp
+            return jsonify(json_data)
+        else:
+            raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+    except Exception as err:
+        raise ServerException(code=500, description=str(err))
 
 
 @app.route("/health", methods=['GET'])

@@ -1,15 +1,14 @@
-from datetime import date, datetime
 import logging
 import socket
 import sys
 import time
 import traceback
 import uuid
+from datetime import date, datetime
 
-from six import integer_types, string_types
-
-from logstash_async.constants import constants
 import logstash_async
+from logstash_async.constants import constants
+from six import integer_types, string_types
 
 try:
     import json

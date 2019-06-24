@@ -5,33 +5,32 @@ import os
 import pandas as pd
 
 # from app import logger
+from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
+
 logger = LoggerUtil().logger(__name__)
 
-def translate(product_code, user_name=None, id_card_no=None, phone=None):
+
+def translate(codes, user_name=None, id_card_no=None, phone=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
     """
-    product_df = read_product(product_code)
-    codes = product_df['code'].unique()
     variables = {}
-    for c in codes:
-        trans = get_transformer(c)
-        trans.transform(user_name=user_name,
-                        id_card_no=id_card_no,
-                        phone=phone)
-        variables.update(trans.variables)
+    try:
+        for c in codes:
+            trans = get_transformer(c)
+            trans_result = trans.run(user_name=user_name,
+                                     id_card_no=id_card_no,
+                                     phone=phone)
+            variables.update(trans_result)
+    except Exception as err:
+        logger.error(">>> translate error: " + str(err))
+        raise ServerException(code=500, description=str(err))
 
     return variables
-
-
-def read_product(product_code):
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    excel_file = os.path.join(root_dir, 'product', product_code + '.xlsx')
-    return pd.read_excel(excel_file, usecols=[0, 1], dtype={'code': str})
 
 
 def get_transformer(code) -> Transformer:
