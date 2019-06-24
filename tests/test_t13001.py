@@ -21,3 +21,6 @@ def test_t13001():
     ps5.transform('刘金双', '420983197106025610','13166256990')
     print(ps5.variables)
 
+    ps6 = T13001()
+    ps6.transform('马晓艳', '410305197903240547','13585748588')
+    print(ps6.variables)
