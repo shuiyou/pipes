@@ -63,16 +63,19 @@ def shake_hand():
     strategy_request = _build_request(req_no, product_code)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
-    if response.status_code == 200:
-        json = response.json()
-        resp = {
-            'productCode': json_data.get('productCode'),
-            'reqNo': json_data.get('reqNo'),
-            'bizTypes': _get_biz_types(json)
-        }
-        return jsonify(resp)
-    else:
-        raise ServerException(code=response.status_code, description=response.text)
+    try:
+        if response.status_code == 200:
+            json = response.json()
+            resp = {
+                'productCode': json_data.get('productCode'),
+                'reqNo': json_data.get('reqNo'),
+                'bizTypes': _get_biz_types(json)
+            }
+            return jsonify(resp)
+        else:
+            raise ServerException(code=response.status_code, description=response.text)
+    except Exception as err:
+        raise ServerException(code=500, description=str(err))
 
 
 def _get_biz_types(json):
