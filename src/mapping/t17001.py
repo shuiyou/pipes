@@ -1,6 +1,7 @@
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 import pandas as pd
+import jsonpath
 import json
 
 pd.set_option('display.max_columns', None)
@@ -77,12 +78,12 @@ class T17001(Transformer):
             'td_idc_name_hit_exec_vague': 0,  # 网申核查_身份证_姓名命中法院执行模糊名单
             'td_applicant_idc_3m_morethan2': 0,  # 网申核查_3个月内申请人身份证作为联系人身份证出现的次数大于等于2
             'td_applicant_tel_3m_morethan2': 0,  # 网申核查_3个月内申请人手机号作为联系人手机号出现的次数大于等于2
-
+        }
     # 获取目标数据集
     def _info_fraud_verification_item(self):
 
         sql = '''
-               SELECT * FROM info_fraud_verification_item  WHERE  fraud_verification_id 
+               SELECT item_name,item_group,item_detail FROM info_fraud_verification_item  WHERE  fraud_verification_id 
                IN (SELECT fv.fraud_verification_id FROM (SELECT id fraud_verification_id FROM info_fraud_verification 
                WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
                ORDER BY id DESC LIMIT 1) as fv);
@@ -155,35 +156,8 @@ class T17001(Transformer):
     # 计算客户行为检测模块字段
     def _cus_behav(self, df=None):
 
-        dict_init = {
-            '1天内设备关联手机号数':0,
-            '1天内设备关联身份证数':0,
-            '1天内身份证关联设备数':0,
-            '1天内手机号关联设备数':0,
-            '7天内设备申请次数':0,
-            '7天内身份证申请次数':0,
-            '7天内手机号申请次数':0,
-            '7天内设备关联身份证数':0,
-            '7天内设备关联手机号数':0,
-            '7天内身份证关联设备数':0,
-            '7天内手机号关联设备数':0,
-            '1个月内设备申请次数':0,
-            '1个月内身份证申请次数':0,
-            '1个月内手机号申请次数':0,
-            '1个月内身份证关联设备数':0,
-            '3个月家庭地址关联身份证数':0,
-            '3个月内银行卡_姓名关联多个身份证':0,
-            '3个月身份证关联家庭地址数':0,
-            '3个月身份证关联手机号数':0,
-            '3个月身份证关联银行卡预留手机号数':0,
-            '3个月身份证关联邮箱数':0,
-            '3个月手机号关联银行卡预留手机号数':0,
-            '3个月邮箱关联身份证数':0,
-            '3个月手机号码关联身份证数':0
-        }
-
-        if len(df[df['item_group'] == '客户行为检测']) != 0:
-            df1  = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] != ''),:].copy()
+        df1 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] != ''), :].copy()
+        if len(df1) != 0:
             row_list = []
             for index, col in df1.iterrows():
                 row_str = dict(col).get('item_detail')
@@ -202,28 +176,63 @@ class T17001(Transformer):
             df4 = pd.pivot_table(df3, index='identity', aggfunc=max, fill_value=0)
             df5 = df4.reset_index()
             new_dict = dict(next(df5.iterrows())[1])
-            dict_init['1天内设备关联手机号数'] = new_dict.get('1天内设备关联手机号数',0)
-            dict_init['1天内设备关联身份证数'] = new_dict.get('1天内设备关联身份证数',0)
-            dict_init['1天内身份证关联设备数'] = new_dict.get('1天内身份证关联设备数',0)
-            dict_init['1天内手机号关联设备数'] = new_dict.get('1天内手机号关联设备数',0)
-            dict_init['7天内设备申请次数'] = new_dict.get('7天内设备申请次数',0)
-            dict_init['7天内身份证申请次数'] = new_dict.get('7天内身份证申请次数',0)
-            dict_init['7天内手机号申请次数'] = new_dict.get('7天内手机号申请次数',0)
-            dict_init['7天内设备关联身份证数'] = new_dict.get('7天内设备关联身份证数',0)
-            dict_init['7天内设备关联手机号数'] = new_dict.get('7天内设备关联手机号数',0)
-            dict_init['7天内身份证关联设备数'] = new_dict.get('7天内身份证关联设备数',0)
-            dict_init['7天内手机号关联设备数'] = new_dict.get('7天内手机号关联设备数',0)
-            dict_init['1个月内设备申请次数'] = new_dict.get('1个月内设备申请次数',0)
-            dict_init['1个月内身份证申请次数'] = new_dict.get('1个月内身份证申请次数',0)
-            dict_init['1个月内手机号申请次数'] = new_dict.get('1个月内手机号申请次数',0)
-            dict_init['1个月内身份证关联设备数'] = new_dict.get('1个月内身份证关联设备数',0)
-            dict_init['3个月家庭地址关联身份证数'] = new_dict.get('3个月家庭地址关联身份证数',0)
-            dict_init['3个月内银行卡_姓名关联多个身份证'] = new_dict.get('3个月内银行卡_姓名关联多个身份证',0)
-            dict_init['3个月身份证关联家庭地址数'] = new_dict.get('3个月身份证关联家庭地址数',0)
-            dict_init['3个月身份证关联手机号数'] = new_dict.get('3个月身份证关联手机号数',0)
-            dict_init['3个月身份证关联银行卡预留手机号数'] = new_dict.get('3个月身份证关联银行卡预留手机号数',0)
-            dict_init['3个月身份证关联邮箱数'] = new_dict.get('3个月身份证关联邮箱数',0)
-            dict_init['3个月手机号关联银行卡预留手机号数'] = new_dict.get('3个月手机号关联银行卡预留手机号数',0)
-            dict_init['3个月邮箱关联身份证数'] = new_dict.get('3个月邮箱关联身份证数',0)
-            dict_init['3个月手机号码关联身份证数'] = new_dict.get('3个月手机号码关联身份证数',0)
+            self.variables['td_bah_1d_dev_rel_tel'] = new_dict.get('1天内设备关联手机号数',0)
+            self.variables['td_bah_1d_dev_rel_idc'] = new_dict.get('1天内设备关联身份证数',0)
+            self.variables['td_bah_1d_idc_rel_dev'] = new_dict.get('1天内身份证关联设备数',0)
+            self.variables['td_bah_1d_tel_rel_dev'] = new_dict.get('1天内手机号关联设备数',0)
+            self.variables['td_bah_7d_dev_app'] = new_dict.get('7天内设备申请次数',0)
+            self.variables['td_bah_7d_idc_app'] = new_dict.get('7天内身份证申请次数',0)
+            self.variables['td_bah_7d_tel_app'] = new_dict.get('7天内手机号申请次数',0)
+            self.variables['td_bah_7d_dev_rel_idc'] = new_dict.get('7天内设备关联身份证数',0)
+            self.variables['td_bah_7d_dev_rel_tel'] = new_dict.get('7天内设备关联手机号数',0)
+            self.variables['td_bah_7d_idc_rel_dev'] = new_dict.get('7天内身份证关联设备数',0)
+            self.variables['td_bah_7d_tel_rel_dev'] = new_dict.get('7天内手机号关联设备数',0)
+            self.variables['td_bah_1m_dev_app'] = new_dict.get('1个月内设备申请次数',0)
+            self.variables['td_bah_1m_idc_app'] = new_dict.get('1个月内身份证申请次数',0)
+            self.variables['td_bah_1m_tel_app'] = new_dict.get('1个月内手机号申请次数',0)
+            self.variables['td_bah_1m_idc_rel_dev'] = new_dict.get('1个月内身份证关联设备数',0)
+            self.variables['td_bah_3m_add_rel_idc'] = new_dict.get('3个月家庭地址关联身份证数',0)
+            self.variables['td_bah_3m_bcname_rel_idc'] = new_dict.get('3个月内银行卡_姓名关联多个身份证',0)
+            self.variables['td_bah_3m_idc_rel_add'] = new_dict.get('3个月身份证关联家庭地址数',0)
+            self.variables['td_bah_3m_idc_rel_tel'] = new_dict.get('3个月身份证关联手机号数',0)
+            self.variables['td_bah_3m_idc_rel_bctel'] = new_dict.get('3个月身份证关联银行卡预留手机号数',0)
+            self.variables['td_bah_3m_idc_rel_mail'] = new_dict.get('3个月身份证关联邮箱数',0)
+            self.variables['td_bah_3m_tel_rel_bctel'] = new_dict.get('3个月手机号关联银行卡预留手机号数',0)
+            self.variables['td_bah_3m_mail_rel_idc'] = new_dict.get('3个月邮箱关联身份证数',0)
+            self.variables['td_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数',0)
 
+        df6 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
+        if len(df6) != 0:
+            df7 = df6[df6['item_name'].str.contains('3个月内申请人身份证作为联系人身份证出现的次数大于等于2')]
+            self.variables['td_applicant_idc_3m_morethan2'] = len(df7)
+            df8 = df6[df6['item_name'].str.contains('3个月内申请人手机号作为联系人手机号出现的次数大于等于2')]
+            self.variables['td_applicant_tel_3m_morethan2'] = len(df8)
+
+    # 计算多平台借贷申请检测模块字段
+    def _mulplat_loan_app(self, df=None):
+        df1 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '7天内申请人在多个平台申请借款'),:].copy()
+        if len(df1) != 0:
+            self.variables['td_apply_7d']  = jsonpath.jsonpath(json.loads(df1.iloc[0,2]),'platform_count')[0]
+        df2 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '1个月内申请人在多个平台申请借款'),:].copy()
+        if len(df2) != 0:
+            self.variables['td_apply_1m']  = jsonpath.jsonpath(json.loads(df2.iloc[0,2]),'platform_count')[0]
+        df3 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '3个月内申请人在多个平台申请借款'),:].copy()
+        if len(df3) != 0:
+            self.variables['td_apply_3m']  = jsonpath.jsonpath(json.loads(df3.iloc[0,2]),'platform_count')[0]
+        df4 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '6个月内申请人在多个平台申请借款'),:].copy()
+        if len(df4) != 0:
+            self.variables['td_apply_6m']  = jsonpath.jsonpath(json.loads(df4.iloc[0,2]),'platform_count')[0]
+        df5 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '12个月内申请人在多个平台申请借款'),:].copy()
+        if len(df5) != 0:
+            self.variables['td_apply_12m']  = jsonpath.jsonpath(json.loads(df5.iloc[0,2]),'platform_count')[0]
+
+    #  执行变量转换
+    def transform(self, user_name=None, id_card_no=None, phone=None):
+        self.user_name = user_name
+        self.id_card_no = id_card_no
+        self.phone = phone
+
+        self._per_base_info(self._info_fraud_verification_item())
+        self._risk_info(self._info_fraud_verification_item())
+        self._cus_behav(self._info_fraud_verification_item())
+        self._mulplat_loan_app(self._info_fraud_verification_item())
