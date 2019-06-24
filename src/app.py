@@ -20,6 +20,11 @@ app = Flask(__name__)
 
 
 def _get_process_code(product_code):
+    """
+    根据产品编码得到对应的process code： 决策引擎的流程编码
+    :param product_code:
+    :return:
+    """
     # TODO 需要配置一下product_code 和 决策的process code映射表
     return 'Level1_m'
 
@@ -93,7 +98,8 @@ def strategy():
     user_name = json_data.get('userName')
     id_card_no = json_data.get('idCardNo')
     phone = json_data.get('phone')
-    variables = translate(product_code, user_name, id_card_no, phone)
+    codes = json_data.get('bizTypes')
+    variables = translate(codes, user_name, id_card_no, phone)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
     # 调用决策引擎

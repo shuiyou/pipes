@@ -12,14 +12,12 @@ from mapping.tranformer import Transformer
 logger = LoggerUtil().logger(__name__)
 
 
-def translate(product_code, user_name=None, id_card_no=None, phone=None):
+def translate(codes, user_name=None, id_card_no=None, phone=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
     """
-    product_df = read_product(product_code)
-    codes = product_df['code'].unique()
     variables = {}
     try:
         for c in codes:
