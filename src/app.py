@@ -96,12 +96,14 @@ def strategy():
     """
     # 获取请求参数
     json_data = request.get_json()
-    req_no = json_data.get('reqNo')
-    product_code = json_data.get('productCode')
-    user_name = json_data.get('userName')
-    id_card_no = json_data.get('idCardNo')
-    phone = json_data.get('phone')
-    codes = json_data.get('bizTypes')
+    strategy_param = json_data.get('strategyParam')
+    req_no = strategy_param.get('reqNo')
+    product_code = strategy_param.get('productCode')
+    query_data = strategy_param.get('queryData')
+    user_name = query_data.get('name')
+    id_card_no = query_data.get('idno')
+    phone = query_data.get('phone')
+    codes = strategy_param.get('bizTypes')
     variables = translate(codes, user_name, id_card_no, phone)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
@@ -109,13 +111,10 @@ def strategy():
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
     try:
         if strategy_response.status_code == 200:
-            json = strategy_response.json()
-            resp = {
-                'reqNo': req_no,
-                'bizTypes': _get_biz_types(json),
-                'data': json
-            }
-            return jsonify(resp)
+            strategy_resp = strategy_response.json()
+            strategy_param['bizTypes']=_get_biz_types(strategy_resp)
+            json_data['strategyResult'] = strategy_resp
+            return jsonify(json_data)
         else:
             raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
     except Exception as err:

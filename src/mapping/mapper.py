@@ -33,12 +33,6 @@ def translate(codes, user_name=None, id_card_no=None, phone=None):
     return variables
 
 
-def read_product(product_code):
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    excel_file = os.path.join(root_dir, 'product', product_code + '.xlsx')
-    return pd.read_excel(excel_file, usecols=[0, 1], dtype={'code': str})
-
-
 def get_transformer(code) -> Transformer:
     """
     根据code构建对应的转换对象
