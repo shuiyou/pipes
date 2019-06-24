@@ -569,3 +569,4 @@ dmypy.json
 .pyre/
 
 /.idea/pipes.iml
+/.idea/misc.xml
