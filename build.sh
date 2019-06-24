@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build . -t registry.cn-shanghai.aliyuncs.com/transformer/defensor
+docker build --no-cache -t registry.cn-shanghai.aliyuncs.com/transformer/pipes ./src

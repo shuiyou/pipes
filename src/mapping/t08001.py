@@ -24,7 +24,7 @@ class T08001(Transformer):
             SELECT user_name, id_card_no,phone,expired_at,match_blacklist,match_crank_call,match_fraud,
             match_empty_number,match_verification_mobile,match_small_no,match_sz_no
             FROM info_risk_anti_fraud 
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(expired_at)
+            WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
             ORDER BY expired_at DESC LIMIT 1;
         """
@@ -34,19 +34,19 @@ class T08001(Transformer):
 
     def _info_risk_anti_fraud(self, df=None):
         if df is not None and len(df) > 0:
-            if df['match_blacklist']:
+            if df['match_blacklist'][0]:
                 self.variables['qh_fraudinfo_isMachdBlMakt'] = 1
-            if df['match_crank_call']:
+            if df['match_crank_call'][0]:
                 self.variables['qh_fraudinfo_isMachCraCall'] = 1
-            if df['match_fraud']:
+            if df['match_fraud'][0]:
                 self.variables['qh_fraudinfo_isMachFraud'] = 1
-            if df['match_empty_number']:
+            if df['match_empty_number'][0]:
                 self.variables['qh_fraudinfo_isMachEmpty'] = 1
-            if df['match_verification_mobile']:
+            if df['match_verification_mobile'][0]:
                 self.variables['qh_fraudinfo_isMachYZmobile'] = 1
-            if df['match_small_no']:
+            if df['match_small_no'][0]:
                 self.variables['qh_fraudinfo_isMachSmallNo'] = 1
-            if df['match_sz_no']:
+            if df['match_sz_no'][0]:
                 self.variables['qh_fraudinfo_isMachSZNo'] = 1
 
     def transform(self, user_name=None, id_card_no=None, phone=None):
@@ -58,4 +58,3 @@ class T08001(Transformer):
         self.id_card_no = id_card_no
         self.phone = phone
         self._info_risk_anti_fraud(self._info_risk_anti_fraud_df())
-

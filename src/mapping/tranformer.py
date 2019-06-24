@@ -19,5 +19,3 @@ class Transformer(object):
         :return:
         """
         pass
-
-
