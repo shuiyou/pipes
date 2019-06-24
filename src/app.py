@@ -107,16 +107,19 @@ def strategy():
     logger.debug(strategy_request)
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-    if strategy_response.status_code == 200:
-        json = strategy_response.json()
-        resp = {
-            'reqNo': req_no,
-            'bizTypes': _get_biz_types(json),
-            'data': json
-        }
-        return jsonify(resp)
-    else:
-        raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+    try:
+        if strategy_response.status_code == 200:
+            json = strategy_response.json()
+            resp = {
+                'reqNo': req_no,
+                'bizTypes': _get_biz_types(json),
+                'data': json
+            }
+            return jsonify(resp)
+        else:
+            raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+    except Exception as err:
+        raise ServerException(code=500, description=str(err))
 
 
 @app.route("/health", methods=['GET'])
