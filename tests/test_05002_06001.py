@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
 
@@ -12,6 +13,15 @@ def test_ps_name_id():
     })
     ps._ps_name_id(df=mock_df)
     assert ps.variables['ps_name_id'] == 0
+
+
+def test_phone_check():
+    ps = T05001()
+    mock_df = pd.DataFrame({
+        'result': [b'\x01']
+    })
+    ps._phone_check(df=mock_df)
+    assert ps.variables['phone_check'] == 0
 
 
 def test_ps_crime_type():

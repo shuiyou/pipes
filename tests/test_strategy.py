@@ -1,26 +1,6 @@
 from logger.logger_util import LoggerUtil
-from strategy.request import validate_input
 
 LoggerUtil().logger(__name__)
-
-
-def test_request():
-    input = {
-        "StrategyOneRequest": {
-            "Header": {
-                "InquiryCode": "c3ef30f0ad5646d8a25136f98532ec9f",
-                "ProcessCode": "JB_WZ_CJR2"
-            },
-            "Body": {
-                "Application": {
-                    "Variables": {
-                        'foo': 'bar'
-                    }
-                }
-            }
-        }
-    }
-    validate_input(input)
 
 
 def test_replace():

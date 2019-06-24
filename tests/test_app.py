@@ -20,12 +20,34 @@ def client():
 def test_shake_hand(client):
     rv = client.post('/biz-types', json={
         "reqNo": uuid.uuid4(),
-        "productCode": "JB_WZ_CJR2"
+        "productCode": "1"
     })
     assert rv.status_code == 200
     v = rv.get_json()
-    assert v.get('bizTypes')[0] == '10000100'
     print(v)
+    # assert v.get('bizTypes')[0] == '05002'
+
+
+def test_strategy(client):
+    rv = client.post('/strategy', json={
+        "strategyParam": {
+            "reqNo": "请求编号",
+            "stepReqNo": "子请求编号",
+            "productCode": "产品编号",
+            "bizTypes": [],
+            "queryData": {
+                "name": "名称",
+                "idno": "证件号码",
+                "phone": "手机号"
+            },
+            "versionNo": "1.0"
+        },
+        "strategyResult": {}
+    })
+    assert rv.status_code == 200
+    v = rv.get_json()
+    print(v)
+    # assert v.get('bizTypes')[0] == '05002'
 
 
 def test_sql_to_df():
