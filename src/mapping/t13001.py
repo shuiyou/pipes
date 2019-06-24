@@ -1,5 +1,4 @@
 import pandas as pd
-
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
@@ -248,7 +247,11 @@ class T13001(Transformer):
             self.variables['hd_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
-    def transform(self):
+    def transform(self, user_name=None, id_card_no=None, phone=None):
+        self.user_name = user_name
+        self.id_card_no = id_card_no
+        self.phone = phone
+
         self._hd_reg_cnt(self._info_sms_loan_platform())
         self._hd_reg_cnt_bank_3m(self._info_sms_loan_platform())
         self._hd_reg_cnt_other_3m(self._info_sms_loan_platform())
