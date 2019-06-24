@@ -67,11 +67,9 @@ class T06001(Transformer):
                     else:
                         self.variables['ps_illegal_record_time'] = 4
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         """
         执行变量转换
         :return:
         """
-        self.id_card_no = user_name
-        self.user_name = id_card_no
         self._ps_crime_type(T06001._crime_type_df(self.user_name, self.id_card_no))

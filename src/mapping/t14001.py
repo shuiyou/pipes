@@ -2,11 +2,11 @@ from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
 
-def months(var1, var2):
-    year1 = var1.year
-    year2 = var2.year
-    month1 = var1.month
-    month2 = var2.month
+def months(mth_start, mth_end):
+    year1 = mth_start.year
+    year2 = mth_end.year
+    month1 = mth_start.month
+    month2 = mth_end.month
     num = (year2 - year1) * 12 + (month2 - month1)
     return num
 
@@ -100,7 +100,7 @@ class T14001(Transformer):
     def _info_searched_history_df(self):
         info_searched_history = """
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.expired_at,a.create_time,
-            b.org_self,b.searcheed_date
+            b.org_self,b.searched_date
             FROM info_social as a
             left join info_social_searched_history as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -113,18 +113,15 @@ class T14001(Transformer):
 
     def _searched_history(self, df=None):
         if df is not None and len(df) > 0:
-            df['mth'] = df.apply(lambda x: months(x['searcheed_date'], x['create_time']), axis=1)
-            self.variables['jxl_query_else_cnt'] = df[df['org_self'] == False].count()
-            self.variables['jxl_query_else_cnt_6m'] = df[df['org_self'] == False and df['mth'] < 6].count()
+            df['mth'] = df.apply(lambda x: months(x['searched_date'], x['create_time']), axis=1)
+            self.variables['jxl_query_else_cnt'] = df[df['org_self'] == False].shape[0]
+            self.variables['jxl_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df['mth'] < 6)].shape[0]
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         """
         执行变量转换
         :return:
         """
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
         self._blacklist(self._info_social_blacklist_df())
         self._social_gray(self._info_social_gray_df())
         self._social_register(self._info_social_register_df())
