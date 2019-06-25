@@ -10,7 +10,7 @@ import numpy as np
 
 def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
     """
-    计算两列时间差
+    计算两列时间差, 按天， 周，月或者年。
     :param df:
     :param col_name1:
     :param col_name2:
@@ -29,7 +29,13 @@ def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
         return None
 
 
-def parse_json_count(data, expr):
+def parse_json_count_sum(data, expr):
+    """
+    解析json，获取json path里对应的值，然后求后
+    :param data:
+    :param expr:
+    :return:
+    """
     json_path_obj = jsonpath.jsonpath(json.loads(data), expr)
     result = 0
     for c in json_path_obj:
