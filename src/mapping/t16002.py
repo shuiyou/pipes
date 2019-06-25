@@ -278,7 +278,7 @@ class T16002(Transformer):
             self.variables['court_ent_cri_sus'] = df.shape[0]
 
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         self._ps_court_administrative_violation(self._court_administrative_violation_df(self.unique_name))
         self._ps_court_judicative_pape(self._court_judicative_pape_df(self.unique_name))
         self._ps_court_trial_process(self._court_trial_process_df(self.unique_name))

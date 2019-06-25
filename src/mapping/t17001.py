@@ -227,11 +227,7 @@ class T17001(Transformer):
             self.variables['net_apply_12m']  = jsonpath.jsonpath(json.loads(df5.iloc[0,2]),'platform_count')[0]
 
     #  执行变量转换
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
-
+    def transform(self):
         self._per_base_info(self._info_fraud_verification_item())
         self._risk_info(self._info_fraud_verification_item())
         self._cus_behav(self._info_fraud_verification_item())

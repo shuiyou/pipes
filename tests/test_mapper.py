@@ -1,4 +1,4 @@
-from mapping.mapper import read_product, translate, get_transformer
+from mapping.mapper import translate, get_transformer
 
 
 def test_type():

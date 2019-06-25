@@ -247,11 +247,7 @@ class T13001(Transformer):
             self.variables['sms_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
-
+    def transform(self):
         self._sms_reg_cnt(self._info_sms_loan_platform())
         self._sms_reg_cnt_bank_3m(self._info_sms_loan_platform())
         self._sms_reg_cnt_other_3m(self._info_sms_loan_platform())
