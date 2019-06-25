@@ -214,7 +214,6 @@ class T13001(Transformer):
 
     ## 计算短信核查_欠款总次数
     def _sms_owe_cnt(self, df=None):
-
         self.variables['sms_owe_cnt'] = len(df)
 
     ## 计算短信核查_欠款金额最大等级
@@ -231,7 +230,6 @@ class T13001(Transformer):
 
     ## 计算短信核查_近6个月内欠款次数
     def _sms_owe_cnt_6m(self, df=None):
-
         if len(df) != 0:
             df_1 = df.loc[df['date_dif'] < 6, :].copy()
             self.variables['sms_owe_cnt_6m'] = len(df_1)
@@ -259,18 +257,23 @@ class T13001(Transformer):
 
     ##  执行变量转换
     def transform(self):
-        self._sms_reg_cnt(self._info_sms_loan_platform())
-        self._sms_reg_cnt_bank_3m(self._info_sms_loan_platform())
-        self._sms_reg_cnt_other_3m(self._info_sms_loan_platform())
-        self._sms_app_cnt(self._info_sms_loan_apply())
-        self._sms_max_apply(self._info_sms_loan_apply())
-        self._sms_loan_cnt(self._info_sms_loan())
-        self._sms_max_loan(self._info_sms_loan())
+        platform_df = self._info_sms_loan_platform()
+        self._sms_reg_cnt(platform_df)
+        self._sms_reg_cnt_bank_3m(platform_df)
+        self._sms_reg_cnt_other_3m(platform_df)
+        apply = self._info_sms_loan_apply()
+        self._sms_app_cnt(apply)
+        self._sms_max_apply(apply)
+        loan = self._info_sms_loan()
+        self._sms_loan_cnt(loan)
+        self._sms_max_loan(loan)
         self._sms_reject_cnt(self._info_sms_loan_reject())
-        self._sms_overdue_cnt(self._info_sms_overdue_platform())
-        self._sms_max_overdue(self._info_sms_overdue_platform())
-        self._sms_owe_cnt(self._info_sms_debt())
-        self._sms_max_owe(self._info_sms_debt())
-        self._sms_owe_cnt_6m(self._info_sms_debt())
-        self._sms_owe_cnt_6_12m(self._info_sms_debt())
-        self._sms_max_owe_6m(self._info_sms_debt())
+        platform = self._info_sms_overdue_platform()
+        self._sms_overdue_cnt(platform)
+        self._sms_max_overdue(platform)
+        debt = self._info_sms_debt()
+        self._sms_owe_cnt(debt)
+        self._sms_max_owe(debt)
+        self._sms_owe_cnt_6m(debt)
+        self._sms_owe_cnt_6_12m(debt)
+        self._sms_max_owe_6m(debt)
