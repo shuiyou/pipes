@@ -8,16 +8,18 @@ def _get_maxMoney_from_string(value):
     value = re.sub(r"\([0-9]{4}\)", "", value)
     value = re.sub(r"〔[0-9]{4}〕", "", value)
     value = re.sub(r"(http://)((\w)|(\W)|(\.))*", "", value)
-    moneyArray = re.findall(r"\d+\.?\d*", value)
-    moneyMax = 0
-    for money in moneyArray:
-        if ('万元') in value:
-            moneyRe = float(money) * 10000
-        else:
-            moneyRe = float(money)
-        if moneyRe > moneyMax:
-            moneyMax = moneyRe
-    return "%.2f" % moneyMax
+    money_array = re.findall(r"\d+\.?\d*", value)
+    money_max = 0
+    if money_array is not None and len(money_array) > 0:
+        for money in money_array:
+            if ('万元') in value:
+                money_re = float(money) * 10000
+            else:
+                money_re = float(money)
+            if money_re > money_max:
+                money_max = money_re
+        money_max = float("%.2f" % money_max)
+    return money_max
 
 
 class T16002(Transformer):
@@ -50,8 +52,8 @@ class T16002(Transformer):
     def _court_administrative_violation_df(self,user_name):
         info_court_administrative_violation = """
         SELECT A.create_time as create_time,B.execution_result as
-        execution_result,B.specific_date as specific_date
-        FROM info_court_administrative_violation B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        execution_result,B.specific_date as specific_date,B.court_id as court_id
+        FROM info_court_administrative_violation B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -65,15 +67,15 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: _get_maxMoney_from_string(df['execution_result']), axis=1)
+            df['max_money'] = df.apply(lambda x:_get_maxMoney_from_string(x['execution_result']),axis=1)
             self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
 
     #民商事裁判文书sql
     def _court_judicative_pape_df(self,user_name):
         info_court_judicative_pape = """
         SELECT A.create_time as create_time,B.legal_status as
-        legal_status,B.case_amount as case_amount,B.closed_time as closed_time
-        FROM info_court_judicative_pape B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        legal_status,B.case_amount as case_amount,B.closed_time as closed_time,B.court_id as court_id
+        FROM info_court_judicative_pape B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -99,14 +101,14 @@ class T16002(Transformer):
                 self.variables['court_ent_docu_status'] = 2
 
             df = df.query(self.dff_year + ' < 3')
-            self.variables['court_ent_judge_amt_3y'] = df['case_amount'].sum()
+            self.variables['court_ent_judge_amt_3y'] = float('%.2f'%df['case_amount'].sum())
 
     #民商事审判流程sql
     def _court_trial_process_df(self,user_name):
         info_court_trial_process = """
         SELECT A.create_time as create_time,B.specific_date as
         specific_date,B.legal_status as legal_status
-        FROM info_court_trial_process B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        FROM info_court_trial_process B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -134,8 +136,8 @@ class T16002(Transformer):
     def _court_taxable_abnormal_user_df(self,user_name):
         info_court_taxable_abnormal_user = """
         SELECT A.create_time as create_time,B.confirm_date as
-        confirm_date
-        FROM info_court_taxable_abnormal_user B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        confirm_date,B.court_id as court_id
+        FROM info_court_taxable_abnormal_user B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -152,8 +154,8 @@ class T16002(Transformer):
     def _court_arrearage_df(self,user_name):
         info_court_arrearage = """
         SELECT A.create_time as create_time,B.default_amount as
-        default_amount,B.default_date as default_date
-        FROM info_court_arrearage B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        default_amount,B.default_date as default_date,B.court_id as court_id
+        FROM info_court_arrearage B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -191,8 +193,8 @@ class T16002(Transformer):
     def _court_deadbeat_df(self,user_name):
         info_court_deadbeat = """
         SELECT A.create_time as create_time,B.execute_content as
-        execute_content,B.execute_date as execute_date
-        FROM info_court_deadbeat B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        execute_content,B.execute_date as execute_date,B.court_id as court_id
+        FROM info_court_deadbeat B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -209,8 +211,8 @@ class T16002(Transformer):
     def _court_limited_entry_exit_df(self,user_name):
         info_court_limited_entry_exit = """
         SELECT A.create_time as create_time,B.execute_content as
-        execute_content,B.specific_date as specific_date
-        FROM info_court_limited_entry_exit B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        execute_content,B.specific_date as specific_date,B.court_id as court_id
+        FROM info_court_limited_entry_exit B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -227,8 +229,8 @@ class T16002(Transformer):
     def _court_limit_hignspending_df(self,user_name):
         info_court_limit_hignspending = """
         SELECT A.create_time as create_time,B.execute_content as
-        execute_content,B.specific_date as specific_date
-        FROM info_court_limit_hignspending B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        execute_content,B.specific_date as specific_date,B.court_id as court_id
+        FROM info_court_limit_hignspending B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -245,8 +247,8 @@ class T16002(Transformer):
     def _court_excute_public_df(self,user_name):
         info_court_excute_public = """
         SELECT A.create_time as create_time,B.execute_content as
-        execute_content,B.filing_time as filing_time
-        FROM info_court_excute_public B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        execute_content,B.filing_time as filing_time,B.court_id as court_id
+        FROM info_court_excute_public B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -260,15 +262,15 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_pub_info'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x:_get_maxMoney_from_string(df['execute_content']),axis=1)
-            self.variables['court_ent_pub_info_amt_3y'] = df['max_money'].sum()
+            df['max_money'] = df.apply(lambda x:_get_maxMoney_from_string(x['execute_content']),axis=1)
+            self.variables['court_ent_pub_info_amt_3y'] = float("%.2f" %df['max_money'].sum())
 
     #罪犯及嫌疑人名单sql
     def _court_criminal_suspect_df(self,user_name):
         info_court_criminal_suspect = """
         SELECT A.create_time as create_time,B.trial_date as
-        trial_date
-        FROM info_court_criminal_suspect B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        trial_date,B.court_id as court_id
+        FROM info_court_criminal_suspect B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """

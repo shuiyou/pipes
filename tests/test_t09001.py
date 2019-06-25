@@ -24,6 +24,7 @@ def test_ps_loan_date():
     ps = T09001();
     df = ps._loan_date_df("410305197903240547")
     ps._ps_loan_date(df)
+    print(df)
     assert ps.variables['qh_loanee_apro_cnt_6m'] == 2
     assert ps.variables['qh_loanee_hit_org_cnt_3m'] == 1
 
