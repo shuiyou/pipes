@@ -40,3 +40,8 @@ def test_get_oney_from_string():
         if moneyRe > moneyMax:
             moneyMax = moneyRe
     print(moneyMax)
+
+
+def test_number_transfer():
+    value = 5.112
+    print(int(value))
