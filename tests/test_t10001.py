@@ -9,3 +9,4 @@ def test__ovdu_sco_1y():
     mock_df = pd.read_csv('data/info_risk_overdue.csv', parse_dates=True)
     t10001._subtract_by_year(mock_df)
     t10001._ovdu_sco_1y(df=mock_df)
+    assert t10001.variables['ovdu_sco_1y'] == 307

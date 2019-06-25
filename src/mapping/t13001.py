@@ -1,10 +1,23 @@
 import pandas as pd
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+import numpy as np
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+
+def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
+    cols = df.columns
+    if col_name1 in cols and col_name2 in cols:
+        sub_name = col_name1 + '_' + col_name2 + time_unit
+        df[col_name1] = pd.to_datetime(df[col_name1])
+        df[col_name2] = pd.to_datetime(df[col_name2])
+        df[sub_name] = df[col_name1] - df[col_name2]
+        df[sub_name] = df[sub_name] / np.timedelta64(1, time_unit)
+        return df[sub_name]
+    else:
+        return None
 
 class T13001(Transformer):
     """
@@ -32,6 +45,7 @@ class T13001(Transformer):
             'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
         }
 
+
     ## 获取目标数据集1
     def _info_sms_loan_platform(self):
 
@@ -43,12 +57,10 @@ class T13001(Transformer):
         sql2 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df1 = sql_to_df(sql=(sql1),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df2 = sql_to_df(sql=(sql2),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         df = pd.merge(df1, df2, how='left', on='sms_id')
-        df['date_dif'] = (df['create_time'] - df['register_time']).map(lambda x: x.days / 30)
+        df['date_dif'] = subtract_datetime_col(df,'create_time','register_time','M')
         return df
 
     ## 计算短信核查_注册总次数
@@ -203,7 +215,6 @@ class T13001(Transformer):
 
     ## 计算短信核查_欠款总次数
     def _sms_owe_cnt(self, df=None):
-
         self.variables['sms_owe_cnt'] = len(df)
 
     ## 计算短信核查_欠款金额最大等级
@@ -220,7 +231,6 @@ class T13001(Transformer):
 
     ## 计算短信核查_近6个月内欠款次数
     def _sms_owe_cnt_6m(self, df=None):
-
         if len(df) != 0:
             df_1 = df.loc[df['date_dif'] < 6, :].copy()
             self.variables['sms_owe_cnt_6m'] = len(df_1)
@@ -247,23 +257,24 @@ class T13001(Transformer):
             self.variables['sms_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
-
-        self._sms_reg_cnt(self._info_sms_loan_platform())
-        self._sms_reg_cnt_bank_3m(self._info_sms_loan_platform())
-        self._sms_reg_cnt_other_3m(self._info_sms_loan_platform())
-        self._sms_app_cnt(self._info_sms_loan_apply())
-        self._sms_max_apply(self._info_sms_loan_apply())
-        self._sms_loan_cnt(self._info_sms_loan())
-        self._sms_max_loan(self._info_sms_loan())
+    def transform(self):
+        platform_df = self._info_sms_loan_platform()
+        self._sms_reg_cnt(platform_df)
+        self._sms_reg_cnt_bank_3m(platform_df)
+        self._sms_reg_cnt_other_3m(platform_df)
+        apply = self._info_sms_loan_apply()
+        self._sms_app_cnt(apply)
+        self._sms_max_apply(apply)
+        loan = self._info_sms_loan()
+        self._sms_loan_cnt(loan)
+        self._sms_max_loan(loan)
         self._sms_reject_cnt(self._info_sms_loan_reject())
-        self._sms_overdue_cnt(self._info_sms_overdue_platform())
-        self._sms_max_overdue(self._info_sms_overdue_platform())
-        self._sms_owe_cnt(self._info_sms_debt())
-        self._sms_max_owe(self._info_sms_debt())
-        self._sms_owe_cnt_6m(self._info_sms_debt())
-        self._sms_owe_cnt_6_12m(self._info_sms_debt())
-        self._sms_max_owe_6m(self._info_sms_debt())
+        platform = self._info_sms_overdue_platform()
+        self._sms_overdue_cnt(platform)
+        self._sms_max_overdue(platform)
+        debt = self._info_sms_debt()
+        self._sms_owe_cnt(debt)
+        self._sms_max_owe(debt)
+        self._sms_owe_cnt_6m(debt)
+        self._sms_owe_cnt_6_12m(debt)
+        self._sms_max_owe_6m(debt)

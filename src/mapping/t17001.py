@@ -95,62 +95,62 @@ class T17001(Transformer):
     def _per_base_info(self, df=None):
 
         if len(df[df['item_group'] == '个人基本信息核查']) != 0:
-            df_1 = df[df['item_name'].str.contains('手机号命中通信小号库')]
+            df_1 = df[df['item_name'].str.contains('手机号命中通信小号库')].copy()
             self.variables['net_tel_small'] = len(df_1)
-            df_2 = df[df['item_name'].str.contains('手机号命中虚假号码库')]
+            df_2 = df[df['item_name'].str.contains('手机号命中虚假号码库')].copy()
             self.variables['net_tel_virtual'] = len(df_2)
-            df_3 = df[df['item_name'].str.contains('手机号命中诈骗骚扰库')]
+            df_3 = df[df['item_name'].str.contains('手机号命中诈骗骚扰库')].copy()
             self.variables['net_tel_fraud'] = len(df_3)
-            df_4 = df[df['item_name'].str.contains('申请人属于高风险年龄段人群')]
+            df_4 = df[df['item_name'].str.contains('申请人属于高风险年龄段人群')].copy()
             self.variables['net_risk_age_high'] = len(df_4)
 
     # 计算风险信息扫描模块字段
     def _risk_info(self, df=None):
 
         if len(df[df['item_group'] == '风险信息扫描']) != 0:
-            df_1 = df[df['item_name'].str.contains('手机号命中中风险关注名单')]
+            df_1 = df[df['item_name'].str.contains('手机号命中中风险关注名单')].copy()
             self.variables['net_tel_risk_m'] = len(df_1)
-            df_2 = df[df['item_name'].str.contains('手机号命中低风险关注名单')]
+            df_2 = df[df['item_name'].str.contains('手机号命中低风险关注名单')].copy()
             self.variables['net_tel_risk_l'] = len(df_2)
-            df_3 = df[df['item_name'].str.contains('手机号命中车辆租赁违约名单')]
+            df_3 = df[df['item_name'].str.contains('手机号命中车辆租赁违约名单')].copy()
             self.variables['net_tel_veh'] = len(df_3)
-            df_4 = df[df['item_name'].str.contains('手机号命中欠款公司法人代表名单')]
+            df_4 = df[df['item_name'].str.contains('手机号命中欠款公司法人代表名单')].copy()
             self.variables['net_tel_debt'] = len(df_4)
-            df_5 = df[df['item_name'].str.contains('手机号命中信贷逾期后还款名单')]
+            df_5 = df[df['item_name'].str.contains('手机号命中信贷逾期后还款名单')].copy()
             self.variables['net_tel_repay'] = len(df_5)
-            df_6 = df[df['item_name'].str.contains('身份证命中犯罪通缉名单')]
+            df_6 = df[df['item_name'].str.contains('身份证命中犯罪通缉名单')].copy()
             self.variables['net_idno_crime'] = len(df_6)
-            df_7 = df[df['item_name'].str.contains('身份证命中法院执行名单')]
+            df_7 = df[df['item_name'].str.contains('身份证命中法院执行名单')].copy()
             self.variables['net_idno_exec'] = len(df_7)
-            df_8 = df[df['item_name'].str.contains('身份证命中法院结案名单')]
+            df_8 = df[df['item_name'].str.contains('身份证命中法院结案名单')].copy()
             self.variables['net_idno_end'] = len(df_8)
-            df_9 = df[df['item_name'].str.contains('身份证命中车辆租赁违约名单')]
+            df_9 = df[df['item_name'].str.contains('身份证命中车辆租赁违约名单')].copy()
             self.variables['net_idno_veh'] = len(df_9)
-            df_10 = df[df['item_name'].str.contains('身份证命中中风险关注名单')]
+            df_10 = df[df['item_name'].str.contains('身份证命中中风险关注名单')].copy()
             self.variables['net_idno_risk_m'] = len(df_10)
-            df_11 = df[df['item_name'].str.contains('身份证命中低风险关注名单')]
+            df_11 = df[df['item_name'].str.contains('身份证命中低风险关注名单')].copy()
             self.variables['net_idno_risk_l'] = len(df_11)
-            df_12 = df[df['item_name'].str.contains('身份证命中欠款公司法人代表名单')]
+            df_12 = df[df['item_name'].str.contains('身份证命中欠款公司法人代表名单')].copy()
             self.variables['net_idno_debt'] = len(df_12)
-            df_13 = df[df['item_name'].str.contains('身份证命中欠税名单')]
+            df_13 = df[df['item_name'].str.contains('身份证命中欠税名单')].copy()
             self.variables['net_idno_tax'] = len(df_13)
-            df_14 = df[df['item_name'].str.contains('身份证命中欠税公司法人代表名单')]
+            df_14 = df[df['item_name'].str.contains('身份证命中欠税公司法人代表名单')].copy()
             self.variables['net_idno_tax_rep'] = len(df_14)
-            df_15 = df[df['item_name'].str.contains('身份证命中信贷逾期后还款名单')]
+            df_15 = df[df['item_name'].str.contains('身份证命中信贷逾期后还款名单')].copy()
             self.variables['net_idno_repay'] = len(df_15)
-            df_16 = df[df['item_name'].str.contains('手机号命中信贷逾期名单')]
+            df_16 = df[df['item_name'].str.contains('手机号命中信贷逾期名单')].copy()
             self.variables['net_risk_tel_hit_ovdu'] = len(df_16)
-            df_17 = df[df['item_name'].str.contains('手机号命中高风险关注名单')]
+            df_17 = df[df['item_name'].str.contains('手机号命中高风险关注名单')].copy()
             self.variables['net_risk_tel_hit_high_att'] = len(df_17)
-            df_18 = df[df['item_name'].str.contains('身份证命中信贷逾期名单')]
+            df_18 = df[df['item_name'].str.contains('身份证命中信贷逾期名单')].copy()
             self.variables['net_risk_idc_hit_ovdu'] = len(df_18)
-            df_19 = df[df['item_name'].str.contains('身份证命中法院失信名单')]
+            df_19 = df[df['item_name'].str.contains('身份证命中法院失信名单')].copy()
             self.variables['net_risk_idc_hit_court_dish'] = len(df_19)
-            df_20= df[df['item_name'].str.contains('身份证命中高风险关注名单')]
+            df_20= df[df['item_name'].str.contains('身份证命中高风险关注名单')].copy()
             self.variables['net_risk_idc_hit_high_att'] = len(df_20)
-            df_21 = df[df['item_name'].str.contains('身份证_姓名命中法院失信模糊名单')]
+            df_21 = df[df['item_name'].str.contains('身份证_姓名命中法院失信模糊名单')].copy()
             self.variables['net_idc_name_hit_dish_vague'] = len(df_21)
-            df_22 = df[df['item_name'].str.contains('身份证_姓名命中法院执行模糊名单')]
+            df_22 = df[df['item_name'].str.contains('身份证_姓名命中法院执行模糊名单')].copy()
             self.variables['net_idc_name_hit_exec_vague'] = len(df_22)
 
     # 计算客户行为检测模块字段
@@ -227,12 +227,13 @@ class T17001(Transformer):
             self.variables['net_apply_12m']  = jsonpath.jsonpath(json.loads(df5.iloc[0,2]),'platform_count')[0]
 
     #  执行变量转换
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
+    def transform(self):
+        fraud_verification_df = self._info_fraud_verification_item()
+        self._per_base_info(fraud_verification_df)
+        self._risk_info(fraud_verification_df)
+        self._cus_behav(fraud_verification_df)
+        self._mulplat_loan_app(fraud_verification_df)
 
-        self._per_base_info(self._info_fraud_verification_item())
-        self._risk_info(self._info_fraud_verification_item())
-        self._cus_behav(self._info_fraud_verification_item())
-        self._mulplat_loan_app(self._info_fraud_verification_item())
+ps1 = T17001()
+ps1.run(id_card_no='321284198501083626',phone='15052304168',user_name='仲小梅')
+

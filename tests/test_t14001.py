@@ -56,5 +56,3 @@ def test_searched_history():
     ps._searched_history(df=mock_df)
     assert ps.variables['jxl_query_else_cnt'] == 3
     assert ps.variables['jxl_query_else_cnt_6m'] == 2
-
-

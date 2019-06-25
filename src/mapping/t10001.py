@@ -36,8 +36,8 @@ class T10001(Transformer):
         :param id_card_no:
         """
         if df is not None and len(df) > 0:
-            df = df.query(str(self.diff_year) + ' < 1')
+            df = df.query(self.diff_year + ' < 1')
             self.variables['ovdu_sco_1y'] = df['risk_score'].max()
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self._ovdu_sco_1y()
+    def transform(self):
+        self._ovdu_sco_1y(self._info_risk_overdue_df())

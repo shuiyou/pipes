@@ -193,31 +193,28 @@ class T12001(Transformer):
             self.variables['anti_tel_apply_7d'] = list(df8)[0].split(',')[0].split(':')[1]
         
     #  执行变量转换
-    def transform(self, user_name=None, id_card_no=None, phone=None):
-        self.user_name = user_name
-        self.id_card_no = id_card_no
-        self.phone = phone
-
-        self._anti_idno_consume_black(self._info_anti_fraud_rule())
-        self._anti_idno_P2P_black(self._info_anti_fraud_rule())
-        self._anti_idno_lost_black(self._info_anti_fraud_rule())
-        self._anti_idno_fraud_black(self._info_anti_fraud_rule())
-        self._anti_idno_loan_black(self._info_anti_fraud_rule())
-        self._anti_tel_industy_black(self._info_anti_fraud_rule())
-        self._anti_tel_P2P_black(self._info_anti_fraud_rule())
-        self._anti_tel_lost_black(self._info_anti_fraud_rule())
-        self._anti_tel_fraud_black(self._info_anti_fraud_rule())
-        self._anti_tel_small_no(self._info_anti_fraud_rule())
-        self._anti_idno_court_execu(self._info_anti_fraud_rule())
-        self._anti_idno_court_closure(self._info_anti_fraud_rule())
-        self._anti_idno_court_break_faith(self._info_anti_fraud_rule())
-        self._anti_idno_legal_break_faith(self._info_anti_fraud_rule())
-        self._anti_idno_apply_1m(self._info_anti_fraud_rule())
-        self._anti_idno_apply_3m(self._info_anti_fraud_rule())
-        self._anti_tel_apply_1m(self._info_anti_fraud_rule())
-        self._anti_tel_apply_3m(self._info_anti_fraud_rule())
-        self._anti_idno_apply_3d(self._info_anti_fraud_rule())
-        self._anti_idno_apply_7d(self._info_anti_fraud_rule())
-        self._anti_tel_apply_3d(self._info_anti_fraud_rule())
-        self._anti_tel_apply_7d(self._info_anti_fraud_rule())
+    def transform(self):
+        rule_df = self._info_anti_fraud_rule()
+        self._anti_idno_consume_black(rule_df)
+        self._anti_idno_P2P_black(rule_df)
+        self._anti_idno_lost_black(rule_df)
+        self._anti_idno_fraud_black(rule_df)
+        self._anti_idno_loan_black(rule_df)
+        self._anti_tel_industy_black(rule_df)
+        self._anti_tel_P2P_black(rule_df)
+        self._anti_tel_lost_black(rule_df)
+        self._anti_tel_fraud_black(rule_df)
+        self._anti_tel_small_no(rule_df)
+        self._anti_idno_court_execu(rule_df)
+        self._anti_idno_court_closure(rule_df)
+        self._anti_idno_court_break_faith(rule_df)
+        self._anti_idno_legal_break_faith(rule_df)
+        self._anti_idno_apply_1m(rule_df)
+        self._anti_idno_apply_3m(rule_df)
+        self._anti_tel_apply_1m(rule_df)
+        self._anti_tel_apply_3m(rule_df)
+        self._anti_idno_apply_3d(rule_df)
+        self._anti_idno_apply_7d(rule_df)
+        self._anti_tel_apply_3d(rule_df)
+        self._anti_tel_apply_7d(rule_df)
 
