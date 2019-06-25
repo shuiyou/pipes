@@ -31,7 +31,7 @@ def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
 
 def parse_json_count_sum(data, expr):
     """
-    解析json，获取json path里对应的值，然后求后
+    解析json，获取json path里对应的值，然后求和
     :param data:
     :param expr:
     :return:
