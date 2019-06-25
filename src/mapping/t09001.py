@@ -72,7 +72,7 @@ class T09001(Transformer):
             self.variables['qh_loanee_apro_cnt_6m'] = df.query('reason_code == "01" and days < 180').shape[0]
             self.variables['qh_loanee_hit_org_cnt_3m'] = df.query('days < 90').shape[0]
 
-    def transform(self, user_name=None, id_card_no=None, phone=None):
+    def transform(self):
         self._ps_loan_other(self._loan_other_df(self.id_card_no))
         self._ps_loan_other_date(self._loan_other_date_df(self.id_card_no))
 
