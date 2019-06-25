@@ -1,7 +1,6 @@
 from mapping.tranformer import Transformer
 from mapping.mysql_reader import sql_to_df
 
-
 def getMonth(startDate, endDate):
     delta = endDate - startDate
     num = delta

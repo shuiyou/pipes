@@ -1,5 +1,6 @@
 import pandas as pd
 from mapping.t09001 import T09001
+import re
 
 def test_ps_loan_other():
     ps = T09001()
@@ -28,3 +29,14 @@ def test_ps_loan_date():
     print(df)
     ps._ps_loan_date(df)
     print(df)
+
+def test_get_oney_from_string():
+    value = "金额:23417.11,执行标的:154736.8"
+    moneyArray = re.findall(r"\d+\.?\d*",value)
+    print(moneyArray)
+    moneyMax = float("0")
+    for money in moneyArray:
+        moneyRe = float(money)
+        if moneyRe > moneyMax:
+            moneyMax = moneyRe
+    print(moneyMax)

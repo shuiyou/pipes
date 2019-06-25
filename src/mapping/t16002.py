@@ -1,5 +1,20 @@
 from mapping.tranformer import Transformer
 from mapping.mysql_reader import sql_to_df
+import re
+
+def getYear():
+    print("11")
+
+def _get_maxMoney_from_string(value):
+    moneyArray = re.findall(r"\d+\.?\d*", value)
+    print(moneyArray)
+    moneyMax = float("0")
+    for money in moneyArray:
+        moneyRe = float(money)
+        if moneyRe > moneyMax:
+            moneyMax = moneyRe
+    return value
+
 
 class T16002(Transformer):
     """
@@ -44,6 +59,10 @@ class T16002(Transformer):
     def _ps_court_administrative_violation(self,df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
+            df['time_interval'] = df.apply(lambda x: getYear(), axis=1)
+            df = df.query('time_interval < 3')
+            df['max_money'] = df.apply(lambda x: _get_maxMoney_from_string(df['execution_result']), axis=1)
+            self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
 
     #民商事裁判文书sql
     def _court_judicative_pape_df(self,unique_name):
@@ -63,6 +82,21 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_judge'] = df.shape[0]
 
+            if df[df['legal_status'].isnull() == False].shape[0] == 0:
+                self.variables['court_ent_docu_status'] = 0
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_ent_docu_status'] = 3
+            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_ent_docu_status'] = 1
+            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+                self.variables['court_ent_docu_status'] = 2
+
+            df['time_interval'] = df.apply(lambda x: getYear(), axis=1)
+            df = df.query('time_interval < 3')
+            self.variables['court_ent_judge_amt_3y'] = df['case_amount'].sum()
+
     #民商事审判流程sql
     def _court_trial_process_df(self,unique_name):
         info_court_trial_process = """
@@ -80,6 +114,17 @@ class T16002(Transformer):
     def _ps_court_trial_process(self,df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_trial_proc'] = df.shape[0]
+
+            if df[df['legal_status'].isnull() == False].shape[0] == 0:
+                self.variables['court_ent_proc_status'] = 0
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_ent_proc_status'] = 3
+            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_ent_proc_status'] = 1
+            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+                self.variables['court_ent_proc_status'] = 2
 
     #纳税非正常户sql
     def _court_taxable_abnormal_user_df(self,unique_name):
@@ -134,6 +179,9 @@ class T16002(Transformer):
     def _ps_court_tax_arrears(self,df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_tax_arrears'] = df.shape[0]
+            df['time'] = df.apply(lambda x:getYear(),axis=1)
+            df = df.query('time < 3')
+            self.variables['court_ent_tax_arrears_amt_3y'] = df['taxes'].sum()
 
     #失信老赖名单sql
     def _court_deadbeat_df(self,unique_name):
@@ -206,6 +254,10 @@ class T16002(Transformer):
     def _ps_court_excute_public(self,df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_pub_info'] = df.shape[0]
+            df['time_interval'] = df.apply(lambda x:getYear(),axis=1)
+            df = df.query('time_interval < 3')
+            df['max_money'] = df.apply(lambda x:_get_maxMoney_from_string(df['execute_content']),axis=1)
+            self.variables['court_ent_pub_info_amt_3y'] = df['max_money'].sum()
 
     #罪犯及嫌疑人名单sql
     def _court_criminal_suspect_df(self,unique_name):
