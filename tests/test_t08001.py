@@ -16,10 +16,10 @@ def test_risk_anti_fraud():
     })
     ps._info_risk_anti_fraud(df=mock_df)
 
-    assert ps.variables['qh_fraudinfo_isMachdBlMakt'] == 0
-    assert ps.variables['qh_fraudinfo_isMachCraCall'] == 0
-    assert ps.variables['qh_fraudinfo_isMachFraud'] == 0
-    assert ps.variables['qh_fraudinfo_isMachEmpty'] == 0
-    assert ps.variables['qh_fraudinfo_isMachYZmobile'] == 0
-    assert ps.variables['qh_fraudinfo_isMachSmallNo'] == 0
-    assert ps.variables['qh_fraudinfo_isMachSZNo'] == 0
+    assert ps.variables['fraudinfo_isMachdBlMakt'] == 0
+    assert ps.variables['fraudinfo_isMachCraCall'] == 0
+    assert ps.variables['fraudinfo_isMachFraud'] == 0
+    assert ps.variables['fraudinfo_isMachEmpty'] == 0
+    assert ps.variables['fraudinfo_isMachYZmobile'] == 0
+    assert ps.variables['fraudinfo_isMachSmallNo'] == 0
+    assert ps.variables['fraudinfo_isMachSZNo'] == 0

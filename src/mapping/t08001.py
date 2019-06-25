@@ -10,13 +10,13 @@ class T08001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            "qh_fraudinfo_isMachdBlMakt": 0,
-            "qh_fraudinfo_isMachCraCall": 0,
-            "qh_fraudinfo_isMachFraud": 0,
-            "qh_fraudinfo_isMachEmpty": 0,
-            "qh_fraudinfo_isMachYZmobile": 0,
-            "qh_fraudinfo_isMachSmallNo": 0,
-            "qh_fraudinfo_isMachSZNo": 0
+            "fraudinfo_isMachdBlMakt": 0,
+            "fraudinfo_isMachCraCall": 0,
+            "fraudinfo_isMachFraud": 0,
+            "fraudinfo_isMachEmpty": 0,
+            "fraudinfo_isMachYZmobile": 0,
+            "fraudinfo_isMachSmallNo": 0,
+            "fraudinfo_isMachSZNo": 0
         }
 
     def _info_risk_anti_fraud_df(self):
@@ -35,19 +35,19 @@ class T08001(Transformer):
     def _info_risk_anti_fraud(self, df=None):
         if df is not None and len(df) > 0:
             if df['match_blacklist'][0]:
-                self.variables['qh_fraudinfo_isMachdBlMakt'] = 1
+                self.variables['fraudinfo_isMachdBlMakt'] = 1
             if df['match_crank_call'][0]:
-                self.variables['qh_fraudinfo_isMachCraCall'] = 1
+                self.variables['fraudinfo_isMachCraCall'] = 1
             if df['match_fraud'][0]:
-                self.variables['qh_fraudinfo_isMachFraud'] = 1
+                self.variables['fraudinfo_isMachFraud'] = 1
             if df['match_empty_number'][0]:
-                self.variables['qh_fraudinfo_isMachEmpty'] = 1
+                self.variables['fraudinfo_isMachEmpty'] = 1
             if df['match_verification_mobile'][0]:
-                self.variables['qh_fraudinfo_isMachYZmobile'] = 1
+                self.variables['fraudinfo_isMachYZmobile'] = 1
             if df['match_small_no'][0]:
-                self.variables['qh_fraudinfo_isMachSmallNo'] = 1
+                self.variables['fraudinfo_isMachSmallNo'] = 1
             if df['match_sz_no'][0]:
-                self.variables['qh_fraudinfo_isMachSZNo'] = 1
+                self.variables['fraudinfo_isMachSZNo'] = 1
 
     def transform(self):
         """
