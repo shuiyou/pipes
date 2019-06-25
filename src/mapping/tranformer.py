@@ -42,8 +42,8 @@ class Transformer(object):
         return self.variables
 
     def input(self, id_card_no, phone, user_name):
-        self.id_card_no = user_name
-        self.user_name = id_card_no
+        self.id_card_no = id_card_no
+        self.user_name = user_name
         self.phone = phone
 
     @abstractmethod
