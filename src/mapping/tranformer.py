@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
+
+import jsonpath
 import pandas as pd
 from abc import ABCMeta, abstractmethod
 
@@ -24,6 +27,14 @@ def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
         return sub_name
     else:
         return None
+
+
+def parse_json_count(data, expr):
+    json_path_obj = jsonpath.jsonpath(json.loads(data), expr)
+    result = 0
+    for c in json_path_obj:
+        result += int(c)
+    return result
 
 
 class Transformer(object):

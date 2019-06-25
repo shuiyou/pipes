@@ -8,34 +8,23 @@ df = pd.DataFrame({'channel_score': [3], 'fail_rate': [2], 'detail_data': [
 
 def test_lend_score():
     t = T07001()
-    t.run(user_name='刘劭卓', id_card_no='430105199106096118', phone='11111111111')
-    print(t.variables)
-
     t._lend_score(df)
     print(t.variables)
 
 
 def test_lend_fail_rate():
     t = T07001()
-    t.run(user_name='刘劭卓', id_card_no='430105199106096118', phone='11111111111')
-    print(t.variables)
-
     t._lend_fail_rate(df)
     print(t.variables)
 
+
 def test_lend_cha_cnt_12m():
     t = T07001()
-    t.run(user_name='刘劭卓', id_card_no='430105199106096118', phone='11111111111')
-    print(t.variables)
-
     t._lend_cha_cnt_12m(df)
     print(t.variables)
 
 
 def test_lend_chafail_cnt_12m():
     t = T07001()
-    t.run(user_name='刘劭卓', id_card_no='430105199106096118', phone='11111111111')
-    print(t.variables)
-
     t._lend_chafail_cnt_12m(df)
     print(t.variables)

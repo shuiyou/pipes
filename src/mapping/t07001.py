@@ -1,5 +1,5 @@
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, subtract_datetime_col
+from mapping.tranformer import Transformer, parse_json_count
 
 
 class T07001(Transformer):
@@ -50,7 +50,9 @@ class T07001(Transformer):
         :return:
         """
         if df is not None and len(df) > 0:
-            self.variables['lend_cha_cnt_12m'] = df['detail_data'][0]
+            data = df['detail_data'][0]
+            result = parse_json_count(data, '$..latest_12M_TransCount')
+            self.variables['lend_cha_cnt_12m'] = result
 
     def _lend_chafail_cnt_12m(self, df=None):
         """
@@ -59,7 +61,9 @@ class T07001(Transformer):
         :return:
         """
         if df is not None and len(df) > 0:
-            self.variables['lend_chafail_cnt_12m'] = df['detail_data'][0]
+            data = df['detail_data'][0]
+            result = parse_json_count(data, '$..lowBalance_12M_FailCount')
+            self.variables['lend_chafail_cnt_12m'] = result
 
     def transform(self):
         df = self._info_loan_stats_df()
