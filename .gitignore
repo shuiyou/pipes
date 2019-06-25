@@ -570,3 +570,5 @@ dmypy.json
 
 /.idea/pipes.iml
 /.idea/misc.xml
+/.idea/
+/.idea/inspectionProfiles/
