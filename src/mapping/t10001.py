@@ -1,5 +1,5 @@
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
+from mapping.tranformer import Transformer, subtract_datetime_col
 
 
 class T10001(Transformer):
@@ -23,8 +23,11 @@ class T10001(Transformer):
         df = sql_to_df(sql=info_certification,
                        params={"user_name": self.user_name,
                                "id_card_no": self.id_card_no})
-        self.diff_year = self.subtract_datetime_col(df, 'create_time', 'data_build_time', 'Y')
+        self._subtract_by_year(df)
         return df
+
+    def _subtract_by_year(self, df):
+        self.diff_year = subtract_datetime_col(df, 'create_time', 'data_build_time', 'Y')
 
     def _ovdu_sco_1y(self, df=None):
         """
