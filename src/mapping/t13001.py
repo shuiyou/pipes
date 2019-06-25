@@ -6,6 +6,18 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
+def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
+    cols = df.columns
+    if col_name1 in cols and col_name2 in cols:
+        sub_name = col_name1 + '_' + col_name2 + time_unit
+        df[col_name1] = pd.to_datetime(df[col_name1])
+        df[col_name2] = pd.to_datetime(df[col_name2])
+        df[sub_name] = df[col_name1] - df[col_name2]
+        df[sub_name] = df[sub_name] / np.timedelta64(1, time_unit)
+        return df[sub_name]
+    else:
+        return None
+
 class T13001(Transformer):
     """
     短信核查相关的变量模块
@@ -32,6 +44,7 @@ class T13001(Transformer):
             'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
         }
 
+
     ## 获取目标数据集1
     def _info_sms_loan_platform(self):
 
@@ -43,12 +56,10 @@ class T13001(Transformer):
         sql2 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df1 = sql_to_df(sql=(sql1),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df2 = sql_to_df(sql=(sql2),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         df = pd.merge(df1, df2, how='left', on='sms_id')
-        df['date_dif'] = (df['create_time'] - df['register_time']).map(lambda x: x.days / 30)
+        df['date_dif'] = subtract_datetime_col(df,'create_time','register_time','M')
         return df
 
     ## 计算短信核查_注册总次数
