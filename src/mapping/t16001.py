@@ -1,6 +1,8 @@
+import re
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
-import re
+
 
 def get_money(var):
     if len(list(map(float, re.findall(r"\d+\.?\d*", var)))) > 0:
@@ -9,20 +11,21 @@ def get_money(var):
         value = float(0)
     return value
 
+
 def get_spec_money1(var):
-    if re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var) != None :
-        value=float(re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var).group(0))*10000
-    else :
-        value=float(0)
+    if re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var) != None:
+        value = float(re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var).group(0)) * 10000
+    else:
+        value = float(0)
     return value
+
 
 def get_spec_money2(var):
     if re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
-        value=float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
+        value = float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
     else:
-        value=float(0)
+        value = float(0)
     return value
-
 
 
 class T16001(Transformer):
@@ -64,7 +67,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_admi_vio),
+        df = sql_to_df(sql=info_admi_vio,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -84,7 +87,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_judge),
+        df = sql_to_df(sql=info_judge,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -113,7 +116,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_trial_proc),
+        df = sql_to_df(sql=info_trial_proc,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -140,7 +143,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_tax_pay),
+        df = sql_to_df(sql=info_tax_pay,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -157,7 +160,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_owed_owe),
+        df = sql_to_df(sql=info_owed_owe,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -193,7 +196,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_dishonesty),
+        df = sql_to_df(sql=info_dishonesty,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -210,7 +213,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_limit_entry),
+        df = sql_to_df(sql=info_limit_entry,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -244,14 +247,15 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_pub_info),
+        df = sql_to_df(sql=info_pub_info,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _pub_info(self, df=None):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'query_date', 'filing_time', 'Y')
-            df['amt'] = df.apply(lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
+            df['amt'] = df.apply(
+                lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
             self.variables['court_pub_info_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
 
@@ -264,7 +268,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_cri_sus),
+        df = sql_to_df(sql=info_cri_sus,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -283,10 +287,9 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_court_loan),
+        df = sql_to_df(sql=info_court_loan,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
-
 
     def _court_loan(self, df=None):
         if df is not None and len(df) > 0:

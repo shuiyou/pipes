@@ -1,4 +1,5 @@
 import pandas as pd
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
@@ -39,7 +40,6 @@ class T12001(Transformer):
             'anti_tel_apply_7d': 0,  # 反欺诈_手机号七天内多头申请过多_次数
         }
 
-
     ## 获取目标数据集1
     def _info_anti_fraud_rule(self):
         sql = '''
@@ -49,14 +49,15 @@ class T12001(Transformer):
             WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as af);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     # 计算反欺诈_身份证比对信贷行业信用消费黑名单
     def _anti_idno_consume_black(self, df=None):
 
-         df1 = df[df['rule_name'].str.contains('身份证比对信贷行业信用消费黑名单')]
-         self.variables['anti_idno_consume_black'] = len(df1)
+        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业信用消费黑名单')]
+        self.variables['anti_idno_consume_black'] = len(df1)
 
     # 计算反欺诈_身份证比对信贷行业P2P黑名单
     def _anti_idno_P2P_black(self, df=None):
@@ -140,7 +141,7 @@ class T12001(Transformer):
     def _anti_idno_apply_1m(self, df=None):
 
         df1 = df.loc[df['rule_name'] == '身份证一个月内多头申请过多', 'rule_memo'].copy()
-        if  len(df1) != 0:
+        if len(df1) != 0:
             self.variables['anti_idno_apply_1m'] = list(df1)[0].split(',')[0].split(':')[1]
 
     # 计算反欺诈_身份证三个月内多头申请过多_次数
@@ -191,7 +192,7 @@ class T12001(Transformer):
         df8 = df.loc[df['rule_name'] == '手机号七天内多头申请过多', 'rule_memo'].copy()
         if len(df8) != 0:
             self.variables['anti_tel_apply_7d'] = list(df8)[0].split(',')[0].split(':')[1]
-        
+
     #  执行变量转换
     def transform(self):
         rule_df = self._info_anti_fraud_rule()
@@ -217,4 +218,3 @@ class T12001(Transformer):
         self._anti_idno_apply_7d(rule_df)
         self._anti_tel_apply_3d(rule_df)
         self._anti_tel_apply_7d(rule_df)
-

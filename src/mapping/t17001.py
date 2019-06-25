@@ -1,11 +1,14 @@
+import json
+
+import jsonpath
+import pandas as pd
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
-import pandas as pd
-import jsonpath
-import json
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
 
 ## 网申核查相关的变量模块
 class T17001(Transformer):
@@ -27,9 +30,9 @@ class T17001(Transformer):
             'net_tel_risk_m': 0,  # 网申核查_手机号命中中风险关注名单
             'net_tel_risk_l': 0,  # 网申核查_手机号命中低风险关注名单
             'net_tel_veh': 0,  # 网申核查_手机号命中车辆租赁违约名单
-            'net_tel_debt': 0, # 网申核查_手机号命中欠款公司法人代表名单
-            'net_tel_repay': 0, # 网申核查_手机号命中信贷逾期后还款名单
-            'net_idno_crime': 0, # 网申核查_身份证命中犯罪通缉名单
+            'net_tel_debt': 0,  # 网申核查_手机号命中欠款公司法人代表名单
+            'net_tel_repay': 0,  # 网申核查_手机号命中信贷逾期后还款名单
+            'net_idno_crime': 0,  # 网申核查_身份证命中犯罪通缉名单
             'net_idno_exec': 0,  # 网申核查_身份证命中法院执行名单
             'net_idno_end': 0,  # 网申核查_身份证命中法院结案名单
             'net_idno_veh': 0,  # 网申核查_身份证命中车辆租赁违约名单
@@ -79,6 +82,7 @@ class T17001(Transformer):
             'net_applicant_idc_3m_morethan2': 0,  # 网申核查_3个月内申请人身份证作为联系人身份证出现的次数大于等于2
             'net_applicant_tel_3m_morethan2': 0,  # 网申核查_3个月内申请人手机号作为联系人手机号出现的次数大于等于2
         }
+
     # 获取目标数据集
     def _info_fraud_verification_item(self):
 
@@ -88,7 +92,8 @@ class T17001(Transformer):
                WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
                ORDER BY id DESC LIMIT 1) as fv);
         '''
-        df = sql_to_df(sql=(sql),params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     # 计算个人基本信息核查模块字段
@@ -146,7 +151,7 @@ class T17001(Transformer):
             self.variables['net_risk_idc_hit_ovdu'] = len(df_18)
             df_19 = df[df['item_name'].str.contains('身份证命中法院失信名单')].copy()
             self.variables['net_risk_idc_hit_court_dish'] = len(df_19)
-            df_20= df[df['item_name'].str.contains('身份证命中高风险关注名单')].copy()
+            df_20 = df[df['item_name'].str.contains('身份证命中高风险关注名单')].copy()
             self.variables['net_risk_idc_hit_high_att'] = len(df_20)
             df_21 = df[df['item_name'].str.contains('身份证_姓名命中法院失信模糊名单')].copy()
             self.variables['net_idc_name_hit_dish_vague'] = len(df_21)
@@ -169,37 +174,37 @@ class T17001(Transformer):
                 new_dct = dict()
                 for i in range(len(row.frequency_detail_list)):
                     new_dct[row.frequency_detail_list[i].get('detail').split('：')[0]] = \
-                    row.frequency_detail_list[i].get('detail').split('：')[1]
+                        row.frequency_detail_list[i].get('detail').split('：')[1]
                 new_lst.append(new_dct)
             df3 = pd.DataFrame(new_lst)
             df3['identity'] = 'user'
             df4 = pd.pivot_table(df3, index='identity', aggfunc=max, fill_value=0)
             df5 = df4.reset_index()
             new_dict = dict(next(df5.iterrows())[1])
-            self.variables['net_bah_1d_dev_rel_tel'] = new_dict.get('1天内设备关联手机号数',0)
-            self.variables['net_bah_1d_dev_rel_idc'] = new_dict.get('1天内设备关联身份证数',0)
-            self.variables['net_bah_1d_idc_rel_dev'] = new_dict.get('1天内身份证关联设备数',0)
-            self.variables['net_bah_1d_tel_rel_dev'] = new_dict.get('1天内手机号关联设备数',0)
-            self.variables['net_bah_7d_dev_app'] = new_dict.get('7天内设备申请次数',0)
-            self.variables['net_bah_7d_idc_app'] = new_dict.get('7天内身份证申请次数',0)
-            self.variables['net_bah_7d_tel_app'] = new_dict.get('7天内手机号申请次数',0)
-            self.variables['net_bah_7d_dev_rel_idc'] = new_dict.get('7天内设备关联身份证数',0)
-            self.variables['net_bah_7d_dev_rel_tel'] = new_dict.get('7天内设备关联手机号数',0)
-            self.variables['net_bah_7d_idc_rel_dev'] = new_dict.get('7天内身份证关联设备数',0)
-            self.variables['net_bah_7d_tel_rel_dev'] = new_dict.get('7天内手机号关联设备数',0)
-            self.variables['net_bah_1m_dev_app'] = new_dict.get('1个月内设备申请次数',0)
-            self.variables['net_bah_1m_idc_app'] = new_dict.get('1个月内身份证申请次数',0)
-            self.variables['net_bah_1m_tel_app'] = new_dict.get('1个月内手机号申请次数',0)
-            self.variables['net_bah_1m_idc_rel_dev'] = new_dict.get('1个月内身份证关联设备数',0)
-            self.variables['net_bah_3m_add_rel_idc'] = new_dict.get('3个月家庭地址关联身份证数',0)
-            self.variables['net_bah_3m_bcname_rel_idc'] = new_dict.get('3个月内银行卡_姓名关联多个身份证',0)
-            self.variables['net_bah_3m_idc_rel_add'] = new_dict.get('3个月身份证关联家庭地址数',0)
-            self.variables['net_bah_3m_idc_rel_tel'] = new_dict.get('3个月身份证关联手机号数',0)
-            self.variables['net_bah_3m_idc_rel_bctel'] = new_dict.get('3个月身份证关联银行卡预留手机号数',0)
-            self.variables['net_bah_3m_idc_rel_mail'] = new_dict.get('3个月身份证关联邮箱数',0)
-            self.variables['net_bah_3m_tel_rel_bctel'] = new_dict.get('3个月手机号关联银行卡预留手机号数',0)
-            self.variables['net_bah_3m_mail_rel_idc'] = new_dict.get('3个月邮箱关联身份证数',0)
-            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数',0)
+            self.variables['net_bah_1d_dev_rel_tel'] = new_dict.get('1天内设备关联手机号数', 0)
+            self.variables['net_bah_1d_dev_rel_idc'] = new_dict.get('1天内设备关联身份证数', 0)
+            self.variables['net_bah_1d_idc_rel_dev'] = new_dict.get('1天内身份证关联设备数', 0)
+            self.variables['net_bah_1d_tel_rel_dev'] = new_dict.get('1天内手机号关联设备数', 0)
+            self.variables['net_bah_7d_dev_app'] = new_dict.get('7天内设备申请次数', 0)
+            self.variables['net_bah_7d_idc_app'] = new_dict.get('7天内身份证申请次数', 0)
+            self.variables['net_bah_7d_tel_app'] = new_dict.get('7天内手机号申请次数', 0)
+            self.variables['net_bah_7d_dev_rel_idc'] = new_dict.get('7天内设备关联身份证数', 0)
+            self.variables['net_bah_7d_dev_rel_tel'] = new_dict.get('7天内设备关联手机号数', 0)
+            self.variables['net_bah_7d_idc_rel_dev'] = new_dict.get('7天内身份证关联设备数', 0)
+            self.variables['net_bah_7d_tel_rel_dev'] = new_dict.get('7天内手机号关联设备数', 0)
+            self.variables['net_bah_1m_dev_app'] = new_dict.get('1个月内设备申请次数', 0)
+            self.variables['net_bah_1m_idc_app'] = new_dict.get('1个月内身份证申请次数', 0)
+            self.variables['net_bah_1m_tel_app'] = new_dict.get('1个月内手机号申请次数', 0)
+            self.variables['net_bah_1m_idc_rel_dev'] = new_dict.get('1个月内身份证关联设备数', 0)
+            self.variables['net_bah_3m_add_rel_idc'] = new_dict.get('3个月家庭地址关联身份证数', 0)
+            self.variables['net_bah_3m_bcname_rel_idc'] = new_dict.get('3个月内银行卡_姓名关联多个身份证', 0)
+            self.variables['net_bah_3m_idc_rel_add'] = new_dict.get('3个月身份证关联家庭地址数', 0)
+            self.variables['net_bah_3m_idc_rel_tel'] = new_dict.get('3个月身份证关联手机号数', 0)
+            self.variables['net_bah_3m_idc_rel_bctel'] = new_dict.get('3个月身份证关联银行卡预留手机号数', 0)
+            self.variables['net_bah_3m_idc_rel_mail'] = new_dict.get('3个月身份证关联邮箱数', 0)
+            self.variables['net_bah_3m_tel_rel_bctel'] = new_dict.get('3个月手机号关联银行卡预留手机号数', 0)
+            self.variables['net_bah_3m_mail_rel_idc'] = new_dict.get('3个月邮箱关联身份证数', 0)
+            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数', 0)
 
         df6 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
         if len(df6) != 0:
@@ -210,21 +215,21 @@ class T17001(Transformer):
 
     # 计算多平台借贷申请检测模块字段
     def _mulplat_loan_app(self, df=None):
-        df1 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '7天内申请人在多个平台申请借款'),:].copy()
+        df1 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '7天内申请人在多个平台申请借款'), :].copy()
         if len(df1) != 0:
-            self.variables['net_apply_7d']  = jsonpath.jsonpath(json.loads(df1.iloc[0,2]),'platform_count')[0]
-        df2 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '1个月内申请人在多个平台申请借款'),:].copy()
+            self.variables['net_apply_7d'] = jsonpath.jsonpath(json.loads(df1.iloc[0, 2]), 'platform_count')[0]
+        df2 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '1个月内申请人在多个平台申请借款'), :].copy()
         if len(df2) != 0:
-            self.variables['net_apply_1m']  = jsonpath.jsonpath(json.loads(df2.iloc[0,2]),'platform_count')[0]
-        df3 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '3个月内申请人在多个平台申请借款'),:].copy()
+            self.variables['net_apply_1m'] = jsonpath.jsonpath(json.loads(df2.iloc[0, 2]), 'platform_count')[0]
+        df3 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '3个月内申请人在多个平台申请借款'), :].copy()
         if len(df3) != 0:
-            self.variables['net_apply_3m']  = jsonpath.jsonpath(json.loads(df3.iloc[0,2]),'platform_count')[0]
-        df4 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '6个月内申请人在多个平台申请借款'),:].copy()
+            self.variables['net_apply_3m'] = jsonpath.jsonpath(json.loads(df3.iloc[0, 2]), 'platform_count')[0]
+        df4 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '6个月内申请人在多个平台申请借款'), :].copy()
         if len(df4) != 0:
-            self.variables['net_apply_6m']  = jsonpath.jsonpath(json.loads(df4.iloc[0,2]),'platform_count')[0]
-        df5 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '12个月内申请人在多个平台申请借款'),:].copy()
+            self.variables['net_apply_6m'] = jsonpath.jsonpath(json.loads(df4.iloc[0, 2]), 'platform_count')[0]
+        df5 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '12个月内申请人在多个平台申请借款'), :].copy()
         if len(df5) != 0:
-            self.variables['net_apply_12m']  = jsonpath.jsonpath(json.loads(df5.iloc[0,2]),'platform_count')[0]
+            self.variables['net_apply_12m'] = jsonpath.jsonpath(json.loads(df5.iloc[0, 2]), 'platform_count')[0]
 
     #  执行变量转换
     def transform(self):
@@ -234,6 +239,6 @@ class T17001(Transformer):
         self._cus_behav(fraud_verification_df)
         self._mulplat_loan_app(fraud_verification_df)
 
-ps1 = T17001()
-ps1.run(id_card_no='321284198501083626',phone='15052304168',user_name='仲小梅')
 
+ps1 = T17001()
+ps1.run(id_card_no='321284198501083626', phone='15052304168', user_name='仲小梅')
