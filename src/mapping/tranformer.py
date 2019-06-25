@@ -16,7 +16,7 @@ def subtract_datetime_col(df, col_name1, col_name2, time_unit='M'):
     """
     cols = df.columns
     if col_name1 in cols and col_name2 in cols:
-        sub_name = col_name1 + '-' + col_name1 + '-year'
+        sub_name = col_name1 + '_' + col_name2 + time_unit
         df[col_name1] = pd.to_datetime(df[col_name1])
         df[col_name2] = pd.to_datetime(df[col_name2])
         df[sub_name] = df[col_name1] - df[col_name2]
