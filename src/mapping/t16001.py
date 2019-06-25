@@ -25,7 +25,6 @@ def get_spec_money2(var):
 
 
 
-
 class T16001(Transformer):
     """
     法院核查个人
@@ -287,6 +286,7 @@ class T16001(Transformer):
         df = sql_to_df(sql=(info_court_loan),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
+
 
     def _court_loan(self, df=None):
         if df is not None and len(df) > 0:

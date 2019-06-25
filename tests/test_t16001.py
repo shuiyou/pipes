@@ -214,6 +214,7 @@ def test_court_loan():
     #d = ['张三被告', '李四原告', '王五', '陈六']
     mock_df = pd.DataFrame({'legal_status': a, 'case_reason': b, 'trial_status': c, 'trial_reason': d})
     ps._court_loan(df=mock_df)
+
     assert ps.variables['court_fin_loan_con'] == 1
     assert ps.variables['court_loan_con'] == 1
     assert ps.variables['court_pop_loan'] == 1
