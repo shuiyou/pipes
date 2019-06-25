@@ -1,5 +1,22 @@
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+import re
+
+
+def months(mth_start, mth_end):
+    year1 = mth_start.year
+    year2 = mth_end.year
+    month1 = mth_start.month
+    month2 = mth_end.month
+    num = (year2 - year1) * 12 + (month2 - month1)
+    return num
+
+
+def years(mth_start, mth_end):
+    year1 = mth_start.year
+    year2 = mth_end.year
+    num = year2 - year1
+    return num
 
 
 class T16001(Transformer):
@@ -26,12 +43,15 @@ class T16001(Transformer):
             'court_admi_vio_amt_3y': 0,
             'court_judge_amt_3y': 0,
             'court_docu_status': 0,
-            'court_proc_status': 0
+            'court_proc_status': 0,
+            'court_fin_loan_con': 0,
+            'court_loan_con': 0,
+            'court_pop_loan': 0
         }
 
     def _info_admi_vio_df(self):
         info_admi_vio = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.specific_date,b.execution_result
             FROM info_court as a
             left join info_court_administrative_violation as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -44,11 +64,14 @@ class T16001(Transformer):
 
     def _admi_vio(self, df=None):
         if df is not None and len(df) > 0:
+            df['amt'] = df.apply(lambda x: float(re.findall(r"\d+\.?\d*", x['execution_result'])[0]), axis=1)
+            df['year'] = df.apply(lambda x: years(x['specific_date'], x['query_date']), axis=1)
             self.variables['court_admi_vio'] = df.shape[0]
+            self.variables['court_admi_vio_amt_3y'] = df[df['year'] < 3]['amt'].sum()
 
     def _info_judge_df(self):
         info_judge = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.closed_time,b.case_amount,b.legal_status
             FROM info_court as a
             left join info_court_judicative_pape as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -61,11 +84,23 @@ class T16001(Transformer):
 
     def _judge(self, df=None):
         if df is not None and len(df) > 0:
+            df['year'] = df.apply(lambda x: years(x['closed_time'], x['query_date']), axis=1)
             self.variables['court_judge'] = df.shape[0]
+            self.variables['court_judge_amt_3y'] = df[df['year'] < 3]['case_amount'].sum()
+            if df[df['legal_status'].isnull() == False].shape[0] == 0:
+                self.variables['court_docu_status'] = 0
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_docu_status'] = 3
+            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_docu_status'] = 1
+            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+                self.variables['court_docu_status'] = 2
 
     def _info_trial_proc_df(self):
         info_trial_proc = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.user_name, a.id_card_no,b.court_id,b.legal_status
             FROM info_court as a
             left join info_court_trial_process as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -79,6 +114,16 @@ class T16001(Transformer):
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
+            if df[df['legal_status'].isnull() == False].shape[0] == 0:
+                self.variables['court_proc_status'] = 0
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_proc_status'] = 3
+            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
+                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+                self.variables['court_proc_status'] = 1
+            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+                self.variables['court_proc_status'] = 2
 
     def _info_tax_pay_df(self):
         info_tax_pay = """
@@ -116,9 +161,9 @@ class T16001(Transformer):
 
     def _info_tax_arrears_df(self):
         info_tax_arrears = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.taxes,b.taxes_time
             FROM info_court as a
-            left join info_tax_arrears as b on a.id=b.court_id
+            left join info_court_tax_arrears as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
@@ -129,7 +174,9 @@ class T16001(Transformer):
 
     def _tax_arrears(self, df=None):
         if df is not None and len(df) > 0:
+            df['year'] = df.apply(lambda x: years(x['taxes_time'], x['query_date']), axis=1)
             self.variables['court_tax_arrears'] = df.shape[0]
+            self.variables['court_tax_arrears_amt_3y'] = df[df['year'] < 3]['taxes'].sum()
 
     def _info_dishonesty_df(self):
         info_dishonesty = """
@@ -184,7 +231,7 @@ class T16001(Transformer):
 
     def _info_pub_info_df(self):
         info_pub_info = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.filing_time,b.execute_content
             FROM info_court as a
             left join info_court_excute_public as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -197,7 +244,10 @@ class T16001(Transformer):
 
     def _pub_info(self, df=None):
         if df is not None and len(df) > 0:
+            df['amt'] = df.apply(lambda x: float(re.findall(r"\d+\.?\d*", x['execute_content'])[0]), axis=1)
+            df['year'] = df.apply(lambda x: years(x['filing_time'], x['query_date']), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
+            self.variables['court_pub_info_amt_3y'] = df[df['year'] < 3]['amt'].sum()
 
     def _info_cri_sus_df(self):
         info_cri_sus = """
@@ -216,12 +266,51 @@ class T16001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_cri_sus'] = df.shape[0]
 
+    def _info_court_loan_df(self):
+        info_court_loan = """
+            SELECT a.user_name, a.id_card_no,b.case_reason,b.legal_status,
+            c.case_reason as trial_reason,c.legal_status as trial_status 
+            FROM info_court as a
+            left join info_court_judicative_pape as b on a.id=b.court_id
+            left join info_court_trial_process as c on a.id=c.court_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+           ;
+        """
+        df = sql_to_df(sql=(info_court_loan),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df
+
+    def _court_loan(self, df=None):
+        if df is not None and len(df) > 0:
+            if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('金融借款合同纠纷'))].shape[0] > 0:
+                self.variables['court_fin_loan_con'] = 1
+            elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('金融借款合同纠纷'))].shape[
+                0] > 0:
+                self.variables['court_fin_loan_con'] = 1
+            if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('借款合同纠纷'))].shape[0] > 0:
+                self.variables['court_loan_con'] = 1
+            elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('借款合同纠纷'))].shape[0] > 0:
+                self.variables['court_loan_con'] = 1
+            if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('民间借贷纠纷'))].shape[0] > 0:
+                self.variables['court_pop_loan'] = 1
+            elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('民间借贷纠纷'))].shape[0] > 0:
+                self.variables['court_pop_loan'] = 1
+
     def transform(self):
         """
         执行变量转换
         :return:
         """
-        self._blacklist(self._info_social_blacklist_df())
-        self._social_gray(self._info_social_gray_df())
-        self._social_register(self._info_social_register_df())
-        self._searched_history(self._info_searched_history_df())
+        self._admi_vio(self._info_admi_vio_df())
+        self._judge(self._info_judge_df())
+        self._trial_proc(self._info_trial_proc_df())
+        self._tax_pay(self._info_tax_pay_df())
+        self._owed_owe(self._info_owed_owe_df())
+        self._tax_arrears(self._info_tax_arrears_df())
+        self._dishonesty(self._info_dishonesty_df())
+        self._limit_entry(self._info_limit_entry_df())
+        self._high_cons(self._info_high_cons_df())
+        self._pub_info(self._info_high_cons_df())
+        self._cri_sus(self._info_cri_sus_df())
+        self._court_loan(self._info_court_loan_df())

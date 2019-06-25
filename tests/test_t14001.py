@@ -14,9 +14,9 @@ def test_blacklist():
     })
     ps._blacklist(df=mock_df)
 
-    assert ps.variables['jxl_name_tel_in_black'] == 1
-    assert ps.variables['jxl_idc_name_in_black'] == 1
-    assert ps.variables['jxl_query_mac_cnt'] == 5
+    assert ps.variables['social_name_tel_in_black'] == 1
+    assert ps.variables['social_idc_name_in_black'] == 1
+    assert ps.variables['social_query_mac_cnt'] == 5
 
 
 def test_social_gray():
@@ -29,10 +29,10 @@ def test_social_gray():
         'contacts_router_ratio': [0.523]
     })
     ps._social_gray(df=mock_df)
-    assert ps.variables['jxl_tel_gray_sco'] == 100
-    assert ps.variables['jxl_dir_in_black_rate'] == None
-    assert ps.variables['jxl_indir_in_black_rate'] == None
-    assert ps.variables['jxl_dir_rel_indir_rate'] == 0.523
+    assert ps.variables['social_tel_gray_sco'] == 100
+    assert ps.variables['social_dir_in_black_rate'] == None
+    assert ps.variables['social_indir_in_black_rate'] == None
+    assert ps.variables['social_dir_rel_indir_rate'] == 0.523
 
 
 def test_social_gray():
@@ -41,7 +41,7 @@ def test_social_gray():
         'register_count': [100]
     })
     ps._social_register(df=mock_df)
-    assert ps.variables['jxl_reg_app_cnt'] == 100
+    assert ps.variables['social_reg_app_cnt'] == 100
 
 
 def test_searched_history():
@@ -54,5 +54,5 @@ def test_searched_history():
 
     mock_df = pd.DataFrame({'org_self': a, 'searcheed_date': b, 'create_time': c})
     ps._searched_history(df=mock_df)
-    assert ps.variables['jxl_query_else_cnt'] == 3
-    assert ps.variables['jxl_query_else_cnt_6m'] == 2
+    assert ps.variables['social_query_else_cnt'] == 3
+    assert ps.variables['social_query_else_cnt_6m'] == 2
