@@ -1,4 +1,4 @@
-from mapping.tranformer import Transformer
+from mapping.tranformer import Transformer, subtract_datetime_col
 from mapping.mysql_reader import sql_to_df
 
 
@@ -57,16 +57,15 @@ class T09001(Transformer):
         """
         df = sql_to_df(sql=info_loan_other,
                        params={"id_card_no": id_card_no})
-        self.diff_year = self.subtract_datetime_col(df, 'create_time', 'data_build_time', 'M')
+        self.diff_month = subtract_datetime_col(df, 'create_time', 'data_build_time', 'M')
         return df
 
 
     def _ps_loan_date(self,df=None):
         if df is not None and len(df) > 0:
-            df = df.query(self.diff_year < 6)
             #self.variables['qh_loanee_apro_cnt_6m'] = df['create_time'].shape[0]
-            self.variables['qh_loanee_apro_cnt_6m'] = df.query(self.diff_year < 3).shape[0]
-            # self.variables['qh_loanee_hit_org_cnt_3m'] = df.query(self.diff_year < 3).shape[0]
+            self.variables['qh_loanee_apro_cnt_6m'] = df.query(self.diff_month + ' < 6').shape[0]
+            self.variables['qh_loanee_hit_org_cnt_3m'] = df.query(self.diff_month + '< 3').shape[0]
 
     def _ps_loan_other_date(self,df=None):
         if df is not None and len(df) > 0:

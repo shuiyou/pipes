@@ -28,7 +28,7 @@ def test_ps_loan_date():
     # print(df.dtypes)
     print(df)
     ps._ps_loan_date(df)
-    print(df)
+    print(ps.variables)
 
 def test_get_oney_from_string():
     value = "金额:23417.11,执行标的:154736.8"
