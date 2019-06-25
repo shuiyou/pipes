@@ -51,17 +51,19 @@ class Transformer(object):
         self.id_card_no = None
         self.user_name = None
         self.phone = None
+        self.user_type = None
         self.variables = {}
 
-    def run(self, user_name=None, id_card_no=None, phone=None) -> dict:
-        self.input(id_card_no, phone, user_name)
+    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None) -> dict:
+        self.input(id_card_no, phone, user_name, user_type)
         self.transform()
         return self.variables
 
-    def input(self, id_card_no, phone, user_name):
+    def input(self, id_card_no, phone, user_name, user_type):
         self.id_card_no = id_card_no
         self.user_name = user_name
         self.phone = phone
+        self.user_type = user_type
 
     @abstractmethod
     def transform(self):

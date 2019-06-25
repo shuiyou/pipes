@@ -103,8 +103,9 @@ def strategy():
     user_name = query_data.get('name')
     id_card_no = query_data.get('idno')
     phone = query_data.get('phone')
+    user_type = query_data.get('user_type')
     codes = strategy_param.get('bizTypes')
-    variables = translate(codes, user_name, id_card_no, phone)
+    variables = translate(codes, user_name, id_card_no, phone, user_type)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
     # 调用决策引擎
