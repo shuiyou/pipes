@@ -1,26 +1,7 @@
 import re
 
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, subtract_datetime_col
-
-
-def _get_maxMoney_from_string(value):
-    value = re.sub(r"(第?[0-9]\d*号)", "", value)
-    value = re.sub(r"\([0-9]{4}\)", "", value)
-    value = re.sub(r"〔[0-9]{4}〕", "", value)
-    value = re.sub(r"(http://)((\w)|(\W)|(\.))*", "", value)
-    money_array = re.findall(r"\d+\.?\d*", value)
-    money_max = 0
-    if money_array is not None and len(money_array) > 0:
-        for money in money_array:
-            if ('万元') in value:
-                money_re = float(money) * 10000
-            else:
-                money_re = float(money)
-            if money_re > money_max:
-                money_max = money_re
-        money_max = float("%.2f" % money_max)
-    return money_max
+from mapping.tranformer import Transformer, subtract_datetime_col,extract_money_court_administrative_violation,extract_money_court_excute_public
 
 
 class T16002(Transformer):
@@ -69,7 +50,7 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: _get_maxMoney_from_string(x['execution_result']), axis=1)
+            df['max_money'] = df.apply(lambda x: extract_money_court_administrative_violation(x['execution_result']), axis=1)
             self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
 
     # 民商事裁判文书sql
@@ -264,7 +245,7 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_pub_info'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: _get_maxMoney_from_string(x['execute_content']), axis=1)
+            df['max_money'] = df.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
             self.variables['court_ent_pub_info_amt_3y'] = float("%.2f" % df['max_money'].sum())
 
     # 罪犯及嫌疑人名单sql
