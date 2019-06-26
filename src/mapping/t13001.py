@@ -206,11 +206,17 @@ class T13001(Transformer):
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
         df1 = sql_to_df(sql=(sql1),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+                        params={"user_name": self.user_name,
+                                "id_card_no": self.id_card_no,
+                                "phone": self.phone})
         df2 = sql_to_df(sql=(sql2),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+                        params={"user_name": self.user_name,
+                                "id_card_no": self.id_card_no,
+                                "phone": self.phone})
         df3 = sql_to_df(sql=(sql3),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+                        params={"user_name": self.user_name,
+                                "id_card_no": self.id_card_no,
+                                "phone": self.phone})
         merge1 = pd.merge(df1, df2, how='left', on='platform_code')
         df = pd.merge(merge1, df3, how='left', on='sms_id')
         df['date_dif'] = (df['create_time'] - df['overdue_time']).map(lambda x: x.days / 30)
@@ -248,7 +254,7 @@ class T13001(Transformer):
     ## 计算'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
     def _sms_max_owe_6m(self, df=None):
 
-        if len(df) != 0:
+        if len(df) > 0:
             df_3 = df.loc[df['date_dif'] < 6, :].copy()
             df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0W～0.2W", value=1)
             df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.2W～0.5W", value=2)

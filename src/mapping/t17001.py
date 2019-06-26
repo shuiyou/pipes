@@ -13,15 +13,7 @@ pd.set_option('display.max_rows', None)
 ## 网申核查相关的变量模块
 class T17001(Transformer):
 
-    def get_biz_type(self):
-        """
-        返回这个转换对应的biz type
-        :return:
-        """
-        return ''
-
     def __init__(self) -> None:
-
         super().__init__()
         self.variables = {
             'net_tel_small': 0,  # 网申核查_手机号命中通信小号库
@@ -160,9 +152,8 @@ class T17001(Transformer):
 
     # 计算客户行为检测模块字段
     def _cus_behav(self, df=None):
-
         df1 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] != ''), :].copy()
-        if len(df1) != 0:
+        if len(df1) > 0:
             row_list = []
             for index, col in df1.iterrows():
                 row_str = dict(col).get('item_detail')
@@ -173,8 +164,8 @@ class T17001(Transformer):
             for _, row in df2.iterrows():
                 new_dct = dict()
                 for i in range(len(row.frequency_detail_list)):
-                    new_dct[row.frequency_detail_list[i].get('detail').split('：')[0]] = \
-                        row.frequency_detail_list[i].get('detail').split('：')[1]
+                    split = row.frequency_detail_list[i].get('detail').split('：')
+                    new_dct[split[0]] = split[1]
                 new_lst.append(new_dct)
             df3 = pd.DataFrame(new_lst)
             df3['identity'] = 'user'
@@ -207,7 +198,7 @@ class T17001(Transformer):
             self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数', 0)
 
         df6 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
-        if len(df6) != 0:
+        if len(df6) > 0:
             df7 = df6[df6['item_name'].str.contains('3个月内申请人身份证作为联系人身份证出现的次数大于等于2')]
             self.variables['net_applicant_idc_3m_morethan2'] = len(df7)
             df8 = df6[df6['item_name'].str.contains('3个月内申请人手机号作为联系人手机号出现的次数大于等于2')]
@@ -216,19 +207,19 @@ class T17001(Transformer):
     # 计算多平台借贷申请检测模块字段
     def _mulplat_loan_app(self, df=None):
         df1 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '7天内申请人在多个平台申请借款'), :].copy()
-        if len(df1) != 0:
+        if len(df1) > 0:
             self.variables['net_apply_7d'] = jsonpath.jsonpath(json.loads(df1.iloc[0, 2]), 'platform_count')[0]
         df2 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '1个月内申请人在多个平台申请借款'), :].copy()
-        if len(df2) != 0:
+        if len(df2) > 0:
             self.variables['net_apply_1m'] = jsonpath.jsonpath(json.loads(df2.iloc[0, 2]), 'platform_count')[0]
         df3 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '3个月内申请人在多个平台申请借款'), :].copy()
-        if len(df3) != 0:
+        if len(df3) > 0:
             self.variables['net_apply_3m'] = jsonpath.jsonpath(json.loads(df3.iloc[0, 2]), 'platform_count')[0]
         df4 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '6个月内申请人在多个平台申请借款'), :].copy()
-        if len(df4) != 0:
+        if len(df4) > 0:
             self.variables['net_apply_6m'] = jsonpath.jsonpath(json.loads(df4.iloc[0, 2]), 'platform_count')[0]
         df5 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '12个月内申请人在多个平台申请借款'), :].copy()
-        if len(df5) != 0:
+        if len(df5) > 0:
             self.variables['net_apply_12m'] = jsonpath.jsonpath(json.loads(df5.iloc[0, 2]), 'platform_count')[0]
 
     #  执行变量转换
@@ -239,6 +230,3 @@ class T17001(Transformer):
         self._cus_behav(fraud_verification_df)
         self._mulplat_loan_app(fraud_verification_df)
 
-
-ps1 = T17001()
-ps1.run(id_card_no='321284198501083626', phone='15052304168', user_name='仲小梅')
