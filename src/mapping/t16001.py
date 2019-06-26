@@ -96,15 +96,15 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'query_date', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
+            yuangao = df[df['legal_status'].str.contains('原告')]
+            beigao = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_docu_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif yuangao.shape[0] == 0 and beigao.shape[0] == 0:
                 self.variables['court_docu_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif yuangao.shape[0] > 0 and beigao.shape[0] == 0:
                 self.variables['court_docu_status'] = 1
-            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+            elif beigao.shape[0] > 0:
                 self.variables['court_docu_status'] = 2
 
     def _info_trial_proc_df(self):
@@ -123,15 +123,15 @@ class T16001(Transformer):
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
+            origin = df[df['legal_status'].str.contains('原告')]
+            beigao = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_proc_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif origin.shape[0] == 0 and beigao.shape[0] == 0:
                 self.variables['court_proc_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif origin.shape[0] > 0 and beigao.shape[0] == 0:
                 self.variables['court_proc_status'] = 1
-            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+            elif beigao.shape[0] > 0:
                 self.variables['court_proc_status'] = 2
 
     def _info_tax_pay_df(self):
