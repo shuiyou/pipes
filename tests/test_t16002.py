@@ -6,7 +6,7 @@ def test_ps_court_administrative_violation():
     ps._ps_court_administrative_violation(df)
     print(ps.variables)
     assert ps.variables['court_ent_admi_vio'] == 2
-    assert ps.variables['court_ent_admi_vio_amt_3y'] == 434.82
+    assert ps.variables['court_ent_admi_vio_amt_3y'] == 384.82
 
 def test_ps_court_judicative_pape():
     ps = T16002()
@@ -61,7 +61,7 @@ def test_ps_court_excute_public():
     ps._ps_court_excute_public(df)
     print(ps.variables)
     assert ps.variables['court_ent_pub_info'] == 2
-    assert ps.variables['court_ent_pub_info_amt_3y'] == 22517.00
+    assert ps.variables['court_ent_pub_info_amt_3y'] == 2217000.00
 
 def test_ps_court_criminal_suspect():
     ps = T16002()
