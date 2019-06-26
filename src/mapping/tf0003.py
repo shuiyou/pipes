@@ -1,4 +1,4 @@
-
+import pandas as pd
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
@@ -298,7 +298,7 @@ class Tf0003(Transformer):
 
     def _info_exception_df(self):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,d.basic_id,d.result_out
+            SELECT c.ent_name,d.basic_id,d.result_out,d.result_in,d.date_out
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
@@ -313,7 +313,7 @@ class Tf0003(Transformer):
            ;
         """
         info_per_bus_legal = """
-            SELECT c.ent_name,d.basic_id,d.result_out
+            SELECT c.ent_name,d.basic_id,d.result_out,d.result_in,d.date_out
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
@@ -339,11 +339,31 @@ class Tf0003(Transformer):
                 self.variables['per_com_exception'] = 1
             else:
                 self.variables['per_com_exception_his'] = 1
+            if df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 3
+            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('无法联系'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 2
+            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 2
+            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('年度报告'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 1
+            else:
+                self.variables['per_com_exception_his'] = 0
         elif df2 is not None and len(df2) > 0:
             if df2[df2['result_out'] == None].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
             else:
                 self.variables['per_com_exception_his'] = 1
+            if df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 3
+            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('无法联系'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 2
+            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 2
+            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('年度报告'))].shape[0] > 0:
+                self.variables['per_com_exception_result'] = 1
+            else:
+                self.variables['per_com_exception_his'] = 0
 
     def _info_illegal_list_df(self):
         info_per_bus_shareholder = """
@@ -440,18 +460,105 @@ class Tf0003(Transformer):
                 df1[(df1['alt_item'].str.contains('法定代表人')) & (df1[self.year1] < 5)].shape[0]
             self.variables['per_com_saicChanInvestor'] = \
                 df1[(df1['alt_item'].str.contains('投资人')) & (df1[self.year1] < 5)].shape[0]
+            self.variables['per_com_saicChanRunscope']=df1[df1['alt_item'].str.contains('经营范围')].shape[0]
         elif df2 is not None and len(df2) > 0:
             self.year2 = subtract_datetime_col(df2, 'create_time', 'alt_date', 'Y')
             self.variables['per_com_saicChanLegal'] = \
                 df2[(df2['alt_item'].str.contains('法定代表人')) & (df1[self.year1] < 5)].shape[0]
             self.variables['per_com_saicChanInvestor'] = \
                 df2[(df2['alt_item'].str.contains('投资人')) & (df1[self.year1] < 5)].shape[0]
+            self.variables['per_com_saicChanRunscope'] = df2[df2['alt_item'].str.contains('经营范围')].shape[0]
 
 
 
+    def _info_legper_df(self):
+        info_per_bus_shareholder_entinvitem = """
+            SELECT c.ent_name,c.create_time,d.basic_id,d.funded_ratio,d. ent_status,d.ent_name
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_entinvitem as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_shareholder as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+           ;
+        """
+        info_per_bus_legal_entinvitem = """
+            SELECT c.ent_name,c.create_time,d.basic_id,d.funded_ratio,d. ent_status,d.ent_name
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_entinvitem as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_legal as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+           ;
+        """
+        info_per_bus_shareholder_frinv = """
+            SELECT c.ent_name,c.create_time,d.basic_id,d.funded_ratio,d. ent_status,d.ent_name
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_frinv as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_shareholder as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+           ;
+        """
+        info_per_bus_legal_frinv = """
+            SELECT c.ent_name,c.create_time,d.basic_id,d.funded_ratio,d. ent_status,d.ent_name
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_frinv as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_legal as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+           ;
+        """
+        df1 = sql_to_df(sql=info_per_bus_shareholder_entinvitem,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df2 = sql_to_df(sql=info_per_bus_legal_entinvitem,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df3 = sql_to_df(sql=info_per_bus_shareholder_frinv,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df4 = sql_to_df(sql=info_per_bus_legal_frinv,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df1, df2, df3, df4
 
-
-
+    def _legper_info(self, df1=None, df2=None, df3=None, df4=None):
+        if (df1 is not None and len(df1) > 0) or (df3 is not None and len(df3) > 0):
+            if df1[(df1['ent_status'].str.contains('吊销')) & (df1['funded_ratio'] >= 0.2)].shape[0] > 0:
+                self.variables['per_com_legper_relent_revoke']=1
+            elif df3[(df3['ent_status'].str.contains('吊销')) & (df3['funded_ratio'] >= 0.2)].shape[0] > 0:
+                self.variables['per_com_legper_relent_revoke'] = 1
+            df5 = pd.concat([df1[df1['funded_ratio'] >= 0.2], df3[df3['funded_ratio'] >= 0.2]])
+            df5 = df5.sort_values(by="ent_name")
+            self.variables['per_com_legper_outwardCount1'] = df5.drop_duplicates(subset=['ent_name'], inplace=True).shape[0]
+        elif (df2 is not None and len(df2) > 0) or (df4 is not None and len(df4) > 0):
+            if df2[(df2['ent_status'].str.contains('吊销')) & (df2['funded_ratio'] >= 0.2)].shape[0] > 0:
+                self.variables['per_com_legper_relent_revoke']=1
+            elif df4[(df4['ent_status'].str.contains('吊销')) & (df4['funded_ratio'] >= 0.2)].shape[0] > 0:
+                self.variables['per_com_legper_relent_revoke'] = 1
+            df6 = pd.concat([df2[df2['funded_ratio'] >= 0.2], df4[df4['funded_ratio'] >= 0.2]])
+            df6 = df6.sort_values(by="ent_name")
+            self.variables['per_com_legper_outwardCount1'] = df6.drop_duplicates(subset=['ent_name'], inplace=True).shape[0]
 
 
 
