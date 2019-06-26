@@ -1,14 +1,5 @@
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
-
-
-def months(mth_start, mth_end):
-    year1 = mth_start.year
-    year2 = mth_end.year
-    month1 = mth_start.month
-    month2 = mth_end.month
-    num = (year2 - year1) * 12 + (month2 - month1)
-    return num
+from mapping.tranformer import Transformer, subtract_datetime_col
 
 
 class T14001(Transformer):
@@ -21,7 +12,7 @@ class T14001(Transformer):
         self.variables = {
             'social_name_tel_in_black': 0,
             'social_idc_name_in_black': 0,
-            'social_tel_gray_sco': None,
+            'social_tel_gray_sco': 0,
             'social_query_mac_cnt': None,
             'social_dir_in_black_rate': None,
             'social_indir_in_black_rate': None,
@@ -29,7 +20,6 @@ class T14001(Transformer):
             'social_reg_app_cnt': 0,
             'social_query_else_cnt': 0,
             'social_query_else_cnt_6m': 0,
-            'social_query_else_cnt_24m': 0,
         }
 
     def _info_social_blacklist_df(self):
@@ -110,16 +100,13 @@ class T14001(Transformer):
         """
         df = sql_to_df(sql=(info_searched_history),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-
         return df
 
     def _searched_history(self, df=None):
         if df is not None and len(df) > 0:
-            df['mth'] = df.apply(lambda x: months(x['searched_date'], x['create_time']), axis=1)
+            self.mth = subtract_datetime_col(df, 'create_time', 'searched_date', 'M')
             self.variables['social_query_else_cnt'] = df[df['org_self'] == False].shape[0]
-            self.variables['social_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df['mth'] < 6)].shape[0]
-            self.variables['social_query_else_cnt_24m'] = df[(df['org_self'] == False) & (df['mth'] < 24)].shape[0]
-
+            self.variables['social_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df[self.mth] < 6)].shape[0]
 
     def transform(self):
         """

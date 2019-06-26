@@ -1,22 +1,31 @@
-from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
 import re
 
-
-def months(mth_start, mth_end):
-    year1 = mth_start.year
-    year2 = mth_end.year
-    month1 = mth_start.month
-    month2 = mth_end.month
-    num = (year2 - year1) * 12 + (month2 - month1)
-    return num
+from mapping.mysql_reader import sql_to_df
+from mapping.tranformer import Transformer, subtract_datetime_col
 
 
-def years(mth_start, mth_end):
-    year1 = mth_start.year
-    year2 = mth_end.year
-    num = year2 - year1
-    return num
+def get_money(var):
+    if len(list(map(float, re.findall(r"\d+\.?\d*", var)))) > 0:
+        value = max(list(map(float, re.findall(r"\d+\.?\d*", var))))
+    else:
+        value = float(0)
+    return value
+
+
+def get_spec_money1(var):
+    if re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var) != None:
+        value = float(re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var).group(0)) * 10000
+    else:
+        value = float(0)
+    return value
+
+
+def get_spec_money2(var):
+    if re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
+        value = float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
+    else:
+        value = float(0)
+    return value
 
 
 class T16001(Transformer):
@@ -58,16 +67,16 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_admi_vio),
+        df = sql_to_df(sql=info_admi_vio,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _admi_vio(self, df=None):
         if df is not None and len(df) > 0:
-            df['amt'] = df.apply(lambda x: float(re.findall(r"\d+\.?\d*", x['execution_result'])[0]), axis=1)
-            df['year'] = df.apply(lambda x: years(x['specific_date'], x['query_date']), axis=1)
+            self.year = subtract_datetime_col(df, 'query_date', 'specific_date', 'Y')
+            df['amt'] = df.apply(lambda x: get_money(x['execution_result']), axis=1)
             self.variables['court_admi_vio'] = df.shape[0]
-            self.variables['court_admi_vio_amt_3y'] = df[df['year'] < 3]['amt'].sum()
+            self.variables['court_admi_vio_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
 
     def _info_judge_df(self):
         info_judge = """
@@ -78,24 +87,24 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_judge),
+        df = sql_to_df(sql=info_judge,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _judge(self, df=None):
         if df is not None and len(df) > 0:
-            df['year'] = df.apply(lambda x: years(x['closed_time'], x['query_date']), axis=1)
+            self.year = subtract_datetime_col(df, 'query_date', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
-            self.variables['court_judge_amt_3y'] = df[df['year'] < 3]['case_amount'].sum()
+            self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
+            yuangao = df[df['legal_status'].str.contains('原告')]
+            beigao = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_docu_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif yuangao.shape[0] == 0 and beigao.shape[0] == 0:
                 self.variables['court_docu_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif yuangao.shape[0] > 0 and beigao.shape[0] == 0:
                 self.variables['court_docu_status'] = 1
-            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+            elif beigao.shape[0] > 0:
                 self.variables['court_docu_status'] = 2
 
     def _info_trial_proc_df(self):
@@ -107,22 +116,22 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_trial_proc),
+        df = sql_to_df(sql=info_trial_proc,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
+            origin = df[df['legal_status'].str.contains('原告')]
+            beigao = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_proc_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif origin.shape[0] == 0 and beigao.shape[0] == 0:
                 self.variables['court_proc_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif origin.shape[0] > 0 and beigao.shape[0] == 0:
                 self.variables['court_proc_status'] = 1
-            elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
+            elif beigao.shape[0] > 0:
                 self.variables['court_proc_status'] = 2
 
     def _info_tax_pay_df(self):
@@ -134,7 +143,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_tax_pay),
+        df = sql_to_df(sql=info_tax_pay,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -151,7 +160,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_owed_owe),
+        df = sql_to_df(sql=info_owed_owe,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -168,15 +177,15 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_owed_owe),
+        df = sql_to_df(sql=info_tax_arrears,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _tax_arrears(self, df=None):
         if df is not None and len(df) > 0:
-            df['year'] = df.apply(lambda x: years(x['taxes_time'], x['query_date']), axis=1)
+            self.year = subtract_datetime_col(df, 'query_date', 'taxes_time', 'Y')
             self.variables['court_tax_arrears'] = df.shape[0]
-            self.variables['court_tax_arrears_amt_3y'] = df[df['year'] < 3]['taxes'].sum()
+            self.variables['court_tax_arrears_amt_3y'] = df[df[self.year] < 3]['taxes'].sum()
 
     def _info_dishonesty_df(self):
         info_dishonesty = """
@@ -187,7 +196,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_dishonesty),
+        df = sql_to_df(sql=info_dishonesty,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -204,7 +213,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_limit_entry),
+        df = sql_to_df(sql=info_limit_entry,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -238,16 +247,17 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_pub_info),
+        df = sql_to_df(sql=info_pub_info,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     def _pub_info(self, df=None):
         if df is not None and len(df) > 0:
-            df['amt'] = df.apply(lambda x: float(re.findall(r"\d+\.?\d*", x['execute_content'])[0]), axis=1)
-            df['year'] = df.apply(lambda x: years(x['filing_time'], x['query_date']), axis=1)
+            self.year = subtract_datetime_col(df, 'query_date', 'filing_time', 'Y')
+            df['amt'] = df.apply(
+                lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
-            self.variables['court_pub_info_amt_3y'] = df[df['year'] < 3]['amt'].sum()
+            self.variables['court_pub_info_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
 
     def _info_cri_sus_df(self):
         info_cri_sus = """
@@ -258,7 +268,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_cri_sus),
+        df = sql_to_df(sql=info_cri_sus,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -277,7 +287,7 @@ class T16001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_court_loan),
+        df = sql_to_df(sql=info_court_loan,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
@@ -311,6 +321,6 @@ class T16001(Transformer):
         self._dishonesty(self._info_dishonesty_df())
         self._limit_entry(self._info_limit_entry_df())
         self._high_cons(self._info_high_cons_df())
-        self._pub_info(self._info_high_cons_df())
+        self._pub_info(self._info_pub_info_df())
         self._cri_sus(self._info_cri_sus_df())
         self._court_loan(self._info_court_loan_df())
