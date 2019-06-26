@@ -73,9 +73,10 @@ class T17001(Transformer):
             'net_idc_name_hit_exec_vague': 0,  # 网申核查_身份证_姓名命中法院执行模糊名单
             'net_applicant_idc_3m_morethan2': 0,  # 网申核查_3个月内申请人身份证作为联系人身份证出现的次数大于等于2
             'net_applicant_tel_3m_morethan2': 0,  # 网申核查_3个月内申请人手机号作为联系人手机号出现的次数大于等于2
+            'net_final_score': None,  # 网申核查_风险分数
         }
 
-    # 获取目标数据集
+    # 获取目标数据集1
     def _info_fraud_verification_item(self):
 
         sql = '''
@@ -222,11 +223,28 @@ class T17001(Transformer):
         if len(df5) > 0:
             self.variables['net_apply_12m'] = jsonpath.jsonpath(json.loads(df5.iloc[0, 2]), 'platform_count')[0]
 
-    #  执行变量转换
+    # 获取目标数据集2
+    def _info_fraud_verification(self):
+
+        sql = '''
+               SELECT * FROM info_fraud_verification 
+               WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
+               ORDER BY id DESC LIMIT 1
+        '''
+        df = sql_to_df(sql=(sql),
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        return df
+
+    # 计算网申核查_风险分数
+    def _net_final_score(self, df=None):
+
+        self.variables['net_final_score'] = int(df['final_score'].values[0])
+
+    # 执行变量转换
     def transform(self):
         fraud_verification_df = self._info_fraud_verification_item()
         self._per_base_info(fraud_verification_df)
         self._risk_info(fraud_verification_df)
         self._cus_behav(fraud_verification_df)
         self._mulplat_loan_app(fraud_verification_df)
-
+        self._net_final_score(self._info_fraud_verification())
