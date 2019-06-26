@@ -43,7 +43,7 @@ class Tf0002(Transformer):
         super().__init__()
         self.variables = {
             'per_face_relent_indusCount1': 0,
-            'per_face_relent_indusCode1': 0
+            'per_face_relent_indusCode1': ''
         }
 
     def _info_per_bus_legal_df(self, status):
