@@ -21,7 +21,7 @@ class T14001(Transformer):
         self.variables = {
             'social_name_tel_in_black': 0,
             'social_idc_name_in_black': 0,
-            'social_tel_gray_sco': 0,
+            'social_tel_gray_sco': None,
             'social_query_mac_cnt': None,
             'social_dir_in_black_rate': None,
             'social_indir_in_black_rate': None,
@@ -29,6 +29,7 @@ class T14001(Transformer):
             'social_reg_app_cnt': 0,
             'social_query_else_cnt': 0,
             'social_query_else_cnt_6m': 0,
+            'social_query_else_cnt_24m': 0,
         }
 
     def _info_social_blacklist_df(self):
@@ -117,6 +118,8 @@ class T14001(Transformer):
             df['mth'] = df.apply(lambda x: months(x['searched_date'], x['create_time']), axis=1)
             self.variables['social_query_else_cnt'] = df[df['org_self'] == False].shape[0]
             self.variables['social_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df['mth'] < 6)].shape[0]
+            self.variables['social_query_else_cnt_24m'] = df[(df['org_self'] == False) & (df['mth'] < 24)].shape[0]
+
 
     def transform(self):
         """
