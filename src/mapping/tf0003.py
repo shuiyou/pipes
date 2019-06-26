@@ -41,7 +41,8 @@ class Tf0003(Transformer):
             'per_com_exception_result': 0,
             'per_com_saicChanRunscope': 0,
             'per_com_legper_relent_revoke': 0,
-            'per_com_legper_outwardCount1': 0
+            'per_com_legper_outwardCount1': 0,
+            'per_com_industryphycode': None
         }
 
     def _info_case_df(self):
@@ -447,15 +448,52 @@ class Tf0003(Transformer):
             self.variables['per_com_saicChanInvestor'] = \
                 df2[(df2['alt_item'].str.contains('投资人')) & (df1[self.year1] < 5)].shape[0]
 
+    def _info_com_bus_face_df(self):
+        info_per_bus_shareholder = """
+            SELECT d.industry_phy_code
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_face as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_shareholder as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            ORDER BY c.create_time DESC LIMIT 1
+           ;
+        """
+        info_per_bus_legal = """
+            SELECT d.industry_phy_code
+            FROM info_com_bus_basic as c
+            INNER JOIN info_com_bus_face as d
+            on c.id=d.basic_id
+            WHERE c.ent_name in  (SELECT b.ent_name
+            FROM info_per_bus_basic as a
+            LEFT JOIN info_per_bus_legal as b
+            ON a.id=b.basic_id
+            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            ORDER BY c.create_time DESC LIMIT 1
+           ;
+        """
+        df1 = sql_to_df(sql=info_per_bus_shareholder,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df2 = sql_to_df(sql=info_per_bus_legal,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return [df1, df2]
 
-
-
-
-
-
-
-
-
+    def _per_com_industryphycode(self, list=None):
+        if list[0] is not None:
+            self.variables['per_com_industryphycode'] = list[0].values[0]
+        elif list[1] is not None:
+            self.variables['per_com_industryphycode'] = list[1].values[0]
+        else:
+            self.variables['per_com_industryphycode'] = None
     def transform(self):
         """
         执行变量转换
@@ -473,3 +511,4 @@ class Tf0003(Transformer):
         self._pub_info(self._info_pub_info_df())
         self._cri_sus(self._info_cri_sus_df())
         self._court_loan(self._info_court_loan_df())
+        self._per_com_industryphycode(self._info_com_bus_face_df())
