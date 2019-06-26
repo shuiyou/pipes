@@ -106,7 +106,7 @@ class Transformer(object):
         self.transform()
         return self.variables
 
-    def input(self, id_card_no, phone, user_name, user_type):
+    def input(self, id_card_no, phone, user_name, user_type=None):
         self.id_card_no = id_card_no
         self.user_name = user_name
         self.phone = phone
