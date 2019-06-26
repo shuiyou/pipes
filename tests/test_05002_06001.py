@@ -17,11 +17,10 @@ def test_ps_name_id():
 
 def test_phone_check():
     ps = T05001()
-    mock_df = pd.DataFrame({
-        'result': [b'\x01']
-    })
-    ps._phone_check(df=mock_df)
-    assert ps.variables['phone_check'] == 0
+    ps.run(user_name='伊春光', id_card_no='412827199102225781', phone='15317063103')
+    print(ps.variables)
+    ps.run(user_name='仝太宝', id_card_no='342225198604171519', phone='13671770773')
+    print(ps.variables)
 
 
 def test_ps_crime_type():

@@ -15,7 +15,7 @@ class T05001(Transformer):
 
     def _info_certification_df(self):
         info_certification = """
-            SELECT result FROM info_certification 
+            SELECT phone, result FROM info_certification 
             WHERE certification_type = 'ID_NAME_MOBILE' AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone=%(phone)s
             ORDER BY expired_at DESC LIMIT 1;
