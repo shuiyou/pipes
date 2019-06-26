@@ -13,9 +13,9 @@ def _face_relent_indus_count_1(df):
     sql = """
         SELECT count(DISTINCT industry_phy_code) as 'cnt' FROM info_com_bus_face
         WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at) 
-              AND basic_id in %(basic_ids)s;
+              AND credit_code in %(credit_code)s;
     """
-    df_out = sql_to_df(sql=sql, params={"basic_ids": df['basic_id'].unique().tolist()})
+    df_out = sql_to_df(sql=sql, params={"credit_code": df['credit_code'].unique().tolist()})
     return df_out['cnt'][0]
 
 
@@ -28,9 +28,9 @@ def _face_relent_indus_code1(df):
     sql = """
         SELECT DISTINCT industry_phy_code FROM info_com_bus_face
         WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at) 
-              AND basic_id in %(basic_ids)s;
+              AND credit_code in %(credit_code)s;
     """
-    df_out = sql_to_df(sql=sql, params={"basic_ids": df['basic_id'].unique().tolist()})
+    df_out = sql_to_df(sql=sql, params={"credit_code": df['credit_code'].unique().tolist()})
     return ','.join(df_out['industry_phy_code'].tolist())
 
 
@@ -48,7 +48,7 @@ class Tf0002(Transformer):
 
     def _info_per_bus_legal_df(self, status):
         sql = """
-            SELECT a.basic_id as 'basic_id' FROM info_per_bus_legal a, 
+            SELECT credit_code FROM info_per_bus_legal a, 
             (SELECT id FROM info_per_bus_basic as inner_b 
                 WHERE inner_b.name = %(user_name)s 
                 AND inner_b.id_card_no = %(id_card_no)s 
@@ -64,7 +64,7 @@ class Tf0002(Transformer):
 
     def _info_per_bus_shareholder_df(self, status, ratio=0.2):
         sql = """
-            SELECT a.basic_id as 'basic_id' FROM info_per_bus_shareholder a, 
+            SELECT credit_code FROM info_per_bus_shareholder a, 
             (SELECT id FROM info_per_bus_basic as inner_b 
                 WHERE inner_b.name = %(user_name)s 
                 AND inner_b.id_card_no = %(id_card_no)s 
