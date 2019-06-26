@@ -22,7 +22,7 @@ def test_t17001():
                              'net_bah_3m_mail_rel_idc': 0,'net_bah_3m_tel_rel_idc': 0, 'net_apply_7d': 2,
                              'net_apply_1m': 3, 'net_apply_3m': 5, 'net_apply_6m': 5, 'net_apply_12m': 6,
                              'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0, 'net_idc_name_hit_exec_vague': 0,
-                             'net_applicant_idc_3m_morethan2': 0, 'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_idc_3m_morethan2': 0, 'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 97}
 
     ps2 = T17001()
     ps2.run(user_name='丁炎滨', id_card_no='370983199111010012', phone='13761955305')
@@ -44,7 +44,7 @@ def test_t17001():
                              'net_apply_7d': 0, 'net_apply_1m': 0, 'net_apply_3m': 0, 'net_apply_6m': 0,
                              'net_apply_12m': 0, 'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0,
                              'net_idc_name_hit_exec_vague': 0, 'net_applicant_idc_3m_morethan2': 0,
-                             'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 0}
 
     ps3 = T17001()
     ps3.run(user_name='万国梁', id_card_no='360123198508011930', phone='18516326459')
@@ -66,7 +66,7 @@ def test_t17001():
                              'net_apply_7d': 0, 'net_apply_1m': 0, 'net_apply_3m': 0, 'net_apply_6m': 0,
                              'net_apply_12m': 0, 'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0,
                              'net_idc_name_hit_exec_vague': 0, 'net_applicant_idc_3m_morethan2': 0,
-                             'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 0}
 
     ps4 = T17001()
     ps4.run(user_name='云高琼', id_card_no='422826198009300047', phone='15347020567')
@@ -88,7 +88,7 @@ def test_t17001():
                              'net_apply_7d': 0, 'net_apply_1m': 3, 'net_apply_3m': 6, 'net_apply_6m': 6,
                              'net_apply_12m': 11, 'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0,
                              'net_idc_name_hit_exec_vague': 0, 'net_applicant_idc_3m_morethan2': 0,
-                             'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 28}
 
     ps5 = T17001()
     ps5.run(user_name='何淼君', id_card_no='332621197205058252', phone='13117174542')
@@ -110,7 +110,7 @@ def test_t17001():
                              'net_apply_7d': 0, 'net_apply_1m': 0, 'net_apply_3m': 0, 'net_apply_6m': 0,
                              'net_apply_12m': 0, 'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0,
                              'net_idc_name_hit_exec_vague': 0, 'net_applicant_idc_3m_morethan2': 0,
-                             'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 0}
 
     ps6 = T17001()
     ps6.run(user_name='余瑞泉', id_card_no='350623198102251016', phone='13817853005')
@@ -132,4 +132,4 @@ def test_t17001():
                              'net_apply_7d': 0, 'net_apply_1m': 0, 'net_apply_3m': 0, 'net_apply_6m': 0,
                              'net_apply_12m': 0, 'net_risk_age_high': 0, 'net_idc_name_hit_dish_vague': 0,
                              'net_idc_name_hit_exec_vague': 0, 'net_applicant_idc_3m_morethan2': 0,
-                             'net_applicant_tel_3m_morethan2': 0}
+                             'net_applicant_tel_3m_morethan2': 0, 'net_final_score': 0}
