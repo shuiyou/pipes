@@ -46,8 +46,8 @@ class T18001(Transformer):
                 AND inner_b.id_card_no = %(id_card_no)s 
                 AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at)) AS b 
             WHERE a.basic_id = b.id 
+                  AND a.funded_ratio >=%(ratio)s
                   AND a.ent_status in %(status)s
-                  AND a.sub_conam/a.reg_cap>=%(ratio)s;
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
