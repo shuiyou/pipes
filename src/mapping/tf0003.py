@@ -53,20 +53,30 @@ class Tf0003(Transformer):
             'per_com_city': None
         }
 
-    def _info_case_df(self):
+    def _info_sql_df(self):
+        info_sql_df = """
+             SELECT b.ent_name
+             FROM info_per_bus_basic as a
+             LEFT JOIN info_per_bus_shareholder as b
+             ON a.id=b.basic_id
+             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
+             AND a.name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+             AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+             ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1
+            ;
+         """
+        df = sql_to_df(sql=info_sql_df,
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df['ent_name'][0]
+
+
+    def _info_case_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_case as d
             on c.id=d.basic_id
-            WHERE c.ent_name in (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name = %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -74,20 +84,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_case as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                        params={"ent_name": self.ent_name})
         return df1, df2
 
     def _case_info(self, df1=None, df2=None):
@@ -96,20 +99,13 @@ class Tf0003(Transformer):
         elif df2 is not None and len(df2) > 0:
             self.variables['per_com_case_info'] = 1
 
-    def _info_shares_frost_df(self):
+    def _info_shares_frost_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.judicial_froz_state
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_frost as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -117,20 +113,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_frost as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                        params={"ent_name": self.ent_name})
         return df1, df2
 
     def _shares_frost(self, df1=None, df2=None):
@@ -151,20 +140,13 @@ class Tf0003(Transformer):
 
 
 
-    def _info_shares_impawn_df(self):
+    def _info_shares_impawn_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.imp_exe_state
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_impawn as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -172,20 +154,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_impawn as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _shares_impawn(self, df1=None, df2=None):
@@ -206,20 +181,13 @@ class Tf0003(Transformer):
 
 
 
-    def _info_mor_detail_df(self):
+    def _info_mor_detail_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.mort_state
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -227,20 +195,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                        params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _mor_detail(self, df1=None, df2=None):
@@ -260,20 +221,13 @@ class Tf0003(Transformer):
                 self.variables['per_com_mor_detail_his'] = 1
 
 
-    def _info_liquidation_df(self):
+    def _info_liquidation_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_liquidation as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -281,20 +235,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_liquidation as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _liquidation_info(self, df1=None, df2=None):
@@ -305,20 +252,13 @@ class Tf0003(Transformer):
 
 
 
-    def _info_exception_df(self):
+    def _info_exception_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.result_out,d.result_in,d.date_out
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -326,20 +266,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                        params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _exception_info(self, df1=None, df2=None):
@@ -374,20 +307,13 @@ class Tf0003(Transformer):
             else:
                 self.variables['per_com_exception_his'] = 0
 
-    def _info_illegal_list_df(self):
+    def _info_illegal_list_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.illegal_rresult_out
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_illegal as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -395,20 +321,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_illegal as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _illegal_list_info(self, df1=None, df2=None):
@@ -425,20 +344,13 @@ class Tf0003(Transformer):
 
 
 
-    def _info_saicChanLegal_df(self):
+    def _info_saicChanLegal_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,c.create_time,d.basic_id,d.alt_date,d.alt_item
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_alter as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal = """
@@ -446,20 +358,13 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_alter as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _saicChanLegal_info(self, df1=None, df2=None):
@@ -483,20 +388,13 @@ class Tf0003(Transformer):
                 df2[(df2['alt_item'].str.contains('注册资本')) & (df2[self.year1] < 5)].shape[0]
 
 
-    def _info_legper_df(self):
+    def _info_legper_df(self, ent_name):
         info_per_bus_shareholder_entinvitem = """
             SELECT c.ent_name,c.create_time,d.basic_id,d.funded_ratio,d. ent_status,d.ent_name
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_entinvitem as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal_entinvitem = """
@@ -504,14 +402,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_entinvitem as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_shareholder_frinv = """
@@ -519,14 +410,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_frinv as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         info_per_bus_legal_frinv = """
@@ -534,24 +418,17 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_frinv as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder_entinvitem,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal_entinvitem,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df3 = sql_to_df(sql=info_per_bus_shareholder_frinv,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df4 = sql_to_df(sql=info_per_bus_legal_frinv,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2, df3, df4
 
     def _legper_info(self, df1=None, df2=None, df3=None, df4=None):
@@ -573,21 +450,14 @@ class Tf0003(Transformer):
             self.variables['per_com_legper_outwardCount1'] = df6.shape[0]
 
 
-    def _info_industryphycode_df(self):
+    def _info_industryphycode_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,c.create_time,d.basic_id,d.industry_phy_code,d.open_to,d.open_from,d.es_date,
             d.area_code,d.industry_code,d.province,d.city,d.expired_at
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_shareholder as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
             ORDER BY d.expired_at DESC LIMIT 1
            ;
         """
@@ -597,21 +467,14 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
-            FROM info_per_bus_basic as a
-            LEFT JOIN info_per_bus_legal as b
-            ON a.id=b.basic_id
-            WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
-            AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
-            ORDER BY b.reg_cap DESC,b.jhi_date LIMIT 1)
+            WHERE c.ent_name =  %(ent_name)s
             ORDER BY d.expired_at DESC LIMIT 1
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+                       params={"ent_name": self.ent_name})
         return df1, df2
 
     def _industryphycode_info(self, df1=None, df2=None):
@@ -641,32 +504,32 @@ class Tf0003(Transformer):
         执行变量转换
         :return:
         """
-        case_df = self._info_case_df()
+        case_df = self._info_case_df(ent_name=self._info_sql_df())
         self._case_info(case_df[0], case_df[1])
 
-        shares_fronts_df = self._info_shares_frost_df()
+        shares_fronts_df = self._info_shares_frost_df(ent_name=self._info_sql_df())
         self._shares_frost(shares_fronts_df[0], shares_fronts_df[1])
 
-        shares_impawn_df = self._info_shares_impawn_df()
+        shares_impawn_df = self._info_shares_impawn_df(ent_name=self._info_sql_df())
         self._shares_impawn(shares_impawn_df[0], shares_impawn_df[1])
 
-        mor_detail_df = self._info_mor_detail_df()
+        mor_detail_df = self._info_mor_detail_df(ent_name=self._info_sql_df())
         self._mor_detail(mor_detail_df[0], mor_detail_df[1])
 
-        liquidation_df = self._info_liquidation_df()
+        liquidation_df = self._info_liquidation_df(ent_name=self._info_sql_df())
         self._liquidation_info(liquidation_df[0], liquidation_df[1])
 
-        exception_df = self._info_exception_df()
+        exception_df = self._info_exception_df(ent_name=self._info_sql_df())
         self._exception_info(exception_df[0], exception_df[1])
 
-        illegal_list_df = self._info_illegal_list_df()
+        illegal_list_df = self._info_illegal_list_df(ent_name=self._info_sql_df())
         self._illegal_list_info(illegal_list_df[0], illegal_list_df[1])
 
-        saic_chan_legal_df = self._info_saicChanLegal_df()
+        saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=self._info_sql_df())
         self._saicChanLegal_info(saic_chan_legal_df[0], saic_chan_legal_df[1])
 
-        legper_df = self._info_legper_df()
+        legper_df = self._info_legper_df(ent_name=self._info_sql_df())
         self._legper_info(legper_df[0], legper_df[1], legper_df[2],legper_df[3])
 
-        industryphycode_df = self._info_industryphycode_df()
+        industryphycode_df = self._info_industryphycode_df(ent_name=self._info_sql_df())
         self._industryphycode_info(industryphycode_df[0], industryphycode_df[1])
