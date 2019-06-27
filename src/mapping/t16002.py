@@ -78,7 +78,7 @@ class T16002(Transformer):
             df1 = df.dropna(how='any',axis=0)
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
-            if plaintiff_df.shape[0] == df1.shape[0]:
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
                 self.variables['court_ent_docu_status'] = 1
             elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
@@ -109,7 +109,7 @@ class T16002(Transformer):
             df1 = df.dropna(how='any', axis=0)
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
-            if plaintiff_df.shape[0] == df1.shape[0]:
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
                 self.variables['court_ent_proc_status'] = 1
             elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
