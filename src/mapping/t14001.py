@@ -33,8 +33,10 @@ class T14001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
         """
-        df = sql_to_df(sql=(info_social_blacklist),
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=info_social_blacklist,
+                       params={"user_name": self.user_name,
+                               "id_card_no": self.id_card_no,
+                               "phone": self.phone})
         return df
 
     def _blacklist(self, df=None):
@@ -81,8 +83,10 @@ class T14001(Transformer):
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
         """
-        df = sql_to_df(sql=(info_social_gray),
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=info_social_gray,
+                       params={"user_name": self.user_name,
+                               "id_card_no": self.id_card_no,
+                               "phone": self.phone})
         return df
 
     def _social_register(self, df=None):
@@ -98,8 +102,10 @@ class T14001(Transformer):
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s;
         """
-        df = sql_to_df(sql=(info_searched_history),
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=info_searched_history,
+                       params={"user_name": self.user_name,
+                               "id_card_no": self.id_card_no,
+                               "phone": self.phone})
         return df
 
     def _searched_history(self, df=None):
