@@ -17,7 +17,7 @@ class T18001(Transformer):
         }
 
     def _info_per_bus_legal_df(self, status):
-        if len(status) > 0:
+        if status is not None and len(status) > 0:
             sql = """
                 SELECT count(1) as 'cnt' FROM info_per_bus_legal a, 
                 (SELECT id FROM info_per_bus_basic as inner_b 
