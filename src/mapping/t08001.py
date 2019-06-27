@@ -10,13 +10,13 @@ class T08001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            "fraudinfo_isMachdBlMakt": 0,
-            "fraudinfo_isMachCraCall": 0,
-            "fraudinfo_isMachFraud": 0,
-            "fraudinfo_isMachEmpty": 0,
-            "fraudinfo_isMachYZmobile": 0,
-            "fraudinfo_isMachSmallNo": 0,
-            "fraudinfo_isMachSZNo": 0
+            "fraudinfo_isMachdBlMakt": 0, # 欺诈资讯_命中第三方标注黑名单
+            "fraudinfo_isMachCraCall": 0, # 欺诈资讯_命中骚扰电话
+            "fraudinfo_isMachFraud": 0, # 欺诈资讯_命中欺诈号码
+            "fraudinfo_isMachEmpty": 0, # 欺诈资讯_命中空号（非正常短信语音号码）
+            "fraudinfo_isMachYZmobile": 0, # 欺诈资讯_命中收码平台号码
+            "fraudinfo_isMachSmallNo": 0, # 欺诈资讯_命中小号
+            "fraudinfo_isMachSZNo": 0 # 欺诈资讯_命中社工库号码
         }
 
     def _info_risk_anti_fraud_df(self):
