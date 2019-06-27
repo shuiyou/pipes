@@ -1,5 +1,4 @@
 import pandas as pd
-
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
@@ -90,15 +89,15 @@ class T13001(Transformer):
 
     ## 计算短信核查_申请金额最大等级
     def _sms_max_apply(self, df=None):
-
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="0W～0.2W", value=1)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="0.2W～0.5W", value=2)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="0.5W～1W", value=3)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="1W～3W", value=4)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="3W～5W", value=5)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="5W～10W", value=6)
-        df['apply_amount'] = df['apply_amount'].replace(to_replace="10W以上", value=7)
-        self.variables['sms_max_apply'] = df['apply_amount'].max()
+        if len(df) != 0:
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="0W～0.2W", value=1)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="0.2W～0.5W", value=2)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="0.5W～1W", value=3)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="1W～3W", value=4)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="3W～5W", value=5)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="5W～10W", value=6)
+            df['apply_amount'] = df['apply_amount'].replace(to_replace="10W以上", value=7)
+            self.variables['sms_max_apply'] = df['apply_amount'].max()
 
     ## 获取目标数据集3
     def _info_sms_loan(self):
@@ -119,15 +118,15 @@ class T13001(Transformer):
 
     ## 计算短信核查_放款金额最大等级
     def _sms_max_loan(self, df=None):
-
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="0W～0.2W", value=1)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="0.2W～0.5W", value=2)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="0.5W～1W", value=3)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="1W～3W", value=4)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="3W～5W", value=5)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="5W～10W", value=6)
-        df['loan_amount'] = df['loan_amount'].replace(to_replace="10W以上", value=7)
-        self.variables['sms_max_loan'] = df['loan_amount'].max()
+        if len(df) != 0:
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="0W～0.2W", value=1)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="0.2W～0.5W", value=2)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="0.5W～1W", value=3)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="1W～3W", value=4)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="3W～5W", value=5)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="5W～10W", value=6)
+            df['loan_amount'] = df['loan_amount'].replace(to_replace="10W以上", value=7)
+            self.variables['sms_max_loan'] = df['loan_amount'].max()
 
     ## 获取目标数据集4
     def _info_sms_loan_reject(self):
@@ -165,15 +164,15 @@ class T13001(Transformer):
 
     ## 计算短信核查_逾期金额最大等级
     def _sms_max_overdue(self, df=None):
-
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="0W～0.2W", value=1)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="0.2W～0.5W", value=2)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="0.5W～1W", value=3)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="1W～3W", value=4)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="3W～5W", value=5)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="5W～10W", value=6)
-        df['overdue_money'] = df['overdue_money'].replace(to_replace="10W以上", value=7)
-        self.variables['sms_max_overdue'] = df['overdue_money'].max()
+        if len(df) != 0:
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="0W～0.2W", value=1)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="0.2W～0.5W", value=2)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="0.5W～1W", value=3)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="1W～3W", value=4)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="3W～5W", value=5)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="5W～10W", value=6)
+            df['overdue_money'] = df['overdue_money'].replace(to_replace="10W以上", value=7)
+            self.variables['sms_max_overdue'] = df['overdue_money'].max()
 
     ## 获取目标数据集6
     def _info_sms_debt(self):
@@ -208,15 +207,15 @@ class T13001(Transformer):
 
     ## 计算短信核查_欠款金额最大等级
     def _sms_max_owe(self, df=None):
-
-        df['debt_money'] = df['debt_money'].replace(to_replace="0W～0.2W", value=1)
-        df['debt_money'] = df['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
-        df['debt_money'] = df['debt_money'].replace(to_replace="0.5W～1W", value=3)
-        df['debt_money'] = df['debt_money'].replace(to_replace="1W～3W", value=4)
-        df['debt_money'] = df['debt_money'].replace(to_replace="3W～5W", value=5)
-        df['debt_money'] = df['debt_money'].replace(to_replace="5W～10W", value=6)
-        df['debt_money'] = df['debt_money'].replace(to_replace="10W以上", value=7)
-        self.variables['sms_max_owe'] = df['debt_money'].max()
+        if len(df) != 0:
+            df['debt_money'] = df['debt_money'].replace(to_replace="0W～0.2W", value=1)
+            df['debt_money'] = df['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
+            df['debt_money'] = df['debt_money'].replace(to_replace="0.5W～1W", value=3)
+            df['debt_money'] = df['debt_money'].replace(to_replace="1W～3W", value=4)
+            df['debt_money'] = df['debt_money'].replace(to_replace="3W～5W", value=5)
+            df['debt_money'] = df['debt_money'].replace(to_replace="5W～10W", value=6)
+            df['debt_money'] = df['debt_money'].replace(to_replace="10W以上", value=7)
+            self.variables['sms_max_owe'] = df['debt_money'].max()
 
     ## 计算短信核查_近6个月内欠款次数
     def _sms_owe_cnt_6m(self, df=None):
@@ -231,19 +230,20 @@ class T13001(Transformer):
             df_2 = df.loc[(df['date_dif'] >= 6) & (df['date_dif'] < 12), :].copy()
             self.variables['sms_owe_cnt_6_12m'] = len(df_2)
 
-    ## 计算'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
+    ## 计算短信核查_近6个月内欠款金额最大等级
     def _sms_max_owe_6m(self, df=None):
 
         if len(df) != 0:
             df_3 = df.loc[df['date_dif'] < 6, :].copy()
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0W～0.2W", value=1)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.5W～1W", value=3)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="1W～3W", value=4)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="3W～5W", value=5)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="5W～10W", value=6)
-            df_3['debt_money'] = df_3['debt_money'].replace(to_replace="10W以上", value=7)
-            self.variables['sms_max_owe_6m'] = df_3['debt_money'].max()
+            if len(df_3) != 0:
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0W～0.2W", value=1)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.2W～0.5W", value=2)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="0.5W～1W", value=3)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="1W～3W", value=4)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="3W～5W", value=5)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="5W～10W", value=6)
+                df_3['debt_money'] = df_3['debt_money'].replace(to_replace="10W以上", value=7)
+                self.variables['sms_max_owe_6m'] = df_3['debt_money'].max()
 
     ##  执行变量转换
     def transform(self):
