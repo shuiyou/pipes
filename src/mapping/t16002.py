@@ -74,11 +74,10 @@ class T16002(Transformer):
 
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_ent_docu_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+            elif df[df['legal_status'].str.contains('原告')].shape[0] < df.shape[0] and \
                     df[df['legal_status'].str.contains('被告')].shape[0] == 0:
                 self.variables['court_ent_docu_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == df.shape[0]:
                 self.variables['court_ent_docu_status'] = 1
             elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
                 self.variables['court_ent_docu_status'] = 2
@@ -106,11 +105,10 @@ class T16002(Transformer):
 
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_ent_proc_status'] = 0
-            elif df[df['legal_status'].str.contains('原告')].shape[0] == 0 and \
+            elif df[df['legal_status'].str.contains('原告')].shape[0] < df.shape[0] and \
                     df[df['legal_status'].str.contains('被告')].shape[0] == 0:
                 self.variables['court_ent_proc_status'] = 3
-            elif df[df['legal_status'].str.contains('原告')].shape[0] > 0 and \
-                    df[df['legal_status'].str.contains('被告')].shape[0] == 0:
+            elif df[df['legal_status'].str.contains('原告')].shape[0] == df.shape[0]:
                 self.variables['court_ent_proc_status'] = 1
             elif df[df['legal_status'].str.contains('被告')].shape[0] > 0:
                 self.variables['court_ent_proc_status'] = 2
