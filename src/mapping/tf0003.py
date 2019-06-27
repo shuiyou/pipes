@@ -549,16 +549,16 @@ class Tf0003(Transformer):
             elif df3[(df3['ent_status'].str.contains('吊销')) & (df3['funded_ratio'] >= 0.2)].shape[0] > 0:
                 self.variables['per_com_legper_relent_revoke'] = 1
             df5 = pd.concat([df1[df1['funded_ratio'] >= 0.2], df3[df3['funded_ratio'] >= 0.2]])
-            df5 = df5.sort_values(by="ent_name")
-            self.variables['per_com_legper_outwardCount1'] = df5.drop_duplicates(subset=['ent_name'], inplace=True).shape[0]
+            df5.drop_duplicates(subset=['ent_name'], inplace=True)
+            self.variables['per_com_legper_outwardCount1'] = df5.shape[0]
         elif (df2 is not None and len(df2) > 0) or (df4 is not None and len(df4) > 0):
             if df2[(df2['ent_status'].str.contains('吊销')) & (df2['funded_ratio'] >= 0.2)].shape[0] > 0:
                 self.variables['per_com_legper_relent_revoke']=1
             elif df4[(df4['ent_status'].str.contains('吊销')) & (df4['funded_ratio'] >= 0.2)].shape[0] > 0:
                 self.variables['per_com_legper_relent_revoke'] = 1
             df6 = pd.concat([df2[df2['funded_ratio'] >= 0.2], df4[df4['funded_ratio'] >= 0.2]])
-            df6 = df6.sort_values(by="ent_name")
-            self.variables['per_com_legper_outwardCount1'] = df6.drop_duplicates(subset=['ent_name'], inplace=True).shape[0]
+            df6.drop_duplicates(subset=['ent_name'], inplace=True)
+            self.variables['per_com_legper_outwardCount1'] = df6.shape[0]
 
 
 
