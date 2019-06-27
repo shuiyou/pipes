@@ -85,5 +85,6 @@ class Tf0002(Transformer):
         shareholder_df = self._info_per_bus_shareholder_df(status=ent_on_status)
         bus_legal_df = self._info_per_bus_legal_df(status=ent_on_status)
         df = pd.concat([shareholder_df, bus_legal_df])
-        self.variables['per_face_relent_indusCount1'] = _face_relent_indus_count_1(df)
-        self.variables['per_face_relent_indusCode1'] = _face_relent_indus_code1(df)
+        if df is not None and df['credit_code'].shape[0] > 0:
+            self.variables['per_face_relent_indusCount1'] = _face_relent_indus_count_1(df)
+            self.variables['per_face_relent_indusCode1'] = _face_relent_indus_code1(df)
