@@ -17,7 +17,7 @@ class T09001(Transformer):
             'oth_loan_hit_p2p_cnt': 0,
             'oth_loan_hit_org_cnt_3m': 0,
             'oth_loan_query_mac_cnt_6m': 0,
-            'oth_loan_query_mac_cnt_3m':0
+            'oth_loan_query_mac_cnt_3m': 0
         }
 
     def _loan_other_df(self):
@@ -51,14 +51,11 @@ class T09001(Transformer):
         self.diff_month = subtract_datetime_col(df, 'create_time', 'data_build_time', 'M')
         return df
 
-
-    def _ps_loan_date(self,df=None):
+    def _ps_loan_date(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['oth_loan_apro_cnt_6m'] = df.query(self.diff_month + ' < 6').shape[0]
             self.variables['oth_loan_hit_org_cnt_3m'] = df.query(self.diff_month + '< 3').shape[0]
 
-
     def transform(self):
         self._ps_loan_other(df=self._loan_other_df())
         self._ps_loan_date(df=self._loan_date_df())
-

@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 import json
+import re
 from abc import ABCMeta, abstractmethod
 
 import jsonpath
 import numpy as np
 import pandas as pd
-import re
 
-def extract_money_court_administrative_violation(value):
+
+def extract_money(value):
     """
     行政违法记录模块从行政执法结果提取金额
     :param value:
     :return:
     """
     value = re.sub(r'\,', "", value)
-    money = 0
     money_str = "0.00"
     pattern1 = re.compile(r'(?<=罚款金额\(单位：万元\)\:)\d+\.?\d*')
     pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
@@ -33,6 +33,7 @@ def extract_money_court_administrative_violation(value):
         money = money * 10000
     money = float("%.2f" % money)
     return money
+
 
 def extract_money_court_excute_public(value):
     """

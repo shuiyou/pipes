@@ -1,7 +1,5 @@
-import re
-
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, subtract_datetime_col,extract_money_court_administrative_violation,extract_money_court_excute_public
+from mapping.tranformer import Transformer, subtract_datetime_col, extract_money, extract_money_court_excute_public
 
 
 class T16002(Transformer):
@@ -50,7 +48,7 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: extract_money_court_administrative_violation(x['execution_result']), axis=1)
+            df['max_money'] = df.apply(lambda x: extract_money(x['execution_result']), axis=1)
             self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
 
     # 民商事裁判文书sql
@@ -75,7 +73,7 @@ class T16002(Transformer):
             df = df.query(self.dff_year + ' < 3')
             self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df['case_amount'].sum())
 
-            df1 = df.dropna(subset=['legal_status'],how='any')
+            df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
             if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
@@ -85,8 +83,6 @@ class T16002(Transformer):
                 self.variables['court_ent_docu_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_docu_status'] = 2
-
-
 
     # 民商事审判流程sql
     def _court_trial_process_df(self):
@@ -116,7 +112,6 @@ class T16002(Transformer):
                 self.variables['court_ent_proc_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_proc_status'] = 2
-
 
     # 纳税非正常户sql
     def _court_taxable_abnormal_user_df(self):
