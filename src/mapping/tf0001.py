@@ -68,15 +68,17 @@ class Tf0001(Transformer):
 
     # 行政违法记录
     def _court_administrative_violation_df(self,df=None):
-        info_court_administrative_violation = """
-        SELECT execution_result
-        FROM info_court_administrative_violation B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        violation_df = sql_to_df(sql=info_court_administrative_violation,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return violation_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_administrative_violation = """
+            SELECT execution_result
+            FROM info_court_administrative_violation B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            violation_df = sql_to_df(sql=info_court_administrative_violation,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return violation_df
+        return None
 
     # 行政违法记录-数据处理
     def _ps_court_administrative_violation(self, df=None):
@@ -87,15 +89,17 @@ class Tf0001(Transformer):
 
     #民商事裁判文书
     def _court_judicative_pape_df(self, df=None):
-        info_court_judicative_pape = """
-        SELECT case_reason,legal_status,case_amount
-        FROM info_court_judicative_pape B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        judicative_df = sql_to_df(sql=info_court_judicative_pape,
-                                 params={"unique_names": df['ent_name'].unique().tolist()})
-        return judicative_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_judicative_pape = """
+            SELECT case_reason,legal_status,case_amount
+            FROM info_court_judicative_pape B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            judicative_df = sql_to_df(sql=info_court_judicative_pape,
+                                     params={"unique_names": df['ent_name'].unique().tolist()})
+            return judicative_df
+        return None
 
     # 民商事裁判文书-数据处理
     def _ps_court_judicative_pape(self, df=None):
@@ -105,15 +109,17 @@ class Tf0001(Transformer):
 
     # 民商事审判流程sql
     def _court_trial_process_df(self, df=None):
-        info_court_trial_process = """
-        SELECT case_reason,legal_status
-        FROM info_court_trial_process B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        trial_df = sql_to_df(sql=info_court_trial_process,
-                             params={"unique_names": df['ent_name'].unique().tolist()})
-        return trial_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_trial_process = """
+            SELECT case_reason,legal_status
+            FROM info_court_trial_process B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            trial_df = sql_to_df(sql=info_court_trial_process,
+                                 params={"unique_names": df['ent_name'].unique().tolist()})
+            return trial_df
+        return None
 
     # 民商事审判流程-数据处理
     def _ps_court_trial_process(self, df=None):
@@ -122,15 +128,17 @@ class Tf0001(Transformer):
 
     # 纳税非正常户
     def _court_taxable_abnormal_user_df(self, df=None):
-        info_court_taxable_abnormal_user = """
-        SELECT confirm_date
-        FROM info_court_taxable_abnormal_user B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        taxable_df = sql_to_df(sql=info_court_taxable_abnormal_user,
-                               params={"unique_names": df['ent_name'].unique().tolist()})
-        return taxable_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_taxable_abnormal_user = """
+            SELECT confirm_date
+            FROM info_court_taxable_abnormal_user B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            taxable_df = sql_to_df(sql=info_court_taxable_abnormal_user,
+                                   params={"unique_names": df['ent_name'].unique().tolist()})
+            return taxable_df
+        return None
 
     # 纳税非正常户-数据处理
     def _ps_court_taxable_abnormal_user(self, df=None):
@@ -139,15 +147,17 @@ class Tf0001(Transformer):
 
     # 欠款欠费名单sql
     def _court_arrearage_df(self, df=None):
-        info_court_arrearage = """
-        SELECT default_amount
-        FROM info_court_arrearage B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        arrearage_df = sql_to_df(sql=info_court_arrearage,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return arrearage_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_arrearage = """
+            SELECT default_amount
+            FROM info_court_arrearage B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            arrearage_df = sql_to_df(sql=info_court_arrearage,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return arrearage_df
+        return None
 
      # 欠款欠费名单-数据处理
     def _ps_court_arrearage(self, df=None):
@@ -156,15 +166,17 @@ class Tf0001(Transformer):
 
     # 欠税名单sql
     def _court_tax_arrears_df(self, df=None):
-        info_court_tax_arrears = """
-        SELECT taxes
-        FROM info_court_tax_arrears B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        tax_df = sql_to_df(sql=info_court_tax_arrears,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return tax_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_tax_arrears = """
+            SELECT taxes
+            FROM info_court_tax_arrears B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            tax_df = sql_to_df(sql=info_court_tax_arrears,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return tax_df
+        return None
 
     # 欠税名单-数据处理
     def _ps_court_tax_arrears(self, df=None):
@@ -174,15 +186,17 @@ class Tf0001(Transformer):
 
     # 失信老赖名单sql
     def _court_deadbeat_df(self, df=None):
-        info_court_deadbeat = """
-        SELECT execute_content
-        FROM info_court_deadbeat B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        deadbeat_df = sql_to_df(sql=info_court_deadbeat,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return deadbeat_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_deadbeat = """
+            SELECT execute_content
+            FROM info_court_deadbeat B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            deadbeat_df = sql_to_df(sql=info_court_deadbeat,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return deadbeat_df
+        return None
 
     # 失信老赖名单-数据处理
     def _ps_court_deadbeat(self, df=None):
@@ -191,15 +205,17 @@ class Tf0001(Transformer):
 
     # 限制出入境sql
     def _court_limited_entry_exit_df(self, df=None):
-        info_court_limited_entry_exit = """
-        SELECT execute_content
-        FROM info_court_limited_entry_exit B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        exit_df = sql_to_df(sql=info_court_limited_entry_exit,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return exit_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_limited_entry_exit = """
+            SELECT execute_content
+            FROM info_court_limited_entry_exit B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            exit_df = sql_to_df(sql=info_court_limited_entry_exit,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return exit_df
+        return None
 
     # 限制出入境-数据处理
     def _ps_court_limited_entry_exit(self, df=None):
@@ -208,16 +224,17 @@ class Tf0001(Transformer):
 
     # 限制高消费sql
     def _court_limit_hignspending_df(self, df=None):
-        info_court_limit_hignspending = """
-        SELECT execute_content
-        FROM info_court_limit_hignspending B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        hignspending_df = sql_to_df(sql=info_court_limit_hignspending,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return hignspending_df
-
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_limit_hignspending = """
+            SELECT execute_content
+            FROM info_court_limit_hignspending B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            hignspending_df = sql_to_df(sql=info_court_limit_hignspending,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return hignspending_df
+        return None
     # 限制高消费-数据处理
     def _ps_court_limit_hignspending(self, df=None):
         if df is not None and len(df) > 0:
@@ -225,15 +242,17 @@ class Tf0001(Transformer):
 
     # 罪犯及嫌疑人名单sql
     def _court_criminal_suspect_df(self, df=None):
-        info_court_criminal_suspect = """
-        SELECT trial_date
-        FROM info_court_criminal_suspect B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        suspect_df = sql_to_df(sql=info_court_criminal_suspect,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return suspect_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_criminal_suspect = """
+            SELECT trial_date
+            FROM info_court_criminal_suspect B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            suspect_df = sql_to_df(sql=info_court_criminal_suspect,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return suspect_df
+        return None
 
     # 罪犯及嫌疑人名单-数据处理
     def _ps_court_criminal_suspect(self, df=None):
@@ -269,15 +288,17 @@ class Tf0001(Transformer):
 
     # 执行公开信息
     def _court_excute_public_df(self, df=None):
-        info_court_excute_public = """
-        SELECT execute_content
-        FROM info_court_excute_public B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
-        WHERE B.court_id = A.id
-        """
-        public_df = sql_to_df(sql=info_court_excute_public,
-                       params={"unique_names": df['ent_name'].unique().tolist()})
-        return public_df
+        if df is not None and df['ent_name'].shape[0] > 0:
+            info_court_excute_public = """
+            SELECT execute_content
+            FROM info_court_excute_public B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
+            AND expired_at > NOW() ) A
+            WHERE B.court_id = A.id
+            """
+            public_df = sql_to_df(sql=info_court_excute_public,
+                           params={"unique_names": df['ent_name'].unique().tolist()})
+            return public_df
+        return None
 
     # 执行公开信息-数据处理
     def _ps_court_excute_public(self, df=None):
@@ -291,46 +312,47 @@ class Tf0001(Transformer):
         legal_df = self._per_bus_legal_df(status=ent_on_status)
         shareholder_df = self._per_bus_shareholder_df(status=ent_on_status)
         concat_df = pd.concat([shareholder_df, legal_df])
-        # 行政违法记录
-        violation_df =  self._court_administrative_violation_df(df=concat_df)
-        self._ps_court_administrative_violation(df = violation_df)
-        #民商事裁判文书
-        judicative_df = self._court_judicative_pape_df(df=concat_df)
-        self._ps_court_judicative_pape(df = judicative_df)
-        #民商事审判流程
-        trial_df = self._court_trial_process_df(df=concat_df)
-        self._ps_court_trial_process(df = trial_df)
-        #纳税非正常户
-        taxable_df = self._court_taxable_abnormal_user_df(df=concat_df)
-        self._ps_court_taxable_abnormal_user(df=taxable_df)
-        #欠款欠费名单
-        arrearage_df = self._court_arrearage_df(df=concat_df)
-        self._ps_court_arrearage(df = arrearage_df)
-        #欠税名单
-        tax_df = self._court_tax_arrears_df(df=concat_df)
-        self._ps_court_tax_arrears(df = tax_df)
-        #失信老赖名单
-        deadbeat_df = self._court_deadbeat_df(df=concat_df)
-        self._ps_court_deadbeat(df = deadbeat_df)
-        #限制出入境名单
-        exit_df = self._court_limited_entry_exit_df(df=concat_df)
-        self._ps_court_limited_entry_exit(df = exit_df)
-        #限制高消费名单
-        hignspending_df = self._court_limit_hignspending_df(df=concat_df)
-        self._ps_court_limit_hignspending(df = hignspending_df)
-        #罪犯及嫌疑人名单
-        suspect_df = self._court_criminal_suspect_df(df=concat_df)
-        self._ps_court_criminal_suspect(df = suspect_df)
-        #是否存在各种类型的纠纷案件
-        dispute_df = pd.concat([judicative_df, trial_df])
-        self._ps_dispute(df=dispute_df)
-        #裁判文书诉讼地位标识
-        self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
-        #审判流程诉讼地位标识
-        self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
-        #执行公开信息最大金额
-        public_df = self._court_excute_public_df(df=concat_df)
-        self._ps_court_excute_public(df = public_df)
+        if concat_df is not  None and concat_df['ent_name'].shape[0] > 0:
+            # 行政违法记录
+            violation_df =  self._court_administrative_violation_df(df=concat_df)
+            self._ps_court_administrative_violation(df = violation_df)
+            #民商事裁判文书
+            judicative_df = self._court_judicative_pape_df(df=concat_df)
+            self._ps_court_judicative_pape(df = judicative_df)
+            #民商事审判流程
+            trial_df = self._court_trial_process_df(df=concat_df)
+            self._ps_court_trial_process(df = trial_df)
+            #纳税非正常户
+            taxable_df = self._court_taxable_abnormal_user_df(df=concat_df)
+            self._ps_court_taxable_abnormal_user(df=taxable_df)
+            #欠款欠费名单
+            arrearage_df = self._court_arrearage_df(df=concat_df)
+            self._ps_court_arrearage(df = arrearage_df)
+            #欠税名单
+            tax_df = self._court_tax_arrears_df(df=concat_df)
+            self._ps_court_tax_arrears(df = tax_df)
+            #失信老赖名单
+            deadbeat_df = self._court_deadbeat_df(df=concat_df)
+            self._ps_court_deadbeat(df = deadbeat_df)
+            #限制出入境名单
+            exit_df = self._court_limited_entry_exit_df(df=concat_df)
+            self._ps_court_limited_entry_exit(df = exit_df)
+            #限制高消费名单
+            hignspending_df = self._court_limit_hignspending_df(df=concat_df)
+            self._ps_court_limit_hignspending(df = hignspending_df)
+            #罪犯及嫌疑人名单
+            suspect_df = self._court_criminal_suspect_df(df=concat_df)
+            self._ps_court_criminal_suspect(df = suspect_df)
+            #是否存在各种类型的纠纷案件
+            dispute_df = pd.concat([judicative_df, trial_df])
+            self._ps_dispute(df=dispute_df)
+            #裁判文书诉讼地位标识
+            self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
+            #审判流程诉讼地位标识
+            self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
+            #执行公开信息最大金额
+            public_df = self._court_excute_public_df(df=concat_df)
+            self._ps_court_excute_public(df = public_df)
 
 
 
