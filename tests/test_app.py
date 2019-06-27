@@ -34,13 +34,12 @@ def test_strategy(client):
             "reqNo": "请求编号",
             "stepReqNo": "子请求编号",
             "productCode": "产品编号",
-            "bizTypes": [],
+            "bizType": ['1111', '3333'],
             "queryData": {
                 "name": "名称",
                 "idno": "证件号码",
                 "phone": "手机号"
             },
-            "versionNo": "1.0"
         },
         "strategyResult": {}
     })
