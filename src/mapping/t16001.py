@@ -55,7 +55,11 @@ class T16001(Transformer):
             'court_proc_status': 0,
             'court_fin_loan_con': 0,
             'court_loan_con': 0,
-            'court_pop_loan': 0
+            'court_pop_loan': 0,
+            'court_tax_arrears_max': 0,
+            'court_pub_info_max': 0,
+            'court_admi_violation_max': 0,
+            'court_judge_max': 0
         }
 
     def _info_admi_vio_df(self):
@@ -77,6 +81,7 @@ class T16001(Transformer):
             df['amt'] = df.apply(lambda x: get_money(x['execution_result']), axis=1)
             self.variables['court_admi_vio'] = df.shape[0]
             self.variables['court_admi_vio_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
+            self.variables['court_admi_violation_max'] = df['amt'].max()
 
     def _info_judge_df(self):
         info_judge = """
@@ -96,6 +101,7 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'query_date', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
+            self.variables['court_judge_max'] = df['case_amount'].max()
             yuangao = df[df['legal_status'].str.contains('原告')]
             beigao = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
@@ -186,6 +192,7 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'query_date', 'taxes_time', 'Y')
             self.variables['court_tax_arrears'] = df.shape[0]
             self.variables['court_tax_arrears_amt_3y'] = df[df[self.year] < 3]['taxes'].sum()
+            self.variables['court_tax_arrears_max'] = df['taxes'].max()
 
     def _info_dishonesty_df(self):
         info_dishonesty = """
@@ -258,6 +265,7 @@ class T16001(Transformer):
                 lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
             self.variables['court_pub_info_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
+            self.variables['court_pub_info_max'] = df['amt'].max()
 
     def _info_cri_sus_df(self):
         info_cri_sus = """
