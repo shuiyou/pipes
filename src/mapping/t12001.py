@@ -142,56 +142,56 @@ class T12001(Transformer):
 
         df1 = df.loc[df['rule_name'] == '身份证一个月内多头申请过多', 'rule_memo'].copy()
         if len(df1) != 0:
-            self.variables['anti_idno_apply_1m'] = list(df1)[0].split(',')[0].split(':')[1]
+            self.variables['anti_idno_apply_1m'] = int(df1.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证三个月内多头申请过多_次数
     def _anti_idno_apply_3m(self, df=None):
 
         df2 = df.loc[df['rule_name'] == '身份证三个月内多头申请过多', 'rule_memo'].copy()
         if len(df2) != 0:
-            self.variables['anti_idno_apply_3m'] = list(df2)[0].split(',')[0].split(':')[1]
+            self.variables['anti_idno_apply_3m'] = int(df2.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号一个月内多头申请过多_次数
     def _anti_tel_apply_1m(self, df=None):
 
         df3 = df.loc[df['rule_name'] == '手机号一个月内多头申请过多', 'rule_memo'].copy()
         if len(df3) != 0:
-            self.variables['anti_tel_apply_1m'] = list(df3)[0].split(',')[0].split(':')[1]
+            self.variables['anti_tel_apply_1m'] = int(df3.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号三个月内多头申请过多_次数
     def _anti_tel_apply_3m(self, df=None):
 
         df4 = df.loc[df['rule_name'] == '手机号三个月内多头申请过多', 'rule_memo'].copy()
         if len(df4) != 0:
-            self.variables['anti_tel_apply_3m'] = list(df4)[0].split(',')[0].split(':')[1]
+            self.variables['anti_tel_apply_3m'] = int(df4.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证三天内多头申请过多_次数
     def _anti_idno_apply_3d(self, df=None):
 
         df5 = df.loc[df['rule_name'] == '身份证三天内多头申请过多', 'rule_memo'].copy()
         if len(df5) != 0:
-            self.variables['anti_idno_apply_3d'] = list(df5)[0].split(',')[0].split(':')[1]
+            self.variables['anti_idno_apply_3d'] = int(df5.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证七天内多头申请过多_次数
     def _anti_idno_apply_7d(self, df=None):
 
         df6 = df.loc[df['rule_name'] == '身份证七天内多头申请过多', 'rule_memo'].copy()
         if len(df6) != 0:
-            self.variables['anti_idno_apply_7d'] = list(df6)[0].split(',')[0].split(':')[1]
+            self.variables['anti_idno_apply_7d'] = int(df6.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号三天内多头申请过多_次数
     def _anti_tel_apply_3d(self, df=None):
 
         df7 = df.loc[df['rule_name'] == '手机号三天内多头申请过多', 'rule_memo'].copy()
         if len(df7) != 0:
-            self.variables['anti_tel_apply_3d'] = list(df7)[0].split(',')[0].split(':')[1]
+            self.variables['anti_tel_apply_3d'] = int(df7.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号七天内多头申请过多_次数
     def _anti_tel_apply_7d(self, df=None):
 
         df8 = df.loc[df['rule_name'] == '手机号七天内多头申请过多', 'rule_memo'].copy()
         if len(df8) != 0:
-            self.variables['anti_tel_apply_7d'] = list(df8)[0].split(',')[0].split(':')[1]
+            self.variables['anti_tel_apply_7d'] = int(df8.values[0].split(',')[0].split(':')[1])
 
     #  执行变量转换
     def transform(self):
