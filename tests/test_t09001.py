@@ -98,6 +98,20 @@ def test_extract_money_court_excute_public():
         money_max = float("%.2f" % money_max)
     print(money_max)
 
+def test_is_in():
+    a = ["aa","bb","cc"]
+    b = ["原告","被告/被上诉人","上诉人"]
+    c = [22,33]
+    d = ["ee","ff"]
+    e = ["原告","上诉人"]
+    df = pd.DataFrame({'case_reason': a, 'legal_status': b})
+    df1 = pd.DataFrame({'case_reason': d, 'legal_status': e,'case_amount':c})
+    #df2 = df1.loc[:,['case_reason','legal_status']].copy
+    df3 = pd.concat([df,df1])
+    print(df3)
+
+
+
 
 def test_number_transfer():
     value = 5.112
