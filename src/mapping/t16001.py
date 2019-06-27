@@ -60,11 +60,11 @@ class T16001(Transformer):
 
     def _info_admi_vio_df(self):
         info_admi_vio = """
-            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.specific_date,b.execution_result
+            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.specific_date,b.execution_result
             FROM info_court as a
             left join info_court_administrative_violation as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_admi_vio,
@@ -80,11 +80,11 @@ class T16001(Transformer):
 
     def _info_judge_df(self):
         info_judge = """
-            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.closed_time,b.case_amount,b.legal_status
+            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.closed_time,b.case_amount,b.legal_status
             FROM info_court as a
             left join info_court_judicative_pape as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_judge,
@@ -109,11 +109,11 @@ class T16001(Transformer):
 
     def _info_trial_proc_df(self):
         info_trial_proc = """
-            SELECT a.user_name, a.id_card_no,b.court_id,b.legal_status
+            SELECT a.unique_name, a.unique_id_no,b.court_id,b.legal_status
             FROM info_court as a
             left join info_court_trial_process as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_trial_proc,
@@ -136,11 +136,11 @@ class T16001(Transformer):
 
     def _info_tax_pay_df(self):
         info_tax_pay = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_taxable_abnormal_user as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_tax_pay,
@@ -153,11 +153,11 @@ class T16001(Transformer):
 
     def _info_owed_owe_df(self):
         info_owed_owe = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_arrearage as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_owed_owe,
@@ -170,11 +170,11 @@ class T16001(Transformer):
 
     def _info_tax_arrears_df(self):
         info_tax_arrears = """
-            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.taxes,b.taxes_time
+            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.taxes,b.taxes_time
             FROM info_court as a
             left join info_court_tax_arrears as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_tax_arrears,
@@ -189,11 +189,11 @@ class T16001(Transformer):
 
     def _info_dishonesty_df(self):
         info_dishonesty = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_deadbeat as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_dishonesty,
@@ -206,11 +206,11 @@ class T16001(Transformer):
 
     def _info_limit_entry_df(self):
         info_limit_entry = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_limited_entry_exit as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_limit_entry,
@@ -223,11 +223,11 @@ class T16001(Transformer):
 
     def _info_high_cons_df(self):
         info_high_cons = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_limit_hignspending as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=(info_high_cons),
@@ -240,11 +240,11 @@ class T16001(Transformer):
 
     def _info_pub_info_df(self):
         info_pub_info = """
-            SELECT a.user_name, a.id_card_no,a.query_date,b.court_id,b.filing_time,b.execute_content
+            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.filing_time,b.execute_content
             FROM info_court as a
             left join info_court_excute_public as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_pub_info,
@@ -261,11 +261,11 @@ class T16001(Transformer):
 
     def _info_cri_sus_df(self):
         info_cri_sus = """
-            SELECT a.user_name, a.id_card_no,b.court_id
+            SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
             left join info_court_criminal_suspect as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_cri_sus,
@@ -278,13 +278,13 @@ class T16001(Transformer):
 
     def _info_court_loan_df(self):
         info_court_loan = """
-            SELECT a.user_name, a.id_card_no,b.case_reason,b.legal_status,
+            SELECT a.unique_name, a.unique_id_no,b.case_reason,b.legal_status,
             c.case_reason as trial_reason,c.legal_status as trial_status 
             FROM info_court as a
             left join info_court_judicative_pape as b on a.id=b.court_id
             left join info_court_trial_process as c on a.id=c.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
         df = sql_to_df(sql=info_court_loan,
