@@ -238,7 +238,7 @@ class T16001(Transformer):
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
         """
-        df = sql_to_df(sql=(info_high_cons),
+        df = sql_to_df(sql=info_high_cons,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
