@@ -36,7 +36,7 @@ class T13001(Transformer):
     def _info_sms_loan_platform(self):
 
         sql1 = '''
-            SELECT * FROM info_sms_loan_platform  WHERE sms_id 
+            SELECT sms_id,platform_type,register_time FROM info_sms_loan_platform  WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
@@ -72,7 +72,7 @@ class T13001(Transformer):
     def _info_sms_loan_apply(self):
 
         sql = '''
-            SELECT * FROM info_sms_loan_apply WHERE sms_id 
+            SELECT sms_id,apply_amount FROM info_sms_loan_apply WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
@@ -101,7 +101,7 @@ class T13001(Transformer):
     def _info_sms_loan(self):
 
         sql = '''
-            SELECT * FROM info_sms_loan WHERE sms_id 
+            SELECT sms_id,loan_amount FROM info_sms_loan WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
@@ -130,7 +130,7 @@ class T13001(Transformer):
     def _info_sms_loan_reject(self):
 
         sql = '''
-            SELECT * FROM info_sms_loan_reject WHERE sms_id 
+            SELECT sms_id FROM info_sms_loan_reject WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
@@ -147,7 +147,7 @@ class T13001(Transformer):
     def _info_sms_overdue_platform(self):
 
         sql = '''
-            SELECT * FROM info_sms_overdue_platform WHERE sms_id 
+            SELECT sms_id,overdue_money FROM info_sms_overdue_platform WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
@@ -176,7 +176,7 @@ class T13001(Transformer):
     def _info_sms_debt(self):
 
         sql1 = '''
-            SELECT * FROM info_sms_debt WHERE sms_id 
+            SELECT sms_id,platform_code,debt_money FROM info_sms_debt WHERE sms_id 
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
