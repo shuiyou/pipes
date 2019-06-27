@@ -14,7 +14,6 @@ def extract_money_court_administrative_violation(value):
     :return:
     """
     value = re.sub(r'\,', "", value)
-    money = 0
     money_str = "0.00"
     pattern1 = re.compile(r'(?<=罚款金额\(单位：万元\)\:)\d+\.?\d*')
     pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
