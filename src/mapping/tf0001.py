@@ -8,7 +8,7 @@ def check_is_contain(key,value):
     else:
         return 0
 
-class TF0001(Transformer):
+class Tf0001(Transformer):
     """
     联企法院
     """
@@ -254,13 +254,13 @@ class TF0001(Transformer):
     #裁判文书/审判流程诉讼地位标识
     def _ps_judicative_litigation(self,df=None):
         if df is not None and len(df) > 0:
-            df = df.dropna(how='any',axis=0)
+            df = df.dropna(subset=['legal_status'],how='any')
             df['legal_status_defendant'] = df.apply(lambda x:check_is_contain(x['legal_status'],"被告"),axis=1)
             df['legal_status_plaintiff'] = df.apply(lambda x:check_is_contain(x['legal_status'],"原告"),axis=1)
             number_defendant = df.query('legal_status_defendant > 0').shape[0]
             number_plaintiff = df.query('legal_status_plaintiff > 0').shape[0]
             number_total = df.shape[0]
-            if number_plaintiff == number_total:
+            if number_plaintiff > 0 and number_plaintiff == number_total:
                 return 1
             elif number_defendant > 0:
                 return 2

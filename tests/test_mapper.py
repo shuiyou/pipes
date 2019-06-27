@@ -9,5 +9,8 @@ def test_type():
 
 
 def test_transform():
-    res = translate(product_code='RP_P_L1', user_name='张虎', id_card_no='430122197512087812')
+    codes=['00000', '01001','02001','05001','05002','06001', '07001','08001',
+           '09001', '10001', '11001', '12001', '13001', '14001', '16001', '16002',
+           '17001', '18001', 'f0001', 'f0002', 'f0003']
+    res = translate(codes, user_name='张虎', id_card_no='430122197512087812')
     print(res)

@@ -104,7 +104,7 @@ def strategy():
     id_card_no = query_data.get('idno')
     phone = query_data.get('phone')
     user_type = query_data.get('user_type')
-    codes = strategy_param.get('bizTypes')
+    codes = strategy_param.get('bizType')
     variables = translate(codes, user_name, id_card_no, phone, user_type)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
@@ -113,7 +113,7 @@ def strategy():
     try:
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
-            strategy_param['bizTypes']=_get_biz_types(strategy_resp)
+            strategy_param['bizType']=_get_biz_types(strategy_resp)
             json_data['strategyResult'] = strategy_resp
             return jsonify(json_data)
         else:
