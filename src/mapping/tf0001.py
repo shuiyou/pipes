@@ -1,7 +1,7 @@
 import pandas as pd
 
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, extract_money_court_administrative_violation, \
+from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
 
 
@@ -86,7 +86,7 @@ class Tf0001(Transformer):
     def _ps_court_administrative_violation(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_admi_violation'] = df.shape[0]
-            df['max_money'] = df.apply(lambda x: extract_money_court_administrative_violation(x['execution_result']),
+            df['max_money'] = df.apply(lambda x: extract_money(x['execution_result']),
                                        axis=1)
             self.variables['relent_court_admi_violation_max'] = df['max_money'].max()
 

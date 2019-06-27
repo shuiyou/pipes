@@ -1,4 +1,5 @@
 import json
+
 import jsonpath
 import pandas as pd
 
@@ -168,7 +169,7 @@ class T17001(Transformer):
                     new_dct[split[0]] = int(split[1])
                 new_lst.append(new_dct)
             df3 = pd.DataFrame(new_lst)
-            df4 = df3.apply(lambda x: int(x.max()),axis=0)
+            df4 = df3.apply(lambda x: int(x.max()), axis=0)
             new_dict = dict(df4)
             self.variables['net_bah_1d_dev_rel_tel'] = new_dict.get('1天内设备关联手机号数', 0)
             self.variables['net_bah_1d_dev_rel_idc'] = new_dict.get('1天内设备关联身份证数', 0)
