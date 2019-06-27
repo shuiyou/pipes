@@ -102,16 +102,16 @@ class T16001(Transformer):
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
             self.variables['court_judge_max'] = df['case_amount'].max()
-            yuangao = df[df['legal_status'].str.contains('原告')]
-            beigao = df[df['legal_status'].str.contains('被告')]
+            plaintiff_df = df[df['legal_status'].str.contains('原告')]
+            defendant_df = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_docu_status'] = 0
-            elif yuangao.shape[0] == 0 and beigao.shape[0] == 0:
-                self.variables['court_docu_status'] = 3
-            elif yuangao.shape[0] > 0 and beigao.shape[0] == 0:
-                self.variables['court_docu_status'] = 1
-            elif beigao.shape[0] > 0:
+            elif defendant_df.shape[0] > 0:
                 self.variables['court_docu_status'] = 2
+            elif plaintiff_df.shape[0] == df.shape[0]:
+                self.variables['court_docu_status'] = 1
+            else:
+                self.variables['court_docu_status'] = 3
 
     def _info_trial_proc_df(self):
         info_trial_proc = """
@@ -129,16 +129,17 @@ class T16001(Transformer):
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
-            origin = df[df['legal_status'].str.contains('原告')]
-            beigao = df[df['legal_status'].str.contains('被告')]
+            plaintiff_df = df[df['legal_status'].str.contains('原告')]
+            defendant_df = df[df['legal_status'].str.contains('被告')]
             if df[df['legal_status'].isnull() == False].shape[0] == 0:
                 self.variables['court_proc_status'] = 0
-            elif origin.shape[0] == 0 and beigao.shape[0] == 0:
-                self.variables['court_proc_status'] = 3
-            elif origin.shape[0] > 0 and beigao.shape[0] == 0:
-                self.variables['court_proc_status'] = 1
-            elif beigao.shape[0] > 0:
+            elif defendant_df.shape[0] > 0:
                 self.variables['court_proc_status'] = 2
+            elif plaintiff_df.shape[0] == df.shape[0]:
+                self.variables['court_proc_status'] = 1
+            else:
+                self.variables['court_proc_status'] = 3
+
 
     def _info_tax_pay_df(self):
         info_tax_pay = """
