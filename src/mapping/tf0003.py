@@ -59,7 +59,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_case as d
             on c.id=d.basic_id
-            WHERE c.ent_name in  (SELECT b.ent_name
+            WHERE c.ent_name in (SELECT b.ent_name
             FROM info_per_bus_basic as a
             LEFT JOIN info_per_bus_shareholder as b
             ON a.id=b.basic_id
@@ -641,8 +641,8 @@ class Tf0003(Transformer):
         执行变量转换
         :return:
         """
-        case_df = self._info_case_df()
-        self._case_info(case_df[0], case_df[1])
+        # case_df = self._info_case_df()
+        # self._case_info(case_df[0], case_df[1])
         shares_fronts_df = self._info_shares_frost_df()
         self._shares_frost(shares_fronts_df[0], shares_fronts_df[1])
         shares_impawn_df = self._info_shares_impawn_df()

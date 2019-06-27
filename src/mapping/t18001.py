@@ -17,19 +17,22 @@ class T18001(Transformer):
         }
 
     def _info_per_bus_legal_df(self, status):
-        sql = """
-            SELECT count(1) as 'cnt' FROM info_per_bus_legal a, 
-            (SELECT id FROM info_per_bus_basic as inner_b 
-                WHERE inner_b.name = %(user_name)s 
-                AND inner_b.id_card_no = %(id_card_no)s 
-                AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at)) AS b
-            WHERE a.basic_id = b.id and a.ent_status in %(status)s;
-        """
-        df = sql_to_df(sql=sql,
-                       params={"user_name": self.user_name,
-                               "id_card_no": self.id_card_no,
-                               "status": status})
-        return df
+        if len(status) > 0:
+            sql = """
+                SELECT count(1) as 'cnt' FROM info_per_bus_legal a, 
+                (SELECT id FROM info_per_bus_basic as inner_b 
+                    WHERE inner_b.name = %(user_name)s 
+                    AND inner_b.id_card_no = %(id_card_no)s 
+                    AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at)) AS b
+                WHERE a.basic_id = b.id and a.ent_status in %(status)s;
+            """
+            df = sql_to_df(sql=sql,
+                           params={"user_name": self.user_name,
+                                   "id_card_no": self.id_card_no,
+                                   "status": status})
+            return df
+        else:
+            return None
 
     def _per_bus_leg_entrevoke_cnt(self, df=None):
         """
