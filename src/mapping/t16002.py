@@ -72,20 +72,21 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_judge'] = df.shape[0]
 
-            defendant_df = df[df['legal_status'].str.contains('被告')]
-            plaintiff_df = df[df['legal_status'].str.contains('原告')]
-            if df[df['legal_status'].isnull() == False].shape[0] == 0:
-                self.variables['court_ent_docu_status'] = 0
-            elif plaintiff_df.shape[0] < df.shape[0] and \
+            df = df.query(self.dff_year + ' < 3')
+            self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df['case_amount'].sum())
+
+            df1 = df.dropna(subset=['legal_status'],how='any')
+            defendant_df = df1[df1['legal_status'].str.contains('被告')]
+            plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+                self.variables['court_ent_docu_status'] = 1
+            elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
                 self.variables['court_ent_docu_status'] = 3
-            elif plaintiff_df.shape[0] == df.shape[0]:
-                self.variables['court_ent_docu_status'] = 1
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_docu_status'] = 2
 
-            df = df.query(self.dff_year + ' < 3')
-            self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df['case_amount'].sum())
+
 
     # 民商事审判流程sql
     def _court_trial_process_df(self):
@@ -105,17 +106,17 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_trial_proc'] = df.shape[0]
 
-            defendant_df = df[df['legal_status'].str.contains('被告')]
-            plaintiff_df = df[df['legal_status'].str.contains('原告')]
-            if df[df['legal_status'].isnull() == False].shape[0] == 0:
-                self.variables['court_ent_proc_status'] = 0
-            elif plaintiff_df.shape[0] < df.shape[0] and \
+            df1 = df.dropna(subset=['legal_status'], how='any')
+            defendant_df = df1[df1['legal_status'].str.contains('被告')]
+            plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+                self.variables['court_ent_proc_status'] = 1
+            elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
                 self.variables['court_ent_proc_status'] = 3
-            elif plaintiff_df.shape[0] == df.shape[0]:
-                self.variables['court_ent_proc_status'] = 1
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_proc_status'] = 2
+
 
     # 纳税非正常户sql
     def _court_taxable_abnormal_user_df(self):
