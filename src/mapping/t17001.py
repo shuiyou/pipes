@@ -1,5 +1,4 @@
 import json
-
 import jsonpath
 import pandas as pd
 
@@ -166,13 +165,11 @@ class T17001(Transformer):
                 new_dct = dict()
                 for i in range(len(row.frequency_detail_list)):
                     split = row.frequency_detail_list[i].get('detail').split('：')
-                    new_dct[split[0]] = split[1]
+                    new_dct[split[0]] = int(split[1])
                 new_lst.append(new_dct)
             df3 = pd.DataFrame(new_lst)
-            df3['identity'] = 'user'
-            df4 = pd.pivot_table(df3, index='identity', aggfunc=max, fill_value=0)
-            df5 = df4.reset_index()
-            new_dict = dict(next(df5.iterrows())[1])
+            df4 = df3.apply(lambda x: int(x.max()),axis=0)
+            new_dict = dict(df4)
             self.variables['net_bah_1d_dev_rel_tel'] = new_dict.get('1天内设备关联手机号数', 0)
             self.variables['net_bah_1d_dev_rel_idc'] = new_dict.get('1天内设备关联身份证数', 0)
             self.variables['net_bah_1d_idc_rel_dev'] = new_dict.get('1天内身份证关联设备数', 0)
@@ -196,14 +193,14 @@ class T17001(Transformer):
             self.variables['net_bah_3m_idc_rel_mail'] = new_dict.get('3个月身份证关联邮箱数', 0)
             self.variables['net_bah_3m_tel_rel_bctel'] = new_dict.get('3个月手机号关联银行卡预留手机号数', 0)
             self.variables['net_bah_3m_mail_rel_idc'] = new_dict.get('3个月邮箱关联身份证数', 0)
-            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数', 0)
+            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号关联身份证数', 0)
 
-        df6 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
-        if len(df6) > 0:
-            df7 = df6[df6['item_name'].str.contains('3个月内申请人身份证作为联系人身份证出现的次数大于等于2')]
-            self.variables['net_applicant_idc_3m_morethan2'] = len(df7)
-            df8 = df6[df6['item_name'].str.contains('3个月内申请人手机号作为联系人手机号出现的次数大于等于2')]
-            self.variables['net_applicant_tel_3m_morethan2'] = len(df8)
+        df5 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
+        if len(df5) > 0:
+            df6 = df5[df5['item_name'].str.contains('3个月内申请人身份证作为联系人身份证出现的次数大于等于2')]
+            self.variables['net_applicant_idc_3m_morethan2'] = len(df6)
+            df7 = df5[df5['item_name'].str.contains('3个月内申请人手机号作为联系人手机号出现的次数大于等于2')]
+            self.variables['net_applicant_tel_3m_morethan2'] = len(df7)
 
     # 计算多平台借贷申请检测模块字段
     def _mulplat_loan_app(self, df=None):
@@ -237,7 +234,7 @@ class T17001(Transformer):
 
     # 计算网申核查_风险分数
     def _net_final_score(self, df=None):
-        if len(df) > 0:
+        if len(df) != 0:
             self.variables['net_final_score'] = int(df['final_score'].values[0])
 
     # 执行变量转换
