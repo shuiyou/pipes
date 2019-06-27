@@ -140,7 +140,6 @@ class T16001(Transformer):
             else:
                 self.variables['court_proc_status'] = 3
 
-
     def _info_tax_pay_df(self):
         info_tax_pay = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
