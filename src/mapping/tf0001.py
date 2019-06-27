@@ -70,8 +70,8 @@ class Tf0001(Transformer):
     def _court_administrative_violation_df(self,df=None):
         info_court_administrative_violation = """
         SELECT execution_result
-        FROM info_court_administrative_violation B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
+        FROM info_court_administrative_violation B,
+        (SELECT id FROM info_court WHERE unique_name in %(unique_names)s AND expired_at > NOW()) A
         WHERE B.court_id = A.id
         """
         violation_df = sql_to_df(sql=info_court_administrative_violation,
@@ -89,8 +89,8 @@ class Tf0001(Transformer):
     def _court_judicative_pape_df(self, df=None):
         info_court_judicative_pape = """
         SELECT case_reason,legal_status,case_amount
-        FROM info_court_judicative_pape B,(SELECT id FROM info_court WHERE unique_name in %(unique_names)s
-        AND expired_at > NOW() ) A
+        FROM info_court_judicative_pape B,
+        (SELECT id FROM info_court WHERE unique_name in %(unique_names)s AND expired_at > NOW()) A
         WHERE B.court_id = A.id
         """
         judicative_df = sql_to_df(sql=info_court_judicative_pape,
