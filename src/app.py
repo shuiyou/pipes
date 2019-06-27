@@ -113,7 +113,7 @@ def strategy():
     try:
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
-            strategy_param['bizTypes']=_get_biz_types(strategy_resp)
+            strategy_param['bizType']=_get_biz_types(strategy_resp)
             json_data['strategyResult'] = strategy_resp
             return jsonify(json_data)
         else:
