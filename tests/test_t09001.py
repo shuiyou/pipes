@@ -87,3 +87,11 @@ def test_extract_money_court_excute_public():
         money_max = float("%.2f" % money_max)
     print(money_max)
 
+def test_dropna():
+    a=[None,'AA','BB']
+    b=[11,22,33]
+    df =  pd.DataFrame({'execution_result': a, 'specific_date': b})
+    print(df)
+    df1 = df.dropna(subset=['execution_result'],how='any')
+    print(df1)
+

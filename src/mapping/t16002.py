@@ -75,7 +75,7 @@ class T16002(Transformer):
             df = df.query(self.dff_year + ' < 3')
             self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df['case_amount'].sum())
 
-            df1 = df.dropna(how='any',axis=0)
+            df1 = df.dropna(subset=['legal_status'],how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
             if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
@@ -106,7 +106,7 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_trial_proc'] = df.shape[0]
 
-            df1 = df.dropna(how='any', axis=0)
+            df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
             if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
