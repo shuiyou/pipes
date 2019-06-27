@@ -16,6 +16,7 @@ class T09001(Transformer):
             'qh_loanee_hit_finance_cnt': 0,
             'qh_loanee_hit_p2p_cnt': 0,
             'qh_loanee_hit_org_cnt_3m': 0,
+            'qh_loanee_query_mac_cnt_3m': 0,
             'qh_loanee_query_mac_cnt_6m': 0
         }
 
@@ -26,8 +27,7 @@ class T09001(Transformer):
             FROM info_risk_other_loan_record WHERE other_loan_id = (SELECT other_loan_id FROM info_risk_other_loan WHERE id_card_no = %(id_card_no)s and 
             unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY expired_at desc LIMIT 1) LIMIT 1
         """
-        df = sql_to_df(sql=info_loan_other,
-                       params={"id_card_no": id_card_no})
+        df = sql_to_df(sql=info_loan_other, params={"id_card_no": id_card_no})
         return df
 
     def _ps_loan_other(self, df=None):
@@ -36,6 +36,7 @@ class T09001(Transformer):
             self.variables['qh_loanee_hit_bank_cnt'] = df['bank_amount'][0]
             self.variables['qh_loanee_hit_finance_cnt'] = df['consumer_finance_amount'][0]
             self.variables['qh_loanee_hit_p2p_cnt'] = df['p_2_p_amount'][0]
+            self.variables['qh_loanee_query_mac_cnt_3m'] = df['query_amount_three_month'][0]
             self.variables['qh_loanee_query_mac_cnt_6m'] = df['query_amount_six_month'][0]
 
     def _loan_date_df(self,id_card_no):

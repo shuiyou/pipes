@@ -34,19 +34,19 @@ class T08001(Transformer):
 
     def _info_risk_anti_fraud(self, df=None):
         if df is not None and len(df) > 0:
-            if df['match_blacklist'][0]:
+            if df['match_blacklist'][0] == b'\x01':
                 self.variables['fraudinfo_isMachdBlMakt'] = 1
-            if df['match_crank_call'][0]:
+            if df['match_crank_call'][0] == b'\x01':
                 self.variables['fraudinfo_isMachCraCall'] = 1
-            if df['match_fraud'][0]:
+            if df['match_fraud'][0] == b'\x01':
                 self.variables['fraudinfo_isMachFraud'] = 1
-            if df['match_empty_number'][0]:
+            if df['match_empty_number'][0] == b'\x01':
                 self.variables['fraudinfo_isMachEmpty'] = 1
-            if df['match_verification_mobile'][0]:
+            if df['match_verification_mobile'][0] == b'\x01':
                 self.variables['fraudinfo_isMachYZmobile'] = 1
-            if df['match_small_no'][0]:
+            if df['match_small_no'][0] == b'\x01':
                 self.variables['fraudinfo_isMachSmallNo'] = 1
-            if df['match_sz_no'][0]:
+            if df['match_sz_no'][0] == b'\x01':
                 self.variables['fraudinfo_isMachSZNo'] = 1
 
     def transform(self):

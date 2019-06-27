@@ -12,7 +12,7 @@ class T14001(Transformer):
         self.variables = {
             'social_name_tel_in_black': 0,
             'social_idc_name_in_black': 0,
-            'social_tel_gray_sco': 0,
+            'social_tel_gray_sco': None,
             'social_query_mac_cnt': None,
             'social_dir_in_black_rate': None,
             'social_indir_in_black_rate': None,
@@ -20,6 +20,7 @@ class T14001(Transformer):
             'social_reg_app_cnt': 0,
             'social_query_else_cnt': 0,
             'social_query_else_cnt_6m': 0,
+            'social_query_else_cnt_24m': 0
         }
 
     def _info_social_blacklist_df(self):
@@ -38,11 +39,11 @@ class T14001(Transformer):
 
     def _blacklist(self, df=None):
         if df is not None and len(df) > 0:
-            if df['blacklist_name_with_phone'][0]:
+            if df['blacklist_name_with_phone'][0] == b'\x01':
                 self.variables['social_name_tel_in_black'] = 1
-            if df['blacklist_name_with_idcard'][0]:
+            if df['blacklist_name_with_idcard'][0] == b'\x01':
                 self.variables['social_idc_name_in_black'] = 1
-            self.variables['social_query_mac_cnt'] = df['searched_organization'].values[0]
+            self.variables['social_query_mac_cnt'] = df['searched_organization'][0]
 
     def _info_social_gray_df(self):
         info_social_gray = """
@@ -56,7 +57,6 @@ class T14001(Transformer):
         """
         df = sql_to_df(sql=(info_social_gray),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-
         return df
 
     def _social_gray(self, df=None):
@@ -86,7 +86,7 @@ class T14001(Transformer):
         return df
 
     def _social_register(self, df=None):
-        if df is not None and len(df) > 0:
+        if df['register_count'].values[0] != None:
             self.variables['social_reg_app_cnt'] = df['register_count'].values[0]
 
     def _info_searched_history_df(self):
@@ -105,8 +105,9 @@ class T14001(Transformer):
     def _searched_history(self, df=None):
         if df is not None and len(df) > 0:
             self.mth = subtract_datetime_col(df, 'create_time', 'searched_date', 'M')
-            self.variables['social_query_else_cnt'] = df[df['org_self'] == False].shape[0]
-            self.variables['social_query_else_cnt_6m'] = df[(df['org_self'] == False) & (df[self.mth] < 6)].shape[0]
+            self.variables['social_query_else_cnt'] = df[df['org_self'] == b'\x00'].shape[0]
+            self.variables['social_query_else_cnt_6m'] = df[(df['org_self'] == b'\x00') & (df[self.mth] < 6)].shape[0]
+            self.variables['social_query_else_cnt_24m'] = df[(df['org_self'] == b'\x00') & (df[self.mth] < 24)].shape[0]
 
     def transform(self):
         """
