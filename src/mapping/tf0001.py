@@ -8,7 +8,7 @@ def check_is_contain(key,value):
     else:
         return 0
 
-class TF0001(Transformer):
+class Tf0001(Transformer):
     """
     联企法院
     """

@@ -1,7 +1,7 @@
-from mapping.tf0001 import TF0001
+from mapping.tf0001 import Tf0001
 
 def test_tf_0001():
-    ps = TF0001()
+    ps = Tf0001()
     ps.run(user_name='', id_card_no='352230198512260015', phone='')
     print(ps.variables)
     assert ps.variables['relent_court_open_admi_violation'] == 3

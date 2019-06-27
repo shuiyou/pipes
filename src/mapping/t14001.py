@@ -90,7 +90,7 @@ class T14001(Transformer):
         return df
 
     def _social_register(self, df=None):
-        if df['register_count'].values[0] != None:
+        if len(df) > 0 and df['register_count'].values[0] != None:
             self.variables['social_reg_app_cnt'] = df['register_count'].values[0]
 
     def _info_searched_history_df(self):
