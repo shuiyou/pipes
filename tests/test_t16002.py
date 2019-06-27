@@ -7,7 +7,7 @@ def test_ps_court_info():
     assert ps.variables['court_ent_admi_vio'] == 2
     assert ps.variables['court_ent_admi_vio_amt_3y'] == 384.82
     assert ps.variables['court_ent_judge'] == 2
-    assert ps.variables['court_ent_docu_status'] == 1
+    assert ps.variables['court_ent_docu_status'] == 3
     assert ps.variables['court_ent_judge_amt_3y'] == 687690.21
     assert ps.variables['court_ent_trial_proc'] == 2
     assert ps.variables['court_ent_proc_status'] == 2
