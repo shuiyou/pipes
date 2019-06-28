@@ -72,9 +72,8 @@ def shake_hand():
     strategy_request = _build_request(req_no, product_code, variables=variables)
     logger.info(strategy_request)
     # 调用决策引擎
-
-    response = requests.post(STRATEGY_URL, json=strategy_request)
     try:
+        response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code == 200:
             resp_json = response.json()
             error = jsonpath(resp_json, '$..Error')
@@ -88,7 +87,7 @@ def shake_hand():
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
         else:
-            raise ServerException(code=response.status_code, description=response.text)
+            raise ServerException(code=502, description="strategyOne错误")
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
