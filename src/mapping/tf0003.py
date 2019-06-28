@@ -42,15 +42,15 @@ class Tf0003(Transformer):
             'per_com_saicChanRunscope': 0,
             'per_com_legper_relent_revoke': 0,
             'per_com_legper_outwardCount1': 0,
-            'per_com_industryphycode': None,
-            'per_com_endtime': None,
-            'per_com_openfrom': None,
-            'per_com_esdate': None,
-            'per_com_areacode': None,
-            'per_com_industrycode': None,
-            'per_com_saicChanRegister_5y': None,
-            'per_com_province': None,
-            'per_com_city': None
+            'per_com_industryphycode': '',
+            'per_com_endtime': '',
+            'per_com_openfrom': '',
+            'per_com_esdate': '',
+            'per_com_areacode': '',
+            'per_com_industrycode': '',
+            'per_com_saicChanRegister_5y': '',
+            'per_com_province': '',
+            'per_com_city': ''
         }
 
     def _info_sql_df(self):

@@ -73,7 +73,7 @@ class T17001(Transformer):
             'net_idc_name_hit_exec_vague': 0,  # 网申核查_身份证_姓名命中法院执行模糊名单
             'net_applicant_idc_3m_morethan2': 0,  # 网申核查_3个月内申请人身份证作为联系人身份证出现的次数大于等于2
             'net_applicant_tel_3m_morethan2': 0,  # 网申核查_3个月内申请人手机号作为联系人手机号出现的次数大于等于2
-            'net_final_score': None,  # 网申核查_风险分数
+            'net_final_score': '',  # 网申核查_风险分数
         }
 
     # 获取目标数据集1

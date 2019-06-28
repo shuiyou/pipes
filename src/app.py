@@ -72,14 +72,15 @@ def shake_hand():
     strategy_request = _build_request(req_no, product_code, variables=variables)
     logger.info(strategy_request)
     # 调用决策引擎
+
     response = requests.post(STRATEGY_URL, json=strategy_request)
     try:
         if response.status_code == 200:
-            json = response.json()
+            resp_json = response.json()
             resp = {
                 'productCode': json_data.get('productCode'),
                 'reqNo': json_data.get('reqNo'),
-                'bizType': _get_biz_types(json)
+                'bizType': _get_biz_types(resp_json)
             }
             return jsonify(resp)
         else:
@@ -121,10 +122,9 @@ def strategy():
     for key, value in variables.items():
         if type(value) == numpy.int64:
             variables[key] = int(value)
-    variables['out_strategyBranch'] = codes
+    variables['out_strategyBranch'] = ','.join(codes)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
-    print(json.dumps(strategy_request))
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
     try:

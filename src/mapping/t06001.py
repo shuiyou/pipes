@@ -17,7 +17,7 @@ class T06001(Transformer):
             'ps_mali_crim': 0,
             'ps_econ_crim': 0,
             'ps_amend_staff': 0,
-            'ps_ileg_crim': 0,
+            'ps_illeg_crim': 0,
             'ps_illegal_record_time': 0
         }
 

@@ -37,9 +37,9 @@ def test_shake_hand(client):
 def test_strategy(client):
     rv = client.post('/strategy', json={
         "strategyParam": {
-            "reqNo": "请求编号",
-            "stepReqNo": "子请求编号",
-            "productCode": "产品编号",
+            "reqNo": uuid.uuid4(),
+            "stepReqNo": "1",
+            "productCode": "abc",
             "bizType": ['01001', '02001', '05001', '05002', '06001', '07001', '08001', '09001', '10001', '11001', '12001', '13001', '14001', '16001', '17001', '18001', 'f0001', 'f0002', 'f0003'],
             "queryData": {
                 "name": "刘劭卓",
