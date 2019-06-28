@@ -10,6 +10,7 @@ from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate
+from mapping.t00000 import T00000
 
 logger = LoggerUtil().logger(__name__)
 
@@ -60,7 +61,13 @@ def shake_hand():
     json_data = request.get_json()
     req_no = json_data.get('reqNo')
     product_code = json_data.get('productCode')
-    strategy_request = _build_request(req_no, product_code)
+    user_name = json_data.get('name')
+    id_card_no = json_data.get('idno')
+    phone = json_data.get('phone')
+    user_type = json_data.get('userType')
+    variables = T00000().run(user_name, id_card_no, phone, user_type)
+    strategy_request = _build_request(req_no, product_code, variables=variables)
+    logger.info(strategy_request)
     # 调用决策引擎
     response = requests.post(STRATEGY_URL, json=strategy_request)
     try:
@@ -69,7 +76,7 @@ def shake_hand():
             resp = {
                 'productCode': json_data.get('productCode'),
                 'reqNo': json_data.get('reqNo'),
-                'bizTypes': _get_biz_types(json)
+                'bizType': _get_biz_types(json)
             }
             return jsonify(resp)
         else:
@@ -113,7 +120,7 @@ def strategy():
     try:
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
-            strategy_param['bizType']=_get_biz_types(strategy_resp)
+            strategy_param['bizType'] = _get_biz_types(strategy_resp)
             json_data['strategyResult'] = strategy_resp
             return jsonify(json_data)
         else:
@@ -153,4 +160,6 @@ def flask_global_exception_handler(e):
 
 
 if __name__ == '__main__':
+    logger.info('starting pipes...')
     app.run(host='0.0.0.0')
+    logger.info('pipes started.')
