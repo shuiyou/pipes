@@ -21,10 +21,12 @@ def test_shake_hand(client):
     rv = client.post('/biz-types', json={
         "reqNo": uuid.uuid4(),
         "productCode": "1",
-        "name":"刘劭卓",
-        "idno":"430105199106096118",
-        "phone":"11111111111",
-        "userType":"PERSONAL"
+        "queryData":{
+            "name":"刘劭卓",
+            "idno":"430105199106096118",
+            "phone":"11111111111",
+            "userType":"PERSONAL"
+        }
     })
     assert rv.status_code == 200
     v = rv.get_json()

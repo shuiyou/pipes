@@ -67,6 +67,7 @@ def shake_hand():
     phone = query_data.get('phone')
     user_type = query_data.get('userType')
     variables = T00000().run(user_name, id_card_no, phone, user_type)
+    variables['out_strategyBranch'] = '00000'
     strategy_request = _build_request(req_no, product_code, variables=variables)
     logger.info(strategy_request)
     # 调用决策引擎
