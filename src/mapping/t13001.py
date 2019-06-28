@@ -1,4 +1,5 @@
 import pandas as pd
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
@@ -37,35 +38,47 @@ class T13001(Transformer):
 
         sql1 = '''
             SELECT sms_id,platform_type,register_time FROM info_sms_loan_platform  WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            IN (
+                SELECT sms.sms_id FROM (
+                    SELECT sms_id FROM info_sms 
+                        WHERE user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s
+                    ORDER BY id DESC LIMIT 1
+                ) as sms
+            );
         '''
         sql2 = '''
-            SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            SELECT sms_id,create_time 
+            FROM info_sms 
+            WHERE user_name = %(user_name)s 
+            AND id_card_no = %(id_card_no)s 
+            AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),
-                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df1 = sql_to_df(sql=sql1,
+                        params={"user_name": self.user_name,
+                                "id_card_no": self.id_card_no,
+                                "phone": self.phone})
+        df2 = sql_to_df(sql=sql2,
+                        params={"user_name": self.user_name,
+                                "id_card_no": self.id_card_no,
+                                "phone": self.phone})
         df = pd.merge(df1, df2, how='left', on='sms_id')
         df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'register_time', 'M')]
         return df
 
     ## 计算短信核查_注册总次数
     def _sms_reg_cnt(self, df=None):
-
         self.variables['sms_reg_cnt'] = len(df)
 
     ## 计算短信核查_近3个月内银行类注册次数
     def _sms_reg_cnt_bank_3m(self, df=None):
-
         if len(df) != 0:
             df_1 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'BANK'), :].copy()
             self.variables['sms_reg_cnt_bank_3m'] = len(df_1)
 
     ## 计算短信核查_近3个月内非银行类注册次数
     def _sms_reg_cnt_other_3m(self, df=None):
-
         if len(df) != 0:
             df_2 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'NON_BANK'), :].copy()
             self.variables['sms_reg_cnt_other_3m'] = len(df_2)
@@ -74,9 +87,20 @@ class T13001(Transformer):
     def _info_sms_loan_apply(self):
 
         sql = '''
-            SELECT sms_id,apply_amount FROM info_sms_loan_apply WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            SELECT sms_id, apply_amount
+            FROM info_sms_loan_apply
+            WHERE sms_id IN (
+                SELECT sms.sms_id
+                FROM (
+                    SELECT sms_id
+                    FROM info_sms
+                    WHERE (user_name = %(user_name)s
+                        AND id_card_no = %(id_card_no)s
+                        AND phone = %(phone)s)
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) sms
+            );
         '''
         df = sql_to_df(sql=(sql),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -107,7 +131,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -136,7 +160,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -153,7 +177,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -190,11 +214,11 @@ class T13001(Transformer):
         sql3 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),
+        df1 = sql_to_df(sql=sql1,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),
+        df2 = sql_to_df(sql=sql2,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df3 = sql_to_df(sql=(sql3),
+        df3 = sql_to_df(sql=sql3,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         merge1 = pd.merge(df1, df2, how='left', on='platform_code')
         df = pd.merge(merge1, df3, how='left', on='sms_id')
