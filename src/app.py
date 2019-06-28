@@ -1,9 +1,9 @@
-import numpy
 import os
 import sys
 
+import numpy
 import requests
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify
 from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
