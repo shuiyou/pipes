@@ -77,12 +77,16 @@ def shake_hand():
     try:
         if response.status_code == 200:
             resp_json = response.json()
-            resp = {
-                'productCode': json_data.get('productCode'),
-                'reqNo': json_data.get('reqNo'),
-                'bizType': _get_biz_types(resp_json)
-            }
-            return jsonify(resp)
+            error = jsonpath(resp_json, '$..Error')
+            if error is False:
+                resp = {
+                    'productCode': json_data.get('productCode'),
+                    'reqNo': json_data.get('reqNo'),
+                    'bizType': _get_biz_types(resp_json)
+                }
+                return jsonify(resp)
+            else:
+                raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
         else:
             raise ServerException(code=response.status_code, description=response.text)
     except Exception as err:
@@ -130,9 +134,13 @@ def strategy():
     try:
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
-            strategy_param['bizType'] = _get_biz_types(strategy_resp)
-            json_data['strategyResult'] = strategy_resp
-            return jsonify(json_data)
+            error = jsonpath(strategy_resp, '$..Error')
+            if error is False:
+                strategy_param['bizType'] = _get_biz_types(strategy_resp)
+                json_data['strategyResult'] = strategy_resp
+                return jsonify(json_data)
+            else:
+                raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
         else:
             raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
     except Exception as err:
