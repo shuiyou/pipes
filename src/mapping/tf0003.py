@@ -88,9 +88,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                        params={"ent_name": self.ent_name})
+                        params={"ent_name": ent_name})
         return df1, df2
 
     def _case_info(self, df1=None, df2=None):
@@ -117,9 +117,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                        params={"ent_name": self.ent_name})
+                        params={"ent_name": ent_name})
         return df1, df2
 
     def _shares_frost(self, df1=None, df2=None):
@@ -158,9 +158,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _shares_impawn(self, df1=None, df2=None):
@@ -183,7 +183,7 @@ class Tf0003(Transformer):
 
     def _info_mor_detail_df(self, ent_name):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,d.basic_id,d.mort_state
+            SELECT c.ent_name,d.basic_id,d.mort_status
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
@@ -191,7 +191,7 @@ class Tf0003(Transformer):
            ;
         """
         info_per_bus_legal = """
-            SELECT c.ent_name,d.basic_id,d.mort_state
+            SELECT c.ent_name,d.basic_id,d.mort_status
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
@@ -199,22 +199,22 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                        params={"ent_name": self.ent_name})
+                        params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _mor_detail(self, df1=None, df2=None):
         if df1 is not None and len(df1) > 0:
-            df1['youxiao'] = df1.apply(lambda x: True if '有效' in x['mort_state'] else False, axis=1)
-            df1['shixiao'] = df1.apply(lambda x: True if '失效' in x['mort_state'] else False, axis=1)
+            df1['youxiao'] = df1.apply(lambda x: True if '有效' in x['mort_status'] else False, axis=1)
+            df1['shixiao'] = df1.apply(lambda x: True if '失效' in x['mort_status'] else False, axis=1)
             if df1[df1['youxiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail'] = 1
             if df1[df1['shixiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail_his'] = 1
         elif df2 is not None and len(df2) > 0:
-            df2['youxiao'] = df2.apply(lambda x: True if '有效' in x['mort_state'] else False, axis=1)
-            df2['shixiao'] = df2.apply(lambda x: True if '失效' in x['mort_state'] else False, axis=1)
+            df2['youxiao'] = df2.apply(lambda x: True if '有效' in x['mort_status'] else False, axis=1)
+            df2['shixiao'] = df2.apply(lambda x: True if '失效' in x['mort_status'] else False, axis=1)
             if df2[df2['youxiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail'] = 1
             if df2[df2['shixiao']].shape[0] > 0:
@@ -239,9 +239,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _liquidation_info(self, df1=None, df2=None):
@@ -270,39 +270,39 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                        params={"ent_name": self.ent_name})
+                        params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name":  ent_name})
         return df1, df2
 
     def _exception_info(self, df1=None, df2=None):
         if df1 is not None and len(df1) > 0:
-            if df1[df1['result_out'] == None].shape[0] > 0:
+            if df1[df1['result_out'] == ''].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
             else:
                 self.variables['per_com_exception_his'] = 1
-            if df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+            if df1[(df1['date_out'] == None) & (df1['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
-            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('无法联系'))].shape[0] > 0:
+            elif df1[(df1['date_out'] == None) & (df1['result_in'].str.contains('无法联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+            elif df1[(df1['date_out'] == None) & (df1['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df1[(df1['date_out'] == None) and (df1['result_in'].str.contains('年度报告'))].shape[0] > 0:
+            elif df1[(df1['date_out'] == None) & (df1['result_in'].str.contains('年度报告'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 1
             else:
                 self.variables['per_com_exception_his'] = 0
         elif df2 is not None and len(df2) > 0:
-            if df2[df2['result_out'] == None].shape[0] > 0:
+            if df2[df2['result_out'] == ''].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
             else:
                 self.variables['per_com_exception_his'] = 1
-            if df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+            if df2[(df2['date_out'] == None) & (df2['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
-            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('无法联系'))].shape[0] > 0:
+            elif df2[(df2['date_out'] == None) & (df2['result_in'].str.contains('无法联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+            elif df2[(df2['date_out'] == None) & (df2['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df2[(df2['date_out'] == None) and (df2['result_in'].str.contains('年度报告'))].shape[0] > 0:
+            elif df2[(df2['date_out'] == None) & (df2['result_in'].str.contains('年度报告'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 1
             else:
                 self.variables['per_com_exception_his'] = 0
@@ -325,9 +325,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _illegal_list_info(self, df1=None, df2=None):
@@ -362,9 +362,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _saicChanLegal_info(self, df1=None, df2=None):
@@ -422,13 +422,13 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder_entinvitem,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal_entinvitem,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df3 = sql_to_df(sql=info_per_bus_shareholder_frinv,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df4 = sql_to_df(sql=info_per_bus_legal_frinv,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2, df3, df4
 
     def _legper_info(self, df1=None, df2=None, df3=None, df4=None):
@@ -472,9 +472,9 @@ class Tf0003(Transformer):
            ;
         """
         df1 = sql_to_df(sql=info_per_bus_shareholder,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         df2 = sql_to_df(sql=info_per_bus_legal,
-                       params={"ent_name": self.ent_name})
+                       params={"ent_name": ent_name})
         return df1, df2
 
     def _industryphycode_info(self, df1=None, df2=None):
@@ -504,32 +504,33 @@ class Tf0003(Transformer):
         执行变量转换
         :return:
         """
-        case_df = self._info_case_df(ent_name=self._info_sql_df())
+        ent_name = self._info_sql_df()
+        case_df = self._info_case_df(ent_name=ent_name)
         self._case_info(case_df[0], case_df[1])
 
-        shares_fronts_df = self._info_shares_frost_df(ent_name=self._info_sql_df())
+        shares_fronts_df = self._info_shares_frost_df(ent_name=ent_name)
         self._shares_frost(shares_fronts_df[0], shares_fronts_df[1])
 
-        shares_impawn_df = self._info_shares_impawn_df(ent_name=self._info_sql_df())
+        shares_impawn_df = self._info_shares_impawn_df(ent_name=ent_name)
         self._shares_impawn(shares_impawn_df[0], shares_impawn_df[1])
 
-        mor_detail_df = self._info_mor_detail_df(ent_name=self._info_sql_df())
+        mor_detail_df = self._info_mor_detail_df(ent_name=ent_name)
         self._mor_detail(mor_detail_df[0], mor_detail_df[1])
 
-        liquidation_df = self._info_liquidation_df(ent_name=self._info_sql_df())
+        liquidation_df = self._info_liquidation_df(ent_name=ent_name)
         self._liquidation_info(liquidation_df[0], liquidation_df[1])
 
-        exception_df = self._info_exception_df(ent_name=self._info_sql_df())
+        exception_df = self._info_exception_df(ent_name=ent_name)
         self._exception_info(exception_df[0], exception_df[1])
 
-        illegal_list_df = self._info_illegal_list_df(ent_name=self._info_sql_df())
+        illegal_list_df = self._info_illegal_list_df(ent_name=ent_name)
         self._illegal_list_info(illegal_list_df[0], illegal_list_df[1])
 
-        saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=self._info_sql_df())
+        saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=ent_name)
         self._saicChanLegal_info(saic_chan_legal_df[0], saic_chan_legal_df[1])
 
-        legper_df = self._info_legper_df(ent_name=self._info_sql_df())
+        legper_df = self._info_legper_df(ent_name=ent_name)
         self._legper_info(legper_df[0], legper_df[1], legper_df[2],legper_df[3])
 
-        industryphycode_df = self._info_industryphycode_df(ent_name=self._info_sql_df())
+        industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
         self._industryphycode_info(industryphycode_df[0], industryphycode_df[1])
