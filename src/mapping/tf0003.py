@@ -67,8 +67,7 @@ class Tf0003(Transformer):
          """
         df = sql_to_df(sql=info_sql_df,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df['ent_name'][0]
-
+        return df
 
     def _info_case_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -504,33 +503,35 @@ class Tf0003(Transformer):
         执行变量转换
         :return:
         """
-        ent_name = self._info_sql_df()
-        case_df = self._info_case_df(ent_name=ent_name)
-        self._case_info(case_df[0], case_df[1])
+        ent_name_df = self._info_sql_df()
+        if ent_name_df.shape[0] > 0:
+            ent_name = ent_name_df['ent_name'][0]
+            case_df = self._info_case_df(ent_name=ent_name)
+            self._case_info(case_df[0], case_df[1])
 
-        shares_fronts_df = self._info_shares_frost_df(ent_name=ent_name)
-        self._shares_frost(shares_fronts_df[0], shares_fronts_df[1])
+            shares_fronts_df = self._info_shares_frost_df(ent_name=ent_name)
+            self._shares_frost(shares_fronts_df[0], shares_fronts_df[1])
 
-        shares_impawn_df = self._info_shares_impawn_df(ent_name=ent_name)
-        self._shares_impawn(shares_impawn_df[0], shares_impawn_df[1])
+            shares_impawn_df = self._info_shares_impawn_df(ent_name=ent_name)
+            self._shares_impawn(shares_impawn_df[0], shares_impawn_df[1])
 
-        mor_detail_df = self._info_mor_detail_df(ent_name=ent_name)
-        self._mor_detail(mor_detail_df[0], mor_detail_df[1])
+            mor_detail_df = self._info_mor_detail_df(ent_name=ent_name)
+            self._mor_detail(mor_detail_df[0], mor_detail_df[1])
 
-        liquidation_df = self._info_liquidation_df(ent_name=ent_name)
-        self._liquidation_info(liquidation_df[0], liquidation_df[1])
+            liquidation_df = self._info_liquidation_df(ent_name=ent_name)
+            self._liquidation_info(liquidation_df[0], liquidation_df[1])
 
-        exception_df = self._info_exception_df(ent_name=ent_name)
-        self._exception_info(exception_df[0], exception_df[1])
+            exception_df = self._info_exception_df(ent_name=ent_name)
+            self._exception_info(exception_df[0], exception_df[1])
 
-        illegal_list_df = self._info_illegal_list_df(ent_name=ent_name)
-        self._illegal_list_info(illegal_list_df[0], illegal_list_df[1])
+            illegal_list_df = self._info_illegal_list_df(ent_name=ent_name)
+            self._illegal_list_info(illegal_list_df[0], illegal_list_df[1])
 
-        saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=ent_name)
-        self._saicChanLegal_info(saic_chan_legal_df[0], saic_chan_legal_df[1])
+            saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=ent_name)
+            self._saicChanLegal_info(saic_chan_legal_df[0], saic_chan_legal_df[1])
 
-        legper_df = self._info_legper_df(ent_name=ent_name)
-        self._legper_info(legper_df[0], legper_df[1], legper_df[2],legper_df[3])
+            legper_df = self._info_legper_df(ent_name=ent_name)
+            self._legper_info(legper_df[0], legper_df[1], legper_df[2],legper_df[3])
 
-        industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
-        self._industryphycode_info(industryphycode_df[0], industryphycode_df[1])
+            industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
+            self._industryphycode_info(industryphycode_df[0], industryphycode_df[1])
