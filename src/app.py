@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -60,6 +61,7 @@ def shake_hand():
     """
     # 获取请求参数
     json_data = request.get_json()
+    logger.debug(json.dumps(json_data))
     req_no = json_data.get('reqNo')
     product_code = json_data.get('productCode')
     query_data = json_data.get('queryData')
@@ -128,9 +130,10 @@ def strategy():
     variables['out_strategyBranch'] = ','.join(codes)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
-    # 调用决策引擎
-    strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+
     try:
+        # 调用决策引擎
+        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
             error = jsonpath(strategy_resp, '$..Error')
