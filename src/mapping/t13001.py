@@ -43,7 +43,7 @@ class T13001(Transformer):
                     SELECT sms_id FROM info_sms 
                         WHERE user_name = %(user_name)s 
                         AND id_card_no = %(id_card_no)s 
-                        AND phone = %(phone)s 
+                        AND phone = %(phone)s
                     ORDER BY id DESC LIMIT 1
                 ) as sms
             );
