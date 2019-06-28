@@ -1,3 +1,4 @@
+import numpy
 import os
 import sys
 
@@ -112,10 +113,17 @@ def strategy():
     user_name = query_data.get('name')
     id_card_no = query_data.get('idno')
     phone = query_data.get('phone')
-    user_type = query_data.get('user_type')
+    user_type = query_data.get('userType')
     codes = strategy_param.get('bizType')
-    variables = translate(codes, user_name, id_card_no, phone, user_type)
+    biz_types = codes.copy()
+    biz_types.append('00000')
+    variables = translate(biz_types, user_name, id_card_no, phone, user_type)
+    for key, value in variables.items():
+        if type(value) == numpy.int64:
+            variables[key] = int(value)
+    variables['out_strategyBranch'] = codes
     strategy_request = _build_request(req_no, product_code, variables)
+    logger.debug(strategy_request)
     print(json.dumps(strategy_request))
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
