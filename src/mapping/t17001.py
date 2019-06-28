@@ -80,10 +80,23 @@ class T17001(Transformer):
     def _info_fraud_verification_item(self):
 
         sql = '''
-               SELECT item_name,item_group,item_detail FROM info_fraud_verification_item  WHERE  fraud_verification_id 
-               IN (SELECT fv.fraud_verification_id FROM (SELECT id fraud_verification_id FROM info_fraud_verification 
-               WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
-               ORDER BY id DESC LIMIT 1) as fv);
+               SELECT item_name,item_group,item_detail 
+               FROM info_fraud_verification_item  
+               WHERE  fraud_verification_id 
+               IN (
+                   SELECT fv.fraud_verification_id 
+                   FROM (
+                       SELECT id fraud_verification_id 
+                       FROM info_fraud_verification 
+                       WHERE 
+                           user_name = %(user_name)s 
+                           AND id_card_no = %(id_card_no)s 
+                           AND phone = %(phone)s
+                           AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                       ORDER BY id DESC 
+                       LIMIT 1
+                   ) as fv
+               );
         '''
         df = sql_to_df(sql=(sql),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -225,9 +238,15 @@ class T17001(Transformer):
     def _info_fraud_verification(self):
 
         sql = '''
-               SELECT * FROM info_fraud_verification 
-               WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
-               ORDER BY id DESC LIMIT 1
+               SELECT final_score 
+               FROM info_fraud_verification 
+               WHERE 
+                   user_name = %(user_name)s 
+                   AND id_card_no = %(id_card_no)s 
+                   AND phone = %(phone)s
+                   AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+               ORDER BY id DESC 
+               LIMIT 1
         '''
         df = sql_to_df(sql=(sql),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -236,7 +255,7 @@ class T17001(Transformer):
     # 计算网申核查_风险分数
     def _net_final_score(self, df=None):
         if len(df) != 0:
-            self.variables['net_final_score'] = int(df['final_score'].values[0])
+            self.variables['net_final_score'] = int(df.values[0])
 
     # 执行变量转换
     def transform(self):
