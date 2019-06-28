@@ -2,7 +2,7 @@ import os
 import sys
 
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, json
 from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
@@ -116,7 +116,7 @@ def strategy():
     codes = strategy_param.get('bizType')
     variables = translate(codes, user_name, id_card_no, phone, user_type)
     strategy_request = _build_request(req_no, product_code, variables)
-    logger.debug(strategy_request)
+    print(json.dumps(strategy_request))
     # 调用决策引擎
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
     try:

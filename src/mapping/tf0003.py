@@ -69,7 +69,6 @@ class Tf0003(Transformer):
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
-
     def _info_case_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id
