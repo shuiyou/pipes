@@ -1,10 +1,15 @@
 import datetime
 
+from exceptions import ServerException
+
 
 class GetInformation(object):
 
     def __init__(self, id):
         self.id = id
+        if len(id) < 18:
+            raise ServerException(description="身份证号码不合法", code="500")
+
         self.birth_year = int(self.id[6:10])
         self.birth_month = int(self.id[10:12])
         self.birth_day = int(self.id[12:14])
