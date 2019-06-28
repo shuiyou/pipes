@@ -131,7 +131,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -160,7 +160,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -177,7 +177,7 @@ class T13001(Transformer):
             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
             ORDER BY id DESC LIMIT 1) as sms);
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -214,11 +214,11 @@ class T13001(Transformer):
         sql3 = '''
             SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
         '''
-        df1 = sql_to_df(sql=(sql1),
+        df1 = sql_to_df(sql=sql1,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df2 = sql_to_df(sql=(sql2),
+        df2 = sql_to_df(sql=sql2,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df3 = sql_to_df(sql=(sql3),
+        df3 = sql_to_df(sql=sql3,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         merge1 = pd.merge(df1, df2, how='left', on='platform_code')
         df = pd.merge(merge1, df3, how='left', on='sms_id')
