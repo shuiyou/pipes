@@ -37,23 +37,32 @@ class T13001(Transformer):
     def _info_sms_loan_platform(self):
 
         sql1 = '''
-            SELECT sms_id,platform_type,register_time FROM info_sms_loan_platform  WHERE sms_id 
+            SELECT sms_id,platform_type,register_time 
+            FROM info_sms_loan_platform  
+            WHERE sms_id 
             IN (
-                SELECT sms.sms_id FROM (
-                    SELECT sms_id FROM info_sms 
-                        WHERE user_name = %(user_name)s 
+                SELECT sms.sms_id 
+                FROM (
+                    SELECT sms_id 
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
                         AND id_card_no = %(id_card_no)s 
                         AND phone = %(phone)s
-                    ORDER BY id DESC LIMIT 1
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
                 ) as sms
             );
         '''
         sql2 = '''
             SELECT sms_id,create_time 
             FROM info_sms 
-            WHERE user_name = %(user_name)s 
-            AND id_card_no = %(id_card_no)s 
-            AND phone = %(phone)s 
+            WHERE 
+                user_name = %(user_name)s 
+                AND id_card_no = %(id_card_no)s 
+                AND phone = %(phone)s 
+                AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
         '''
         df1 = sql_to_df(sql=sql1,
                         params={"user_name": self.user_name,
@@ -89,20 +98,23 @@ class T13001(Transformer):
         sql = '''
             SELECT sms_id, apply_amount
             FROM info_sms_loan_apply
-            WHERE sms_id IN (
+            WHERE sms_id 
+            IN (
                 SELECT sms.sms_id
                 FROM (
                     SELECT sms_id
                     FROM info_sms
-                    WHERE (user_name = %(user_name)s
+                    WHERE 
+                        user_name = %(user_name)s
                         AND id_card_no = %(id_card_no)s
-                        AND phone = %(phone)s)
+                        AND phone = %(phone)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC
                     LIMIT 1
                 ) sms
             );
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
@@ -127,9 +139,23 @@ class T13001(Transformer):
     def _info_sms_loan(self):
 
         sql = '''
-            SELECT sms_id,loan_amount FROM info_sms_loan WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            SELECT sms_id,loan_amount 
+            FROM info_sms_loan 
+            WHERE sms_id 
+            IN (
+                SELECT sms.sms_id 
+                FROM (
+                    SELECT sms_id 
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) as sms
+            );
         '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -156,9 +182,23 @@ class T13001(Transformer):
     def _info_sms_loan_reject(self):
 
         sql = '''
-            SELECT sms_id FROM info_sms_loan_reject WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            SELECT sms_id 
+            FROM info_sms_loan_reject 
+            WHERE sms_id 
+            IN (
+                SELECT sms.sms_id 
+                FROM (
+                    SELECT sms_id 
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) as sms
+            );
         '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -173,9 +213,23 @@ class T13001(Transformer):
     def _info_sms_overdue_platform(self):
 
         sql = '''
-            SELECT sms_id,overdue_money FROM info_sms_overdue_platform WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            SELECT sms_id,overdue_money 
+            FROM info_sms_overdue_platform 
+            WHERE sms_id 
+            IN (
+                SELECT sms.sms_id 
+                FROM (
+                    SELECT sms_id 
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) as sms
+            );
         '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -202,17 +256,51 @@ class T13001(Transformer):
     def _info_sms_debt(self):
 
         sql1 = '''
-            SELECT sms_id,platform_code,debt_money FROM info_sms_debt WHERE sms_id 
-            IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-            ORDER BY id DESC LIMIT 1) as sms);
+            SELECT sms_id,platform_code,debt_money 
+            FROM info_sms_debt 
+            WHERE sms_id 
+            IN (
+                SELECT sms.sms_id 
+                FROM (
+                    SELECT sms_id 
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) as sms
+            );
         '''
         sql2 = '''
-             SELECT platform_code,overdue_time FROM info_sms_overdue_platform WHERE sms_id
-             IN (SELECT sms.sms_id FROM (SELECT sms_id FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
-             ORDER BY id DESC LIMIT 1) as sms);
+             SELECT platform_code,overdue_time 
+             FROM info_sms_overdue_platform 
+             WHERE sms_id
+             IN (
+                 SELECT sms.sms_id 
+                 FROM (
+                     SELECT sms_id 
+                     FROM info_sms 
+                     WHERE 
+                         user_name = %(user_name)s 
+                         AND id_card_no = %(id_card_no)s 
+                         AND phone = %(phone)s 
+                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                     ORDER BY id DESC 
+                     LIMIT 1
+                 ) as sms
+             );
         '''
         sql3 = '''
-            SELECT sms_id,create_time FROM info_sms WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s 
+            SELECT sms_id,create_time 
+            FROM info_sms 
+            WHERE 
+                user_name = %(user_name)s 
+                AND id_card_no = %(id_card_no)s 
+                AND phone = %(phone)s 
+                AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
         '''
         df1 = sql_to_df(sql=sql1,
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -222,7 +310,7 @@ class T13001(Transformer):
                         params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         merge1 = pd.merge(df1, df2, how='left', on='platform_code')
         df = pd.merge(merge1, df3, how='left', on='sms_id')
-        df['date_dif'] = (df['create_time'] - df['overdue_time']).map(lambda x: x.days / 30)
+        df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'overdue_time', 'M')]
         return df
 
     ## 计算短信核查_欠款总次数
