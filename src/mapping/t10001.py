@@ -66,5 +66,3 @@ class T10001(Transformer):
         self._ovdu_sco_1y(df)
         self._ovdu_sco(df)
         self._ovdu_sco_time(df)
-
-

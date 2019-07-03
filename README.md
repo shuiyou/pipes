@@ -51,7 +51,7 @@
 │   ├── logging-fat.conf
 │   ├── logging-prod.conf
 │   └── logstash.py
-├── mapping
+├── mapping          # 数据转换逻辑写到这个目录，采用tXXXXX.py命名， 对应的类名TXXXXX
 │   ├── __init__.py
 │   └── mysql_reader.py
 ├── requirements.txt
@@ -59,37 +59,6 @@
     ├── __init__.py
     ├── request.py
     └── response.py
-
-6 directories, 23 files
- luokui@MacBook-Pro  ~/work/pipes/src   develop ●  cd ..                                                        ✔  3922  14:33:11
- luokui@MacBook-Pro  ~/work/pipes   develop ●  tree . -L 2                                                      ✔  3923  14:33:32
-.
-├── README.md
-├── build.sh
-├── docker-compose.yaml
-├── docs
-│   └── index.md
-├── src
-│   ├── Dockerfile
-│   ├── __pycache__
-│   ├── app.py
-│   ├── config.py
-│   ├── echarts
-│   ├── exceptions.py
-│   ├── logger
-│   ├── mapping
-│   ├── requirements.txt
-│   └── strategy
-└── tests
-    ├── __init__.py
-    ├── data
-    ├── logstash.db
-    ├── metabase
-    ├── strategyone.json
-    ├── td_json.py
-    ├── test_app.py
-    └── test_strategy.py
-
 ```
    
 ```bash

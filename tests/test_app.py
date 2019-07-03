@@ -20,7 +20,13 @@ def client():
 def test_shake_hand(client):
     rv = client.post('/biz-types', json={
         "reqNo": uuid.uuid4(),
-        "productCode": "1"
+        "productCode": "1",
+        "queryData":{
+            "name":"刘劭卓",
+            "idno":"430105199106096118",
+            "phone":"11111111111",
+            "userType":"PERSONAL"
+        }
     })
     assert rv.status_code == 200
     v = rv.get_json()
@@ -31,14 +37,15 @@ def test_shake_hand(client):
 def test_strategy(client):
     rv = client.post('/strategy', json={
         "strategyParam": {
-            "reqNo": "请求编号",
-            "stepReqNo": "子请求编号",
-            "productCode": "产品编号",
-            "bizType": ['1111', '3333'],
+            "reqNo": uuid.uuid4(),
+            "stepReqNo": "1",
+            "productCode": "abc",
+            "bizType": ['01001', '02001', '05001', '05002', '06001', '07001', '08001', '09001', '10001', '11001', '12001', '13001', '14001', '16001', '17001', '18001', 'f0001', 'f0002', 'f0003'],
             "queryData": {
-                "name": "名称",
-                "idno": "证件号码",
-                "phone": "手机号"
+                "name": "刘劭卓",
+                "idno": "430105199106096118",
+                "phone": "11111111111",
+                "userType":"PERSONAL"
             },
         },
         "strategyResult": {}

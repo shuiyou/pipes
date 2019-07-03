@@ -1,6 +1,8 @@
+import json
 import os
 import sys
 
+import numpy
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -10,6 +12,7 @@ from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate
+from mapping.t00000 import T00000
 
 logger = LoggerUtil().logger(__name__)
 
@@ -58,22 +61,35 @@ def shake_hand():
     """
     # 获取请求参数
     json_data = request.get_json()
+    logger.debug(json.dumps(json_data))
     req_no = json_data.get('reqNo')
     product_code = json_data.get('productCode')
-    strategy_request = _build_request(req_no, product_code)
+    query_data = json_data.get('queryData')
+    user_name = query_data.get('name')
+    id_card_no = query_data.get('idno')
+    phone = query_data.get('phone')
+    user_type = query_data.get('userType')
+    variables = T00000().run(user_name, id_card_no, phone, user_type)
+    variables['out_strategyBranch'] = '00000'
+    strategy_request = _build_request(req_no, product_code, variables=variables)
+    logger.info(strategy_request)
     # 调用决策引擎
-    response = requests.post(STRATEGY_URL, json=strategy_request)
     try:
+        response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code == 200:
-            json = response.json()
-            resp = {
-                'productCode': json_data.get('productCode'),
-                'reqNo': json_data.get('reqNo'),
-                'bizTypes': _get_biz_types(json)
-            }
-            return jsonify(resp)
+            resp_json = response.json()
+            error = jsonpath(resp_json, '$..Error')
+            if error is False:
+                resp = {
+                    'productCode': json_data.get('productCode'),
+                    'reqNo': json_data.get('reqNo'),
+                    'bizType': _get_biz_types(resp_json)
+                }
+                return jsonify(resp)
+            else:
+                raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
         else:
-            raise ServerException(code=response.status_code, description=response.text)
+            raise ServerException(code=502, description="strategyOne错误")
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
@@ -103,19 +119,30 @@ def strategy():
     user_name = query_data.get('name')
     id_card_no = query_data.get('idno')
     phone = query_data.get('phone')
-    user_type = query_data.get('user_type')
+    user_type = query_data.get('userType')
     codes = strategy_param.get('bizType')
-    variables = translate(codes, user_name, id_card_no, phone, user_type)
+    biz_types = codes.copy()
+    biz_types.append('00000')
+    variables = translate(biz_types, user_name, id_card_no, phone, user_type)
+    for key, value in variables.items():
+        if type(value) == numpy.int64:
+            variables[key] = int(value)
+    variables['out_strategyBranch'] = ','.join(codes)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
-    # 调用决策引擎
-    strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+
     try:
+        # 调用决策引擎
+        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
-            strategy_param['bizType']=_get_biz_types(strategy_resp)
-            json_data['strategyResult'] = strategy_resp
-            return jsonify(json_data)
+            error = jsonpath(strategy_resp, '$..Error')
+            if error is False:
+                strategy_param['bizType'] = _get_biz_types(strategy_resp)
+                json_data['strategyResult'] = strategy_resp
+                return jsonify(json_data)
+            else:
+                raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
         else:
             raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
     except Exception as err:
@@ -153,4 +180,6 @@ def flask_global_exception_handler(e):
 
 
 if __name__ == '__main__':
+    logger.info('starting pipes...')
     app.run(host='0.0.0.0')
+    logger.info('pipes started.')
