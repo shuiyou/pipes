@@ -5,27 +5,36 @@ from mapping.tranformer import Transformer, subtract_datetime_col
 
 
 def get_money(var):
-    if len(list(map(float, re.findall(r"\d+\.?\d*", var)))) > 0:
-        value = max(list(map(float, re.findall(r"\d+\.?\d*", var))))
+    if var is not None and len(var) > 0:
+        if len(list(map(float, re.findall(r"\d+\.?\d*", var)))) > 0:
+            value = max(list(map(float, re.findall(r"\d+\.?\d*", var))))
+        else:
+            value = float(0)
+        return value
     else:
-        value = float(0)
-    return value
+        return 0
 
 
 def get_spec_money1(var):
-    if re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var) != None:
-        value = float(re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var).group(0)) * 10000
+    if var is not None and len(var) > 0:
+        if re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var) != None:
+            value = float(re.compile(r"(?<=万元\)\:)\d+\.?\d*").search(var).group(0)) * 10000
+        else:
+            value = float(0)
+        return value
     else:
-        value = float(0)
-    return value
+        return 0
 
 
 def get_spec_money2(var):
-    if re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
-        value = float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
+    if var is not None and len(var) > 0:
+        if re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
+            value = float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
+        else:
+            value = float(0)
+        return value
     else:
-        value = float(0)
-    return value
+        return 0
 
 
 class T16001(Transformer):
@@ -102,16 +111,16 @@ class T16001(Transformer):
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
             self.variables['court_judge_max'] = df['case_amount'].max()
-            plaintiff_df = df[df['legal_status'].str.contains('原告')]
-            defendant_df = df[df['legal_status'].str.contains('被告')]
-            if df[df['legal_status'].isnull() == False].shape[0] == 0:
-                self.variables['court_docu_status'] = 0
+            df1 = df.dropna(subset=['legal_status'], how='any')
+            defendant_df = df1[df1['legal_status'].str.contains('被告')]
+            plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+                self.variables['court_docu_status'] = 1
+            elif plaintiff_df.shape[0] < df1.shape[0] and \
+                    defendant_df.shape[0] == 0:
+                self.variables['court_docu_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_docu_status'] = 2
-            elif plaintiff_df.shape[0] == df.shape[0]:
-                self.variables['court_docu_status'] = 1
-            else:
-                self.variables['court_docu_status'] = 3
 
     def _info_trial_proc_df(self):
         info_trial_proc = """
@@ -129,16 +138,16 @@ class T16001(Transformer):
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
-            plaintiff_df = df[df['legal_status'].str.contains('原告')]
-            defendant_df = df[df['legal_status'].str.contains('被告')]
-            if df[df['legal_status'].isnull() == False].shape[0] == 0:
-                self.variables['court_proc_status'] = 0
+            df1 = df.dropna(subset=['legal_status'], how='any')
+            defendant_df = df1[df1['legal_status'].str.contains('被告')]
+            plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
+            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+                self.variables['court_proc_status'] = 1
+            elif plaintiff_df.shape[0] < df1.shape[0] and \
+                    defendant_df.shape[0] == 0:
+                self.variables['court_proc_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_proc_status'] = 2
-            elif plaintiff_df.shape[0] == df.shape[0]:
-                self.variables['court_proc_status'] = 1
-            else:
-                self.variables['court_proc_status'] = 3
 
     def _info_tax_pay_df(self):
         info_tax_pay = """

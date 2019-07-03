@@ -1,4 +1,5 @@
 from mapping.mapper import translate, get_transformer
+import pandas as pd
 
 
 def test_type():
@@ -9,10 +10,11 @@ def test_type():
 
 
 def test_transform():
-    codes = ['00000', '01001', '02001', '05001', '05002', '06001', '07001', '08001',
-             '09001', '10001', '11001', '12001', '13001', '14001', '16001', '16002',
-             '17001', '18001', 'f0001', 'f0002', 'f0003']
-    res = translate(codes, user_name='张虎', id_card_no='430122197512087812')
+    codes=['16001']
+    res = translate(codes, user_name='昌鹏', id_card_no='540228195907066426')
+    # df = pd.DataFrame(res,pd.Index(range(1)))
+    # print(df['aaa'])
     print(res)
-    # res = translate(codes, user_name='仝太宝', id_card_no='352230198512260015', phone='13671770773')
-    # print(res)
+    for key in res:
+       if 'base_date'==key:
+           print(res[key])

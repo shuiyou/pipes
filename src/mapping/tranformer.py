@@ -14,24 +14,26 @@ def extract_money(value):
     :param value:
     :return:
     """
-    value = re.sub(r'\,', "", value)
-    money_str = "0.00"
-    pattern1 = re.compile(r'(?<=罚款金额\(单位：万元\)\:)\d+\.?\d*')
-    pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
-    pattern3 = re.compile(r'(?<=罚款)\d+\.?\d*')
-    pattern4 = re.compile(r'(?<=罚款人民币)\d+\.?\d*')
-    if pattern1.search(value) != None:
-        money_str = pattern1.search(value).group(0)
-    elif pattern2.search(value) != None:
-        money_str = pattern2.search(value).group(0)
-    elif pattern3.search(value) != None:
-        money_str = pattern3.search(value).group(0)
-    elif pattern4.search(value) != None:
-        money_str = pattern4.search(value).group(0)
-    money = float(money_str)
-    if ("万元" in value):
-        money = money * 10000
-    money = float("%.2f" % money)
+    money = float('0.00')
+    if value is not None and len(value) > 0:
+        value = re.sub(r'\,', "", value)
+        money_str = "0.00"
+        pattern1 = re.compile(r'(?<=罚款金额\(单位：万元\)\:)\d+\.?\d*')
+        pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
+        pattern3 = re.compile(r'(?<=罚款)\d+\.?\d*')
+        pattern4 = re.compile(r'(?<=罚款人民币)\d+\.?\d*')
+        if pattern1.search(value) != None:
+            money_str = pattern1.search(value).group(0)
+        elif pattern2.search(value) != None:
+            money_str = pattern2.search(value).group(0)
+        elif pattern3.search(value) != None:
+            money_str = pattern3.search(value).group(0)
+        elif pattern4.search(value) != None:
+            money_str = pattern4.search(value).group(0)
+        money = float(money_str)
+        if ("万元" in value):
+            money = money * 10000
+        money = float("%.2f" % money)
     return money
 
 
@@ -41,18 +43,19 @@ def extract_money_court_excute_public(value):
     :param value:
     :return:
     """
-    value = re.sub(r'\,', "", value)
-    money_array = re.findall(r"\d+\.?\d*", value)
     money_max = 0
-    if money_array is not None and len(money_array) > 0:
-        for money in money_array:
-            if ('万元') in value:
-                money_re = float(money) * 10000
-            else:
-                money_re = float(money)
-            if money_re > money_max:
-                money_max = money_re
-        money_max = float("%.2f" % money_max)
+    if value is not  None and len(value) > 0:
+        value = re.sub(r'\,', "", value)
+        money_array = re.findall(r"\d+\.?\d*", value)
+        if money_array is not None and len(money_array) > 0:
+            for money in money_array:
+                if ('万元') in value:
+                    money_re = float(money) * 10000
+                else:
+                    money_re = float(money)
+                if money_re > money_max:
+                    money_max = money_re
+            money_max = float("%.2f" % money_max)
     return money_max
 
 

@@ -75,15 +75,15 @@ def test_string_split():
 def test_string_array():
      a = ['11','22','33']
      b = ['aa','bb','cc']
-     c = ['ee','ee','dd']
+     c = ['ee','ee',None]
      d = ['','','']
-     df1 = pd.DataFrame({"你好":a,"key":c})
-     df2 = pd.DataFrame({"我是":b})
+     df1 = pd.DataFrame({"key1":a,"key2":c})
+     #df2 = pd.DataFrame({"我是":b})
      #df3 = pd.merge(df1,df2,on='key',how='left')
-     df3 = pd.concat([df1,df2],axis=1)
-     for index, row in df3.iterrows():
-          row['我是'] = 1
-     print(df3['我是'])
+     #df3 = pd.concat([df1,df2],axis=1)
+     df1 = df1.dropna(subset=['key2'],how='any')
+     print(df1)
+
 
 def test_to_dict():
      value = '{"unique_name":"房博","unique_id_no":"430211196310226521"}'

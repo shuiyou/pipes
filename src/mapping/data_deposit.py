@@ -8,7 +8,7 @@ from mapping.mapper import translate
 
 
 #处理第一张主表数据
-def _insert_main_table_data(title, key,expired_at = '2030-12-20'):
+def _insert_main_table_data(title, key,channel_api_no,expired_at = '2030-12-20'):
     title_array = title.split(';')
     key_array = key.split(';')
     fake = Faker(locale='zh_CN')
@@ -21,59 +21,73 @@ def _insert_main_table_data(title, key,expired_at = '2030-12-20'):
     phone_key_value = ''
     for key_value in key_array:
         key_value = key_value.replace('\n','').replace('\r','')
-        if ('unique_name' == key_value) or ('uer_name' == key_value):
+        if key_value in ['unique_name','user_name','name']:
             name_key_word = key_value
             name_key_value = fake.name()
-        if ('unique_id_no' == key_value) or ('id_card_no' == key_value):
+        if key_value in ['unique_id_no','id_card_no']:
             id_no_key_word = key_value
             id_no_key_value = fake.ssn()
         if ('phone' == key_value):
             phone_key_word = key_value
             phone_key_value = fake.phone_number()
-    time = '\''+datetime.datetime.now().strftime("%Y-%m-%d")+'\''
+    create_time = '\''+datetime.datetime.now().strftime("%Y-%m-%d")+'\''
     #表名
     table_name = title_array[0].split('.')[0]
+    #关联子表的主键
+    key_word_sub_table = title_array[0].split('.')[1]
     # 拼接sql
     main_table_sql = """
     insert into 
     """
     main_table_sql += ' ' + table_name + ' ('
+    #关联主键不是id，faker一个数字
+    if len(key_word_sub_table) > 0 and 'id'!= key_word_sub_table:
+        main_table_sql += key_word_sub_table +  ','
     if len(name_key_word) > 0:
         main_table_sql += name_key_word
     if len(id_no_key_word) > 0:
         main_table_sql += ',' + id_no_key_word
     if len(phone_key_word) > 0:
         main_table_sql += ',' + phone_key_word
-    if title.find('query_date') >= 0 or title.find('create_time') >=0:
-        if len(title_array)>=0 and len(title_array[1]) >= 0:
-            value_date = title_array[1].replace('\n', '').replace('\r', '')
-            if value_date.find('='):
-                time = value_date.split('=')[1]
-    if title.find('query_date') >= 0:
-        main_table_sql += ',query_date'
-    main_table_sql += ',create_time,expired_at) values ('
+    #主表要插入字段
+    if(len(title_array) > 1):
+        count = 0
+        for info in title_array:
+            count = count + 1
+            if count > 1:
+                main_table_sql += ',' + info.split('=')[0].split('.')[1]
+    main_table_sql += ',expired_at,channel_api_no) values ('
+    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
+        main_table_sql += '\''+fake.random_digit()+ '\''+ ','
     if len(name_key_value) > 0:
         main_table_sql += '\''+name_key_value+ '\''+ ','
     if len(id_no_key_value) > 0:
         main_table_sql += '\''+id_no_key_value+ '\'' + ','
     if len(phone_key_value) > 0:
         main_table_sql += phone_key_value + ','
-    if title.find('query_date') >= 0:
-        main_table_sql += time + ','
-    main_table_sql += time + ','
-    main_table_sql +=  '\''+expired_at+ '\''+ ')'
+    if (len(title_array) > 1):
+        count = 0
+        for info in title_array:
+            count = count + 1
+            if count > 1:
+                main_table_sql +=info.split('=')[1]+ ','
+    main_table_sql +=  '\''+expired_at+ '\''+ ','
+    main_table_sql += '\''+channel_api_no.split('.')[0]+ '\''+')'
+    print('insert-sql--'+main_table_sql)
     sql_insert(sql=main_table_sql)
+
     #插入成功后查询出主键
     info_main_table_sql = """
-    select id
+    select 
     """
+    if len(key_word_sub_table) > 0:
+        info_main_table_sql += key_word_sub_table
     if len(name_key_word) > 0:
         info_main_table_sql += ','+name_key_word
     if len(id_no_key_word) > 0:
         info_main_table_sql += ',' + id_no_key_word
     if len(phone_key_word) > 0:
         info_main_table_sql += ',' + phone_key_word
-
     info_main_table_sql += ' from ' + table_name +' where '
     if len(name_key_word) > 0:
         info_main_table_sql += name_key_word + '=' +  '\''+name_key_value+ '\''
@@ -81,6 +95,7 @@ def _insert_main_table_data(title, key,expired_at = '2030-12-20'):
         info_main_table_sql += ' and ' + id_no_key_word + '=' +  '\''+id_no_key_value+ '\''
     if len(phone_key_word) > 0:
         info_main_table_sql += ' and ' + phone_key_word + '=' +  '\''+phone_key_value+ '\''
+    print('query-sql--' + info_main_table_sql)
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
     if len(name_key_word) > 0:
@@ -95,6 +110,7 @@ def _insert_main_table_data(title, key,expired_at = '2030-12-20'):
     key = key[0:len(key)-1]
     key += '}'
     df['key'] = key
+    df['key_sub'] = df[key_word_sub_table]
     return df
 
 
@@ -145,8 +161,8 @@ def _insert_main_table_sub_data(title,df_main_id, expired_at = '2030-12-20'):
 class deposit:
 
     def _read_excel(self):
-        path = r'C:\解密文件\湛卢一级测试用例-test.xlsx'
-        df = pd.read_excel(path,sheet_name=1)
+        path = r'C:\解密文件\一级测试用例-08001.xlsx'
+        df = pd.read_excel(path)
         return df
 
     def _insert_data(self,df=None):
@@ -162,22 +178,27 @@ class deposit:
                for title in title_list:
                    if 'table_main' == title:
                        #插入第一张主表的数据，返回多条数据的主表子表关联主键
-                        title = row[title]
-                        key = row['测试用例key']
-                        df_main = _insert_main_table_data(title,key)
-                        df_main_id = df_main['id'][0]
+                        title = str(row[title])
+                        key = str(row['测试用例key'])
+                        channel_api_no = str(row['测试模块'])
+                        if(len(channel_api_no)) < 5:
+                            channel_api_no = '0'+channel_api_no
+                        df_main = _insert_main_table_data(title,key,channel_api_no)
+                        df_main_id = df_main['key_sub'][0]
                         key_value.append(df_main['key'][0])
                    if title.find('table_main_sub') >=0:
                          #插入第一张主表关联的子表数据
-                         title = row[title]
-                         _insert_main_table_sub_data(title,df_main_id)
+                         title = str(row[title])
+                         if title is not None and title != 'nan' and len(title) > 0:
+                            _insert_main_table_sub_data(title,df_main_id)
            no_empty_df['keyValue'] = key_value
            return no_empty_df
 
 
     def _write_excel(self,df=None):
-        path = 'C:\\Users\\杨也晰\\Desktop\\测试用例\\测试用例数据重生成.xlsx'
+        path = 'C:\\Users\\杨也晰\\Desktop\\测试用例\\'
         if df is not None and len(df) > 0:
+            path += str(df['测试模块'][0]).split('.')[0]+'-'+'测试用例结果.xlsx'
             df.to_excel(path)
         return path
 
@@ -190,6 +211,8 @@ class deposit:
         is_pass_array = []
         for index, row in df.iterrows():
             code = str(row['测试模块'])
+            if (len(code)) < 5:
+                code = '0' + code
             code_array.append(code)
             field = row['用例标题']
             expect_result = row['预期测试结果'].split('=')[1]
