@@ -17,11 +17,12 @@ class T10001(Transformer):
 
     def _info_risk_overdue_df(self):
         info_certification = """
-            SELECT risk_score, data_build_time, create_time FROM info_risk_overdue 
+            SELECT b.risk_score, b.data_build_time, a.create_time FROM info_risk_overdue a
+            left join info_risk_overdue_record b on a.risk_overdue_id = b.risk_overdue_id
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
-            AND risk_score is not NULL
-            AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s
-            ORDER BY risk_score desc
+            AND b.risk_score is not NULL
+            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
+            ORDER BY b.risk_score desc
             ;
         """
         df = sql_to_df(sql=info_certification,
