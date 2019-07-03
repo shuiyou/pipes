@@ -13,3 +13,11 @@ GEARS_DB = {
     'port': os.getenv('GEARS_PORT', 3360),
     'db': os.getenv('POSTGRES_DB', 'gears_dev'),
 }
+
+GEARS_TEST_DB = {
+'user': os.getenv('GEARS_USER', 'gears_test'),
+    'pw': os.getenv('GEARS_PW', 'bd3by68u'),
+    'host': os.getenv('GEARS_HOST', '192.168.1.9'),
+    'port': os.getenv('GEARS_PORT', 3360),
+    'db': os.getenv('POSTGRES_DB', 'gears_test'),
+}
