@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 
 node {
+
+    imageVersion = 'registry.cn-shanghai.aliyuncs.com/transformer/pipes:1.0.0'
     stage('checkout') {
          def scmVars = checkout scm
          env.GIT_COMMIT = scmVars.GIT_COMMIT
@@ -14,9 +16,10 @@ node {
 
     stage('build image') {
         sh "sh build.sh"
+        sh "docker build --no-cache -t " + imageVersion + " ./src"
     }
 
     stage('push image') {
-        sh "docker push registry.cn-shanghai.aliyuncs.com/transformer/pipes"
+        sh "docker push " + imageVersion
     }
 }
