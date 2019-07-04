@@ -11,8 +11,8 @@ class Process(object):
 
     def run(self, read_file_name = None):
         write_file_name = read_file_name.split('.')[0]+'_result'+'.'+read_file_name.split('.')[1]
-        read_path = os.path.abspath('.') + '\\input' + '\\' + read_file_name
-        write_path = os.path.abspath('.') + '\\output' + '\\' + write_file_name
+        read_path = os.path.join(os.path.abspath('.'), 'input', read_file_name)
+        write_path = os.path.join(os.path.abspath('.'), 'output', write_file_name)
         self.input(read_path, write_path)
         self.do_process_case()
 
