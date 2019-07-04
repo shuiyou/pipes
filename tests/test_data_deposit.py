@@ -10,8 +10,9 @@ def test_data_deposit():
      #插入测试用例数据
      df_write_excel = ps._insert_data(df=df)
      #重新生成带参数的测试用例excel
-     writ_excel_path = 'C:\\Users\\杨也晰\\Desktop\\测试用例\\'
-     path = ps._write_excel(path=writ_excel_path,df=df_write_excel)
+     #writ_excel_path = 'C:\\Users\\杨也晰\\Desktop\\测试用例\\'
+     write_excel_path = 'C:\\workspace\\pipes\\docs\\testcase\\result'
+     path = ps._write_excel(path=write_excel_path,df=df_write_excel)
      #读取新的excel跑对应的清洗逻辑，与预期值判断是否通过
      ps._read_excel_run_process(path=path)
 
