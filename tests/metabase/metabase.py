@@ -28,6 +28,7 @@ with open("token.txt", "r") as myfile:
 
 cli = Client(username='gulongwei@magfin.cn', password="gulongweiqq123..", base_url="http://192.168.1.37:3000",
              token=token)
+
 if token is None:
     cli.authenticate()
     with open("token.txt", "w") as token_file:
