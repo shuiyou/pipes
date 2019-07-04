@@ -44,21 +44,21 @@ def _insert_main_table_data(title, key,channel_api_no,expired_at = '2030-12-20')
     if len(key_word_sub_table) > 0 and 'id'!= key_word_sub_table:
         main_table_sql += key_word_sub_table +  ','
     if len(name_key_word) > 0:
-        main_table_sql += name_key_word
+        main_table_sql += name_key_word + ','
     if len(id_no_key_word) > 0:
-        main_table_sql += ',' + id_no_key_word
+        main_table_sql +=  id_no_key_word+ ','
     if len(phone_key_word) > 0:
-        main_table_sql += ',' + phone_key_word
+        main_table_sql +=  phone_key_word+ ','
     #主表要插入字段
     if(len(title_array) > 1):
         count = 0
         for info in title_array:
             count = count + 1
             if count > 1:
-                main_table_sql += ',' + info.split('=')[0].split('.')[1]
-    main_table_sql += ',expired_at,channel_api_no) values ('
+                main_table_sql +=  info.split('=')[0].split('.')[1] + ','
+    main_table_sql += 'expired_at,channel_api_no) values ('
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        main_table_sql += '\''+fake.random_digit()+ '\''+ ','
+        main_table_sql += '\''+str(fake.random_int())+str(fake.random_int())+ '\''+ ','
     if len(name_key_value) > 0:
         main_table_sql += '\''+name_key_value+ '\''+ ','
     if len(id_no_key_value) > 0:
@@ -90,11 +90,12 @@ def _insert_main_table_data(title, key,channel_api_no,expired_at = '2030-12-20')
         info_main_table_sql += ',' + phone_key_word
     info_main_table_sql += ' from ' + table_name +' where '
     if len(name_key_word) > 0:
-        info_main_table_sql += name_key_word + '=' +  '\''+name_key_value+ '\''
+        info_main_table_sql += name_key_word + '=' +  '\''+name_key_value+ '\'' + ' and '
     if len(id_no_key_word) > 0:
-        info_main_table_sql += ' and ' + id_no_key_word + '=' +  '\''+id_no_key_value+ '\''
+        info_main_table_sql += id_no_key_word + '=' +  '\''+id_no_key_value+ '\'' + ' and '
     if len(phone_key_word) > 0:
-        info_main_table_sql += ' and ' + phone_key_word + '=' +  '\''+phone_key_value+ '\''
+        info_main_table_sql += phone_key_word + '=' +  '\''+phone_key_value+ '\'' + ' and '
+    info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql)-4]
     print('query-sql--' + info_main_table_sql)
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
@@ -115,7 +116,7 @@ def _insert_main_table_data(title, key,channel_api_no,expired_at = '2030-12-20')
 
 
 #处理第一张主表数据对应的子表数据
-def _insert_main_table_sub_data(title,df_main_id, expired_at = '2030-12-20'):
+def _insert_main_table_sub_data(title,df_main_id):
     title = title.replace('\n', '').replace('\r', '')
     value_array = title.split(';')
     table_name = ''
@@ -140,19 +141,24 @@ def _insert_main_table_sub_data(title,df_main_id, expired_at = '2030-12-20'):
             data_group_count = (len(value_array) - 1) / field_count
             data_group_count = int(data_group_count)
 
-        for i in range(data_group_count):
-            data = []
-            for field in field_array:
-                for detail in value_array:
-                    if detail.find(field + '[' + str(i) + ']') >= 0:
-                        data.append(detail.split('=')[1])
-            key_value_array.append(data)
+        if data_group_count > 0:
+            for i in range(data_group_count):
+                data = []
+                for field in field_array:
+                    for detail in value_array:
+                        if detail.find(field + '[' + str(i) + ']') >= 0:
+                            data.append(detail.split('=')[1])
+                key_value_array.append(data)
     sql += ' ' + table_name + ' ('
-    sql += ','.join(field_array)
-    sql += ',' + relation_mian_table_key
-    sql += ',expired_at) values '
-    for data in key_value_array:
-        sql += '(' + ','.join(data) + ',' + str(df_main_id) + ',' + '\'' + expired_at + '\'' + '),'
+    if len(field_array) > 0:
+        sql += ','.join(field_array) + ','
+    sql += relation_mian_table_key
+    sql += ') values '
+    if len(key_value_array) > 0:
+        for data in key_value_array:
+            sql += '(' + ','.join(data) + ',' +str(df_main_id)  + '),'
+    else:
+        sql += '('+str(df_main_id)  + '),'
     sql = sql[0:len(sql) - 1]
     print(sql)
     sql_insert(sql=sql)
@@ -161,7 +167,7 @@ def _insert_main_table_sub_data(title,df_main_id, expired_at = '2030-12-20'):
 class deposit:
 
     def _read_excel(self):
-        path = r'C:\解密文件\一级测试用例-08001.xlsx'
+        path = r'C:\解密文件\一级测试用例-16001.xlsx'
         df = pd.read_excel(path)
         return df
 
@@ -204,12 +210,12 @@ class deposit:
 
     def _read_excel_run_process(self,path):
         df = pd.read_excel(path)
-        code_array = []
         #跑代码的实际结果
         actual_reslut_array = []
         #与预期结果对比是否通过
         is_pass_array = []
         for index, row in df.iterrows():
+            code_array = []
             code = str(row['测试模块'])
             if (len(code)) < 5:
                 code = '0' + code
@@ -230,11 +236,13 @@ class deposit:
                 if key in ['phone']:
                     phone = value
             res = translate(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+            print('测试用例'+code+'返回结果----')
+            print(res)
             for key in res:
                 if field==key:
                     value = res[key]
                     actual_reslut_array.append(value)
-            if str(value)==expect_result:
+            if float(value)==float(expect_result):
                 is_pass_array.append("true")
             else:
                 is_pass_array.append("false")

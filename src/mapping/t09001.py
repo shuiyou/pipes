@@ -53,7 +53,7 @@ class T09001(Transformer):
 
     def _ps_loan_date(self, df=None):
         if df is not None and len(df) > 0:
-            self.variables['oth_loan_apro_cnt_6m'] = df.query(self.diff_month + ' < 6').shape[0]
+            self.variables['oth_loan_apro_cnt_6m'] = df.query(self.diff_month + ' < 6 and reason_code=="01" ').shape[0]
             self.variables['oth_loan_hit_org_cnt_3m'] = df.query(self.diff_month + '< 3').shape[0]
 
     def transform(self):
