@@ -166,8 +166,7 @@ def _insert_main_table_sub_data(title,df_main_id):
 
 class deposit:
 
-    def _read_excel(self):
-        path = r'C:\解密文件\一级测试用例-16001.xlsx'
+    def _read_excel(self,path):
         df = pd.read_excel(path)
         return df
 
@@ -201,8 +200,7 @@ class deposit:
            return no_empty_df
 
 
-    def _write_excel(self,df=None):
-        path = 'C:\\Users\\杨也晰\\Desktop\\测试用例\\'
+    def _write_excel(self,path,df=None):
         if df is not None and len(df) > 0:
             path += str(df['测试模块'][0]).split('.')[0]+'-'+'测试用例结果.xlsx'
             df.to_excel(path)
