@@ -46,7 +46,21 @@ def test_ps_crime_type():
 
     ps._ps_crime_type(pd.DataFrame({
         'crime_type': ['ILLEGAL_A'],
-        'case_period': ['[0, 12)']
+        'case_period': ['[0, 3)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 1
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[3, 6)']
+    }))
+    assert ps.variables['ps_illeg_crim'] == 1
+    assert ps.variables['ps_illegal_record_time'] == 1
+
+    ps._ps_crime_type(pd.DataFrame({
+        'crime_type': ['ILLEGAL_A'],
+        'case_period': ['[6, 12)']
     }))
     assert ps.variables['ps_illeg_crim'] == 1
     assert ps.variables['ps_illegal_record_time'] == 1
@@ -67,7 +81,7 @@ def test_ps_crime_type():
 
     ps._ps_crime_type(pd.DataFrame({
         'crime_type': ['ILLEGAL_A'],
-        'case_period': ['[60, 61)']
+        'case_period': ['[0,0)']
     }))
     assert ps.variables['ps_illeg_crim'] == 1
     assert ps.variables['ps_illegal_record_time'] == 4

@@ -64,9 +64,9 @@ class T14001(Transformer):
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
             df['jxl_dir_in_black_rate'] = df.apply(
-                lambda x: x['contacts_class_1_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
+                lambda x: None if x['contacts_class_1_cnt'] == 0 else x['contacts_class_1_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
             df['jxl_indir_in_black_rate'] = df.apply(
-                lambda x: x['contacts_class_2_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
+                lambda x: None if x['contacts_class_1_cnt'] == 0 else x['contacts_class_2_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
             self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
             if df['contacts_class_1_cnt'][0] > 0:
                 self.variables['social_dir_in_black_rate'] = df['jxl_dir_in_black_rate'].values[0]
