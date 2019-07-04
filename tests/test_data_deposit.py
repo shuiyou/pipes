@@ -1,12 +1,11 @@
-from  mapping.data_deposit import deposit
-from faker import Faker
+from data.data_deposit import deposit
 import pandas as pd
-import datetime
+
 
 def test_data_deposit():
      ps = deposit()
      #读取excel
-     df = ps._read_excel();
+     df = ps._read_excel()
      #插入测试用例数据
      df_write_excel = ps._insert_data(df=df)
      #重新生成带参数的测试用例excel
