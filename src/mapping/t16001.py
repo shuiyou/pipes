@@ -75,7 +75,7 @@ class T16001(Transformer):
         info_admi_vio = """
             SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.specific_date,b.execution_result
             FROM info_court as a
-            left join info_court_administrative_violation as b on a.id=b.court_id
+            inner join info_court_administrative_violation as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -89,14 +89,14 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'query_date', 'specific_date', 'Y')
             df['amt'] = df.apply(lambda x: get_money(x['execution_result']), axis=1)
             self.variables['court_admi_vio'] = df.shape[0]
-            self.variables['court_admi_vio_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
-            self.variables['court_admi_violation_max'] = df['amt'].max()
+            self.variables['court_admi_vio_amt_3y'] = df[df[self.year] < 3].fillna(0)['amt'].sum()
+            self.variables['court_admi_violation_max'] = df.fillna(0)['amt'].max()
 
     def _info_judge_df(self):
         info_judge = """
             SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.closed_time,b.case_amount,b.legal_status
             FROM info_court as a
-            left join info_court_judicative_pape as b on a.id=b.court_id
+            inner join info_court_judicative_pape as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -109,12 +109,14 @@ class T16001(Transformer):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'query_date', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
-            self.variables['court_judge_amt_3y'] = df[df[self.year] < 3]['case_amount'].sum()
-            self.variables['court_judge_max'] = df['case_amount'].max()
+            self.variables['court_judge_amt_3y'] = df[df[self.year] < 3].fillna(0)['case_amount'].sum()
+            self.variables['court_judge_max'] = df.fillna(0)['case_amount'].max()
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
-            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+            if df[df['legal_status'] == ''].shape[0] == df.shape[0]:
+                self.variables['court_docu_status'] = 0
+            elif plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
                 self.variables['court_docu_status'] = 1
             elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
@@ -126,7 +128,7 @@ class T16001(Transformer):
         info_trial_proc = """
             SELECT a.unique_name, a.unique_id_no,b.court_id,b.legal_status
             FROM info_court as a
-            left join info_court_trial_process as b on a.id=b.court_id
+            inner join info_court_trial_process as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -141,7 +143,9 @@ class T16001(Transformer):
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
-            if plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
+            if df[df['legal_status'] == ''].shape[0] == df.shape[0]:
+                self.variables['court_proc_status'] = 0
+            elif plaintiff_df.shape[0] > 0 and plaintiff_df.shape[0] == df1.shape[0]:
                 self.variables['court_proc_status'] = 1
             elif plaintiff_df.shape[0] < df1.shape[0] and \
                     defendant_df.shape[0] == 0:
@@ -153,7 +157,7 @@ class T16001(Transformer):
         info_tax_pay = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_taxable_abnormal_user as b on a.id=b.court_id
+            inner join info_court_taxable_abnormal_user as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -170,7 +174,7 @@ class T16001(Transformer):
         info_owed_owe = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_arrearage as b on a.id=b.court_id
+            inner join info_court_arrearage as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -187,7 +191,7 @@ class T16001(Transformer):
         info_tax_arrears = """
             SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.taxes,b.taxes_time
             FROM info_court as a
-            left join info_court_tax_arrears as b on a.id=b.court_id
+            inner join info_court_tax_arrears as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -200,14 +204,14 @@ class T16001(Transformer):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'query_date', 'taxes_time', 'Y')
             self.variables['court_tax_arrears'] = df.shape[0]
-            self.variables['court_tax_arrears_amt_3y'] = df[df[self.year] < 3]['taxes'].sum()
-            self.variables['court_tax_arrears_max'] = df['taxes'].max()
+            self.variables['court_tax_arrears_amt_3y'] = df[df[self.year] < 3].fillna(0)['taxes'].sum()
+            self.variables['court_tax_arrears_max'] = df.fillna(0)['taxes'].max()
 
     def _info_dishonesty_df(self):
         info_dishonesty = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_deadbeat as b on a.id=b.court_id
+            inner join info_court_deadbeat as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -224,7 +228,7 @@ class T16001(Transformer):
         info_limit_entry = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_limited_entry_exit as b on a.id=b.court_id
+            inner join info_court_limited_entry_exit as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -241,7 +245,7 @@ class T16001(Transformer):
         info_high_cons = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_limit_hignspending as b on a.id=b.court_id
+            inner join info_court_limit_hignspending as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -258,7 +262,7 @@ class T16001(Transformer):
         info_pub_info = """
             SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.filing_time,b.execute_content
             FROM info_court as a
-            left join info_court_excute_public as b on a.id=b.court_id
+            inner join info_court_excute_public as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
@@ -273,14 +277,14 @@ class T16001(Transformer):
             df['amt'] = df.apply(
                 lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
-            self.variables['court_pub_info_amt_3y'] = df[df[self.year] < 3]['amt'].sum()
-            self.variables['court_pub_info_max'] = df['amt'].max()
+            self.variables['court_pub_info_amt_3y'] = df[df[self.year] < 3].fillna(0)['amt'].sum()
+            self.variables['court_pub_info_max'] = df.fillna(0)['amt'].max()
 
     def _info_cri_sus_df(self):
         info_cri_sus = """
             SELECT a.unique_name, a.unique_id_no,b.court_id
             FROM info_court as a
-            left join info_court_criminal_suspect as b on a.id=b.court_id
+            inner join info_court_criminal_suspect as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.unique_name = %(user_name)s AND a.unique_id_no = %(id_card_no)s
            ;
