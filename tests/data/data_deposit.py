@@ -6,7 +6,24 @@ from faker import Faker
 from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
+from data.process_excel_case import Process
 
+
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+
+    try:
+        import unicodedata
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
+
+    return False
 
 # 处理第一张主表数据
 def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
@@ -165,9 +182,10 @@ def _insert_main_table_sub_data(title, df_main_id):
     sql_insert(sql=sql)
 
 
-class deposit:
+class deposit(Process):
 
-    def read_excel_as_df(self, path):
+    def read_excel_as_df(self):
+        path = self.read_path
         df = pd.read_excel(path)
         return df
 
@@ -200,9 +218,10 @@ class deposit:
             no_empty_df['keyValue'] = key_value
             return no_empty_df
 
-    def write_df_into_excel(self, path, df=None):
+    def write_df_into_excel(self,df=None):
+        path = self.write_path
         if df is not None and len(df) > 0:
-            path += str(df['测试模块'][0]).split('.')[0] + '-' + '测试用例结果.xlsx'
+            # path += str(df['测试模块'][0]).split('.')[0] + '-' + '测试用例结果.xlsx'
             df.to_excel(path)
         return path
 
@@ -240,10 +259,22 @@ class deposit:
                 if field == key:
                     value = res[key]
                     actual_reslut_array.append(value)
-            if float(value) == float(expect_result):
-                is_pass_array.append("true")
+            if is_number(expect_result):
+                if float(value) == float(expect_result):
+                    is_pass_array.append("true")
+                else:
+                    is_pass_array.append("false")
             else:
-                is_pass_array.append("false")
+                if str(value) == str(expect_result):
+                    is_pass_array.append("true")
+                else:
+                    is_pass_array.append("false")
         df['实际测试结果'] = actual_reslut_array
         df['是否通过'] = is_pass_array
         df.to_excel(path)
+
+    def do_process_case(self, read_path=None, write_path=None):
+        df = self.read_excel_as_df()
+        df_write_excel = self.insert_data(df=df)
+        path = self.write_df_into_excel(df=df_write_excel)
+        self.run_processor(path=path)
