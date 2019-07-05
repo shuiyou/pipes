@@ -28,7 +28,7 @@ class T14001(Transformer):
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.searched_organization,
             a.expired_at,b.blacklist_name_with_phone,b.blacklist_name_with_idcard 
             FROM info_social as a
-            inner join info_social_blacklist as b on a.social_id=b.social_id
+            left join info_social_blacklist as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
@@ -45,7 +45,8 @@ class T14001(Transformer):
                 self.variables['social_name_tel_in_black'] = 1
             if df['blacklist_name_with_idcard'][0] == b'\x01':
                 self.variables['social_idc_name_in_black'] = 1
-            self.variables['social_query_mac_cnt'] = df['searched_organization'][0]
+            if df['searched_organization'][0] is not None:
+                self.variables['social_query_mac_cnt'] = df['searched_organization'][0]
 
     def _info_social_gray_df(self):
         info_social_gray = """
@@ -64,12 +65,14 @@ class T14001(Transformer):
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
             df['contacts_class_1_cnt']=df['contacts_class_1_cnt'].fillna(0)
-            self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
+            if df['phone_gray_score'].values[0] is not None:
+                self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
             if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_1_blacklist_cnt'][0] is not None:
                 self.variables['social_dir_in_black_rate'] = df['contacts_class_1_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
             if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_2_blacklist_cnt'][0] is not None:
                 self.variables['social_indir_in_black_rate'] = df['contacts_class_2_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
-            self.variables['social_dir_rel_indir_rate'] = df['contacts_router_ratio'].values[0]
+            if df['contacts_router_ratio'].values[0] is not None:
+                self.variables['social_dir_rel_indir_rate'] = df['contacts_router_ratio'].values[0]
 
     def _info_social_register_df(self):
         info_social_gray = """
