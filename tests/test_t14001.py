@@ -61,7 +61,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 def test_t14001():
     ps1 = T14001()
-    ps1.run('仝太宝','342225198604171519', '13671770773')
+    ps1.run('周洋','150500195305117625','14787648994')
     print(ps1.variables)
 
 

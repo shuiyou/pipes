@@ -28,7 +28,7 @@ class T14001(Transformer):
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.searched_organization,
             a.expired_at,b.blacklist_name_with_phone,b.blacklist_name_with_idcard 
             FROM info_social as a
-            left join info_social_blacklist as b on a.social_id=b.social_id
+            inner join info_social_blacklist as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
@@ -52,7 +52,7 @@ class T14001(Transformer):
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.expired_at,b.phone_gray_score,
             b.contacts_class_1_blacklist_cnt,b.contacts_class_1_cnt,b.contacts_class_2_blacklist_cnt,
             b.contacts_router_ratio FROM info_social as a
-            left join info_social_gray as b on a.social_id=b.social_id
+            inner join info_social_gray as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
@@ -63,22 +63,19 @@ class T14001(Transformer):
 
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
-            df['jxl_dir_in_black_rate'] = df.apply(
-                lambda x: None if x['contacts_class_1_cnt'] == 0 else x['contacts_class_1_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
-            df['jxl_indir_in_black_rate'] = df.apply(
-                lambda x: None if x['contacts_class_1_cnt'] == 0 else x['contacts_class_2_blacklist_cnt'] / x['contacts_class_1_cnt'], axis=1)
+            df['contacts_class_1_cnt']=df['contacts_class_1_cnt'].fillna(0)
             self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
-            if df['contacts_class_1_cnt'][0] > 0:
-                self.variables['social_dir_in_black_rate'] = df['jxl_dir_in_black_rate'].values[0]
-            if df['contacts_class_1_cnt'][0] > 0:
-                self.variables['social_indir_in_black_rate'] = df['jxl_indir_in_black_rate'].values[0]
+            if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_1_blacklist_cnt'][0] is not None:
+                self.variables['social_dir_in_black_rate'] = df['contacts_class_1_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
+            if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_2_blacklist_cnt'][0] is not None:
+                self.variables['social_indir_in_black_rate'] = df['contacts_class_2_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
             self.variables['social_dir_rel_indir_rate'] = df['contacts_router_ratio'].values[0]
 
     def _info_social_register_df(self):
         info_social_gray = """
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.expired_at,b.register_count
             FROM info_social as a
-            left join info_social_user_register as b on a.social_id=b.social_id
+            inner join info_social_user_register as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
             ORDER BY a.expired_at DESC LIMIT 1;
@@ -98,7 +95,7 @@ class T14001(Transformer):
             SELECT a.user_name, a.id_card_no,a.phone,a.social_id,a.expired_at,a.create_time,
             b.org_self,b.searched_date
             FROM info_social as a
-            left join info_social_searched_history as b on a.social_id=b.social_id
+            inner join info_social_searched_history as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s;
         """
