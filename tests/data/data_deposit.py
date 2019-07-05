@@ -256,11 +256,19 @@ class deposit(Process):
                     case_value = res[key]
                     actual_reslut_array.append(case_value)
             if is_number(expect_result):
-                if float(case_value) == float(expect_result):
-                    is_pass_array.append("true")
-                else:
-                    is_pass_array.append("false")
+                try:
+                    if float(case_value) == float(expect_result):
+                        is_pass_array.append("true")
+                    else:
+                        is_pass_array.append("false")
+                except ValueError:
+                    if str(case_value) == str(expect_result):
+                        is_pass_array.append("true")
+                    else:
+                        is_pass_array.append("false")
             else:
+                print('返回结果' + str(case_value))
+                print('预期结果' + str(expect_result))
                 if str(case_value) == str(expect_result):
                     is_pass_array.append("true")
                 else:
