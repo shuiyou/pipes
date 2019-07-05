@@ -221,7 +221,6 @@ class deposit(Process):
     def write_df_into_excel(self,df=None):
         path = self.write_path
         if df is not None and len(df) > 0:
-            # path += str(df['测试模块'][0]).split('.')[0] + '-' + '测试用例结果.xlsx'
             df.to_excel(path)
         return path
 
@@ -244,7 +243,7 @@ class deposit(Process):
             id_card_no = ''
             phone = ''
             # 运行代码生成的用例字段结果
-            value = ''
+            case_value = ''
             for key, value in params.items():
                 if key in ['user_name', 'unique_name', 'name']:
                     user_name = value
@@ -257,24 +256,28 @@ class deposit(Process):
             print(res)
             for key in res:
                 if field == key:
-                    value = res[key]
-                    actual_reslut_array.append(value)
+                    case_value = res[key]
+                    actual_reslut_array.append(case_value)
             if is_number(expect_result):
-                if float(value) == float(expect_result):
-                    is_pass_array.append("true")
-                else:
-                    is_pass_array.append("false")
+                try:
+                    if float(case_value) == float(expect_result):
+                        is_pass_array.append("true")
+                    else:
+                        is_pass_array.append("false")
+                except ValueError:
+                    print('ValueError'+case_value)
             else:
-                if str(value) == str(expect_result):
+                if str(case_value) == str(expect_result):
                     is_pass_array.append("true")
                 else:
                     is_pass_array.append("false")
         df['实际测试结果'] = actual_reslut_array
         df['是否通过'] = is_pass_array
         df.to_excel(path)
+        return df
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()
         df_write_excel = self.insert_data(df=df)
         path = self.write_df_into_excel(df=df_write_excel)
-        self.run_processor(path=path)
+        return self.run_processor(path=path)

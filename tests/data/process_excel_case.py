@@ -1,6 +1,9 @@
 from abc import ABCMeta, abstractmethod
 import os
 
+from pandas import DataFrame
+
+
 class Process(object):
     __metaclass__ = ABCMeta
 
@@ -14,7 +17,7 @@ class Process(object):
         read_path = os.path.join(os.path.abspath('.'), 'input', read_file_name)
         write_path = os.path.join(os.path.abspath('.'), 'output', write_file_name)
         self.input(read_path, write_path)
-        self.do_process_case()
+        return self.do_process_case()
 
     def input(self, read_path, write_path):
         self.read_path = read_path
@@ -22,7 +25,7 @@ class Process(object):
 
 
     @abstractmethod
-    def do_process_case(self):
+    def do_process_case(self) -> DataFrame:
         """
         处理测试用例方法
 
