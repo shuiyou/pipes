@@ -1,4 +1,6 @@
 from data.data_deposit import deposit
+from data.data_union_multi_to_one_deposit import unit_deposit
+
 
 
 
@@ -37,6 +39,18 @@ def test_16001_case():
 
 def test_16002_case():
     _assert_df('16002')
+
+def test_f0003_case():
+    _assert_df('f003')
+
+
+def _assert_union_multi_to_one_df(code):
+    ps = unit_deposit();
+    df = ps.run(read_file_name="一级测试用例-" + code + ".xlsx")
+    result_df = df[df['是否通过'] == 'false']
+    if len(result_df) > 0:
+        print("测试错了：" + code)
+    assert result_df.shape[0] == 0
 
 
 

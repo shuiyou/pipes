@@ -25,6 +25,73 @@ def is_number(s):
 
     return False
 
+
+#处理第二张主表数据
+def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20'):
+    title.replace('\n', '').replace('\r', '')
+    title_array = title.split(';')
+    key_array = key.split(';')
+    #查询条件
+    query_key_value_array = []
+    fake = Faker(locale='zh_CN')
+    # 表名
+    table_name = title_array[0].split('.')[0]
+    # 关联子表的主键
+    key_word_sub_table = title_array[0].split('.')[1]
+    insert_key_array = []
+    insert_value_array = []
+
+    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
+        insert_key_array.append(key_word_sub_table)
+        insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
+        # 主表要插入字段
+    if (len(title_array) > 1):
+        count = 0
+        for info in title_array:
+            count = count + 1
+            if count > 1:
+                key_value_array = []
+                insert_key_array.append(info.split('=')[0].split('.')[1])
+                insert_value_array.append(info.split('=')[1])
+                for key in key_array:
+                    if key == info.split('=')[0].split('.')[1]:
+                        key_value_array.append(info.split('=')[0].split('.')[1])
+                        key_value_array.append(info.split('=')[1])
+                        query_key_value_array.append(key_value_array)
+
+    insert_key_array.append('expired_at')
+    insert_key_array.append('channel_api_no')
+    insert_value_array.append('\''+expired_at+'\'')
+    insert_value_array.append('\''+channel_api_no.split('.')[0]+'\'')
+    # 拼接sql
+    main_table_sql = """
+        insert into 
+        """
+    main_table_sql += ' ' + table_name + ' ('
+    main_table_sql += ','.join(insert_key_array)
+    main_table_sql += ') values ('
+    main_table_sql += ','.join(insert_value_array) + ')'
+    print('insert-sql--' + main_table_sql)
+    sql_insert(sql=main_table_sql)
+
+    # 插入成功后查询出主键
+    info_main_table_sql = """
+        select 
+        """
+    if len(key_word_sub_table) > 0:
+        info_main_table_sql += key_word_sub_table
+    info_main_table_sql += ' from ' + table_name + ' where '
+    for key_value_array in query_key_value_array:
+        info_main_table_sql += str(key_value_array[0]) + '=' +  str(key_value_array[1]) + ' and '
+    info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
+    print('query-sql'+info_main_table_sql)
+    df = sql_to_df(sql=info_main_table_sql)
+    df['key_sub'] = df[key_word_sub_table]
+    return df
+
+
+
+
 # 处理第一张主表数据
 def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
     title_array = title.split(';')
@@ -48,7 +115,6 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
         if ('phone' == key_value):
             phone_key_word = key_value
             phone_key_value = fake.phone_number()
-    create_time = '\'' + datetime.datetime.now().strftime("%Y-%m-%d") + '\''
     # 表名
     table_name = title_array[0].split('.')[0]
     # 关联子表的主键
@@ -181,7 +247,7 @@ def _insert_main_table_sub_data(title, df_main_id):
     sql_insert(sql=sql)
 
 
-class deposit(Process):
+class unit_deposit(Process):
 
     def read_excel_as_df(self):
         path = self.read_path
@@ -195,26 +261,42 @@ class deposit(Process):
             # 获取标题的list集合
             title_list = no_empty_df.columns.values.tolist()
             # 遍历no_empty_df逐条插入数据
-            key_value = []
+            key_value_main_1 = []
+            key_value_main_2 = []
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
+                df_mian_1_id = 0
                 for title in title_list:
                     if 'table_main' == title:
                         # 插入第一张主表的数据，返回多条数据的主表子表关联主键
                         title = str(row[title])
-                        key = str(row['测试用例key'])
+                        key = str(row['main_key'])
                         channel_api_no = str(row['测试模块'])
                         if (len(channel_api_no)) < 5:
                             channel_api_no = '0' + channel_api_no
                         df_main = _insert_main_table_data(title, key, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
-                        key_value.append(df_main['key'][0])
+                        key_value_main_1.append(df_main['key'][0])
                     if title.find('table_main_sub') >= 0:
                         # 插入第一张主表关联的子表数据
                         title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             _insert_main_table_sub_data(title, df_main_id)
-            no_empty_df['keyValue'] = key_value
+                    if 'table_main_1' == title:
+                        # 插入第二张主表的数据，返回多条数据的主表子表关联主键
+                        title = str(row[title])
+                        key = str(row['main_1_key'])
+                        channel_api_no = str(row['测试模块'])
+                        if (len(channel_api_no)) < 5:
+                            channel_api_no = '0' + channel_api_no
+                        df_main = _insert_main_1_table_data(title, key, channel_api_no)
+                        df_mian_1_id = df_main['key_sub'][0]
+                    if title.find('table_main_1_sub') >= 0:
+                        # 插入第一张主表关联的子表数据
+                        title = str(row[title])
+                        if title is not None and title != 'nan' and len(title) > 0:
+                            _insert_main_table_sub_data(title, df_mian_1_id)
+            no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
 
     def write_df_into_excel(self,df=None):
@@ -237,7 +319,7 @@ class deposit(Process):
             code_array.append(code)
             field = row['用例标题']
             expect_result = row['预期测试结果'].split('=')[1]
-            params = eval(row['keyValue'])
+            params = eval(row['key_value_main'])
             user_name = ''
             id_card_no = ''
             phone = ''
@@ -268,7 +350,7 @@ class deposit(Process):
                         is_pass_array.append("false")
             else:
                 compare_value = str(case_value)
-                if compare_value.find('00:00:00') >= 0:
+                if compare_value.find('00:00:00') >=0:
                     compare_value = compare_value[0:10]
                 if compare_value == str(expect_result):
                     is_pass_array.append("true")
