@@ -114,7 +114,6 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(phone_key_word) > 0:
         info_main_table_sql += phone_key_word + '=' + '\'' + phone_key_value + '\'' + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
-    print('query-sql--' + info_main_table_sql)
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
     if len(name_key_word) > 0:
@@ -252,20 +251,15 @@ class deposit(Process):
                 if key in ['phone']:
                     phone = value
             res = translate(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
-            print('测试用例' + code + '返回结果----')
-            print(res)
             for key in res:
                 if field == key:
                     case_value = res[key]
                     actual_reslut_array.append(case_value)
             if is_number(expect_result):
-                try:
-                    if float(case_value) == float(expect_result):
-                        is_pass_array.append("true")
-                    else:
-                        is_pass_array.append("false")
-                except ValueError:
-                    print('ValueError'+case_value)
+                if float(case_value) == float(expect_result):
+                    is_pass_array.append("true")
+                else:
+                    is_pass_array.append("false")
             else:
                 if str(case_value) == str(expect_result):
                     is_pass_array.append("true")
