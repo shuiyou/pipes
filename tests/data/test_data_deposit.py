@@ -48,25 +48,7 @@ def _assert_df(code):
         print("测试错了：" + code)
     assert result_df.shape[0] == 0
 
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        pass
 
-    try:
-        import unicodedata
-        unicodedata.numeric(s)
-        return True
-    except (TypeError, ValueError):
-        pass
-
-    return False
-
-
-def test_nu():
-    print(is_number('35050019771008929X'))
 
 
 
