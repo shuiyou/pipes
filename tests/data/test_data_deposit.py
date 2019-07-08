@@ -1,6 +1,7 @@
 from data.data_deposit import deposit
 from data.data_union_multi_to_one_deposit import unit_deposit
 from data.data_union_multi_to_multi_deposit import unit_multi_deposit
+from data.data_single_three_structure import single_three_deposit
 import json
 
 
@@ -30,6 +31,9 @@ def test_09001_case():
 def test_11001_case():
     _assert_single_df('11001')
 
+def test_12001_case():
+    _assert_single_three_structure_df('12001')
+
 def test_13001_case():
     _assert_single_df('13001')
 
@@ -58,6 +62,9 @@ def test_f0003_case():
     _assert_union_multi_to_one_df('f003')
 
 
+def _assert_single_three_structure_df(code):
+    ps = single_three_deposit();
+    _assert_df(ps,code)
 
 def _assert_union_multi_to_multi_df(code):
     ps = unit_multi_deposit();
