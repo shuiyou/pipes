@@ -3,10 +3,10 @@ import datetime
 import pandas as pd
 from faker import Faker
 
+from data.process_excel_case import Process
 from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-from data.process_excel_case import Process
 
 
 def is_number(s):
@@ -24,6 +24,7 @@ def is_number(s):
         pass
 
     return False
+
 
 # 处理第一张主表数据
 def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
@@ -217,7 +218,7 @@ class deposit(Process):
             no_empty_df['keyValue'] = key_value
             return no_empty_df
 
-    def write_df_into_excel(self,df=None):
+    def write_df_into_excel(self, df=None):
         path = self.write_path
         if df is not None and len(df) > 0:
             df.to_excel(path)

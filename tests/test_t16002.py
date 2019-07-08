@@ -1,5 +1,6 @@
 from mapping.t16002 import T16002
 
+
 def test_ps_court_info():
     ps = T16002()
     ps.run(user_name='吉林华正农牧业开发股份有限公司', id_card_no='', phone='')
@@ -19,5 +20,3 @@ def test_ps_court_info():
     assert ps.variables['court_ent_pub_info'] == 2
     assert ps.variables['court_ent_pub_info_amt_3y'] == 2217000.00
     assert ps.variables['court_ent_cri_sus'] == 0
-
-

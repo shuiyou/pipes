@@ -1,12 +1,10 @@
-import datetime
-
 import pandas as pd
 from faker import Faker
 
+from data.process_excel_case import Process
 from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-from data.process_excel_case import Process
 
 
 def is_number(s):
@@ -26,12 +24,12 @@ def is_number(s):
     return False
 
 
-#处理第二张主表数据
-def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20'):
+# 处理第二张主表数据
+def _insert_main_1_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
     title.replace('\n', '').replace('\r', '')
     title_array = title.split(';')
     key_array = key.split(';')
-    #查询条件
+    # 查询条件
     query_key_value_array = []
     fake = Faker(locale='zh_CN')
     # 表名
@@ -61,8 +59,8 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
 
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
-    insert_value_array.append('\''+expired_at+'\'')
-    insert_value_array.append('\''+channel_api_no.split('.')[0]+'\'')
+    insert_value_array.append('\'' + expired_at + '\'')
+    insert_value_array.append('\'' + channel_api_no.split('.')[0] + '\'')
     # 拼接sql
     main_table_sql = """
         insert into 
@@ -82,14 +80,12 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         info_main_table_sql += key_word_sub_table
     info_main_table_sql += ' from ' + table_name + ' where '
     for key_value_array in query_key_value_array:
-        info_main_table_sql += str(key_value_array[0]) + '=' +  str(key_value_array[1]) + ' and '
+        info_main_table_sql += str(key_value_array[0]) + '=' + str(key_value_array[1]) + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
-    print('query-sql'+info_main_table_sql)
+    print('query-sql' + info_main_table_sql)
     df = sql_to_df(sql=info_main_table_sql)
     df['key_sub'] = df[key_word_sub_table]
     return df
-
-
 
 
 # 处理第一张主表数据
@@ -299,7 +295,7 @@ class unit_deposit(Process):
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
 
-    def write_df_into_excel(self,df=None):
+    def write_df_into_excel(self, df=None):
         path = self.write_path
         if df is not None and len(df) > 0:
             df.to_excel(path)
@@ -350,7 +346,7 @@ class unit_deposit(Process):
                         is_pass_array.append("false")
             else:
                 compare_value = str(case_value)
-                if compare_value.find('00:00:00') >=0:
+                if compare_value.find('00:00:00') >= 0:
                     compare_value = compare_value[0:10]
                 if compare_value == str(expect_result):
                     is_pass_array.append("true")
