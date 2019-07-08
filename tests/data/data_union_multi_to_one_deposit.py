@@ -228,11 +228,6 @@ def _insert_main_table_sub_data(title, df_main_id):
                     for detail in value_array:
                         if detail.find(field + '[' + str(i) + ']') >= 0:
                             insert_value = detail.split('=')[1]
-                            try:
-                                json.loads(insert_value)
-                                insert_value = json.dumps(insert_value)
-                            except ValueError:
-                                pass
                             data.append(insert_value)
                 key_value_array.append(data)
     sql += ' ' + table_name + ' ('
