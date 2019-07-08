@@ -1,6 +1,7 @@
 from data.data_deposit import deposit
 from data.data_union_multi_to_one_deposit import unit_deposit
 from data.data_union_multi_to_multi_deposit import unit_multi_deposit
+import json
 
 
 
@@ -80,7 +81,17 @@ def _assert_df(ps,code):
     assert result_df.shape[0] == 0
 
 
-
+def test_value():
+    # insert_value = '{"frequency_detail_list":[{"detail":"1月内_身份证_出现次数_本应用：7"},{"detail":"1天内设备关联手机号数：7"}],"type":"frequency_detail"}'
+    insert_value = '"客户行为检测"'
+    try:
+        json.loads(insert_value)
+        insert_value = json.dumps(insert_value)
+    except ValueError:
+        print('111')
+        pass
+    # insert_value = json.dumps(insert_value)
+    print(insert_value)
 
 
 

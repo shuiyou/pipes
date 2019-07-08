@@ -5,6 +5,7 @@ from data.process_excel_case import Process
 from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
+import json
 
 
 def is_number(s):
@@ -226,7 +227,13 @@ def _insert_main_table_sub_data(title, df_main_id):
                 for field in field_array:
                     for detail in value_array:
                         if detail.find(field + '[' + str(i) + ']') >= 0:
-                            data.append(detail.split('=')[1])
+                            insert_value = detail.split('=')[1]
+                            try:
+                                json.loads(insert_value)
+                                insert_value = json.dumps(insert_value)
+                            except ValueError:
+                                pass
+                            data.append(insert_value)
                 key_value_array.append(data)
     sql += ' ' + table_name + ' ('
     if len(field_array) > 0:
@@ -288,7 +295,7 @@ class unit_deposit(Process):
                         df_main = _insert_main_1_table_data(title, key, channel_api_no)
                         df_mian_1_id = df_main['key_sub'][0]
                     if title.find('table_main_1_sub') >= 0:
-                        # 插入第一张主表关联的子表数据
+                        # 插入第二张主表关联的子表数据
                         title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             _insert_main_table_sub_data(title, df_mian_1_id)
