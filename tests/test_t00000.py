@@ -1,8 +1,4 @@
-import pandas as pd
-
 from mapping.t00000 import T00000
-from mapping.t01001 import T01001
-from mapping.t02001 import T02001
 
 
 def test_base_info():

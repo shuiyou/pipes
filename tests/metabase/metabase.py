@@ -1,14 +1,12 @@
-import logging
-
 # import pandas as pd
 # from metabasepy import Client
+import datetime
 import os
 import time
 
-import datetime
 import pandas as pd
-from metabasepy import Client
 from dateutil import parser
+from metabasepy import Client
 
 from logger.logger_util import LoggerUtil
 
@@ -45,5 +43,3 @@ def read_as_df(database_name, query):
 
 df = read_as_df(database_name="湛泸生产环境", query="select * from assets_business_data")
 print(df.shape)
-
-

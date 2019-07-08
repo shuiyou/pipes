@@ -1,5 +1,6 @@
 from mapping.t17001 import T17001
 
+
 def test_t17001():
     ps1 = T17001()
     ps1.run(user_name='仲小梅', id_card_no='321284198501083626', phone='15052304168')

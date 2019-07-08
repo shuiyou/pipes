@@ -80,6 +80,11 @@ def _assert_df(code):
 
 
 
+def test_num():
+    value = 'social_tel_gray_sco='
+    expect_result = value.split('=')[1]
+    print(expect_result)
+
 
 
 

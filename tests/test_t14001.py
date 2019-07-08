@@ -1,10 +1,6 @@
-from datetime import datetime
-
 import pandas as pd
 
 from mapping.t14001 import T14001
-from mapping.tranformer import subtract_datetime_col
-
 
 # def test_blacklist():
 #     ps = T14001()
@@ -59,11 +55,9 @@ from mapping.tranformer import subtract_datetime_col
 #     assert ps.variables['social_query_else_cnt_6m'] == 2
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
+
 def test_t14001():
     ps1 = T14001()
-    ps1.run("李琳","520425198311158217","18849553961")
+    ps1.run("李琳", "520425198311158217", "18849553961")
     print(ps1.variables)
-
-
-
-

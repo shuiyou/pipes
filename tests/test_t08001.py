@@ -1,6 +1,3 @@
-
-import pandas as pd
-
 from mapping.t08001 import T08001
 
 
@@ -24,5 +21,5 @@ def test_risk_anti_fraud():
     # assert ps.variables['fraudinfo_isMachYZmobile'] == 0
     # assert ps.variables['fraudinfo_isMachSmallNo'] == 0
     # assert ps.variables['fraudinfo_isMachSZNo'] == 0
-    ps.run('张思诗','420023199212152245','15965153255')
+    ps.run('张思诗', '420023199212152245', '15965153255')
     print(ps.variables)
