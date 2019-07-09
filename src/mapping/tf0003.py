@@ -52,7 +52,7 @@ class Tf0003(Transformer):
             'per_com_esdate': '',
             'per_com_areacode': '',
             'per_com_industrycode': '',
-            'per_com_saicChanRegister_5y': '',
+            'per_com_saicChanRegister_5y': 0,
             'per_com_province': '',
             'per_com_city': ''
         }
@@ -204,7 +204,6 @@ class Tf0003(Transformer):
 
     def _exception_info(self, df=None):
         if df is not None and len(df) > 0:
-            print(df)
             if df[df['result_out'].isna()].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
             if df[df['result_out'].isna()].shape[0] != df.shape[0]:
