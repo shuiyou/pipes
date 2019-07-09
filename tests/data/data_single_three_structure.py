@@ -1,8 +1,8 @@
-
 from faker import Faker
+
+from data.process_excel_case import Process
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-from data.process_excel_case import Process
 
 
 # 处理第一张主表数据
@@ -64,7 +64,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
     insert_value_array.append(expired_at)
-    insert_value_array.append(channel_api_no.split('.')[0] )
+    insert_value_array.append(channel_api_no.split('.')[0])
     # 拼接sql
     main_table_sql = """
         insert into 
@@ -73,7 +73,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values ('
     for value in insert_value_array:
-        main_table_sql += '\''+value+'\''+','
+        main_table_sql += '\'' + value + '\'' + ','
     main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
     main_table_sql += ')'
     print('insert-sql--' + main_table_sql)
@@ -110,8 +110,8 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     return df
 
 
-#处理3级结构中第二张子表与第三张子表的关联关系
-def _insert_main_table_sub_b_data(title,df_main_id_array):
+# 处理3级结构中第二张子表与第三张子表的关联关系
+def _insert_main_table_sub_b_data(title, df_main_id_array):
     title = title.replace('\n', '').replace('\r', '')
     value_array = title.split(';')
     table_name = ''
@@ -135,7 +135,7 @@ def _insert_main_table_sub_b_data(title,df_main_id_array):
                 data = []
                 number = 0
                 for detail in value_array:
-                    if detail.find('['+str(i)+'-'+str(j)+']')>=0:
+                    if detail.find('[' + str(i) + '-' + str(j) + ']') >= 0:
                         data.append(detail.split('=')[1])
                         number = 1
                 if number > 0:
@@ -149,7 +149,7 @@ def _insert_main_table_sub_b_data(title,df_main_id_array):
                 sql += ','.join(insert_key_array)
                 sql += ') values '
                 for data in insert_value_array:
-                    sql += '(' + ','.join(data)  + '),'
+                    sql += '(' + ','.join(data) + '),'
                 sql = sql[0:len(sql) - 1]
                 print(sql)
                 sql_insert(sql=sql)
@@ -225,11 +225,10 @@ class single_three_deposit(Process):
 
     def write_df_into_excel(self, df=None):
         path = self.write_path
-        return super().write_df_into_excel(path,df=df)
+        return super().write_df_into_excel(path, df=df)
 
     def run_processor(self, path):
         return super().run_processor(path=path)
-
 
     def insert_data(self, df=None):
         if df is not None and len(df) > 0:
@@ -261,10 +260,6 @@ class single_three_deposit(Process):
                             _insert_main_table_sub_b_data(title, df_sub_b_key_array)
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
-
-
-
-
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()

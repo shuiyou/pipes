@@ -52,7 +52,7 @@ class Tf0003(Transformer):
             'per_com_esdate': '',
             'per_com_areacode': '',
             'per_com_industrycode': '',
-            'per_com_saicChanRegister_5y': '',
+            'per_com_saicChanRegister_5y': 0,
             'per_com_province': '',
             'per_com_city': ''
         }
@@ -206,18 +206,16 @@ class Tf0003(Transformer):
         if df is not None and len(df) > 0:
             if df[df['result_out'].isna()].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
-            else:
+            if df[df['result_out'].isna()].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
-            if df[(df['date_out'] == None) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+            if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('年度报告'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('年度报告'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 1
-            else:
-                self.variables['per_com_exception_his'] = 0
 
     def _info_illegal_list_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -304,7 +302,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s
-            ORDER BY d.expired_at DESC LIMIT 1
+            ORDER BY d.id DESC LIMIT 1
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
