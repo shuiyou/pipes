@@ -1,6 +1,8 @@
 from data.data_deposit import deposit
 from data.data_union_multi_to_one_deposit import unit_deposit
 from data.data_union_multi_to_multi_deposit import unit_multi_deposit
+from data.data_single_three_structure import single_three_deposit
+import json
 
 
 
@@ -29,6 +31,9 @@ def test_09001_case():
 def test_11001_case():
     _assert_single_df('11001')
 
+def test_12001_case():
+    _assert_single_three_structure_df('12001')
+
 def test_13001_case():
     _assert_single_df('13001')
 
@@ -41,6 +46,12 @@ def test_16001_case():
 def test_16002_case():
     _assert_single_df('16002')
 
+def test_17001_case():
+    _assert_single_df('17001')
+
+def test_18001_case():
+    _assert_single_df('18001')
+
 def test_f001_case():
     _assert_union_multi_to_multi_df('f001')
 
@@ -51,6 +62,9 @@ def test_f0003_case():
     _assert_union_multi_to_one_df('f003')
 
 
+def _assert_single_three_structure_df(code):
+    ps = single_three_deposit();
+    _assert_df(ps,code)
 
 def _assert_union_multi_to_multi_df(code):
     ps = unit_multi_deposit();
@@ -74,7 +88,17 @@ def _assert_df(ps,code):
     assert result_df.shape[0] == 0
 
 
-
+def test_value():
+    # insert_value = '{"frequency_detail_list":[{"detail":"1月内_身份证_出现次数_本应用：7"},{"detail":"1天内设备关联手机号数：7"}],"type":"frequency_detail"}'
+    insert_value = '"客户行为检测"'
+    try:
+        json.loads(insert_value)
+        insert_value = json.dumps(insert_value)
+    except ValueError:
+        print('111')
+        pass
+    # insert_value = json.dumps(insert_value)
+    print(insert_value)
 
 
 

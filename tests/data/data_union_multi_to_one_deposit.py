@@ -5,6 +5,7 @@ from data.process_excel_case import Process
 from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
+import json
 
 
 def is_number(s):
@@ -226,7 +227,8 @@ def _insert_main_table_sub_data(title, df_main_id):
                 for field in field_array:
                     for detail in value_array:
                         if detail.find(field + '[' + str(i) + ']') >= 0:
-                            data.append(detail.split('=')[1])
+                            insert_value = detail.split('=')[1]
+                            data.append(insert_value)
                 key_value_array.append(data)
     sql += ' ' + table_name + ' ('
     if len(field_array) > 0:
@@ -247,8 +249,14 @@ class unit_deposit(Process):
 
     def read_excel_as_df(self):
         path = self.read_path
-        df = pd.read_excel(path)
-        return df
+        return super().read_excel_as_df(path)
+
+    def write_df_into_excel(self, df=None):
+        path = self.write_path
+        return super().write_df_into_excel(path,df=df)
+
+    def run_processor(self, path):
+        return super().run_processor(path=path)
 
     def insert_data(self, df=None):
         if df is not None and len(df) > 0:
@@ -288,74 +296,14 @@ class unit_deposit(Process):
                         df_main = _insert_main_1_table_data(title, key, channel_api_no)
                         df_mian_1_id = df_main['key_sub'][0]
                     if title.find('table_main_1_sub') >= 0:
-                        # 插入第一张主表关联的子表数据
+                        # 插入第二张主表关联的子表数据
                         title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             _insert_main_table_sub_data(title, df_mian_1_id)
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
 
-    def write_df_into_excel(self, df=None):
-        path = self.write_path
-        if df is not None and len(df) > 0:
-            df.to_excel(path)
-        return path
 
-    def run_processor(self, path):
-        df = pd.read_excel(path)
-        # 跑代码的实际结果
-        actual_reslut_array = []
-        # 与预期结果对比是否通过
-        is_pass_array = []
-        for index, row in df.iterrows():
-            code_array = []
-            code = str(row['测试模块'])
-            if (len(code)) < 5:
-                code = '0' + code
-            code_array.append(code)
-            field = row['用例标题']
-            expect_result = row['预期测试结果'].split('=')[1]
-            params = eval(row['key_value_main'])
-            user_name = ''
-            id_card_no = ''
-            phone = ''
-            # 运行代码生成的用例字段结果
-            case_value = ''
-            for key, value in params.items():
-                if key in ['user_name', 'unique_name', 'name']:
-                    user_name = value
-                if key in ['id_card_no', 'unique_id_no']:
-                    id_card_no = value
-                if key in ['phone']:
-                    phone = value
-            res = translate(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
-            for key in res:
-                if field == key:
-                    case_value = res[key]
-                    actual_reslut_array.append(case_value)
-            if is_number(expect_result):
-                try:
-                    if float(case_value) == float(expect_result):
-                        is_pass_array.append("true")
-                    else:
-                        is_pass_array.append("false")
-                except ValueError:
-                    if str(case_value) == str(expect_result):
-                        is_pass_array.append("true")
-                    else:
-                        is_pass_array.append("false")
-            else:
-                compare_value = str(case_value)
-                if compare_value.find('00:00:00') >= 0:
-                    compare_value = compare_value[0:10]
-                if compare_value == str(expect_result):
-                    is_pass_array.append("true")
-                else:
-                    is_pass_array.append("false")
-        df['实际测试结果'] = actual_reslut_array
-        df['是否通过'] = is_pass_array
-        df.to_excel(path)
-        return df
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()
