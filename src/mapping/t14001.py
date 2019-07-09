@@ -64,13 +64,15 @@ class T14001(Transformer):
 
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
-            df['contacts_class_1_cnt']=df['contacts_class_1_cnt'].fillna(0)
+            df['contacts_class_1_cnt'] = df['contacts_class_1_cnt'].fillna(0)
             if df['phone_gray_score'].values[0] is not None:
                 self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
             if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_1_blacklist_cnt'][0] is not None:
-                self.variables['social_dir_in_black_rate'] = df['contacts_class_1_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
+                self.variables['social_dir_in_black_rate'] = df['contacts_class_1_blacklist_cnt'].values[0] / \
+                                                             df['contacts_class_1_cnt'].values[0]
             if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_2_blacklist_cnt'][0] is not None:
-                self.variables['social_indir_in_black_rate'] = df['contacts_class_2_blacklist_cnt'].values[0]/df['contacts_class_1_cnt'].values[0]
+                self.variables['social_indir_in_black_rate'] = df['contacts_class_2_blacklist_cnt'].values[0] / \
+                                                               df['contacts_class_1_cnt'].values[0]
             if df['contacts_router_ratio'].values[0] is not None:
                 self.variables['social_dir_rel_indir_rate'] = df['contacts_router_ratio'].values[0]
 

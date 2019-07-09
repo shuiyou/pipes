@@ -13,6 +13,7 @@ else:
 
 __DB_ENGINE = create_engine(DB_URI, encoding="utf8")
 
+
 def sql_to_df(sql, index_col=None, coerce_float=True, params=None,
               parse_dates=None, columns=None, chunksize=None):
     connect = __DB_ENGINE.connect()
@@ -21,8 +22,9 @@ def sql_to_df(sql, index_col=None, coerce_float=True, params=None,
     connect.close()
     return df
 
+
 def sql_insert(sql, index_col=None, coerce_float=True, params=None,
-              parse_dates=None, columns=None, chunksize=None):
+               parse_dates=None, columns=None, chunksize=None):
     connect = __DB_ENGINE.connect()
     connect.execute(sql)
     connect.close()

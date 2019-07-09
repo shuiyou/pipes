@@ -218,7 +218,6 @@ class Tf0003(Transformer):
             elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('年度报告'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 1
 
-
     def _info_illegal_list_df(self, ent_name):
         info_per_bus_shareholder = """
             SELECT c.ent_name,d.basic_id,d.illegal_rresult_out

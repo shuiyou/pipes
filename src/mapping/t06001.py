@@ -27,7 +27,7 @@ class T06001(Transformer):
             SELECT crime_type, case_period FROM info_criminal_case 
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s
-            ORDER BY expired_at DESC LIMIT 1;
+            ORDER BY id  DESC LIMIT 1;
         """
         df = sql_to_df(sql=info_criminal_case,
                        params={"user_name": user_name, "id_card_no": id_card_no})
