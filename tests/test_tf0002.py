@@ -7,4 +7,3 @@ def test_f0002():
     print(t.variables)
     t.run(user_name='马利勇', id_card_no='140112197709011713')
     print(t.variables)
-

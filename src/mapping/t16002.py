@@ -2,6 +2,13 @@ from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col, extract_money, extract_money_court_excute_public
 
 
+def check_is_contain(key, value):
+    if key.find(value) >= 0:
+        return 1
+    else:
+        return 0
+
+
 class T16002(Transformer):
     """
     法院核查 企业
@@ -26,7 +33,10 @@ class T16002(Transformer):
             'court_ent_admi_vio_amt_3y': 0,
             'court_ent_judge_amt_3y': 0,
             'court_ent_docu_status': 0,
-            'court_ent_proc_status': 0
+            'court_ent_proc_status': 0,
+            'court_ent_fin_loan_con':0,
+            'court_ent_loan_con':0,
+            'court_ent_pop_loan':0
         }
 
     # 行政违法记录sql
@@ -48,14 +58,15 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: extract_money(x['execution_result']), axis=1)
-            self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
+            if df is not None and len(df) > 0:
+                df['max_money'] = df.apply(lambda x: extract_money(x['execution_result']), axis=1)
+                self.variables['court_ent_admi_vio_amt_3y'] = df['max_money'].sum()
 
     # 民商事裁判文书sql
     def _court_judicative_pape_df(self):
         info_court_judicative_pape = """
         SELECT A.create_time as create_time,B.legal_status as
-        legal_status,B.case_amount as case_amount,B.closed_time as closed_time,B.court_id as court_id
+        legal_status,B.case_amount as case_amount,B.closed_time as closed_time,B.court_id as court_id,B.case_reason as case_reason
         FROM info_court_judicative_pape B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
@@ -70,9 +81,8 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_judge'] = df.shape[0]
 
-            df = df.query(self.dff_year + ' < 3')
-            self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df['case_amount'].sum())
-
+            df2 = df.query(self.dff_year + ' < 3')
+            self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df2['case_amount'].sum())
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
@@ -83,12 +93,20 @@ class T16002(Transformer):
                 self.variables['court_ent_docu_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_docu_status'] = 2
+            if df1 is not None and len(df1) > 0:
+                df['legal_status_contain'] = df1.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
+                if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_fin_loan_con'] = 1
+                if df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_loan_con'] = 1
+                if df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_pop_loan'] = 1
 
     # 民商事审判流程sql
     def _court_trial_process_df(self):
         info_court_trial_process = """
         SELECT A.create_time as create_time,B.specific_date as
-        specific_date,B.legal_status as legal_status
+        specific_date,B.legal_status as legal_status,B.case_reason as case_reason
         FROM info_court_trial_process B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
         WHERE B.court_id = A.id
@@ -112,6 +130,14 @@ class T16002(Transformer):
                 self.variables['court_ent_proc_status'] = 3
             elif defendant_df.shape[0] > 0:
                 self.variables['court_ent_proc_status'] = 2
+            if df1 is not None and len(df1) > 0:
+                df['legal_status_contain'] = df1.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
+                if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_fin_loan_con'] = 1
+                if df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_loan_con'] = 1
+                if df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason').shape[0] > 0:
+                    self.variables['court_ent_pop_loan'] = 1
 
     # 纳税非正常户sql
     def _court_taxable_abnormal_user_df(self):
@@ -243,8 +269,9 @@ class T16002(Transformer):
         if df is not None and len(df) > 0:
             self.variables['court_ent_pub_info'] = df.shape[0]
             df = df.query(self.dff_year + ' < 3')
-            df['max_money'] = df.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
-            self.variables['court_ent_pub_info_amt_3y'] = float("%.2f" % df['max_money'].sum())
+            if df is not None and len(df) > 0:
+                df['max_money'] = df.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
+                self.variables['court_ent_pub_info_amt_3y'] = float("%.2f" % df['max_money'].sum())
 
     # 罪犯及嫌疑人名单sql
     def _court_criminal_suspect_df(self):
