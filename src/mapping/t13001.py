@@ -83,6 +83,7 @@ class T13001(Transformer):
     ## 计算短信核查_近3个月内银行类注册次数
     def _sms_reg_cnt_bank_3m(self, df=None):
         if len(df) != 0:
+            print(df)
             df_1 = df.loc[(df['date_dif'] < 3) & (df['platform_type'] == 'BANK'), :].copy()
             self.variables['sms_reg_cnt_bank_3m'] = len(df_1)
 
