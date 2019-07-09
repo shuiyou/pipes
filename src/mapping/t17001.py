@@ -166,7 +166,9 @@ class T17001(Transformer):
 
     # 计算客户行为检测模块字段
     def _cus_behav(self, df=None):
-        df1 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] != ''), :].copy()
+        df1 = df.dropna(subset=['item_detail'], how='any')
+        df1 = df1.query('item_group == "客户行为检测"')
+        # df1 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'].notnull() & df['item_detail'] != ""), :].copy()
         if len(df1) > 0:
             row_list = []
             for index, col in df1.iterrows():
@@ -207,9 +209,9 @@ class T17001(Transformer):
             self.variables['net_bah_3m_idc_rel_mail'] = new_dict.get('3个月身份证关联邮箱数', 0)
             self.variables['net_bah_3m_tel_rel_bctel'] = new_dict.get('3个月手机号关联银行卡预留手机号数', 0)
             self.variables['net_bah_3m_mail_rel_idc'] = new_dict.get('3个月邮箱关联身份证数', 0)
-            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号关联身份证数', 0)
+            self.variables['net_bah_3m_tel_rel_idc'] = new_dict.get('3个月手机号码关联身份证数', 0)
 
-        df5 = df.loc[(df['item_group'] == '客户行为检测') & (df['item_detail'] == ''), :].copy()
+        df5 = df.loc[df['item_group'] == '客户行为检测',:].copy()
         if len(df5) > 0:
             df6 = df5[df5['item_name'].str.contains('3个月内申请人身份证作为联系人身份证出现的次数大于等于2')]
             self.variables['net_applicant_idc_3m_morethan2'] = len(df6)
@@ -254,8 +256,8 @@ class T17001(Transformer):
 
     # 计算网申核查_风险分数
     def _net_final_score(self, df=None):
-        if df.values[0] is not None:
-            self.variables['net_final_score'] = int(df.values[0])
+        if df['final_score'].array[0] is not None:
+            self.variables['net_final_score'] = int(df['final_score'].array[0])
 
     # 执行变量转换
     def transform(self):
