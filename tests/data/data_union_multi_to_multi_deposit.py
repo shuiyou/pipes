@@ -1,13 +1,8 @@
-import datetime
-
-import pandas as pd
 from faker import Faker
 
-from mapping.mapper import translate
+from data.process_excel_case import Process
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-from data.process_excel_case import Process
-import json
 
 
 def is_number(s):
@@ -27,12 +22,12 @@ def is_number(s):
     return False
 
 
-#处理第二张主表数据
-def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20'):
+# 处理第二张主表数据
+def _insert_main_1_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
     title.replace('\n', '').replace('\r', '')
     title_array = title.split(';')
     key_array = key.split(';')
-    #查询条件-多组
+    # 查询条件-多组
     query_key_value_array = []
     fake = Faker(locale='zh_CN')
     # 表名
@@ -41,7 +36,7 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
     key_word_sub_table = title_array[0].split('.')[1]
     # 封装插入主表的字段
     insert_key_array = []
-    #封装插入主表的数据-多组
+    # 封装插入主表的数据-多组
     insert_value_array = []
     # 描述有多少组数据
     data_group_count = 0
@@ -57,12 +52,12 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         for info in title_array:
             key_value_array = []
             if info.find('[0]') >= 0:
-                field_count=field_count+1
+                field_count = field_count + 1
                 insert_key_array.append(info.split('[0]')[0].split('.')[1])
                 field_array.append(info.split('[0]')[0].split('.')[1])
             for key in key_array:
                 main_table_key = info.split('=')[0].split('.')[1]
-                main_table_key = main_table_key[0:len(main_table_key)-3]
+                main_table_key = main_table_key[0:len(main_table_key) - 3]
                 if key == main_table_key:
                     key_value_array.append(main_table_key)
                     key_value_array.append(info.split('=')[1])
@@ -76,8 +71,8 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
                         data.append(detail.split('=')[1])
-                data.append('\''+expired_at+'\'')
-                data.append('\''+channel_api_no.split('.')[0]+'\'')
+                data.append('\'' + expired_at + '\'')
+                data.append('\'' + channel_api_no.split('.')[0] + '\'')
                 insert_value_array.append(data)
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
@@ -89,7 +84,7 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values '
     for data in insert_value_array:
-        main_table_sql += '(' +','.join(data) + '),'
+        main_table_sql += '(' + ','.join(data) + '),'
     main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
@@ -105,7 +100,7 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         info_main_table_sql += ' from ' + table_name + ' where '
         info_main_table_sql += str(key_value_array[0]) + '=' + str(key_value_array[1]) + ' and '
         info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
-        print('query-sql'+info_main_table_sql)
+        print('query-sql' + info_main_table_sql)
         df = sql_to_df(sql=info_main_table_sql)
         # df['key_sub'] = df[key_word_sub_table]
         key_word_sub_table_array.append(df[key_word_sub_table][0])
@@ -218,8 +213,8 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     return df
 
 
-#处理第二张主表数据对应子表数据
-def _insert_main_1_table_sub_data(title,df_main_id_array):
+# 处理第二张主表数据对应子表数据
+def _insert_main_1_table_sub_data(title, df_main_id_array):
     title = title.replace('\n', '').replace('\r', '')
     value_array = title.split(';')
     table_name = ''
@@ -243,7 +238,7 @@ def _insert_main_1_table_sub_data(title,df_main_id_array):
                 data = []
                 number = 0
                 for detail in value_array:
-                    if detail.find('['+str(i)+'-'+str(j)+']')>=0:
+                    if detail.find('[' + str(i) + '-' + str(j) + ']') >= 0:
                         insert_value = detail.split('=')[1]
                         number = 1
                 if number > 0:
@@ -257,7 +252,7 @@ def _insert_main_1_table_sub_data(title,df_main_id_array):
                 sql += ','.join(insert_key_array)
                 sql += ') values '
                 for data in insert_value_array:
-                    sql += '(' + ','.join(data)  + '),'
+                    sql += '(' + ','.join(data) + '),'
                 sql = sql[0:len(sql) - 1]
                 print(sql)
                 sql_insert(sql=sql)
@@ -322,7 +317,7 @@ class unit_multi_deposit(Process):
 
     def write_df_into_excel(self, df=None):
         path = self.write_path
-        return super().write_df_into_excel(path,df=df)
+        return super().write_df_into_excel(path, df=df)
 
     def run_processor(self, path):
         return super().run_processor(path=path)
@@ -367,8 +362,6 @@ class unit_multi_deposit(Process):
                             _insert_main_1_table_sub_data(title, df_main_1_key_array)
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
-
-
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()
