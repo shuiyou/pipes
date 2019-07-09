@@ -4,6 +4,7 @@ from abc import ABCMeta, abstractmethod
 from pandas import DataFrame
 from mapping.mapper import translate
 import pandas as pd
+import numpy as np
 
 
 
@@ -44,7 +45,7 @@ class Process(object):
 
     def read_excel_as_df(self,read_path):
         path = read_path
-        df = pd.read_excel(path)
+        df = pd.read_excel(path,dtype={'测试模块':np.str})
         return df
 
     def write_df_into_excel(self,write_path,df=None):

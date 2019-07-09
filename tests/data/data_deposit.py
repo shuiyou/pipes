@@ -213,8 +213,6 @@ class deposit(Process):
                         title = str(row[title])
                         key = str(row['测试用例key'])
                         channel_api_no = str(row['测试模块'])
-                        if (len(channel_api_no)) < 5:
-                            channel_api_no = '0' + channel_api_no
                         df_main = _insert_main_table_data(title, key, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
                         key_value.append(df_main['key'][0])
