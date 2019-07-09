@@ -1,13 +1,10 @@
 import datetime
 
-import pandas as pd
 from faker import Faker
 
 from data.process_excel_case import Process
-from mapping.mapper import translate
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-import json
 
 
 def is_number(s):
@@ -192,7 +189,7 @@ class deposit(Process):
 
     def write_df_into_excel(self, df=None):
         path = self.write_path
-        return super().write_df_into_excel(path,df=df)
+        return super().write_df_into_excel(path, df=df)
 
     def run_processor(self, path):
         return super().run_processor(path=path)
@@ -223,8 +220,6 @@ class deposit(Process):
                             _insert_main_table_sub_data(title, df_main_id)
             no_empty_df['key_value_main'] = key_value
             return no_empty_df
-
-
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()
