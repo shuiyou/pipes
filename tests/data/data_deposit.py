@@ -29,8 +29,14 @@ def is_number(s):
 
 # 处理第一张主表数据
 def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
+    title = title.replace('\n', '').replace('\r', '')
+    key = key.replace('\n', '').replace('\r', '')
     title_array = title.split(';')
     key_array = key.split(';')
+    # 表名
+    table_name = title_array[0].split('.')[0]
+    # 关联子表的主键
+    key_word_sub_table = title_array[0].split('.')[1]
     fake = Faker(locale='zh_CN')
     # 用faker生成查询条件对应的字段
     name_key_word = ''
@@ -39,8 +45,10 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     id_no_key_value = ''
     phone_key_word = ''
     phone_key_value = ''
+    insert_key_array = []
+    insert_value_array = []
+    query_key_array = []
     for key_value in key_array:
-        key_value = key_value.replace('\n', '').replace('\r', '')
         if key_value in ['unique_name', 'user_name', 'name']:
             name_key_word = key_value
             name_key_value = fake.name()
@@ -50,64 +58,54 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
         if ('phone' == key_value):
             phone_key_word = key_value
             phone_key_value = fake.phone_number()
-    create_time = '\'' + datetime.datetime.now().strftime("%Y-%m-%d") + '\''
-    # 表名
-    table_name = title_array[0].split('.')[0]
-    # 关联子表的主键
-    key_word_sub_table = title_array[0].split('.')[1]
-    # 拼接sql
-    main_table_sql = """
-    insert into 
-    """
-    main_table_sql += ' ' + table_name + ' ('
     # 关联主键不是id，faker一个数字
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        main_table_sql += key_word_sub_table + ','
+        insert_key_array.append(key_word_sub_table)
+        insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
+        query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
-        main_table_sql += name_key_word + ','
+        insert_key_array.append(name_key_word)
+        insert_value_array.append(str(name_key_value))
+        query_key_array.append(name_key_word)
     if len(id_no_key_word) > 0:
-        main_table_sql += id_no_key_word + ','
+        insert_key_array.append(id_no_key_word)
+        insert_value_array.append(str(id_no_key_value))
+        query_key_array.append(id_no_key_word)
     if len(phone_key_word) > 0:
-        main_table_sql += phone_key_word + ','
+        insert_key_array.append(phone_key_word)
+        insert_value_array.append(str(phone_key_value))
+        query_key_array.append(phone_key_word)
     # 主表要插入字段
     if (len(title_array) > 1):
         count = 0
         for info in title_array:
             count = count + 1
             if count > 1:
-                main_table_sql += info.split('=')[0].split('.')[1] + ','
-    main_table_sql += 'expired_at,channel_api_no) values ('
-    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        main_table_sql += '\'' + str(fake.random_int()) + str(fake.random_int()) + '\'' + ','
-    if len(name_key_value) > 0:
-        main_table_sql += '\'' + name_key_value + '\'' + ','
-    if len(id_no_key_value) > 0:
-        main_table_sql += '\'' + id_no_key_value + '\'' + ','
-    if len(phone_key_value) > 0:
-        main_table_sql += phone_key_value + ','
-    if (len(title_array) > 1):
-        count = 0
-        for info in title_array:
-            count = count + 1
-            if count > 1:
-                main_table_sql += info.split('=')[1] + ','
-    main_table_sql += '\'' + expired_at + '\'' + ','
-    main_table_sql += '\'' + channel_api_no.split('.')[0] + '\'' + ')'
+                insert_key_array.append(info.split('=')[0].split('.')[1])
+                insert_value_array.append(str(info.split('=')[1]))
+    insert_key_array.append('expired_at')
+    insert_key_array.append('channel_api_no')
+    insert_value_array.append(expired_at)
+    insert_value_array.append(channel_api_no.split('.')[0])
+    # 拼接sql
+    main_table_sql = """
+            insert into 
+            """
+    main_table_sql += ' ' + table_name + ' ('
+    main_table_sql += ','.join(insert_key_array)
+    main_table_sql += ') values ('
+    for value in insert_value_array:
+        main_table_sql += '\'' + value + '\'' + ','
+    main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
+    main_table_sql += ')'
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
     # 插入成功后查询出主键
     info_main_table_sql = """
-    select 
-    """
-    if len(key_word_sub_table) > 0:
-        info_main_table_sql += key_word_sub_table
-    if len(name_key_word) > 0:
-        info_main_table_sql += ',' + name_key_word
-    if len(id_no_key_word) > 0:
-        info_main_table_sql += ',' + id_no_key_word
-    if len(phone_key_word) > 0:
-        info_main_table_sql += ',' + phone_key_word
+        select 
+        """
+    info_main_table_sql += ','.join(query_key_array)
     info_main_table_sql += ' from ' + table_name + ' where '
     if len(name_key_word) > 0:
         info_main_table_sql += name_key_word + '=' + '\'' + name_key_value + '\'' + ' and '

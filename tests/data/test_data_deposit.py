@@ -22,11 +22,17 @@ def test_05002_case():
 def test_06001_case():
     _assert_single_df('06001')
 
+def test_07001_case():
+    _assert_single_df('07001')
+
 def test_08001_case():
     _assert_single_df('08001')
 
 def test_09001_case():
     _assert_single_df('09001')
+
+def test_10001_case():
+    _assert_single_df('10001')
 
 def test_11001_case():
     _assert_single_df('11001')
@@ -88,17 +94,6 @@ def _assert_df(ps,code):
     assert result_df.shape[0] == 0
 
 
-def test_value():
-    # insert_value = '{"frequency_detail_list":[{"detail":"1月内_身份证_出现次数_本应用：7"},{"detail":"1天内设备关联手机号数：7"}],"type":"frequency_detail"}'
-    insert_value = '"客户行为检测"'
-    try:
-        json.loads(insert_value)
-        insert_value = json.dumps(insert_value)
-    except ValueError:
-        print('111')
-        pass
-    # insert_value = json.dumps(insert_value)
-    print(insert_value)
 
 
 

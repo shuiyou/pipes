@@ -29,7 +29,8 @@ def is_number(s):
 
 #处理第二张主表数据
 def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20'):
-    title.replace('\n', '').replace('\r', '')
+    title = title.replace('\n', '').replace('\r', '')
+    key = key.replace('\n', '').replace('\r', '')
     title_array = title.split(';')
     key_array = key.split(';')
     #查询条件-多组
@@ -43,15 +44,15 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
     insert_key_array = []
     #封装插入主表的数据-多组
     insert_value_array = []
+    # 插入成功后查询出主键
+    key_word_sub_table_array = []
     # 描述有多少组数据
     data_group_count = 0
     # 每组字段种类
     field_count = 0
-    field_array = []
 
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
         insert_key_array.append(key_word_sub_table)
-        insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
         # 主表要插入字段
     if (len(title_array) > 0):
         for info in title_array:
@@ -59,7 +60,6 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
             if info.find('[0]') >= 0:
                 field_count=field_count+1
                 insert_key_array.append(info.split('[0]')[0].split('.')[1])
-                field_array.append(info.split('[0]')[0].split('.')[1])
             for key in key_array:
                 main_table_key = info.split('=')[0].split('.')[1]
                 main_table_key = main_table_key[0:len(main_table_key)-3]
@@ -73,6 +73,9 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         if data_group_count > 0:
             for i in range(data_group_count):
                 data = []
+                if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
+                    key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
+                    data.append(key_word_sub_sub_table_value)
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
                         data.append(detail.split('=')[1])
@@ -94,8 +97,7 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
-    # 插入成功后查询出主键
-    key_word_sub_table_array = []
+
     for key_value_array in query_key_value_array:
         info_main_table_sql = """
             select 
@@ -107,7 +109,6 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
         print('query-sql'+info_main_table_sql)
         df = sql_to_df(sql=info_main_table_sql)
-        # df['key_sub'] = df[key_word_sub_table]
         key_word_sub_table_array.append(df[key_word_sub_table][0])
     return key_word_sub_table_array
 
@@ -335,16 +336,21 @@ class unit_multi_deposit(Process):
             title_list = no_empty_df.columns.values.tolist()
             # 遍历no_empty_df逐条插入数据
             key_value_main_1 = []
+            title = ''
+            key_main = ''
+            key_main_1 = ''
+            channel_api_no = ''
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
                 df_main_1_key_array = []
+                key_main = str(row['main_key'])
+                key_main_1 = str(row['main_1_key'])
+                channel_api_no = str(row['测试模块'])
                 for title in title_list:
                     if 'table_main' == title:
                         # 插入第一张主表的数据，返回多条数据的主表子表关联主键
                         title = str(row[title])
-                        key = str(row['main_key'])
-                        channel_api_no = str(row['测试模块'])
-                        df_main = _insert_main_table_data(title, key, channel_api_no)
+                        df_main = _insert_main_table_data(title, key_main, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
                         key_value_main_1.append(df_main['key'][0])
                     if title.find('table_main_sub') >= 0:
@@ -355,11 +361,7 @@ class unit_multi_deposit(Process):
                     if 'table_main_1' == title:
                         # 插入第二张主表的数据，返回多条数据的主表子表关联主键
                         title = str(row[title])
-                        key = str(row['main_1_key'])
-                        channel_api_no = str(row['测试模块'])
-                        if (len(channel_api_no)) < 5:
-                            channel_api_no = '0' + channel_api_no
-                        df_main_1_key_array = _insert_main_1_table_data(title, key, channel_api_no)
+                        df_main_1_key_array = _insert_main_1_table_data(title, key_main_1, channel_api_no)
                     if title.find('table_main_1_sub') >= 0:
                         # 插入第二张主表关联的子表数据
                         title = str(row[title])

@@ -194,9 +194,9 @@ def _insert_main_table_sub_a_data(title, df_main_id):
             for i in range(data_group_count):
                 data = []
                 data.append(str(df_main_id))
-                key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
-                data.append(key_word_sub_sub_table_value)
-                key_word_sub_table_array.append(key_word_sub_sub_table_value)
+                if len(key_word_sub_sub_table) > 0 and 'id' != key_word_sub_sub_table:
+                    key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
+                    data.append(key_word_sub_sub_table_value)
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
                         data.append(detail.split('=')[1])
@@ -214,7 +214,15 @@ def _insert_main_table_sub_a_data(title, df_main_id):
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
-    return key_word_sub_table_array
+    info_main_table_sql = """
+                select 
+                """
+    info_main_table_sql += key_word_sub_sub_table
+    info_main_table_sql += ' from ' + table_name + ' where '
+    info_main_table_sql += key_word_sub_table + '=' + str(df_main_id)
+    print('query-sql' + info_main_table_sql)
+    df = sql_to_df(sql=info_main_table_sql)
+    return df[key_word_sub_sub_table]
 
 
 class single_three_deposit(Process):
@@ -242,21 +250,23 @@ class single_three_deposit(Process):
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
                 df_sub_b_key_array = []
-                title = str(row[title])
                 key = str(row['main_query_key'])
                 channel_api_no = str(row['测试模块'])
                 for title in title_list:
                     if 'table_main' == title:
                         # 插入第一张主表的数据，返回多条数据的主表子表关联主键
+                        title = str(row[title])
                         df_main = _insert_main_table_data(title, key, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
                         key_value_main_1.append(df_main['key'][0])
                     if title.find('table_main_subA') >= 0:
                         # 插入主表关联的子表数据
+                        title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             df_sub_b_key_array = _insert_main_table_sub_a_data(title, df_main_id)
                     if title.find('table_main_subB') >= 0:
                         # 插入子表关联的2级子表数据
+                        title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             _insert_main_table_sub_b_data(title, df_sub_b_key_array)
             no_empty_df['key_value_main'] = key_value_main_1
