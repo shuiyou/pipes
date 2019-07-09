@@ -303,7 +303,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s
-            ORDER BY d.expired_at DESC LIMIT 1
+            ORDER BY d.id DESC LIMIT 1
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,

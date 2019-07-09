@@ -31,7 +31,7 @@ class T14001(Transformer):
             left join info_social_blacklist as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
-            ORDER BY a.expired_at DESC LIMIT 1;
+            ORDER BY a.id DESC LIMIT 1;
         """
         df = sql_to_df(sql=info_social_blacklist,
                        params={"user_name": self.user_name,
@@ -56,7 +56,7 @@ class T14001(Transformer):
             inner join info_social_gray as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
-            ORDER BY a.expired_at DESC LIMIT 1;
+            ORDER BY a.id DESC LIMIT 1;
         """
         df = sql_to_df(sql=(info_social_gray),
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -81,7 +81,7 @@ class T14001(Transformer):
             inner join info_social_user_register as b on a.social_id=b.social_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
             AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s AND a.phone = %(phone)s
-            ORDER BY a.expired_at DESC LIMIT 1;
+            ORDER BY a.id DESC LIMIT 1;
         """
         df = sql_to_df(sql=info_social_gray,
                        params={"user_name": self.user_name,
