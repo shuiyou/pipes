@@ -89,8 +89,11 @@ class Process(object):
                     actual_reslut_array.append(case_value)
             if is_number(expect_result):
                 try:
-                    if float(case_value) == float(expect_result):
-                        is_pass_array.append("true")
+                    if case_value is not None:
+                        if float(case_value) == float(expect_result):
+                            is_pass_array.append("true")
+                        else:
+                            is_pass_array.append("false")
                     else:
                         is_pass_array.append("false")
                 except ValueError:

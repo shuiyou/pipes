@@ -254,8 +254,8 @@ class T17001(Transformer):
 
     # 计算网申核查_风险分数
     def _net_final_score(self, df=None):
-        if len(df) != 0:
-            self.variables['net_final_score'] = int(df.values[0])
+        if df.values[0][0] is not None :
+            self.variables['net_final_score'] = int(df.values[0][0])
 
     # 执行变量转换
     def transform(self):

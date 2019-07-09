@@ -59,7 +59,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
         insert_key_array.append(key_word_sub_table)
         insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
-        query_key_array.append(key_word_sub_table)
+    query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
         insert_key_array.append(name_key_word)
         insert_value_array.append(str(name_key_value))
@@ -91,10 +91,22 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     main_table_sql += ' ' + table_name + ' ('
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values ('
-    for value in insert_value_array:
-        main_table_sql += '\'' + value + '\'' + ','
-    main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
-    main_table_sql += ')'
+    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
+        main_table_sql += '\'' + str(fake.random_int()) + str(fake.random_int()) + '\'' + ','
+    if len(name_key_value) > 0:
+        main_table_sql += '\'' + name_key_value + '\'' + ','
+    if len(id_no_key_value) > 0:
+        main_table_sql += '\'' + id_no_key_value + '\'' + ','
+    if len(phone_key_value) > 0:
+        main_table_sql += phone_key_value + ','
+    if (len(title_array) > 1):
+        count = 0
+        for info in title_array:
+            count = count + 1
+            if count > 1:
+                main_table_sql += info.split('=')[1] + ','
+    main_table_sql += '\'' + expired_at + '\'' + ','
+    main_table_sql += '\'' + channel_api_no.split('.')[0] + '\'' + ')'
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
