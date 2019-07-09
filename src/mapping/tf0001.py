@@ -330,9 +330,11 @@ class Tf0001(Transformer):
 			dispute_df = pd.concat([judicative_df, trial_df])
 			self._ps_dispute(df=dispute_df)
 			# 裁判文书诉讼地位标识
-			self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
+			if judicative_df is not None and len(judicative_df)>0:
+				self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
 			# 审判流程诉讼地位标识
-			self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
+			if judicative_df is not None and len(judicative_df) > 0:
+				self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
 			# 执行公开信息最大金额
 			public_df = self._court_excute_public_df(df=concat_df)
 			self._ps_court_excute_public(df=public_df)
