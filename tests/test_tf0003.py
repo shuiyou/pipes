@@ -9,5 +9,5 @@ def test_case_info():
 def test_tf0003():
     ps1 = Tf0003()
 
-    ps1.run("林颖", "341822200102060459")
-    print(ps1.variables['per_com_exception'])
+    ps1.run("张凯", "441400198201243385")
+    print(ps1.variables['per_com_exception_result'])

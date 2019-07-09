@@ -204,20 +204,20 @@ class Tf0003(Transformer):
 
     def _exception_info(self, df=None):
         if df is not None and len(df) > 0:
+            print(df)
             if df[df['result_out'].isna()].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
-            else:
+            if df[df['result_out'].isna()].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
-            if df[(df['date_out'] == None) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
+            if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法取得联系'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 2
-            elif df[(df['date_out'] == None) & (df['result_in'].str.contains('年度报告'))].shape[0] > 0:
+            elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('年度报告'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 1
-            else:
-                self.variables['per_com_exception_his'] = 0
+
 
     def _info_illegal_list_df(self, ent_name):
         info_per_bus_shareholder = """
