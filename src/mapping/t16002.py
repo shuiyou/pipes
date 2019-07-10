@@ -180,7 +180,7 @@ class T16002(Transformer):
         info_court_tax_arrears = """
         SELECT A.create_time as create_time,B.taxes as
         taxes,B.taxes_time as taxes_time
-        FROM info_court_tax_arrears B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
+        FROM info_court_tax_arrears B,(SELECT id,create_time FROM info_court WHERE unique_name = %(user_name)s
         AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
@@ -297,6 +297,7 @@ class T16002(Transformer):
         self._ps_court_trial_process(df=self._court_trial_process_df())
         self._ps_court_taxable_abnormal_user(df=self._court_taxable_abnormal_user_df())
         self._ps_court_arrearage(df=self._court_arrearage_df())
+        self._ps_court_tax_arrears(df=self._court_tax_arrears_df())
         self._ps_court_deadbeat(df=self._court_deadbeat_df())
         self._ps_court_limited_entry_exit(df=self._court_limited_entry_exit_df())
         self._ps_court_limit_hignspending(df=self._court_limit_hignspending_df())
