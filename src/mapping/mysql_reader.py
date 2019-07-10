@@ -4,7 +4,6 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from config import GEARS_DB, app_env
-from config import GEARS_TEST_DB
 
 if app_env == 'dev':
     DB_URI = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % GEARS_DB
