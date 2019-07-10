@@ -40,18 +40,18 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
         insert_key_array.append(key_word_sub_table)
         insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
-        query_key_array.append(key_word_sub_table)
+    query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
         insert_key_array.append(name_key_word)
-        insert_value_array.append(str(name_key_value))
+        insert_value_array.append('\'' + str(name_key_value) + '\'')
         query_key_array.append(name_key_word)
     if len(id_no_key_word) > 0:
         insert_key_array.append(id_no_key_word)
-        insert_value_array.append(str(id_no_key_value))
+        insert_value_array.append('\'' + str(id_no_key_value) + '\'')
         query_key_array.append(id_no_key_word)
     if len(phone_key_word) > 0:
         insert_key_array.append(phone_key_word)
-        insert_value_array.append(str(phone_key_value))
+        insert_value_array.append('\'' + str(phone_key_value) + '\'')
         query_key_array.append(phone_key_word)
     # 主表要插入字段
     if (len(title_array) > 1):
@@ -60,29 +60,31 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
             count = count + 1
             if count > 1:
                 insert_key_array.append(info.split('=')[0].split('.')[1])
-                insert_value_array.append(str(info.split('=')[1]))
+                value = str(info.split('=')[1])
+                if len(value) > 0:
+                    insert_value_array.append(value)
+                else:
+                    insert_value_array.append('Null')
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
-    insert_value_array.append(expired_at)
-    insert_value_array.append(channel_api_no.split('.')[0])
+    insert_value_array.append('\'' + expired_at + '\'')
+    insert_value_array.append('\'' + channel_api_no.split('.')[0] + '\'')
     # 拼接sql
     main_table_sql = """
-        insert into 
-        """
+                insert into 
+                """
     main_table_sql += ' ' + table_name + ' ('
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values ('
-    for value in insert_value_array:
-        main_table_sql += '\'' + value + '\'' + ','
-    main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
+    main_table_sql += ','.join(insert_value_array)
     main_table_sql += ')'
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
     # 插入成功后查询出主键
     info_main_table_sql = """
-    select 
-    """
+            select 
+            """
     info_main_table_sql += ','.join(query_key_array)
     info_main_table_sql += ' from ' + table_name + ' where '
     if len(name_key_word) > 0:
@@ -136,7 +138,11 @@ def _insert_main_table_sub_b_data(title, df_main_id_array):
                 number = 0
                 for detail in value_array:
                     if detail.find('[' + str(i) + '-' + str(j) + ']') >= 0:
-                        data.append(detail.split('=')[1])
+                        value = str(detail.split('=')[1])
+                        if len(value) > 0:
+                            data.append(value)
+                        else:
+                            data.append('Null')
                         number = 1
                 if number > 0:
                     data.append(str(df_main_id_array[i]))
@@ -177,10 +183,9 @@ def _insert_main_table_sub_a_data(title, df_main_id):
     data_group_count = 0
     # 每组字段种类
     field_count = 0
-    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        insert_key_array.append(key_word_sub_table)
-    if len(key_word_sub_sub_table) > 0 and 'id' != key_word_sub_sub_table:
-        insert_key_array.append(key_word_sub_sub_table)
+
+    insert_key_array.append(key_word_sub_table)
+    insert_key_array.append(key_word_sub_sub_table)
     # 主表要插入字段
     if (len(title_array) > 0):
         for info in title_array:
@@ -194,12 +199,16 @@ def _insert_main_table_sub_a_data(title, df_main_id):
             for i in range(data_group_count):
                 data = []
                 data.append(str(df_main_id))
-                if len(key_word_sub_sub_table) > 0 and 'id' != key_word_sub_sub_table:
+                if 'id' != key_word_sub_sub_table:
                     key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
                     data.append(key_word_sub_sub_table_value)
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
-                        data.append(detail.split('=')[1])
+                        value = str(detail.split('=')[1])
+                        if len(value) > 0:
+                            data.append(value)
+                        else:
+                            data.append('Null')
                 insert_value_array.append(data)
     # 拼接sql
     main_table_sql = """

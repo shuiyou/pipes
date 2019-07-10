@@ -1,5 +1,3 @@
-import datetime
-
 from faker import Faker
 
 from data.process_excel_case import Process
@@ -7,24 +5,7 @@ from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
 
 
-def is_number(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        pass
-
-    try:
-        import unicodedata
-        unicodedata.numeric(s)
-        return True
-    except (TypeError, ValueError):
-        pass
-
-    return False
-
-
-# 处理第一张主表数据
+# 处理主表数据
 def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20'):
     title = title.replace('\n', '').replace('\r', '')
     key = key.replace('\n', '').replace('\r', '')
@@ -62,15 +43,15 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
         insert_key_array.append(name_key_word)
-        insert_value_array.append(str(name_key_value))
+        insert_value_array.append('\''+str(name_key_value)+'\'')
         query_key_array.append(name_key_word)
     if len(id_no_key_word) > 0:
         insert_key_array.append(id_no_key_word)
-        insert_value_array.append(str(id_no_key_value))
+        insert_value_array.append('\''+str(id_no_key_value)+'\'')
         query_key_array.append(id_no_key_word)
     if len(phone_key_word) > 0:
         insert_key_array.append(phone_key_word)
-        insert_value_array.append(str(phone_key_value))
+        insert_value_array.append('\''+str(phone_key_value)+'\'')
         query_key_array.append(phone_key_word)
     # 主表要插入字段
     if (len(title_array) > 1):
@@ -79,11 +60,14 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
             count = count + 1
             if count > 1:
                 insert_key_array.append(info.split('=')[0].split('.')[1])
-                insert_value_array.append(str(info.split('=')[1]))
+                if len(str(info.split('=')[1])) > 0:
+                    insert_value_array.append(str(info.split('=')[1]))
+                else:
+                    insert_value_array.append('Null')
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
-    insert_value_array.append(expired_at)
-    insert_value_array.append(channel_api_no.split('.')[0])
+    insert_value_array.append('\''+expired_at+'\'')
+    insert_value_array.append('\''+channel_api_no.split('.')[0]+'\'')
     # 拼接sql
     main_table_sql = """
             insert into 
@@ -91,22 +75,8 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     main_table_sql += ' ' + table_name + ' ('
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values ('
-    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        main_table_sql += '\'' + str(fake.random_int()) + str(fake.random_int()) + '\'' + ','
-    if len(name_key_value) > 0:
-        main_table_sql += '\'' + name_key_value + '\'' + ','
-    if len(id_no_key_value) > 0:
-        main_table_sql += '\'' + id_no_key_value + '\'' + ','
-    if len(phone_key_value) > 0:
-        main_table_sql += phone_key_value + ','
-    if (len(title_array) > 1):
-        count = 0
-        for info in title_array:
-            count = count + 1
-            if count > 1:
-                main_table_sql += info.split('=')[1] + ','
-    main_table_sql += '\'' + expired_at + '\'' + ','
-    main_table_sql += '\'' + channel_api_no.split('.')[0] + '\'' + ')'
+    main_table_sql += ','.join(insert_value_array)
+    main_table_sql += ')'
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
@@ -141,7 +111,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     return df
 
 
-# 处理第一张主表数据对应的子表数据
+# 处理主表对应的子表数据
 def _insert_main_table_sub_data(title, df_main_id):
     title = title.replace('\n', '').replace('\r', '')
     value_array = title.split(';')
@@ -149,20 +119,18 @@ def _insert_main_table_sub_data(title, df_main_id):
     relation_mian_table_key = ''
     # 字段种类
     field_count = 0
-    field_array = []
     # 描述有多少组数据
     data_group_count = 0
-    sql = """
-         insert into 
-         """
-    key_value_array = []
+    insert_value_array = []
+    insert_key_array = []
     if len(value_array) > 0:
         table_name = value_array[0].split('.')[0]
         relation_mian_table_key = value_array[0].split('.')[1]
+        insert_key_array.append(relation_mian_table_key)
         for detail in value_array:
             if detail.find('[0]') >= 0:
                 field_count = field_count + 1
-                field_array.append(detail.split('[0]')[0].split('.')[1])
+                insert_key_array.append(detail.split('[0]')[0].split('.')[1])
         if field_count > 0:
             data_group_count = (len(value_array) - 1) / field_count
             data_group_count = int(data_group_count)
@@ -170,22 +138,28 @@ def _insert_main_table_sub_data(title, df_main_id):
         if data_group_count > 0:
             for i in range(data_group_count):
                 data = []
-                for field in field_array:
-                    for detail in value_array:
-                        if detail.find(field + '[' + str(i) + ']') >= 0:
-                            insert_value = detail.split('=')[1]
+                data.append(str(df_main_id))
+                for detail in value_array:
+                    if detail.find('[' + str(i) + ']') >= 0:
+                        insert_value = detail.split('=')[1]
+                        if len(insert_value) >0:
                             data.append(insert_value)
-                key_value_array.append(data)
+                        else:
+                            data.append('Null')
+                insert_value_array.append(data)
+        else:
+            data = []
+            data.append(str(df_main_id))
+            insert_value_array.append(data)
+    sql = """
+         insert into 
+         """
     sql += ' ' + table_name + ' ('
-    if len(field_array) > 0:
-        sql += ','.join(field_array) + ','
-    sql += relation_mian_table_key
+    if len(insert_key_array) > 0:
+        sql += ','.join(insert_key_array)
     sql += ') values '
-    if len(key_value_array) > 0:
-        for data in key_value_array:
-            sql += '(' + ','.join(data) + ',' + str(df_main_id) + '),'
-    else:
-        sql += '(' + str(df_main_id) + '),'
+    for data in insert_value_array:
+        sql += '(' + ','.join(data) + '),'
     sql = sql[0:len(sql) - 1]
     print(sql)
     sql_insert(sql=sql)
