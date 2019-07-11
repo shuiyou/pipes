@@ -2,9 +2,11 @@
 import importlib
 
 # from app import logger
+import numpy
+
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
-from mapping.tranformer import Transformer
+from mapping.tranformer import Transformer, numpy_to_int
 
 logger = LoggerUtil().logger(__name__)
 
@@ -38,8 +40,15 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
-
-    return variables
+    # 转换类型，这样解决tojson的问题
+    numpy_to_int(variables)
+    return {
+        'userName': user_name,
+        'cardNo': id_card_no,
+        'phone': phone,
+        'userType': user_type,
+        'variables': variables
+    }
 
 
 def get_transformer(code) -> Transformer:

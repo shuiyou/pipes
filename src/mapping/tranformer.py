@@ -4,8 +4,15 @@ import re
 from abc import ABCMeta, abstractmethod
 
 import jsonpath
+import numpy
 import numpy as np
 import pandas as pd
+
+
+def numpy_to_int(variables):
+    for key, value in variables.items():
+        if type(value) == numpy.int64:
+            variables[key] = int(value)
 
 
 def extract_money(value):

@@ -2,7 +2,6 @@ import json
 import os
 import sys
 
-import numpy
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -125,9 +124,6 @@ def strategy():
     biz_types = codes.copy()
     biz_types.append('00000')
     variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
-    for key, value in variables.items():
-        if type(value) == numpy.int64:
-            variables[key] = int(value)
     variables['out_strategyBranch'] = ','.join(codes)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
@@ -141,10 +137,11 @@ def strategy():
             if error is False:
                 biz_types = _get_biz_types(strategy_resp)
                 strategy_param['bizType'] = biz_types
-                # 最后返回报表详情
+                # 最后返回报告详情
                 if STRATEGE_DONE in biz_types:
+                    # TODO: 可能需要对关联人做转换
                     detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
-                    json_data['reportDetail'] = detail
+                    json_data['reportDetail'] = [detail]
 
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
