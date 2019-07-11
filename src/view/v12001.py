@@ -6,7 +6,7 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
-class T12001(Transformer):
+class V12001(Transformer):
     """
     反欺诈相关的变量模块
     """

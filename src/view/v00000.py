@@ -3,7 +3,7 @@ import datetime
 from mapping.tranformer import Transformer
 
 
-class T00000(Transformer):
+class V00000(Transformer):
     """
     纯展示信息
     """

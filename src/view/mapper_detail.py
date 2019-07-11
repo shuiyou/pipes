@@ -49,8 +49,8 @@ def get_transformer(code) -> Transformer:
     :return:
     """
     try:
-        model = importlib.import_module("view.t" + str(code))
-        api_class = getattr(model, "T" + str(code))
+        model = importlib.import_module("view.v" + str(code))
+        api_class = getattr(model, "V" + str(code))
         api_instance = api_class()
         return api_instance
     except ModuleNotFoundError as err:
