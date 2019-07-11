@@ -1,8 +1,8 @@
-
 from faker import Faker
+
+from data.process_excel_case import Process
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
-from data.process_excel_case import Process
 
 
 # 处理第一张主表数据
@@ -40,18 +40,18 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
         insert_key_array.append(key_word_sub_table)
         insert_value_array.append(str(fake.random_int()) + str(fake.random_int()))
-        query_key_array.append(key_word_sub_table)
+    query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
         insert_key_array.append(name_key_word)
-        insert_value_array.append(str(name_key_value))
+        insert_value_array.append('\'' + str(name_key_value) + '\'')
         query_key_array.append(name_key_word)
     if len(id_no_key_word) > 0:
         insert_key_array.append(id_no_key_word)
-        insert_value_array.append(str(id_no_key_value))
+        insert_value_array.append('\'' + str(id_no_key_value) + '\'')
         query_key_array.append(id_no_key_word)
     if len(phone_key_word) > 0:
         insert_key_array.append(phone_key_word)
-        insert_value_array.append(str(phone_key_value))
+        insert_value_array.append('\'' + str(phone_key_value) + '\'')
         query_key_array.append(phone_key_word)
     # 主表要插入字段
     if (len(title_array) > 1):
@@ -60,29 +60,31 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
             count = count + 1
             if count > 1:
                 insert_key_array.append(info.split('=')[0].split('.')[1])
-                insert_value_array.append(str(info.split('=')[1]))
+                value = str(info.split('=')[1])
+                if len(value) > 0:
+                    insert_value_array.append(value)
+                else:
+                    insert_value_array.append('Null')
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
-    insert_value_array.append(expired_at)
-    insert_value_array.append(channel_api_no.split('.')[0] )
+    insert_value_array.append('\'' + expired_at + '\'')
+    insert_value_array.append('\'' + channel_api_no.split('.')[0] + '\'')
     # 拼接sql
     main_table_sql = """
-        insert into 
-        """
+                insert into 
+                """
     main_table_sql += ' ' + table_name + ' ('
     main_table_sql += ','.join(insert_key_array)
     main_table_sql += ') values ('
-    for value in insert_value_array:
-        main_table_sql += '\''+value+'\''+','
-    main_table_sql = main_table_sql[0:len(main_table_sql) - 1]
+    main_table_sql += ','.join(insert_value_array)
     main_table_sql += ')'
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
     # 插入成功后查询出主键
     info_main_table_sql = """
-    select 
-    """
+            select 
+            """
     info_main_table_sql += ','.join(query_key_array)
     info_main_table_sql += ' from ' + table_name + ' where '
     if len(name_key_word) > 0:
@@ -92,6 +94,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(phone_key_word) > 0:
         info_main_table_sql += phone_key_word + '=' + '\'' + phone_key_value + '\'' + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
+    info_main_table_sql += ' order by id desc limit 1'
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
     if len(name_key_word) > 0:
@@ -110,8 +113,8 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     return df
 
 
-#处理3级结构中第二张子表与第三张子表的关联关系
-def _insert_main_table_sub_b_data(title,df_main_id_array):
+# 处理3级结构中第二张子表与第三张子表的关联关系
+def _insert_main_table_sub_b_data(title, df_main_id_array):
     title = title.replace('\n', '').replace('\r', '')
     value_array = title.split(';')
     table_name = ''
@@ -135,8 +138,12 @@ def _insert_main_table_sub_b_data(title,df_main_id_array):
                 data = []
                 number = 0
                 for detail in value_array:
-                    if detail.find('['+str(i)+'-'+str(j)+']')>=0:
-                        data.append(detail.split('=')[1])
+                    if detail.find('[' + str(i) + '-' + str(j) + ']') >= 0:
+                        value = str(detail.split('=')[1])
+                        if len(value) > 0:
+                            data.append(value)
+                        else:
+                            data.append('Null')
                         number = 1
                 if number > 0:
                     data.append(str(df_main_id_array[i]))
@@ -149,7 +156,7 @@ def _insert_main_table_sub_b_data(title,df_main_id_array):
                 sql += ','.join(insert_key_array)
                 sql += ') values '
                 for data in insert_value_array:
-                    sql += '(' + ','.join(data)  + '),'
+                    sql += '(' + ','.join(data) + '),'
                 sql = sql[0:len(sql) - 1]
                 print(sql)
                 sql_insert(sql=sql)
@@ -177,10 +184,9 @@ def _insert_main_table_sub_a_data(title, df_main_id):
     data_group_count = 0
     # 每组字段种类
     field_count = 0
-    if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
-        insert_key_array.append(key_word_sub_table)
-    if len(key_word_sub_sub_table) > 0 and 'id' != key_word_sub_sub_table:
-        insert_key_array.append(key_word_sub_sub_table)
+
+    insert_key_array.append(key_word_sub_table)
+    insert_key_array.append(key_word_sub_sub_table)
     # 主表要插入字段
     if (len(title_array) > 0):
         for info in title_array:
@@ -194,12 +200,16 @@ def _insert_main_table_sub_a_data(title, df_main_id):
             for i in range(data_group_count):
                 data = []
                 data.append(str(df_main_id))
-                key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
-                data.append(key_word_sub_sub_table_value)
-                key_word_sub_table_array.append(key_word_sub_sub_table_value)
+                if 'id' != key_word_sub_sub_table:
+                    key_word_sub_sub_table_value = str(fake.random_int()) + str(fake.random_int())
+                    data.append(key_word_sub_sub_table_value)
                 for detail in title_array:
                     if detail.find('[' + str(i) + ']') >= 0:
-                        data.append(detail.split('=')[1])
+                        value = str(detail.split('=')[1])
+                        if len(value) > 0:
+                            data.append(value)
+                        else:
+                            data.append('Null')
                 insert_value_array.append(data)
     # 拼接sql
     main_table_sql = """
@@ -214,7 +224,15 @@ def _insert_main_table_sub_a_data(title, df_main_id):
     print('insert-sql--' + main_table_sql)
     sql_insert(sql=main_table_sql)
 
-    return key_word_sub_table_array
+    info_main_table_sql = """
+                select 
+                """
+    info_main_table_sql += key_word_sub_sub_table
+    info_main_table_sql += ' from ' + table_name + ' where '
+    info_main_table_sql += key_word_sub_table + '=' + str(df_main_id)
+    print('query-sql' + info_main_table_sql)
+    df = sql_to_df(sql=info_main_table_sql)
+    return df[key_word_sub_sub_table]
 
 
 class single_three_deposit(Process):
@@ -225,11 +243,10 @@ class single_three_deposit(Process):
 
     def write_df_into_excel(self, df=None):
         path = self.write_path
-        return super().write_df_into_excel(path,df=df)
+        return super().write_df_into_excel(path, df=df)
 
     def run_processor(self, path):
         return super().run_processor(path=path)
-
 
     def insert_data(self, df=None):
         if df is not None and len(df) > 0:
@@ -242,29 +259,27 @@ class single_three_deposit(Process):
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
                 df_sub_b_key_array = []
-                title = str(row[title])
                 key = str(row['main_query_key'])
                 channel_api_no = str(row['测试模块'])
                 for title in title_list:
                     if 'table_main' == title:
                         # 插入第一张主表的数据，返回多条数据的主表子表关联主键
+                        title = str(row[title])
                         df_main = _insert_main_table_data(title, key, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
                         key_value_main_1.append(df_main['key'][0])
                     if title.find('table_main_subA') >= 0:
                         # 插入主表关联的子表数据
+                        title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             df_sub_b_key_array = _insert_main_table_sub_a_data(title, df_main_id)
                     if title.find('table_main_subB') >= 0:
                         # 插入子表关联的2级子表数据
+                        title = str(row[title])
                         if title is not None and title != 'nan' and len(title) > 0:
                             _insert_main_table_sub_b_data(title, df_sub_b_key_array)
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
-
-
-
-
 
     def do_process_case(self, read_path=None, write_path=None):
         df = self.read_excel_as_df()

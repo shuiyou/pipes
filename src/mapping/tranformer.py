@@ -44,7 +44,7 @@ def extract_money_court_excute_public(value):
     :return:
     """
     money_max = 0
-    if value is not  None and len(value) > 0:
+    if value is not None and len(value) > 0:
         value = re.sub(r'\,', "", value)
         money_array = re.findall(r"\d+\.?\d*", value)
         if money_array is not None and len(money_array) > 0:

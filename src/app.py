@@ -21,6 +21,9 @@ sys.path.append(file_dir)
 
 app = Flask(__name__)
 
+# 标识决策引擎交互完成。
+STRATEGE_DONE = 'fffff'
+
 
 def _get_process_code(product_code):
     """
@@ -89,7 +92,7 @@ def shake_hand():
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
         else:
-            raise ServerException(code=502, description="strategyOne错误")
+            raise ServerException(code=502, description="strategyOne错误:" + response.text)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
@@ -101,6 +104,17 @@ def _get_biz_types(json):
     else:
         biz_types = []
     return biz_types
+
+
+def append_report_detail(biz_types, json_data):
+    """
+    获取报告详情相关变量
+    :return:
+    """
+    if STRATEGE_DONE in biz_types:
+        json_data['report_detail'] = None
+    else:
+        json_data['report_detail'] = None
 
 
 @app.route("/strategy", methods=['POST'])
@@ -138,13 +152,15 @@ def strategy():
             strategy_resp = strategy_response.json()
             error = jsonpath(strategy_resp, '$..Error')
             if error is False:
-                strategy_param['bizType'] = _get_biz_types(strategy_resp)
+                biz_types = _get_biz_types(strategy_resp)
+                strategy_param['bizType'] = biz_types
+                append_report_detail(biz_types, json_data)
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
         else:
-            raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+            raise ServerException(code=502, description=strategy_response.text)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 

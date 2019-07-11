@@ -1,11 +1,11 @@
 import os
 from abc import ABCMeta, abstractmethod
 
-from pandas import DataFrame
-from mapping.mapper import translate
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pandas import DataFrame
 
+from mapping.mapper import translate
 
 
 def is_number(s):
@@ -23,6 +23,7 @@ def is_number(s):
         pass
 
     return False
+
 
 class Process(object):
     __metaclass__ = ABCMeta
@@ -43,12 +44,12 @@ class Process(object):
         self.read_path = read_path
         self.write_path = write_path
 
-    def read_excel_as_df(self,read_path):
+    def read_excel_as_df(self, read_path):
         path = read_path
-        df = pd.read_excel(path,dtype={'测试模块':np.str})
+        df = pd.read_excel(path, dtype={'测试模块': np.str})
         return df
 
-    def write_df_into_excel(self,write_path,df=None):
+    def write_df_into_excel(self, write_path, df=None):
         path = write_path
         if df is not None and len(df) > 0:
             df.to_excel(path)
@@ -88,8 +89,11 @@ class Process(object):
                     actual_reslut_array.append(case_value)
             if is_number(expect_result):
                 try:
-                    if float(case_value) == float(expect_result):
-                        is_pass_array.append("true")
+                    if case_value is not None:
+                        if float(case_value) == float(expect_result):
+                            is_pass_array.append("true")
+                        else:
+                            is_pass_array.append("false")
                     else:
                         is_pass_array.append("false")
                 except ValueError:
@@ -99,7 +103,7 @@ class Process(object):
                         is_pass_array.append("false")
             else:
                 compare_value = str(case_value)
-                if compare_value.find('00:00:00') >=0:
+                if compare_value.find('00:00:00') >= 0:
                     compare_value = compare_value[0:10]
                 if compare_value == str(expect_result):
                     is_pass_array.append("true")

@@ -19,7 +19,7 @@ class T11001(Transformer):
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
                 AND scorecard_type = 0
                 AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
-            ORDER BY expired_at DESC LIMIT 1;
+            ORDER BY id  DESC LIMIT 1;
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,

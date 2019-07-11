@@ -34,9 +34,9 @@ class T16002(Transformer):
             'court_ent_judge_amt_3y': 0,
             'court_ent_docu_status': 0,
             'court_ent_proc_status': 0,
-            'court_ent_fin_loan_con':0,
-            'court_ent_loan_con':0,
-            'court_ent_pop_loan':0
+            'court_ent_fin_loan_con': 0,
+            'court_ent_loan_con': 0,
+            'court_ent_pop_loan': 0
         }
 
     # 行政违法记录sql
@@ -45,7 +45,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.execution_result as
         execution_result,B.specific_date as specific_date,B.court_id as court_id
         FROM info_court_administrative_violation B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_administrative_violation,
@@ -68,7 +68,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.legal_status as
         legal_status,B.case_amount as case_amount,B.closed_time as closed_time,B.court_id as court_id,B.case_reason as case_reason
         FROM info_court_judicative_pape B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_judicative_pape,
@@ -108,7 +108,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.specific_date as
         specific_date,B.legal_status as legal_status,B.case_reason as case_reason
         FROM info_court_trial_process B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_trial_process,
@@ -145,7 +145,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.confirm_date as
         confirm_date,B.court_id as court_id
         FROM info_court_taxable_abnormal_user B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_taxable_abnormal_user,
@@ -163,7 +163,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.default_amount as
         default_amount,B.default_date as default_date,B.court_id as court_id
         FROM info_court_arrearage B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_arrearage,
@@ -180,8 +180,8 @@ class T16002(Transformer):
         info_court_tax_arrears = """
         SELECT A.create_time as create_time,B.taxes as
         taxes,B.taxes_time as taxes_time
-        FROM info_court_tax_arrears B,(SELECT create_time FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        FROM info_court_tax_arrears B,(SELECT id,create_time FROM info_court WHERE unique_name = %(user_name)s
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_tax_arrears,
@@ -202,7 +202,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.execute_content as
         execute_content,B.execute_date as execute_date,B.court_id as court_id
         FROM info_court_deadbeat B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_deadbeat,
@@ -220,7 +220,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.execute_content as
         execute_content,B.specific_date as specific_date,B.court_id as court_id
         FROM info_court_limited_entry_exit B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_limited_entry_exit,
@@ -238,7 +238,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.execute_content as
         execute_content,B.specific_date as specific_date,B.court_id as court_id
         FROM info_court_limit_hignspending B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_limit_hignspending,
@@ -256,7 +256,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.execute_content as
         execute_content,B.filing_time as filing_time,B.court_id as court_id
         FROM info_court_excute_public B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_excute_public,
@@ -279,7 +279,7 @@ class T16002(Transformer):
         SELECT A.create_time as create_time,B.trial_date as
         trial_date,B.court_id as court_id
         FROM info_court_criminal_suspect B,(SELECT create_time,id FROM info_court WHERE unique_name = %(user_name)s
-        AND expired_at > NOW() ORDER BY expired_at DESC LIMIT 1) A
+        AND expired_at > NOW() ORDER BY id  DESC LIMIT 1) A
         WHERE B.court_id = A.id
         """
         df = sql_to_df(sql=info_court_criminal_suspect,
@@ -297,6 +297,7 @@ class T16002(Transformer):
         self._ps_court_trial_process(df=self._court_trial_process_df())
         self._ps_court_taxable_abnormal_user(df=self._court_taxable_abnormal_user_df())
         self._ps_court_arrearage(df=self._court_arrearage_df())
+        self._ps_court_tax_arrears(df=self._court_tax_arrears_df())
         self._ps_court_deadbeat(df=self._court_deadbeat_df())
         self._ps_court_limited_entry_exit(df=self._court_limited_entry_exit_df())
         self._ps_court_limit_hignspending(df=self._court_limit_hignspending_df())

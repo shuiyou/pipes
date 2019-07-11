@@ -26,7 +26,7 @@ class T08001(Transformer):
             FROM info_risk_anti_fraud 
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
-            ORDER BY expired_at DESC LIMIT 1;
+            ORDER BY id  DESC LIMIT 1;
         """
         df = sql_to_df(sql=info_risk_anti_fraud,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})

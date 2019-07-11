@@ -46,7 +46,7 @@ class Tf0001(Transformer):
     def _per_bus_legal_df(self, status):
         info_per_bus_legal = """
        SELECT ent_name FROM info_per_bus_legal a,(SELECT id FROM info_per_bus_basic WHERE id_card_no = %(id_card_no)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY expired_at desc LIMIT 1) b
+        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id
         and a.ent_status in %(status)s;
         """
@@ -59,7 +59,7 @@ class Tf0001(Transformer):
     def _per_bus_shareholder_df(self, status, ratio=0.2):
         info_per_bus_shareholder = """
         SELECT ent_name FROM info_per_bus_shareholder a,(SELECT id FROM info_per_bus_basic WHERE id_card_no = %(id_card_no)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY expired_at desc LIMIT 1) b
+        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id
         and a.ent_status in %(status)s
         and a.sub_conam/a.reg_cap >= %(ratio)s;
@@ -330,9 +330,11 @@ class Tf0001(Transformer):
             dispute_df = pd.concat([judicative_df, trial_df])
             self._ps_dispute(df=dispute_df)
             # 裁判文书诉讼地位标识
-            self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
+            if judicative_df is not None and len(judicative_df) > 0:
+                self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
             # 审判流程诉讼地位标识
-            self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
+            if judicative_df is not None and len(judicative_df) > 0:
+                self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
             # 执行公开信息最大金额
             public_df = self._court_excute_public_df(df=concat_df)
             self._ps_court_excute_public(df=public_df)

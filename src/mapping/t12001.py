@@ -69,94 +69,108 @@ class T12001(Transformer):
 
     # 计算反欺诈_身份证比对信贷行业信用消费黑名单
     def _anti_idno_consume_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业信用消费黑名单')]
-        self.variables['anti_idno_consume_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对信贷行业信用消费黑名单')]
+            self.variables['anti_idno_consume_black'] = len(df)
 
     # 计算反欺诈_身份证比对信贷行业P2P黑名单
     def _anti_idno_P2P_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业P2P黑名单')]
-        self.variables['anti_idno_P2P_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对信贷行业P2P黑名单')]
+            self.variables['anti_idno_P2P_black'] = len(df)
 
     # 计算反欺诈_身份证比对信贷行业失联名单
     def _anti_idno_lost_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业失联名单')]
-        self.variables['anti_idno_lost_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对信贷行业失联名单')]
+            self.variables['anti_idno_lost_black'] = len(df)
 
     # 计算反欺诈_身份证比对信贷行业欺诈名单
     def _anti_idno_fraud_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业欺诈名单')]
-        self.variables['anti_idno_fraud_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对信贷行业欺诈名单')]
+            self.variables['anti_idno_fraud_black'] = len(df)
 
     # 计算反欺诈_身份证比对信贷行业信贷黑名单
     def _anti_idno_loan_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对信贷行业信贷黑名单')]
-        self.variables['anti_idno_loan_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对信贷行业信贷黑名单')]
+            self.variables['anti_idno_loan_black'] = len(df)
 
     # 计算反欺诈_手机号比对信贷行业黑名单
     def _anti_tel_industy_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('手机号比对信贷行业黑名单')]
-        self.variables['anti_tel_industy_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('手机号比对信贷行业黑名单')]
+            self.variables['anti_tel_industy_black'] = len(df)
 
     # 计算手机号比对信贷行业P2P黑名单
     def _anti_tel_P2P_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('手机号比对信贷行业P2P黑名单')]
-        self.variables['anti_tel_P2P_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('手机号比对信贷行业P2P黑名单')]
+            self.variables['anti_tel_P2P_black'] = len(df)
 
     # 计算反欺诈_手机号比对信贷行业失联黑名单
     def _anti_tel_lost_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('手机号比对信贷行业失联黑名单')]
-        self.variables['anti_tel_lost_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('手机号比对信贷行业失联黑名单')]
+            self.variables['anti_tel_lost_black'] = len(df)
 
     # 计算反欺诈_手机号比对信贷行业欺诈黑名单
     def _anti_tel_fraud_black(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('手机号比对信贷行业欺诈黑名单')]
-        self.variables['anti_tel_fraud_black'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('手机号比对信贷行业欺诈黑名单')]
+            self.variables['anti_tel_fraud_black'] = len(df)
 
     # 计算反欺诈_手机号比对通信小号名单
     def _anti_tel_small_no(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('手机号比对通信小号名单')]
-        self.variables['anti_tel_small_no'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('手机号比对通信小号名单')]
+            self.variables['anti_tel_small_no'] = len(df)
 
     # 计算反欺诈_身份证比对法院执行名单
     def _anti_idno_court_execu(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对法院执行名单')]
-        self.variables['anti_idno_court_execu'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对法院执行名单')]
+            self.variables['anti_idno_court_execu'] = len(df)
 
     # 计算反欺诈_身份证比对法院结案名单
     def _anti_idno_court_closure(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对法院结案名单')]
-        self.variables['anti_idno_court_closure'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对法院结案名单')]
+            self.variables['anti_idno_court_closure'] = len(df)
 
     # 计算反欺诈_身份证比对法院失信名单
     def _anti_idno_court_break_faith(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对法院失信名单')]
-        self.variables['anti_idno_court_break_faith'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对法院失信名单')]
+            self.variables['anti_idno_court_break_faith'] = len(df)
 
     # 计算反欺诈_身份证比对法人失信名单
     def _anti_idno_legal_break_faith(self, df=None):
-
-        df1 = df[df['rule_name'].str.contains('身份证比对法人失信名单')]
-        self.variables['anti_idno_legal_break_faith'] = len(df1)
+        df = df.dropna(subset=['rule_name'],how='any')
+        if df.empty is not True:
+            df = df[df['rule_name'].str.contains('身份证比对法人失信名单')]
+            self.variables['anti_idno_legal_break_faith'] = len(df)
 
     # 计算反欺诈_身份证一个月内多头申请过多_次数
     def _anti_idno_apply_1m(self, df=None):
-
-        df1 = df.loc[df['rule_name'] == '身份证一个月内多头申请过多', 'rule_memo'].copy()
-        if len(df1) != 0:
-            self.variables['anti_idno_apply_1m'] = int(df1.values[0].split(',')[0].split(':')[1])
+        
+        df = df.loc[df['rule_name'] == '身份证一个月内多头申请过多', 'rule_memo'].copy()
+        if len(df) != 0:
+            self.variables['anti_idno_apply_1m'] = int(df.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证三个月内多头申请过多_次数
     def _anti_idno_apply_3m(self, df=None):
