@@ -144,7 +144,7 @@ def strategy():
                 # 最后返回报表详情
                 if STRATEGE_DONE in biz_types:
                     detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
-                    json_data['report_detail'] = detail
+                    json_data['reportDetail'] = detail
 
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
