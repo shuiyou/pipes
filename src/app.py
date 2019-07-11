@@ -11,8 +11,9 @@ from werkzeug.exceptions import HTTPException
 from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
-from mapping.mapper import translate
+from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
+from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
 
@@ -20,9 +21,6 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 
 app = Flask(__name__)
-
-# 标识决策引擎交互完成。
-STRATEGE_DONE = 'fffff'
 
 
 def _get_process_code(product_code):
@@ -106,17 +104,6 @@ def _get_biz_types(json):
     return biz_types
 
 
-def append_report_detail(biz_types, json_data):
-    """
-    获取报告详情相关变量
-    :return:
-    """
-    if STRATEGE_DONE in biz_types:
-        json_data['report_detail'] = None
-    else:
-        json_data['report_detail'] = None
-
-
 @app.route("/strategy", methods=['POST'])
 def strategy():
     """
@@ -137,7 +124,7 @@ def strategy():
     codes = strategy_param.get('bizType')
     biz_types = codes.copy()
     biz_types.append('00000')
-    variables = translate(biz_types, user_name, id_card_no, phone, user_type)
+    variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
     for key, value in variables.items():
         if type(value) == numpy.int64:
             variables[key] = int(value)
@@ -154,7 +141,11 @@ def strategy():
             if error is False:
                 biz_types = _get_biz_types(strategy_resp)
                 strategy_param['bizType'] = biz_types
-                append_report_detail(biz_types, json_data)
+                # 最后返回报表详情
+                if STRATEGE_DONE in biz_types:
+                    detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
+                    json_data['report_detail'] = detail
+
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
             else:
