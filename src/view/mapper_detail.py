@@ -49,7 +49,7 @@ def get_transformer(code) -> Transformer:
     :return:
     """
     try:
-        model = importlib.import_module("view.v" + str(code))
+        model = importlib.import_module("view.t" + str(code))
         api_class = getattr(model, "T" + str(code))
         api_instance = api_class()
         return api_instance
