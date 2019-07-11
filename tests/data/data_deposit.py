@@ -93,6 +93,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(phone_key_word) > 0:
         info_main_table_sql += phone_key_word + '=' + '\'' + phone_key_value + '\'' + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
+    info_main_table_sql += ' order by id desc limit 1'
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
     if len(name_key_word) > 0:
