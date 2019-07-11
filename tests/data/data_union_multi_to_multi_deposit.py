@@ -92,6 +92,7 @@ def _insert_main_1_table_data(title,key,channel_api_no, expired_at='2030-12-20')
         info_main_table_sql += ' from ' + table_name + ' where '
         info_main_table_sql += str(key_value_array[0]) + '=' + str(key_value_array[1]) + ' and '
         info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
+        info_main_table_sql += ' order by id desc limit 1'
         print('query-sql'+info_main_table_sql)
         df = sql_to_df(sql=info_main_table_sql)
         key_word_sub_table_array.append(df[key_word_sub_table][0])
@@ -187,6 +188,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     if len(phone_key_word) > 0:
         info_main_table_sql += phone_key_word + '=' + '\'' + phone_key_value + '\'' + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
+    info_main_table_sql += ' order by id desc limit 1'
     df = sql_to_df(sql=info_main_table_sql)
     key = '{'
     if len(name_key_word) > 0:
@@ -328,10 +330,6 @@ class unit_multi_deposit(Process):
             title_list = no_empty_df.columns.values.tolist()
             # 遍历no_empty_df逐条插入数据
             key_value_main_1 = []
-            title = ''
-            key_main = ''
-            key_main_1 = ''
-            channel_api_no = ''
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
                 df_main_1_key_array = []
@@ -341,24 +339,22 @@ class unit_multi_deposit(Process):
                 for title in title_list:
                     if 'table_main' == title:
                         # 插入第一张主表的数据，返回多条数据的主表子表关联主键
-                        title = str(row[title])
-                        df_main = _insert_main_table_data(title, key_main, channel_api_no)
+                        df_main = _insert_main_table_data(str(row[title]), key_main, channel_api_no)
                         df_main_id = df_main['key_sub'][0]
                         key_value_main_1.append(df_main['key'][0])
                     if title.find('table_main_sub') >= 0:
                         # 插入第一张主表关联的子表数据
-                        title = str(row[title])
-                        if title is not None and title != 'nan' and len(title) > 0:
-                            _insert_main_table_sub_data(title, df_main_id)
+                        title_value = str(row[title])
+                        if title_value is not None and title_value != 'nan' and len(title_value) > 0:
+                            _insert_main_table_sub_data(title_value, df_main_id)
                     if 'table_main_1' == title:
                         # 插入第二张主表的数据，返回多条数据的主表子表关联主键
-                        title = str(row[title])
-                        df_main_1_key_array = _insert_main_1_table_data(title, key_main_1, channel_api_no)
+                        df_main_1_key_array = _insert_main_1_table_data(str(row[title]), key_main_1, channel_api_no)
                     if title.find('table_main_1_sub') >= 0:
                         # 插入第二张主表关联的子表数据
-                        title = str(row[title])
-                        if title is not None and title != 'nan' and len(title) > 0:
-                            _insert_main_1_table_sub_data(title, df_main_1_key_array)
+                        title_value = str(row[title])
+                        if title_value is not None and title_value != 'nan' and len(title_value) > 0:
+                            _insert_main_1_table_sub_data(title_value, df_main_1_key_array)
             no_empty_df['key_value_main'] = key_value_main_1
             return no_empty_df
 
