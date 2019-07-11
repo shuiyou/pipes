@@ -2,7 +2,6 @@ import json
 import os
 import sys
 
-import numpy
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -11,8 +10,9 @@ from werkzeug.exceptions import HTTPException
 from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
-from mapping.mapper import translate
+from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
+from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
 
@@ -89,7 +89,7 @@ def shake_hand():
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
         else:
-            raise ServerException(code=502, description="strategyOne错误")
+            raise ServerException(code=502, description="strategyOne错误:" + response.text)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
@@ -123,10 +123,7 @@ def strategy():
     codes = strategy_param.get('bizType')
     biz_types = codes.copy()
     biz_types.append('00000')
-    variables = translate(biz_types, user_name, id_card_no, phone, user_type)
-    for key, value in variables.items():
-        if type(value) == numpy.int64:
-            variables[key] = int(value)
+    variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
     variables['out_strategyBranch'] = ','.join(codes)
     strategy_request = _build_request(req_no, product_code, variables)
     logger.debug(strategy_request)
@@ -138,13 +135,20 @@ def strategy():
             strategy_resp = strategy_response.json()
             error = jsonpath(strategy_resp, '$..Error')
             if error is False:
-                strategy_param['bizType'] = _get_biz_types(strategy_resp)
+                biz_types = _get_biz_types(strategy_resp)
+                strategy_param['bizType'] = biz_types
+                # 最后返回报告详情
+                if STRATEGE_DONE in biz_types:
+                    # TODO: 可能需要对关联人做转换
+                    detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
+                    json_data['reportDetail'] = [detail]
+
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
         else:
-            raise ServerException(code=strategy_response.status_code, description=strategy_response.text)
+            raise ServerException(code=502, description=strategy_response.text)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
