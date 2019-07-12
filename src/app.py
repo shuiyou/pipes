@@ -131,6 +131,7 @@ def strategy():
         logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        logger.debug(strategy_response)
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
             error = jsonpath(strategy_resp, '$..Error')
