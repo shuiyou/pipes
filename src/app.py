@@ -60,21 +60,22 @@ def shake_hand():
     :return:
     """
     # 获取请求参数
-    json_data = request.get_json()
-    logger.debug(json.dumps(json_data))
-    req_no = json_data.get('reqNo')
-    product_code = json_data.get('productCode')
-    query_data = json_data.get('queryData')
-    user_name = query_data.get('name')
-    id_card_no = query_data.get('idno')
-    phone = query_data.get('phone')
-    user_type = query_data.get('userType')
-    variables = T00000().run(user_name, id_card_no, phone, user_type)
-    variables['out_strategyBranch'] = '00000'
-    strategy_request = _build_request(req_no, product_code, variables=variables)
-    logger.info(strategy_request)
-    # 调用决策引擎
     try:
+        json_data = request.get_json()
+        logger.debug(json.dumps(json_data))
+        req_no = json_data.get('reqNo')
+        product_code = json_data.get('productCode')
+        query_data = json_data.get('queryData')
+        user_name = query_data.get('name')
+        id_card_no = query_data.get('idno')
+        phone = query_data.get('phone')
+        user_type = query_data.get('userType')
+        variables = T00000().run(user_name, id_card_no, phone, user_type)
+        variables['out_strategyBranch'] = '00000'
+        strategy_request = _build_request(req_no, product_code, variables=variables)
+        logger.info(strategy_request)
+        # 调用决策引擎
+
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code == 200:
             resp_json = response.json()
@@ -110,27 +111,27 @@ def strategy():
     输入参数是一个json对象
     :return:
     """
-    # 获取请求参数
-    json_data = request.get_json()
-    strategy_param = json_data.get('strategyParam')
-    req_no = strategy_param.get('reqNo')
-    product_code = strategy_param.get('productCode')
-    query_data = strategy_param.get('queryData')
-    user_name = query_data.get('name')
-    id_card_no = query_data.get('idno')
-    phone = query_data.get('phone')
-    user_type = query_data.get('userType')
-    codes = strategy_param.get('bizType')
-    biz_types = codes.copy()
-    biz_types.append('00000')
-    variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
-    variables['out_strategyBranch'] = ','.join(codes)
-    strategy_request = _build_request(req_no, product_code, variables)
-    logger.debug(strategy_request)
-
     try:
+        # 获取请求参数
+        json_data = request.get_json()
+        strategy_param = json_data.get('strategyParam')
+        req_no = strategy_param.get('reqNo')
+        product_code = strategy_param.get('productCode')
+        query_data = strategy_param.get('queryData')
+        user_name = query_data.get('name')
+        id_card_no = query_data.get('idno')
+        phone = query_data.get('phone')
+        user_type = query_data.get('userType')
+        codes = strategy_param.get('bizType')
+        biz_types = codes.copy()
+        biz_types.append('00000')
+        variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
+        variables['out_strategyBranch'] = ','.join(codes)
+        strategy_request = _build_request(req_no, product_code, variables)
+        logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        logger.debug(strategy_response)
         if strategy_response.status_code == 200:
             strategy_resp = strategy_response.json()
             error = jsonpath(strategy_resp, '$..Error')

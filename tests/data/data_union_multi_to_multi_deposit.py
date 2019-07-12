@@ -215,16 +215,19 @@ def _insert_main_1_table_sub_data(title,df_main_id_array):
     relation_mian_table_key = ''
     # 字段种类
     field_count = 0
-    field_array = []
     insert_key_array = []
     if len(value_array) > 0:
         table_name = value_array[0].split('.')[0]
         relation_mian_table_key = value_array[0].split('.')[1]
-        for detail in value_array:
-            if detail.find('[0-0]') >= 0:
-                field_count = field_count + 1
-                field_array.append(detail.split('[0-0]')[0].split('.')[1])
-                insert_key_array.append(detail.split('[0-0]')[0].split('.')[1])
+        for i in range(5):
+            count = 0
+            for detail in value_array:
+                if detail.find('['+str(i)+'-0]') >= 0:
+                    field_count = field_count + 1
+                    insert_key_array.append(detail.split('['+str(i)+'-0]')[0].split('.')[1])
+                    count = 1
+            if count > 0:
+                break
         insert_key_array.append(relation_mian_table_key)
         for i in range(len(df_main_id_array)):
             insert_value_array = []
