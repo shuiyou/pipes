@@ -18,7 +18,7 @@ class T07001(Transformer):
 
     def _info_loan_stats_df(self):
         sql = """
-            SELECT id, channel_score, fail_rate, detail_data FROM info_loan_stats
+            SELECT id, channel_score, fail_rate FROM info_loan_stats
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone = %(phone)s
             ORDER BY id  DESC LIMIT 1;
