@@ -14,7 +14,7 @@ def test_admi_vio():
     c = [datetime(2019, 6, 21, 15, 18), datetime(2019, 6, 21, 15, 18), datetime(2019, 6, 21, 15, 18),
          datetime(2019, 6, 21, 15, 18)]
 
-    mock_df = pd.DataFrame({'execution_result': a, 'specific_date': b, 'query_date': c})
+    mock_df = pd.DataFrame({'execution_result': a, 'specific_date': b, 'create_time': c})
     ps._admi_vio(df=mock_df)
     assert ps.variables['court_admi_vio'] == 4
     assert ps.variables['court_admi_vio_amt_3y'] == 4004.82
@@ -31,7 +31,7 @@ def test_judge():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'create_time': c, 'legal_status': d})
     ps._judge(df=mock_df)
 
     assert ps.variables['court_judge'] == 4
@@ -50,7 +50,7 @@ def test_trial_proc():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'create_time': c, 'legal_status': d})
     ps._trial_proc(df=mock_df)
 
     assert ps.variables['court_trial_proc'] == 4
@@ -68,7 +68,7 @@ def test_tax_pay():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'case_amount': a, 'closed_time': b, 'create_time': c, 'legal_status': d})
     ps._tax_pay(df=mock_df)
 
     assert ps.variables['court_tax_pay'] == 4
@@ -85,7 +85,7 @@ def test_owed_owe():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._tax_arrears(df=mock_df)
 
     assert ps.variables['court_tax_arrears'] == 4
@@ -103,7 +103,7 @@ def test_tax_arrears():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._tax_arrears(df=mock_df)
 
     assert ps.variables['court_tax_arrears'] == 4
@@ -121,7 +121,7 @@ def test_dishonesty():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._dishonesty(df=mock_df)
 
     assert ps.variables['court_dishonesty'] == 4
@@ -138,7 +138,7 @@ def test_dishonesty():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._dishonesty(df=mock_df)
 
     assert ps.variables['court_dishonesty'] == 4
@@ -155,7 +155,7 @@ def test_limit_entry():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._limit_entry(df=mock_df)
 
     assert ps.variables['court_limit_entry'] == 4
@@ -172,7 +172,7 @@ def test_high_cons():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._high_cons(df=mock_df)
 
     assert ps.variables['court_high_cons'] == 4
@@ -189,7 +189,7 @@ def test_pub_info():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'execute_content': a, 'filing_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'execute_content': a, 'filing_time': b, 'create_time': c, 'legal_status': d})
     ps._pub_info(df=mock_df)
     assert ps.variables['court_pub_info'] == 4
     assert ps.variables['court_pub_info_amt_3y'] == 5700
@@ -206,7 +206,7 @@ def test_cri_sus():
     # d = [None, None, None, None]
     # d = ['张三原告', '李四', '王五', '陈六']
     # d = ['张三被告', '李四原告', '王五', '陈六']
-    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'query_date': c, 'legal_status': d})
+    mock_df = pd.DataFrame({'taxes': a, 'taxes_time': b, 'create_time': c, 'legal_status': d})
     ps._cri_sus(df=mock_df)
 
     assert ps.variables['court_cri_sus'] == 4

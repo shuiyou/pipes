@@ -73,7 +73,7 @@ class T16001(Transformer):
 
     def _info_admi_vio_df(self):
         info_admi_vio = """
-            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.specific_date,b.execution_result
+            SELECT a.unique_name, a.unique_id_no,a.create_time,b.court_id,b.specific_date,b.execution_result
             FROM info_court as a
             inner join info_court_administrative_violation as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -86,7 +86,7 @@ class T16001(Transformer):
 
     def _admi_vio(self, df=None):
         if df is not None and len(df) > 0:
-            self.year = subtract_datetime_col(df, 'query_date', 'specific_date', 'Y')
+            self.year = subtract_datetime_col(df, 'create_time', 'specific_date', 'Y')
             df['amt'] = df.apply(lambda x: get_money(x['execution_result']), axis=1)
             self.variables['court_admi_vio'] = df.shape[0]
             self.variables['court_admi_vio_amt_3y'] = df[df[self.year] < 3].fillna(0)['amt'].sum()
@@ -94,7 +94,7 @@ class T16001(Transformer):
 
     def _info_judge_df(self):
         info_judge = """
-            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.closed_time,b.case_amount,b.legal_status
+            SELECT a.unique_name, a.unique_id_no,a.create_time,b.court_id,b.closed_time,b.case_amount,b.legal_status
             FROM info_court as a
             inner join info_court_judicative_pape as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -107,7 +107,7 @@ class T16001(Transformer):
 
     def _judge(self, df=None):
         if df is not None and len(df) > 0:
-            self.year = subtract_datetime_col(df, 'query_date', 'closed_time', 'Y')
+            self.year = subtract_datetime_col(df, 'create_time', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3].fillna(0)['case_amount'].sum()
             self.variables['court_judge_max'] = df.fillna(0)['case_amount'].max()
@@ -189,7 +189,7 @@ class T16001(Transformer):
 
     def _info_tax_arrears_df(self):
         info_tax_arrears = """
-            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.taxes,b.taxes_time
+            SELECT a.unique_name, a.unique_id_no,a.create_time,b.court_id,b.taxes,b.taxes_time
             FROM info_court as a
             inner join info_court_tax_arrears as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -202,7 +202,7 @@ class T16001(Transformer):
 
     def _tax_arrears(self, df=None):
         if df is not None and len(df) > 0:
-            self.year = subtract_datetime_col(df, 'query_date', 'taxes_time', 'Y')
+            self.year = subtract_datetime_col(df, 'create_time', 'taxes_time', 'Y')
             self.variables['court_tax_arrears'] = df.shape[0]
             self.variables['court_tax_arrears_amt_3y'] = df[df[self.year] < 3].fillna(0)['taxes'].sum()
             self.variables['court_tax_arrears_max'] = df.fillna(0)['taxes'].max()
@@ -260,7 +260,7 @@ class T16001(Transformer):
 
     def _info_pub_info_df(self):
         info_pub_info = """
-            SELECT a.unique_name, a.unique_id_no,a.query_date,b.court_id,b.filing_time,b.execute_content
+            SELECT a.unique_name, a.unique_id_no,a.create_time,b.court_id,b.filing_time,b.execute_content
             FROM info_court as a
             inner join info_court_excute_public as b on a.id=b.court_id
             WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
@@ -273,7 +273,7 @@ class T16001(Transformer):
 
     def _pub_info(self, df=None):
         if df is not None and len(df) > 0:
-            self.year = subtract_datetime_col(df, 'query_date', 'filing_time', 'Y')
+            self.year = subtract_datetime_col(df, 'create_time', 'filing_time', 'Y')
             df['amt'] = df.apply(
                 lambda x: max(get_spec_money1(x['execute_content']), get_spec_money2(x['execute_content'])), axis=1)
             self.variables['court_pub_info'] = df.shape[0]
