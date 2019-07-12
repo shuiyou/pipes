@@ -450,7 +450,5 @@ class V12001(Transformer):
         self._anti_apply_other_1m()
         self._anti_apply_other_3m()
 
-ps = V12001()
-ps.run(user_name='莘彬',id_card_no='350700196811219950',phone='15946515656')
-print(ps.variables)
+
 
