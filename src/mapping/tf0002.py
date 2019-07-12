@@ -79,6 +79,10 @@ class Tf0002(Transformer):
                                "status": status,
                                "ratio": ratio})
         return df
+    def _info_com_bus_basic(self,df=None):
+        info_com_bus_basic = """
+            
+        """
 
     def transform(self):
         ent_on_status = ['在营（开业）', '存续（在营、开业、在册）']
@@ -86,5 +90,7 @@ class Tf0002(Transformer):
         bus_legal_df = self._info_per_bus_legal_df(status=ent_on_status)
         df = pd.concat([shareholder_df, bus_legal_df])
         if df is not None and df['credit_code'].shape[0] > 0:
+            # 查出企业照面主表的ids
+            court_merge_df = self._info_com_bus_basic(df=df)
             self.variables['per_face_relent_indusCount1'] = _face_relent_indus_count_1(df)
             self.variables['per_face_relent_indusCode1'] = _face_relent_indus_code1(df)
