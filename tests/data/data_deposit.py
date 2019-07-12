@@ -3,6 +3,7 @@ from faker import Faker
 from data.process_excel_case import Process
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
+import datetime
 
 
 # 处理主表数据

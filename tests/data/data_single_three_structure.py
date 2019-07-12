@@ -3,6 +3,7 @@ from faker import Faker
 from data.process_excel_case import Process
 from mapping.mysql_reader import sql_insert
 from mapping.mysql_reader import sql_to_df
+import datetime
 
 
 # 处理第一张主表数据
@@ -67,8 +68,8 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
                     insert_value_array.append('Null')
     insert_key_array.append('expired_at')
     insert_key_array.append('channel_api_no')
-    insert_value_array.append('\'' + expired_at + '\'')
-    insert_value_array.append('\'' + channel_api_no.split('.')[0] + '\'')
+    insert_value_array.append('\''+expired_at+'\'')
+    insert_value_array.append('\''+channel_api_no.split('.')[0]+'\'')
     # 拼接sql
     main_table_sql = """
                 insert into 
