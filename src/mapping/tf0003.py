@@ -3,7 +3,6 @@ import pandas as pd
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
-
 def dongjie(var):
     if ('冻结' in var) and ('解冻' not in var) and ('解除' not in var) and ('失效' not in var):
         result = True
