@@ -2,7 +2,7 @@ import os
 
 DEBUG = True
 
-app_env = os.getenv("ENV", 'test').lower()
+app_env = os.getenv("ENV", 'dev').lower()
 
 # 配置使用的决策引擎
 STRATEGY_URL = os.getenv('STRATEGY_URL',
