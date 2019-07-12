@@ -2,7 +2,7 @@
 
 node {
 
-    imageVersion = 'registry.cn-shanghai.aliyuncs.com/transformer/pipes:1.0.0-' + env.JOB_BASE_NAME
+    imageVersion = 'registry.cn-shanghai.aliyuncs.com/transformer/pipes:1.0.0-' + env.JOB_BASE_NAME + '-' + env.BUILD_NUMBER
     stage('checkout') {
          def scmVars = checkout scm
          env.GIT_COMMIT = scmVars.GIT_COMMIT

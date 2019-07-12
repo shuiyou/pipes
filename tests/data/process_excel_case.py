@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from mapping.mapper import translate
+from mapping.mapper import translate_for_strategy
 
 
 def is_number(s):
@@ -82,7 +82,7 @@ class Process(object):
                     id_card_no = value
                 if key in ['phone']:
                     phone = value
-            res = translate(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+            res = translate_for_strategy(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
             for key in res:
                 if field == key:
                     case_value = res[key]
