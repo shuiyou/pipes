@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import uuid
 
+import json
 import pytest
 
 from app import app
@@ -30,7 +31,7 @@ def test_shake_hand(client):
     })
     assert rv.status_code == 200
     v = rv.get_json()
-    print(v)
+    print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
 
 
