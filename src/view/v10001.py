@@ -21,7 +21,7 @@ class V10001(Transformer):
             ON b.risk_overdue_id = a.risk_overdue_id
             WHERE a.risk_overdue_id = (
                 SELECT risk_overdue_id FROM info_risk_overdue
-                WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                WHERE unix_timestamp(NOW())  < unix_timestamp(expired_at)
                     AND user_name = %(user_name)s 
                     AND id_card_no = %(id_card_no)s
                 ORDER BY id DESC 
