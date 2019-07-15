@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import importlib
 
-# from app import logger
-import numpy
-
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer, numpy_to_int
+
+# from app import logger
 
 logger = LoggerUtil().logger(__name__)
 

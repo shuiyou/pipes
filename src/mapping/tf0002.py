@@ -78,7 +78,7 @@ class Tf0002(Transformer):
                                "ratio": ratio})
         return df
 
-    def _info_com_bus_basic(self,df=None):
+    def _info_com_bus_basic(self, df=None):
         info_com_bus_basic = """
             SELECT id,ent_name FROM info_com_bus_basic WHERE 
             unix_timestamp(NOW()) < unix_timestamp(expired_at) 
@@ -87,11 +87,10 @@ class Tf0002(Transformer):
         com_bus_basic_df = sql_to_df(sql=info_com_bus_basic,
                                      params={"ent_names": df['ent_name'].unique().tolist()})
         if com_bus_basic_df is not None and len(com_bus_basic_df) > 0:
-            com_bus_basic_groupby_df = com_bus_basic_df[['id','ent_name']].groupby(by='ent_name',as_index=False).max()
-            com_bus_basic_merge_df = pd.merge(com_bus_basic_groupby_df,com_bus_basic_df,on=['id','ent_name'],how='left')
+            com_bus_basic_groupby_df = com_bus_basic_df[['id', 'ent_name']].groupby(by='ent_name', as_index=False).max()
+            com_bus_basic_merge_df = pd.merge(com_bus_basic_groupby_df, com_bus_basic_df, on=['id', 'ent_name'],
+                                              how='left')
             return com_bus_basic_merge_df
-
-
 
     def transform(self):
         ent_on_status = ['在营（开业）', '存续（在营、开业、在册）']
@@ -101,6 +100,6 @@ class Tf0002(Transformer):
         if df is not None and df['ent_name'].shape[0] > 0:
             # 查出企业照面主表的ids
             court_merge_df = self._info_com_bus_basic(df=df)
-            if court_merge_df is not None and len(court_merge_df)>0:
+            if court_merge_df is not None and len(court_merge_df) > 0:
                 self.variables['per_face_relent_indusCount1'] = _face_relent_indus_count_1(court_merge_df)
                 self.variables['per_face_relent_indusCode1'] = _face_relent_indus_code1(court_merge_df)
