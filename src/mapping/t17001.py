@@ -261,9 +261,8 @@ class T17001(Transformer):
     # 执行变量转换
     def transform(self):
         fraud_verification_df = self._info_fraud_verification_item()
-        if fraud_verification_df is not None and len(fraud_verification_df)>0:
-            self._per_base_info(fraud_verification_df)
-            self._risk_info(fraud_verification_df)
-            self._cus_behav(fraud_verification_df)
-            self._mulplat_loan_app(fraud_verification_df)
-            self._net_final_score(self._info_fraud_verification())
+        self._per_base_info(fraud_verification_df)
+        self._risk_info(fraud_verification_df)
+        self._cus_behav(fraud_verification_df)
+        self._mulplat_loan_app(fraud_verification_df)
+        self._net_final_score(self._info_fraud_verification())
