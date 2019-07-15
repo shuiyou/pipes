@@ -22,4 +22,11 @@ node {
     stage('push image') {
         sh "docker push " + imageVersion
     }
+
+    stage('trigger deploy') {
+         build job: 'mf014-pipes-test-deploy',
+                            parameters: [
+                                string(name: 'DOCKER_TAG_NUMBER', value: "${BUILD_ID}")
+                            ]
+    }
 }
