@@ -95,6 +95,7 @@ def test_dropna():
     a = [None, 'AA', 'BB']
     b = [11, 22, 33]
     df = pd.DataFrame({'execution_result': a, 'specific_date': b})
-    print(df)
-    df1 = df.dropna(subset=['execution_result'], how='any')
-    print(df1)
+    print(len(df.query('execution_result == "CC"')))
+    # print(df)
+    # df1 = df.dropna(subset=['execution_result'], how='any')
+    # print(df1)
