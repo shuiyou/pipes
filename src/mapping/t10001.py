@@ -17,11 +17,12 @@ class T10001(Transformer):
 
     def _info_risk_overdue_df(self):
         info_certification = """
-            SELECT b.risk_score, b.data_build_time, a.create_time FROM info_risk_overdue a
-            left join info_risk_overdue_record b on a.risk_overdue_id = b.risk_overdue_id
-            WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
+            SELECT b.risk_score, b.data_build_time, a.create_time FROM info_risk_overdue_record b,
+            (SELECT risk_overdue_id,create_time FROM info_risk_overdue WHERE user_name = %(user_name)s 
+            AND id_card_no = %(id_card_no)s
+            AND unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) a
+            WHERE b.risk_overdue_id = a.risk_overdue_id
             AND b.risk_score is not NULL
-            AND a.user_name = %(user_name)s AND a.id_card_no = %(id_card_no)s
             ORDER BY b.risk_score desc
             ;
         """
@@ -60,7 +61,16 @@ class T10001(Transformer):
         :return:
         """
         if df is not None and len(df) > 0:
-            self.variables['ovdu_sco_time'] = df[self.diff_year][0]
+            # self.variables['ovdu_sco_time'] = df[self.diff_year][0]
+            year = df[self.diff_year][0]
+            if year < 1:
+                self.variables['ovdu_sco_time'] = 1
+            elif 1 <= year < 2:
+                self.variables['ovdu_sco_time'] = 2
+            elif 2 <= year < 3:
+                self.variables['ovdu_sco_time'] = 3
+            elif year >= 3:
+                self.variables['ovdu_sco_time'] = 4
 
     def transform(self):
         df = self._info_risk_overdue_df()

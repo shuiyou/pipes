@@ -70,17 +70,17 @@ class Tf0001(Transformer):
                                "ratio": ratio})
         return df
 
-    def _court_info_df(self,df=None):
+    def _court_info_df(self, df=None):
         info_court = """
         SELECT id,unique_name FROM info_court WHERE unique_name in %(unique_names)s
         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
         """
         court_df = sql_to_df(sql=info_court,
-                                 params={"unique_names": df['ent_name'].unique().tolist()})
-        print(info_court)
-        court_group_df = court_df[['id','unique_name']].groupby(by='unique_name',as_index=False).max()
-        court_merge_df = pd.merge(court_group_df,court_df,on=['id','unique_name'],how='left')
-        return court_merge_df
+                             params={"unique_names": df['ent_name'].unique().tolist()})
+        if court_df is not None and len(court_df) > 0:
+            court_group_df = court_df[['id', 'unique_name']].groupby(by='unique_name', as_index=False).max()
+            court_merge_df = pd.merge(court_group_df, court_df, on=['id', 'unique_name'], how='left')
+            return court_merge_df
 
     # 行政违法记录
     def _court_administrative_violation_df(self, df=None):
@@ -251,7 +251,7 @@ class Tf0001(Transformer):
     # 各种类型的纠纷案件
     def _ps_dispute(self, df=None):
         if df is not None and len(df) > 0:
-            df = df.dropna(subset=['legal_status'],how='any')
+            df = df.dropna(subset=['legal_status'], how='any')
             if df is not None and len(df) > 0:
                 df['legal_status_contain'] = df.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
                 if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
@@ -302,47 +302,48 @@ class Tf0001(Transformer):
         shareholder_df = self._per_bus_shareholder_df(status=ent_on_status)
         concat_df = pd.concat([shareholder_df, legal_df])
         if concat_df is not None and concat_df['ent_name'].shape[0] > 0:
-            #查出法院核查主表的ids
+            # 查出法院核查主表的ids
             court_merge_df = self._court_info_df(df=concat_df)
-            # 行政违法记录
-            violation_df = self._court_administrative_violation_df(df=court_merge_df)
-            self._ps_court_administrative_violation(df=violation_df)
-            # 民商事裁判文书
-            judicative_df = self._court_judicative_pape_df(df=court_merge_df)
-            self._ps_court_judicative_pape(df=judicative_df)
-            # 民商事审判流程
-            trial_df = self._court_trial_process_df(df=court_merge_df)
-            self._ps_court_trial_process(df=trial_df)
-            # 纳税非正常户
-            taxable_df = self._court_taxable_abnormal_user_df(df=court_merge_df)
-            self._ps_court_taxable_abnormal_user(df=taxable_df)
-            # 欠款欠费名单
-            arrearage_df = self._court_arrearage_df(df=court_merge_df)
-            self._ps_court_arrearage(df=arrearage_df)
-            # 欠税名单
-            tax_df = self._court_tax_arrears_df(df=court_merge_df)
-            self._ps_court_tax_arrears(df=tax_df)
-            # 失信老赖名单
-            deadbeat_df = self._court_deadbeat_df(df=court_merge_df)
-            self._ps_court_deadbeat(df=deadbeat_df)
-            # 限制出入境名单
-            exit_df = self._court_limited_entry_exit_df(df=court_merge_df)
-            self._ps_court_limited_entry_exit(df=exit_df)
-            # 限制高消费名单
-            hignspending_df = self._court_limit_hignspending_df(df=court_merge_df)
-            self._ps_court_limit_hignspending(df=hignspending_df)
-            # 罪犯及嫌疑人名单
-            suspect_df = self._court_criminal_suspect_df(df=court_merge_df)
-            self._ps_court_criminal_suspect(df=suspect_df)
-            # 是否存在各种类型的纠纷案件
-            dispute_df = pd.concat([judicative_df, trial_df])
-            self._ps_dispute(df=dispute_df)
-            # 裁判文书诉讼地位标识
-            if judicative_df is not None and len(judicative_df) > 0:
-                self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
-            # 审判流程诉讼地位标识
-            if trial_df is not None and len(trial_df) > 0:
-                self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
-            # 执行公开信息最大金额
-            public_df = self._court_excute_public_df(df=court_merge_df)
-            self._ps_court_excute_public(df=public_df)
+            if court_merge_df is not None and len(court_merge_df) > 0:
+                # 行政违法记录
+                violation_df = self._court_administrative_violation_df(df=court_merge_df)
+                self._ps_court_administrative_violation(df=violation_df)
+                # 民商事裁判文书
+                judicative_df = self._court_judicative_pape_df(df=court_merge_df)
+                self._ps_court_judicative_pape(df=judicative_df)
+                # 民商事审判流程
+                trial_df = self._court_trial_process_df(df=court_merge_df)
+                self._ps_court_trial_process(df=trial_df)
+                # 纳税非正常户
+                taxable_df = self._court_taxable_abnormal_user_df(df=court_merge_df)
+                self._ps_court_taxable_abnormal_user(df=taxable_df)
+                # 欠款欠费名单
+                arrearage_df = self._court_arrearage_df(df=court_merge_df)
+                self._ps_court_arrearage(df=arrearage_df)
+                # 欠税名单
+                tax_df = self._court_tax_arrears_df(df=court_merge_df)
+                self._ps_court_tax_arrears(df=tax_df)
+                # 失信老赖名单
+                deadbeat_df = self._court_deadbeat_df(df=court_merge_df)
+                self._ps_court_deadbeat(df=deadbeat_df)
+                # 限制出入境名单
+                exit_df = self._court_limited_entry_exit_df(df=court_merge_df)
+                self._ps_court_limited_entry_exit(df=exit_df)
+                # 限制高消费名单
+                hignspending_df = self._court_limit_hignspending_df(df=court_merge_df)
+                self._ps_court_limit_hignspending(df=hignspending_df)
+                # 罪犯及嫌疑人名单
+                suspect_df = self._court_criminal_suspect_df(df=court_merge_df)
+                self._ps_court_criminal_suspect(df=suspect_df)
+                # 是否存在各种类型的纠纷案件
+                dispute_df = pd.concat([judicative_df, trial_df])
+                self._ps_dispute(df=dispute_df)
+                # 裁判文书诉讼地位标识
+                if judicative_df is not None and len(judicative_df) > 0:
+                    self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
+                # 审判流程诉讼地位标识
+                if trial_df is not None and len(trial_df) > 0:
+                    self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
+                # 执行公开信息最大金额
+                public_df = self._court_excute_public_df(df=court_merge_df)
+                self._ps_court_excute_public(df=public_df)

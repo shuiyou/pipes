@@ -68,7 +68,7 @@ class Process(object):
                 code = '0' + code
             code_array.append(code)
             field = row['用例标题']
-            expect_result = str(row['预期测试结果']).split('=')[1]
+            expect_result = row['预期测试结果'].split('=')[1]
             params = eval(row['key_value_main'])
             user_name = ''
             id_card_no = ''

@@ -1,5 +1,4 @@
 import json
-
 import numpy
 
 from mapping.t11001 import T11001
