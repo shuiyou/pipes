@@ -10,9 +10,9 @@ STRATEGY_URL = os.getenv('STRATEGY_URL',
 
 # 通过环境变量配置不同部署环境的是数据库
 GEARS_DB = {
-    'user': os.getenv('GEARS_USER', 'gears_dev'),
-    'pw': os.getenv('GEARS_PW', 'x2cqpau4'),
+    'user': os.getenv('GEARS_USER', 'gears_test'),
+    'pw': os.getenv('GEARS_PW', 'bd3by68u'),
     'host': os.getenv('GEARS_HOST', '192.168.1.9'),
     'port': os.getenv('GEARS_PORT', 3360),
-    'db': os.getenv('DB_NAME', 'gears_dev'),
+    'db': os.getenv('DB_NAME', 'gears_test'),
 }
