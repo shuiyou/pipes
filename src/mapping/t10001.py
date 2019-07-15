@@ -65,11 +65,11 @@ class T10001(Transformer):
             year = df[self.diff_year][0]
             if year < float(1):
                 self.variables['ovdu_sco_time'] = 1
-            elif year >=1 and year <2:
+            elif year >= 1 and year < 2:
                 self.variables['ovdu_sco_time'] = 2
-            elif year >=2 and year <3:
+            elif year >= 2 and year < 3:
                 self.variables['ovdu_sco_time'] = 3
-            elif year >=3:
+            elif year >= 3:
                 self.variables['ovdu_sco_time'] = 4
 
     def transform(self):

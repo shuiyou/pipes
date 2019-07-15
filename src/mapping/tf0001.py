@@ -70,16 +70,16 @@ class Tf0001(Transformer):
                                "ratio": ratio})
         return df
 
-    def _court_info_df(self,df=None):
+    def _court_info_df(self, df=None):
         info_court = """
         SELECT id,unique_name FROM info_court WHERE unique_name in %(unique_names)s
         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
         """
         court_df = sql_to_df(sql=info_court,
-                                 params={"unique_names": df['ent_name'].unique().tolist()})
-        if court_df is not None and len(court_df)>0:
-            court_group_df = court_df[['id','unique_name']].groupby(by='unique_name',as_index=False).max()
-            court_merge_df = pd.merge(court_group_df,court_df,on=['id','unique_name'],how='left')
+                             params={"unique_names": df['ent_name'].unique().tolist()})
+        if court_df is not None and len(court_df) > 0:
+            court_group_df = court_df[['id', 'unique_name']].groupby(by='unique_name', as_index=False).max()
+            court_merge_df = pd.merge(court_group_df, court_df, on=['id', 'unique_name'], how='left')
             return court_merge_df
 
     # 行政违法记录
@@ -251,7 +251,7 @@ class Tf0001(Transformer):
     # 各种类型的纠纷案件
     def _ps_dispute(self, df=None):
         if df is not None and len(df) > 0:
-            df = df.dropna(subset=['legal_status'],how='any')
+            df = df.dropna(subset=['legal_status'], how='any')
             if df is not None and len(df) > 0:
                 df['legal_status_contain'] = df.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
                 if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
@@ -302,9 +302,9 @@ class Tf0001(Transformer):
         shareholder_df = self._per_bus_shareholder_df(status=ent_on_status)
         concat_df = pd.concat([shareholder_df, legal_df])
         if concat_df is not None and concat_df['ent_name'].shape[0] > 0:
-            #查出法院核查主表的ids
+            # 查出法院核查主表的ids
             court_merge_df = self._court_info_df(df=concat_df)
-            if court_merge_df is not None and len(court_merge_df)>0:
+            if court_merge_df is not None and len(court_merge_df) > 0:
                 # 行政违法记录
                 violation_df = self._court_administrative_violation_df(df=court_merge_df)
                 self._ps_court_administrative_violation(df=violation_df)
