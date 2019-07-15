@@ -1,4 +1,4 @@
-from mapping.t17001 import T17001
+from src.mapping.t17001 import T17001
 
 
 def test_t17001():

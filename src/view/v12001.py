@@ -1,7 +1,7 @@
 import pandas as pd
 import re
-from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
+from src.mapping.mysql_reader import sql_to_df
+from src.mapping.tranformer import Transformer
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
