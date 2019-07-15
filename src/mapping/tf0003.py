@@ -94,8 +94,8 @@ class Tf0003(Transformer):
             SELECT c.ent_name,d.basic_id
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_case as d
-            on c.id=d.basic_id
-            WHERE c.ent_name = %(ent_name)s
+            on c.id=d.basic_id 
+            WHERE c.ent_name = %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -112,7 +112,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_frost as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -134,7 +134,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_impawn as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -156,7 +156,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -178,7 +178,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_liquidation as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -195,7 +195,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -223,7 +223,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_illegal as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -243,7 +243,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_alter as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -267,7 +267,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_entinvitem as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         info_per_bus_shareholder_frinv = """
@@ -275,7 +275,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_frinv as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder_entinvitem,
@@ -301,7 +301,7 @@ class Tf0003(Transformer):
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
-            WHERE c.ent_name =  %(ent_name)s
+            WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
             ORDER BY d.id DESC LIMIT 1
            ;
         """
