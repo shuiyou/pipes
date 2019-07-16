@@ -250,7 +250,7 @@ class single_three_deposit(Process):
         return super().write_df_into_excel(path, df=df)
 
     def run_processor(self, path):
-        return super().run_processor(path=path)
+        return super().run_processor(path=path,method=self.method)
 
     def insert_data(self, df=None):
         if df is not None and len(df) > 0:
