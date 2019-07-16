@@ -61,16 +61,17 @@ class V10001(Transformer):
             df['risk_score'] = df['risk_score'].replace(to_replace='45', value='10W以上')
 
             for i in range(len(df)):
-                if df.iloc[i, 4] < 1 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                if df.iloc[i, 4] < 1 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近1个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 3 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 3 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近3个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 6 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 6 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近6个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 12 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 12 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['ovdu_overdue_time_amt'] = new_list
+
 
     def transform(self):
         self._ovdu_overdue_time_amt(self._info_risk_overdue_df())
