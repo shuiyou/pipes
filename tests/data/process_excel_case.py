@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from mapping.mapper import translate_for_strategy
+from data.test_mapper import translate_for_strategy
 from data.test_mapper_detail import translate_for_report_detail
 
 
