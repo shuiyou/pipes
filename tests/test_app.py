@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import json
 import uuid
 
-import json
 import pytest
 from jsonpath import jsonpath
 
 from app import app
 from logger.logger_util import LoggerUtil
 from mapping import mysql_reader
+from view.mapper_detail import round_max
 
 logger = LoggerUtil().logger(__name__)
 
@@ -277,10 +278,16 @@ def test_json_path():
                 }
             }
 
-        }
+    }
     branch_code = jsonpath(json_obj, '$.strategyResult.StrategyOneResponse.Body.Application.Categories..Variables')
     for c in branch_code:
         print(c['out_decisionBranchCode'])
         c['queryData'] = [{'name': 'abchello', 'idno': '421003198904091087'}]
     # print(json.dumps(json_obj))
 
+
+def test_round_max():
+    max_arr = [1, 2, 3]
+    median_arr = [1, 2, 3]
+    v = round_max(max_arr, median_arr, 0.3)
+    assert v == 4.0
