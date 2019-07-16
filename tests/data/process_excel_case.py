@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from mapping.mapper import translate_for_strategy
+from data.test_mapper import translate_for_strategy
+from data.test_mapper_detail import translate_for_report_detail
 
 
 def is_number(s):
@@ -33,16 +34,17 @@ class Process(object):
         self.read_path = None
         self.write_path = None
 
-    def run(self, read_file_name=None):
+    def run(self, read_file_name=None,method=None):
         write_file_name = read_file_name.split('.')[0] + '_result' + '.' + read_file_name.split('.')[1]
         read_path = os.path.join(os.path.abspath('.'), 'input', read_file_name)
         write_path = os.path.join(os.path.abspath('.'), 'output', write_file_name)
-        self.input(read_path, write_path)
+        self.input(read_path, write_path,method)
         return self.do_process_case()
 
-    def input(self, read_path, write_path):
+    def input(self, read_path, write_path,method):
         self.read_path = read_path
         self.write_path = write_path
+        self.method = method
 
     def read_excel_as_df(self, read_path):
         path = read_path
@@ -55,7 +57,7 @@ class Process(object):
             df.to_excel(path)
         return path
 
-    def run_processor(self, path):
+    def run_processor(self, path,method):
         df = pd.read_excel(path)
         # 跑代码的实际结果
         actual_reslut_array = []
@@ -82,7 +84,10 @@ class Process(object):
                     id_card_no = value
                 if key in ['phone']:
                     phone = value
-            res = translate_for_strategy(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+            if 't' in method:
+                res = translate_for_strategy(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+            elif 'v' in method:
+                res = translate_for_report_detail(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
             for key in res:
                 if field == key:
                     case_value = res[key]

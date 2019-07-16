@@ -24,7 +24,7 @@ class V10001(Transformer):
             ON b.risk_overdue_id = a.risk_overdue_id
             WHERE a.risk_overdue_id = (
                 SELECT risk_overdue_id FROM info_risk_overdue
-                WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                WHERE unix_timestamp(NOW())  < unix_timestamp(expired_at)
                     AND user_name = %(user_name)s 
                     AND id_card_no = %(id_card_no)s
                 ORDER BY id DESC 
@@ -61,24 +61,18 @@ class V10001(Transformer):
             df['risk_score'] = df['risk_score'].replace(to_replace='45', value='10W以上')
 
             for i in range(len(df)):
-                if df.iloc[i, 4] < 1 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                if df.iloc[i, 4] < 1 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近1个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 3 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 3 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近3个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 6 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 6 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近6个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i, 4] < 12 and df.iloc[i, 0] not in [10, 20, 30, 40]:
+                elif df.iloc[i, 4] < 12 and df.iloc[i, 0] not in ['10', '20', '30', '40']:
                     new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['ovdu_overdue_time_amt'] = new_list
 
+
     def transform(self):
         self._ovdu_overdue_time_amt(self._info_risk_overdue_df())
 
-ps1 = V10001()
-ps1.run(user_name='叔杨',id_card_no='340121196008298933')
-print(ps1.variables)
-
-ps2 = V10001()
-ps2.run(user_name='售点',id_card_no='340121196008298945')
-print(ps2.variables)

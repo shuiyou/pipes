@@ -12,9 +12,10 @@ class T18001(Transformer):
         self.variables = {
             'per_bus_leg_entrevoke_cnt': 0,
             'per_bus_shh_entrevoke_cnt': 0,
-            'per_bus_leg_ent_cnt': 0,
-            'per_bus_shh_ent_cnt': 0
+            'per_bus_leg_ent_cnt': '',
+            'per_bus_shh_ent_cnt': ''
         }
+        self.out_decision_code = {}
 
     def _info_per_bus_legal_df(self, status):
         if status is not None and len(status) > 0:
@@ -23,7 +24,7 @@ class T18001(Transformer):
                 (SELECT id FROM info_per_bus_basic as inner_b 
                     WHERE inner_b.name = %(user_name)s 
                     AND inner_b.id_card_no = %(id_card_no)s 
-                    AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at)) AS b
+                    AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at) order by id desc limit 1) AS b
                 WHERE a.basic_id = b.id and a.ent_status in %(status)s;
             """
             df = sql_to_df(sql=sql,
@@ -40,6 +41,11 @@ class T18001(Transformer):
         """
         if df is not None and len(df) > 0:
             self.variables['per_bus_leg_entrevoke_cnt'] = df['cnt'][0]
+            if self.variables['per_bus_leg_entrevoke_cnt'] > 0:
+                self.out_decision_code['WT001'] = [{
+                                                        'name': self.user_name,
+                                                        'idno': self.id_card_no
+                                                    }]
 
     def _info_per_bus_shareholder_df(self, status, ratio=0.2):
         sql = """
@@ -47,9 +53,9 @@ class T18001(Transformer):
             (SELECT id FROM info_per_bus_basic as inner_b 
                 WHERE inner_b.name = %(user_name)s 
                 AND inner_b.id_card_no = %(id_card_no)s 
-                AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at)) AS b 
+                AND unix_timestamp(NOW()) < unix_timestamp(inner_b.expired_at) order by id desc limit 1) AS b 
             WHERE a.basic_id = b.id 
-                  AND a.funded_ratio >=%(ratio)s
+                  AND a.sub_conam/a.reg_cap >=%(ratio)s
                   AND a.ent_status in %(status)s
         """
         df = sql_to_df(sql=sql,
@@ -64,14 +70,26 @@ class T18001(Transformer):
         联企核查_股东吊销企业个数
         """
         if df is not None and len(df) > 0:
-            self.variables['per_bus_shh_entrevoke_cnt'] = df['cnt'][0]
+            if df['cnt'][0] > 0:
+                self.variables['per_bus_shh_entrevoke_cnt'] = df['cnt'][0]
+                if self.variables['per_bus_leg_entrevoke_cnt'] > 0:
+                    self.out_decision_code['WT002'] = [{
+                        'name': self.user_name,
+                        'idno': self.id_card_no
+                    }]
 
     def _per_bus_leg_ent_cnt(self, df=None):
         """
         联企核查_法人在营企业个数
         """
         if df is not None and len(df) > 0:
-            self.variables['per_bus_leg_ent_cnt'] = df['cnt'][0]
+            if df['cnt'][0] > 0:
+                self.variables['per_bus_leg_ent_cnt'] = df['cnt'][0]
+                if self.variables['per_bus_leg_ent_cnt'] != '' and self.variables['per_bus_leg_ent_cnt'] > 0:
+                    self.out_decision_code['WT003'] = [{
+                        'name': self.user_name,
+                        'idno': self.id_card_no
+                    }]
 
     def _per_bus_shh_ent_cnt(self, df=None):
         """
@@ -79,6 +97,11 @@ class T18001(Transformer):
         """
         if df is not None and len(df) > 0:
             self.variables['per_bus_shh_ent_cnt'] = df['cnt'][0]
+            if self.variables['per_bus_shh_ent_cnt'] != '' and self.variables['per_bus_shh_ent_cnt'] > 0:
+                self.out_decision_code['WT004'] = [{
+                    'name': self.user_name,
+                    'idno': self.id_card_no
+                }]
 
     def transform(self):
         ent_revoke = ['吊销', '吊销，未注销']

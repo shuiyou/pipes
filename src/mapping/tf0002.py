@@ -97,7 +97,7 @@ class Tf0002(Transformer):
         shareholder_df = self._info_per_bus_shareholder_df(status=ent_on_status)
         bus_legal_df = self._info_per_bus_legal_df(status=ent_on_status)
         df = pd.concat([shareholder_df, bus_legal_df])
-        if df is not None and df['ent_name'].shape[0] > 0:
+        if df is not None and len(df) > 0 and df['ent_name'].shape[0] > 0:
             # 查出企业照面主表的ids
             court_merge_df = self._info_com_bus_basic(df=df)
             if court_merge_df is not None and len(court_merge_df) > 0:

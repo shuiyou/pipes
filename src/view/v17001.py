@@ -1,5 +1,5 @@
 from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, subtract_datetime_col
+from mapping.tranformer import Transformer
 import pandas as pd
 import json as simplejson
 import re

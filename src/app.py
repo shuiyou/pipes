@@ -104,6 +104,14 @@ def _get_biz_types(json):
     return biz_types
 
 
+def _relation_risk_subject(strategy_resp, out_decision_code):
+    branch_code = jsonpath(strategy_resp, '$.StrategyOneResponse.Body.Application.Categories..Variables')
+    for c in branch_code:
+        code_key = c['out_decisionBranchCode']
+        if code_key is not None and code_key in out_decision_code.keys():
+            c['queryData'] = out_decision_code[code_key]
+
+
 @app.route("/strategy", methods=['POST'])
 def strategy():
     """
@@ -125,7 +133,7 @@ def strategy():
         codes = strategy_param.get('bizType')
         biz_types = codes.copy()
         biz_types.append('00000')
-        variables = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
+        variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
         variables['out_strategyBranch'] = ','.join(codes)
         strategy_request = _build_request(req_no, product_code, variables)
         logger.debug(strategy_request)
@@ -140,7 +148,7 @@ def strategy():
                 strategy_param['bizType'] = biz_types
                 # 最后返回报告详情
                 if STRATEGE_DONE in biz_types:
-                    # TODO: 可能需要对关联人做转换
+                    _relation_risk_subject(strategy_resp, out_decision_code)
                     detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
                     json_data['reportDetail'] = [detail]
 

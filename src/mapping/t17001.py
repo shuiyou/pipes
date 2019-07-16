@@ -249,20 +249,22 @@ class T17001(Transformer):
                ORDER BY id DESC 
                LIMIT 1
         '''
-        df = sql_to_df(sql=(sql),
+        df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
     # 计算网申核查_风险分数
     def _net_final_score(self, df=None):
-        if df['final_score'].array[0] is not None:
+        if df is not None and len(df) > 0 and df['final_score'].array[0] is not None:
             self.variables['net_final_score'] = int(df['final_score'].array[0])
 
     # 执行变量转换
     def transform(self):
         fraud_verification_df = self._info_fraud_verification_item()
-        self._per_base_info(fraud_verification_df)
-        self._risk_info(fraud_verification_df)
-        self._cus_behav(fraud_verification_df)
-        self._mulplat_loan_app(fraud_verification_df)
+        if fraud_verification_df is not None and len(fraud_verification_df) > 0:
+            self._per_base_info(fraud_verification_df)
+            self._risk_info(fraud_verification_df)
+            self._cus_behav(fraud_verification_df)
+            self._mulplat_loan_app(fraud_verification_df)
+
         self._net_final_score(self._info_fraud_verification())
