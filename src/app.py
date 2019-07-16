@@ -141,6 +141,7 @@ def strategy():
                 # 最后返回报告详情
                 if STRATEGE_DONE in biz_types:
                     # TODO: 可能需要对关联人做转换
+                    #解析strategy_resp-code与变量关系
                     detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
                     json_data['reportDetail'] = [detail]
 
