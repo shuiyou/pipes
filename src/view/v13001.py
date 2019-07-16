@@ -142,7 +142,7 @@ class V13001(Transformer):
             df['loan_amount'] = df['loan_amount'].replace(to_replace="3W～5W", value=4)
             df['loan_amount'] = df['loan_amount'].replace(to_replace="5W～10W", value=7.5)
             df['loan_amount'] = df['loan_amount'].replace(to_replace="10W以上", value=15)
-            self.variables['sms_loan_amout_avg'] = str(round(df['loan_amount'].mean(), 2)) + 'W'
+            self.variables['sms_loan_amout_avg'] = str(round(df['loan_amount'].mean(), 1)) + 'W'
 
     # 获取目标数据集4
     def _info_sms_loan_reject(self):
@@ -206,6 +206,7 @@ class V13001(Transformer):
 
     # 计算短信核查_逾期时间_金额
     def _sms_overdue_time_amt(self, df=None):
+        df = df.dropna(subset=['overdue_money'], how='any')
         if df is not None and len(df) > 0:
             new_list = list()
             for i in range(len(df)):
@@ -284,9 +285,8 @@ class V13001(Transformer):
 
     # 计算短信核查_欠款时间_金额
     def _sms_debt_time_amt(self, df=None):
-
+        df = df.dropna(subset=['debt_money'], how='any')
         if df is not None and len(df) > 0:
-            print(df)
             new_list = list()
             for i in range(len(df)):
                 if df.iloc[i, 6] < 1:
