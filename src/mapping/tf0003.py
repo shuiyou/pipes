@@ -59,7 +59,7 @@ class Tf0003(Transformer):
 
     def _info_sql_shareholder_df(self):
         info_sql_df = """
-             SELECT b.ent_name
+             SELECT b.ent_name,b.credit_code
              FROM info_per_bus_basic as a
              INNER JOIN info_per_bus_shareholder as b
              ON a.id=b.basic_id
@@ -75,7 +75,7 @@ class Tf0003(Transformer):
 
     def _info_sql_legal_df(self):
         info_sql_df = """
-             SELECT b.ent_name
+             SELECT b.ent_name,b.credit_code
              FROM info_per_bus_basic as a
              INNER JOIN info_per_bus_legal as b
              ON a.id=b.basic_id
@@ -102,9 +102,14 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _case_info(self, df=None):
+    def _case_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_case_info'] = 1
+            self.out_decision_code['IT004'] = [{
+                'name': name,
+                'idno': idno
+            }]
+
 
     def _info_shares_frost_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -119,14 +124,26 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _shares_frost(self, df=None):
+    def _shares_frost(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             df['dongjie'] = df.apply(lambda x: dongjie(x['judicial_froz_state']), axis=1)
             df['jiedong'] = df.apply(lambda x: jiedong(x['judicial_froz_state']), axis=1)
             if df[df['dongjie']].shape[0] > 0:
                 self.variables['per_com_shares_frost'] = 1
+                self.out_decision_code['I002'] = [{
+                    'name':name ,
+                    'idno': idno
+                }]
+                self.out_decision_code['IM002'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             if df[df['jiedong']].shape[0] > 0:
                 self.variables['per_com_shares_frost_his'] = 1
+                self.out_decision_code['IT013'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
 
     def _info_shares_impawn_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -141,14 +158,26 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _shares_impawn(self, df=None):
+    def _shares_impawn(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             df['youxiao'] = df.apply(lambda x: True if '有效' in x['imp_exe_state'] else False, axis=1)
             df['shixiao'] = df.apply(lambda x: True if '失效' in x['imp_exe_state'] else False, axis=1)
             if df[df['youxiao']].shape[0] > 0:
                 self.variables['per_com_shares_impawn'] = 1
+                self.out_decision_code['I003'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
+                self.out_decision_code['IM003'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             if df[df['shixiao']].shape[0] > 0:
                 self.variables['per_com_shares_impawn_his'] = 1
+                self.out_decision_code['IT014'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
 
     def _info_mor_detail_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -163,14 +192,26 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _mor_detail(self, df=None):
+    def _mor_detail(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             df['youxiao'] = df.apply(lambda x: True if '有效' in x['mort_status'] else False, axis=1)
             df['shixiao'] = df.apply(lambda x: True if '失效' in x['mort_status'] else False, axis=1)
             if df[df['youxiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail'] = 1
+                self.out_decision_code['I004'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
+                self.out_decision_code['IM004'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             if df[df['shixiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail_his'] = 1
+                self.out_decision_code['IT015'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
 
     def _info_liquidation_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -185,9 +226,17 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _liquidation_info(self, df=None):
+    def _liquidation_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_liquidation'] = 1
+            self.out_decision_code['I005'] = [{
+                'name': name,
+                'idno': idno
+            }]
+            self.out_decision_code['IM005'] = [{
+                'name': name,
+                'idno': idno
+            }]
 
     def _info_exception_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -202,12 +251,20 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _exception_info(self, df=None):
+    def _exception_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             if df[df['result_out'].isna()].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
+                self.out_decision_code['IT005'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             if df[df['result_out'].isna()].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
+                self.out_decision_code['IT016'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
             elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
@@ -230,12 +287,24 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _illegal_list_info(self, df=None):
+    def _illegal_list_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             if df[df['illegal_rresult_out'].isna()].shape[0] > 0:
                 self.variables['per_com_illegal_list'] = 1
+                self.out_decision_code['I006'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
+                self.out_decision_code['IM006'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             else:
                 self.variables['per_com_illegal_list_his'] = 1
+                self.out_decision_code['IT017'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
 
     def _info_saicChanLegal_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -250,16 +319,31 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _saicChanLegal_info(self, df=None):
+    def _saicChanLegal_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             self.year1 = subtract_datetime_col(df, 'create_time', 'alt_date', 'Y')
             self.variables['per_com_saicChanLegal'] = \
                 df[(df['alt_item'].str.contains('法定代表人')) & (df[self.year1] < 5)].shape[0]
+            if self.variables['per_com_saicChanLegal']>0:
+                self.out_decision_code['IT006'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_saicChanInvestor'] = \
                 df[(df['alt_item'].str.contains('投资人')) & (df[self.year1] < 5)].shape[0]
+            if self.variables['per_com_saicChanInvestor']>0:
+                self.out_decision_code['IT007'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_saicChanRunscope'] = df[df['alt_item'].str.contains('经营范围')].shape[0]
             self.variables['per_com_saicChanRegister_5y'] = \
                 df[(df['alt_item'].str.contains('注册资本')) & (df[self.year1] < 5)].shape[0]
+            if self.variables['per_com_saicChanRegister_5y']>0:
+                self.out_decision_code['IT008'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
 
     def _info_legper_df(self, ent_name):
         info_per_bus_shareholder_entinvitem = """
@@ -309,15 +393,39 @@ class Tf0003(Transformer):
                        params={"ent_name": ent_name})
         return df
 
-    def _industryphycode_info(self, df=None):
+    def _industryphycode_info(self, df=None,name=None,idno=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_industryphycode'] = df['industry_phy_code'][0]
+            if self.variables['per_com_industryphycode']!= '':
+                self.out_decision_code['I007'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
+                self.out_decision_code['IM007'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_endtime'] = df['open_to'][0]
+            if self.variables['per_com_endtime'] != '':
+                self.out_decision_code['IT012'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_openfrom'] = df['open_from'][0]
             self.variables['per_com_esdate'] = df['es_date'][0]
+            if self.variables['per_com_esdate'] != '':
+                self.out_decision_code['IT010'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_areacode'] = df['area_code'][0]
             self.variables['per_com_industrycode'] = df['industry_code'][0]
             self.variables['per_com_province'] = df['province'][0]
+            if self.variables['per_com_province'] != '':
+                self.out_decision_code['IT011'] = [{
+                    'name': name,
+                    'idno': idno
+                }]
             self.variables['per_com_city'] = df['city'][0]
 
     def transform(self):
@@ -330,64 +438,66 @@ class Tf0003(Transformer):
 
         if ent_name_df.shape[0] > 0:
             ent_name = ent_name_df['ent_name'][0]
+            idno = ent_name_df['credit_code'][0]
             case_df = self._info_case_df(ent_name=ent_name)
-            self._case_info(case_df)
+            self._case_info(case_df,name=ent_name,idno=idno)
 
             shares_fronts_df = self._info_shares_frost_df(ent_name=ent_name)
-            self._shares_frost(shares_fronts_df)
+            self._shares_frost(shares_fronts_df,name=ent_name,idno=idno)
 
             shares_impawn_df = self._info_shares_impawn_df(ent_name=ent_name)
-            self._shares_impawn(shares_impawn_df)
+            self._shares_impawn(shares_impawn_df,name=ent_name,idno=idno)
 
             mor_detail_df = self._info_mor_detail_df(ent_name=ent_name)
-            self._mor_detail(mor_detail_df)
+            self._mor_detail(mor_detail_df,name=ent_name,idno=idno)
 
             liquidation_df = self._info_liquidation_df(ent_name=ent_name)
-            self._liquidation_info(liquidation_df)
+            self._liquidation_info(liquidation_df,name=ent_name,idno=idno)
 
             exception_df = self._info_exception_df(ent_name=ent_name)
-            self._exception_info(exception_df)
+            self._exception_info(exception_df,name=ent_name,idno=idno)
 
             illegal_list_df = self._info_illegal_list_df(ent_name=ent_name)
-            self._illegal_list_info(illegal_list_df)
+            self._illegal_list_info(illegal_list_df,name=ent_name,idno=idno)
 
             saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=ent_name)
-            self._saicChanLegal_info(saic_chan_legal_df)
+            self._saicChanLegal_info(saic_chan_legal_df,name=ent_name,idno=idno)
 
             legper_df = self._info_legper_df(ent_name=ent_name)
             self._legper_info(legper_df[0], legper_df[1])
 
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
-            self._industryphycode_info(industryphycode_df)
+            self._industryphycode_info(industryphycode_df,name=ent_name,idno=idno)
 
         elif ent_name_df1.shape[0] > 0:
             ent_name = ent_name_df1['ent_name'][0]
+            idno = ent_name_df1['credit_code'][0]
             case_df = self._info_case_df(ent_name=ent_name)
-            self._case_info(case_df)
+            self._case_info(case_df,name=ent_name,idno=idno)
 
             shares_fronts_df = self._info_shares_frost_df(ent_name=ent_name)
-            self._shares_frost(shares_fronts_df)
+            self._shares_frost(shares_fronts_df,name=ent_name,idno=idno)
 
             shares_impawn_df = self._info_shares_impawn_df(ent_name=ent_name)
-            self._shares_impawn(shares_impawn_df)
+            self._shares_impawn(shares_impawn_df,name=ent_name,idno=idno)
 
             mor_detail_df = self._info_mor_detail_df(ent_name=ent_name)
-            self._mor_detail(mor_detail_df)
+            self._mor_detail(mor_detail_df,name=ent_name,idno=idno)
 
             liquidation_df = self._info_liquidation_df(ent_name=ent_name)
-            self._liquidation_info(liquidation_df)
+            self._liquidation_info(liquidation_df,name=ent_name,idno=idno)
 
             exception_df = self._info_exception_df(ent_name=ent_name)
-            self._exception_info(exception_df)
+            self._exception_info(exception_df,name=ent_name,idno=idno)
 
             illegal_list_df = self._info_illegal_list_df(ent_name=ent_name)
-            self._illegal_list_info(illegal_list_df)
+            self._illegal_list_info(illegal_list_df,name=ent_name,idno=idno)
 
             saic_chan_legal_df = self._info_saicChanLegal_df(ent_name=ent_name)
-            self._saicChanLegal_info(saic_chan_legal_df)
+            self._saicChanLegal_info(saic_chan_legal_df,name=ent_name,idno=idno)
 
             legper_df = self._info_legper_df(ent_name=ent_name)
             self._legper_info(legper_df[0], legper_df[1])
 
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
-            self._industryphycode_info(industryphycode_df)
+            self._industryphycode_info(industryphycode_df,name=ent_name,idno=idno)
