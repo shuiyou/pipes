@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import importlib
-
 # from app import logger
-import numpy
+from numpy import median
 
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
@@ -15,9 +14,52 @@ STRATEGE_DONE = 'fffff'
 
 
 def _get_codes_by_product_code(product_code):
-    # TODO: 需要根据产品编码配置对应的codeß
-    return ['12001', '10001', '13001', '17001', '07001', '09001', '13001', '00000']
+    # TODO: 需要根据产品编码配置对应的code
+    return ['12001', '10001', '13001', '17001', '07001', '09001']
 
+
+def extension_variables(variables):
+    """
+    构建展示变量
+    :param variables:
+    :return:
+    """
+    extension = {
+        'apply_bank_7d': 0,
+        'apply_bank_1m': 0,
+        'apply_bank_3m': 0,
+        'apply_sloan_7d': 0,
+        'apply_sloan_1m': 0,
+        'apply_sloan_3m': 0,
+        'apply_p2p_7d': 0,
+        'apply_p2p_1m': 0,
+        'apply_p2p_3m': 0,
+        'apply_confin_7d': 0,
+        'apply_confin_1m': 0,
+        'apply_confin_3m': 0,
+        'apply_other_7d': 0,
+        'apply_other_1m': 0,
+        'apply_other_3m': 0,
+        'apply_bank_6m': 0,
+        'apply_bank_12m': 0,
+        'apply_bank_his': 0,
+        'apply_sloan_6m': 0,
+        'apply_sloan_12m': 0,
+        'apply_sloan_his': 0,
+        'apply_p2p_6m': 0,
+        'apply_p2p_12m': 0,
+        'apply_p2p_his': 0,
+        'apply_confin_6m': 0,
+        'apply_confin_12m': 0,
+        'apply_confin_his': 0,
+        'apply_other_6m': 0,
+        'apply_other_12m': 0,
+        'apply_other_his': 0
+    }
+    anti_apply_bank_7d = variables['anti_apply_bank_7d']
+    net_apply_bank_7d = variables['net_apply_bank_7d']
+    oth_loan_apply_bank_7d = variables['oth_loan_apply_bank_7d']
+    variables.update(extension)
 
 def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None):
     """
@@ -36,10 +78,12 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                      id_card_no=id_card_no,
                                      phone=phone,
                                      user_type=user_type)
-            variables.update(trans_result)
+            variables.update(trans_result['variables'])
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
+
+    extension_variables(variables)
     # 转换类型，这样解决tojson的问题
     numpy_to_int(variables)
     return {
