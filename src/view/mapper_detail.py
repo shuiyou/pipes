@@ -43,10 +43,6 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
     # 转换类型，这样解决tojson的问题
     numpy_to_int(variables)
     return {
-        'userName': user_name,
-        'cardNo': id_card_no,
-        'phone': phone,
-        'userType': user_type,
         'variables': variables
     }
 

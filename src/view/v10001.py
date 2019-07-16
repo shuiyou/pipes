@@ -75,10 +75,3 @@ class V10001(Transformer):
     def transform(self):
         self._ovdu_overdue_time_amt(self._info_risk_overdue_df())
 
-ps1 = V10001()
-ps1.run(user_name='叔杨',id_card_no='340121196008298933')
-print(ps1.variables)
-
-ps2 = V10001()
-ps2.run(user_name='售点',id_card_no='340121196008298945')
-print(ps2.variables)

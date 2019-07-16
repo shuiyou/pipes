@@ -1,4 +1,5 @@
 import pandas as pd
+
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
@@ -15,14 +16,14 @@ class V13001(Transformer):
 
         super().__init__()
         self.variables = {
-            'sms_reg_org_cnt': 0,    # 短信核查_注册总机构次数
-            'sms_app_org_cnt': 0,    # 短信核查_申请总机构次数
-            'sms_loan_org_cnt': 0,    # 短信核查_放款总机构次数
-            'sms_reject_org_cnt': 0,    # 短信核查_驳回总机构次数
-            'sms_loan_amout_sum': None,    # 短信核查_放款总金额
-            'sms_loan_amout_avg': None,    # 短信核查_放款笔均金额
-            'sms_overdue_time_amt': None,    # 短信核查_逾期时间_金额
-            'sms_debt_time_amt': None    # 短信核查_欠款时间_金额
+            'sms_reg_org_cnt': 0,  # 短信核查_注册总机构次数
+            'sms_app_org_cnt': 0,  # 短信核查_申请总机构次数
+            'sms_loan_org_cnt': 0,  # 短信核查_放款总机构次数
+            'sms_reject_org_cnt': 0,  # 短信核查_驳回总机构次数
+            'sms_loan_amout_sum': None,  # 短信核查_放款总金额
+            'sms_loan_amout_avg': None,  # 短信核查_放款笔均金额
+            'sms_overdue_time_amt': None,  # 短信核查_逾期时间_金额
+            'sms_debt_time_amt': None  # 短信核查_欠款时间_金额
         }
 
     # 获取目标数据集1
@@ -48,19 +49,18 @@ class V13001(Transformer):
             );
         '''
         df = sql_to_df(sql=sql, params={"user_name": self.user_name,
-                                "id_card_no": self.id_card_no,
-                                "phone": self.phone})
+                                        "id_card_no": self.id_card_no,
+                                        "phone": self.phone})
         return df
 
     # 短信核查_注册总机构次数
     def _sms_reg_org_cnt(self, df=None):
-        df = df.drop_duplicates(subset=['platform_code'], keep='first')
-        self.variables['sms_reg_org_cnt'] = len(df)
-
+        if not df.empty:
+            df = df.drop_duplicates(subset=['platform_code'], keep='first')
+            self.variables['sms_reg_org_cnt'] = len(df)
 
     # 获取目标数据集2
     def _info_sms_loan_apply(self):
-
         sql = '''
             SELECT sms_id, platform_code
             FROM info_sms_loan_apply
@@ -88,7 +88,6 @@ class V13001(Transformer):
     def _sms_app_org_cnt(self, df=None):
         df = df.drop_duplicates(subset=['platform_code'], keep='first')
         self.variables['sms_app_org_cnt'] = len(df)
-
 
     # 获取目标数据集3
     def _info_sms_loan(self):
@@ -143,8 +142,7 @@ class V13001(Transformer):
             df['loan_amount'] = df['loan_amount'].replace(to_replace="3W～5W", value=4)
             df['loan_amount'] = df['loan_amount'].replace(to_replace="5W～10W", value=7.5)
             df['loan_amount'] = df['loan_amount'].replace(to_replace="10W以上", value=15)
-            self.variables['sms_loan_amout_avg'] = str(round(df['loan_amount'].mean(),2)) + 'W'
-
+            self.variables['sms_loan_amout_avg'] = str(round(df['loan_amount'].mean(), 2)) + 'W'
 
     # 获取目标数据集4
     def _info_sms_loan_reject(self):
@@ -174,9 +172,9 @@ class V13001(Transformer):
 
     # 计算短信核查_驳回总机构次数
     def _sms_reject_org_cnt(self, df=None):
-        df = df.drop_duplicates(subset=['platform_code'], keep='first')
-        self.variables['sms_reject_org_cnt'] = len(df)
-
+        if df is not None and len(df) > 0:
+            df = df.drop_duplicates(subset=['platform_code'], keep='first')
+            self.variables['sms_reject_org_cnt'] = len(df)
 
     # 获取目标数据集5
     def _info_sms_overdue_platform(self):
@@ -204,7 +202,8 @@ class V13001(Transformer):
         '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        df['date_dif'] = df[subtract_datetime_col('create_time', 'overdue_time', 'M')]
+        if df is not None and len(df) > 0:
+            df['date_dif'] = df[subtract_datetime_col('create_time', 'overdue_time', 'M')]
         return df
 
     # 计算短信核查_逾期时间_金额
@@ -212,17 +211,16 @@ class V13001(Transformer):
         if df is not None and len(df) > 0:
             new_list = list()
             for i in range(len(df)):
-                if df.iloc[i,4] < 1:
-                    new_list.append('最近1个月' + ':' + df.iloc[i,0])
-                elif df.iloc[i,4] < 3:
+                if df.iloc[i, 4] < 1:
+                    new_list.append('最近1个月' + ':' + df.iloc[i, 0])
+                elif df.iloc[i, 4] < 3:
                     new_list.append('最近3个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i,4] < 6:
+                elif df.iloc[i, 4] < 6:
                     new_list.append('最近6个月' + ':' + df.iloc[i, 0])
-                elif df.iloc[i,4] < 12:
+                elif df.iloc[i, 4] < 12:
                     new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['sms_overdue_time_amt'] = new_list
-
 
     # 获取目标数据集6
     def _info_sms_debt(self):
@@ -291,28 +289,26 @@ class V13001(Transformer):
         if df is not None and len(df) > 0:
             new_list = list()
             for i in range(len(df)):
-                if df.iloc[i,6] < 1:
+                if df.iloc[i, 6] < 1:
                     new_list.append('最近1个月' + ':' + df.iloc[i, 2])
-                elif df.iloc[i,6] < 3:
+                elif df.iloc[i, 6] < 3:
                     new_list.append('最近3个月' + ':' + df.iloc[i, 2])
-                elif df.iloc[i,6] < 6:
+                elif df.iloc[i, 6] < 6:
                     new_list.append('最近6个月' + ':' + df.iloc[i, 2])
-                elif df.iloc[i,6] < 12:
+                elif df.iloc[i, 6] < 12:
                     new_list.append('最近12个月' + ':' + df.iloc[i, 2])
             if len(new_list) > 0:
                 self.variables['sms_debt_time_amt'] = new_list
-
 
     #  执行变量转换
     def transform(self):
         self._sms_reg_org_cnt(self._info_sms_loan_platform())
         self._sms_app_org_cnt(self._info_sms_loan_apply())
         info_sms_loan = self._info_sms_loan()
-        self._sms_loan_org_cnt(info_sms_loan)
-        self._sms_loan_amout_sum(info_sms_loan)
-        self._sms_loan_amout_avg(info_sms_loan)
+        if info_sms_loan is not None and len(info_sms_loan) > 0:
+            self._sms_loan_org_cnt(info_sms_loan)
+            self._sms_loan_amout_sum(info_sms_loan)
+            self._sms_loan_amout_avg(info_sms_loan)
         self._sms_reject_org_cnt(self._info_sms_loan_reject())
         self._sms_overdue_time_amt(self._info_sms_overdue_platform())
         self._sms_debt_time_amt(self._info_sms_debt())
-
-

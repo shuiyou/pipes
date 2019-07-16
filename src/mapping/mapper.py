@@ -17,6 +17,7 @@ def translate_for_strategy(codes, user_name=None, id_card_no=None, phone=None, u
     :return: 一个dict对象包含产品所需要的变量
     """
     variables = {}
+    out_decision_code = {}
     c = None
     try:
         for c in codes:
@@ -25,13 +26,14 @@ def translate_for_strategy(codes, user_name=None, id_card_no=None, phone=None, u
                                      id_card_no=id_card_no,
                                      phone=phone,
                                      user_type=user_type)
-            variables.update(trans_result)
+            variables.update(trans_result['variables'])
+            out_decision_code.update(trans_result['out_decision_code'])
     except Exception as err:
         logger.error(c + ">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
     # 转换类型，这样解决tojson的问题
     numpy_to_int(variables)
-    return variables
+    return variables, out_decision_code
 
 
 def get_transformer(code) -> Transformer:
