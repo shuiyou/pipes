@@ -70,7 +70,7 @@ def shake_hand():
         id_card_no = query_data.get('idno')
         phone = query_data.get('phone')
         user_type = query_data.get('userType')
-        variables = T00000().run(user_name, id_card_no, phone, user_type)
+        variables = T00000().run(user_name, id_card_no, phone, user_type)['variables']
         variables['out_strategyBranch'] = '00000'
         strategy_request = _build_request(req_no, product_code, variables=variables)
         logger.info(strategy_request)
