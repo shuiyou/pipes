@@ -148,10 +148,10 @@ def strategy():
                 strategy_param['bizType'] = biz_types
                 # 最后返回报告详情
                 if STRATEGE_DONE in biz_types:
-                    _relation_risk_subject(strategy_resp, out_decision_code)
                     detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
                     json_data['reportDetail'] = [detail]
-
+                # 处理关联人
+                _relation_risk_subject(strategy_resp, out_decision_code)
                 json_data['strategyResult'] = strategy_resp
                 return jsonify(json_data)
             else:

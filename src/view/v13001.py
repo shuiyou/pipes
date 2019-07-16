@@ -200,10 +200,8 @@ class V13001(Transformer):
                 ) as sms
             );
         '''
-        df = sql_to_df(sql=sql,
-                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
-        if df is not None and len(df) > 0:
-            df['date_dif'] = df[subtract_datetime_col('create_time', 'overdue_time', 'M')]
+        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'overdue_time', 'M')]
         return df
 
     # 计算短信核查_逾期时间_金额
@@ -221,6 +219,7 @@ class V13001(Transformer):
                     new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['sms_overdue_time_amt'] = new_list
+
 
     # 获取目标数据集6
     def _info_sms_debt(self):
@@ -287,6 +286,7 @@ class V13001(Transformer):
     def _sms_debt_time_amt(self, df=None):
 
         if df is not None and len(df) > 0:
+            print(df)
             new_list = list()
             for i in range(len(df)):
                 if df.iloc[i, 6] < 1:
@@ -299,6 +299,7 @@ class V13001(Transformer):
                     new_list.append('最近12个月' + ':' + df.iloc[i, 2])
             if len(new_list) > 0:
                 self.variables['sms_debt_time_amt'] = new_list
+
 
     #  执行变量转换
     def transform(self):

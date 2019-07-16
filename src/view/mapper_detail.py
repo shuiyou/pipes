@@ -111,7 +111,6 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
 
 def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None):
     """
-    根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
     """
