@@ -47,9 +47,9 @@
 │   ├── __init__.py
 │   ├── __pycache__
 │   ├── logger_util.py
-│   ├── logging-dev.conf
-│   ├── logging-fat.conf
-│   ├── logging-prod.conf
+│   ├── logging-dev.conf     # 开发环境对应的日志配置
+│   ├── logging-fat.conf     # 测试环境对应的日志配置
+│   ├── logging-prod.conf    # 生产环境对应的日志配置
 │   └── logstash.py
 ├── mapping          # 数据转换逻辑写到这个目录，采用tXXXXX.py命名， 对应的类名TXXXXX
 │   ├── __init__.py
