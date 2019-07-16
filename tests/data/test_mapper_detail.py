@@ -38,13 +38,7 @@ def translate_for_report_detail(codes, user_name=None, id_card_no=None, phone=No
         raise ServerException(code=500, description=str(err))
     # 转换类型，这样解决tojson的问题
     numpy_to_int(variables)
-    return {
-        'userName': user_name,
-        'cardNo': id_card_no,
-        'phone': phone,
-        'userType': user_type,
-        'variables': variables
-    }
+    return variables
 
 
 def get_transformer(code) -> Transformer:
