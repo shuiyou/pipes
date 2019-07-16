@@ -92,10 +92,23 @@ def test_extract_money_court_excute_public():
 
 
 def test_dropna():
-    a = [None, 'AA', 'BB']
-    b = [11, 22, 33]
+    a = ['AA', 'AA', 'BB']
+    b = [11, 22, 11]
+    c = [11]
     df = pd.DataFrame({'execution_result': a, 'specific_date': b})
-    print(len(df.query('execution_result == "CC"')))
-    # print(df)
+    df = df.drop_duplicates(subset=['specific_date'])
+    df2 = pd.DataFrame({'specific_date': c})
+    df_merge = pd.merge(df2,df,on=['specific_date'],how='left')
+    print(df_merge)
     # df1 = df.dropna(subset=['execution_result'], how='any')
     # print(df1)
+    # array = []
+    # for index, row in df.iterrows():
+    #     value={
+    #         'name':row['execution_result'],
+    #         'id_card_no':row['specific_date']
+    #     }
+    #     array.append(value)
+    # print(array)
+
+

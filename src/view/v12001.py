@@ -404,7 +404,7 @@ class V12001(Transformer):
     #  执行变量转换
     def transform(self):
         info_anti_fraud_rule = self._info_anti_fraud_rule()
-        if info_anti_fraud_rule is not None and len(info_anti_fraud_rule)>0:
+        if info_anti_fraud_rule is not None and len(info_anti_fraud_rule) > 0:
             self._anti_tel_apply_bank_7d(info_anti_fraud_rule)
             self._anti_id_apply_bank_7d(info_anti_fraud_rule)
             self._anti_tel_apply_bank_1m(info_anti_fraud_rule)
