@@ -78,9 +78,9 @@ class Process(object):
             # 运行代码生成的用例字段结果
             case_value = ''
             for key, value in params.items():
-                if key in ['user_name', 'unique_name', 'name']:
+                if key in ['user_name', 'unique_name', 'name','ent_name']:
                     user_name = value
-                if key in ['id_card_no', 'unique_id_no']:
+                if key in ['id_card_no', 'unique_id_no','credit_code']:
                     id_card_no = value
                 if key in ['phone']:
                     phone = value
