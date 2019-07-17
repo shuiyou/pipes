@@ -208,7 +208,7 @@ class T16002(Transformer):
             self.variables['court_ent_tax_arrears_amt_3y'] = df1['taxes'].sum()
             df_max = df.dropna(subset=['taxes'],how='any')
             if df_max is not None and len(df_max)>0:
-                self.variables['court_ent_tax_arrears_max'] = self.variables['court_ent_judge_max'] = float('%.2f' % df_max['taxes'].max())
+                self.variables['court_ent_tax_arrears_max'] = float('%.2f' % df_max['taxes'].max())
 
     # 失信老赖名单sql
     def _court_deadbeat_df(self):

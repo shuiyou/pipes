@@ -121,13 +121,13 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     insert_value_array = []
     query_key_array = []
     for key_value in key_array:
-        if key_value in ['unique_name', 'user_name', 'name']:
+        if key_value in ['unique_name', 'user_name', 'name','ent_name'] and key_value not in title:
             name_key_word = key_value
             name_key_value = fake.name()
-        if key_value in ['unique_id_no', 'id_card_no']:
+        if key_value in ['unique_id_no', 'id_card_no','credit_code'] and key_value not in title:
             id_no_key_word = key_value
             id_no_key_value = fake.ssn()
-        if ('phone' == key_value):
+        if ('phone' == key_value) and key_value not in title:
             phone_key_word = key_value
             phone_key_value = fake.phone_number()
     # 关联主键不是id，faker一个数字
@@ -153,10 +153,23 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
         for info in title_array:
             count = count + 1
             if count > 1:
-                insert_key_array.append(info.split('=')[0].split('.')[1])
-                value = str(info.split('=')[1])
+                key = info.split('=')[0].split('.')[1]
+                value = info.split('=')[1]
+                if key in ['unique_name', 'user_name', 'name','ent_name']:
+                    query_key_array.append(key)
+                    name_key_word = key
+                    name_key_value = value
+                elif key in ['unique_id_no', 'id_card_no','credit_code']:
+                    query_key_array.append(key)
+                    id_no_key_word = key
+                    id_no_key_value = value
+                elif key == 'phone':
+                    query_key_array.append(key)
+                    phone_key_word = key
+                    phone_key_value = value
+                insert_key_array.append(key)
                 if len(value) > 0:
-                    insert_value_array.append(value)
+                    insert_value_array.append(str(value))
                 else:
                     insert_value_array.append('Null')
     insert_key_array.append('expired_at')
