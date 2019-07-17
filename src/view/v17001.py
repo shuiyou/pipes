@@ -1,10 +1,13 @@
-from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
-import pandas as pd
 import json as simplejson
 import re
 
-def get_js(df,var):
+import pandas as pd
+
+from mapping.mysql_reader import sql_to_df
+from mapping.tranformer import Transformer
+
+
+def get_js(df, var):
     index_name = df.index.name
     row_list = []
     for index, col in df.iterrows():
@@ -15,15 +18,17 @@ def get_js(df,var):
     df_re = pd.DataFrame(row_list)
     return df_re
 
-def get_money(var,name):
+
+def get_money(var, name):
     if var is not None and len(var) > 0:
-        if re.compile(r"(?<=%s\:)\d+\.?\d*" %name).search(var) != None:
-            value = int(re.compile(r"(?<=%s\:)\d+\.?\d*" %name).search(var).group(0))
+        if re.compile(r"(?<=%s\:)\d+\.?\d*" % name).search(var) != None:
+            value = int(re.compile(r"(?<=%s\:)\d+\.?\d*" % name).search(var).group(0))
         else:
             value = int(0)
         return value
     else:
         return 0
+
 
 class V17001(Transformer):
     """
@@ -64,6 +69,7 @@ class V17001(Transformer):
             'net_apply_other_12m': 0,
             'net_apply_other_his': 0
         }
+
     # 读取目标数据集
     def _info_fraud_verification_df(self):
         sql = """
@@ -160,7 +166,7 @@ class V17001(Transformer):
             if len(df5) > 0:
                 lst = ';'.join(df5['platform_detail'][0])
                 self.variables['net_apply_bank_12m'] = get_money(lst, '网上银行') + get_money(lst, '信用卡中心') + get_money(lst,
-                                                                                                                   '银行消费金融公司') + get_money(
+                                                                                                                    '银行消费金融公司') + get_money(
                     lst, '银行对公业务') + get_money(lst, '银行个人业务') + get_money(lst, '银行小微贷款') + get_money(lst, '直销银行')
                 self.variables['net_apply_sloan_12m'] = get_money(lst, '小额贷款公司')
                 self.variables['net_apply_p2p_12m'] = get_money(lst, 'P2P网贷')
@@ -176,7 +182,7 @@ class V17001(Transformer):
             if len(df6) > 0:
                 lst = ';'.join(df6['platform_detail'][0])
                 self.variables['net_apply_bank_his'] = get_money(lst, '网上银行') + get_money(lst, '信用卡中心') + get_money(lst,
-                                                                                                                   '银行消费金融公司') + get_money(
+                                                                                                                    '银行消费金融公司') + get_money(
                     lst, '银行对公业务') + get_money(lst, '银行个人业务') + get_money(lst, '银行小微贷款') + get_money(lst, '直销银行')
                 self.variables['net_apply_sloan_his'] = get_money(lst, '小额贷款公司')
                 self.variables['net_apply_p2p_his'] = get_money(lst, 'P2P网贷')
