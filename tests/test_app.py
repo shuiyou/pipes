@@ -40,7 +40,7 @@ def test_strategy(client):
                                       "f0003"], "versionNo": "1.0"}, "strategyResult": {}})
     assert rv.status_code == 200
     v = rv.get_json()
-    print(v)
+    print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
 
 
