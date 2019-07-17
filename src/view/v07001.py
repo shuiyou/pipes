@@ -48,7 +48,6 @@ class V07001(Transformer):
                                                         'RECENTLY_6M': '最近6个月', 'RECENTLY_12M': '最近12个月'})
             self.variables['loan_analyst_overdue_time'] = df['recent_mth'][0]
             self.overdue_value = df.fillna(0)['low_balance_fail_count'][0]*df.fillna(0)['success_pay_avg_amount'][0]
-            print(self.overdue_value)
             if (self.overdue_value > 0) and (self.overdue_value < 2000):
                 self.variables['loan_analyst_overdue_amt_interval'] = '0~0.2万'
             elif (self.overdue_value >= 2000) and (self.overdue_value < 5000):
