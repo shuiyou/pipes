@@ -2,7 +2,7 @@ import pandas as pd
 
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
-from util.common_util import to_string
+
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
@@ -200,7 +200,8 @@ class V13001(Transformer):
                 ) as sms
             );
         '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        df = sql_to_df(sql=sql,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'overdue_time', 'M')]
         return df
 
@@ -220,7 +221,6 @@ class V13001(Transformer):
                     new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['sms_overdue_time_amt'] = new_list
-
 
     # 获取目标数据集6
     def _info_sms_debt(self):
@@ -299,7 +299,6 @@ class V13001(Transformer):
                     new_list.append('最近12个月' + ':' + df.iloc[i, 2])
             if len(new_list) > 0:
                 self.variables['sms_debt_time_amt'] = new_list
-
 
     #  执行变量转换
     def transform(self):
