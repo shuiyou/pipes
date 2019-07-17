@@ -211,13 +211,13 @@ class V13001(Transformer):
             new_list = list()
             for i in range(len(df)):
                 if df.iloc[i, 4] < 1:
-                    new_list.append('最近1个月' + ':' + to_string(df.iloc[i, 0]))
+                    new_list.append('最近1个月' + ':' + df.iloc[i, 0])
                 elif df.iloc[i, 4] < 3:
-                    new_list.append('最近3个月' + ':' + to_string(df.iloc[i, 0]))
+                    new_list.append('最近3个月' + ':' + df.iloc[i, 0])
                 elif df.iloc[i, 4] < 6:
-                    new_list.append('最近6个月' + ':' + to_string(df.iloc[i, 0]))
+                    new_list.append('最近6个月' + ':' + df.iloc[i, 0])
                 elif df.iloc[i, 4] < 12:
-                    new_list.append('最近12个月' + ':' + to_string(df.iloc[i, 0]))
+                    new_list.append('最近12个月' + ':' + df.iloc[i, 0])
             if len(new_list) > 0:
                 self.variables['sms_overdue_time_amt'] = new_list
 
