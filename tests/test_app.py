@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
-import uuid
 
 import pytest
 from jsonpath import jsonpath
@@ -21,16 +20,10 @@ def client():
 
 
 def test_shake_hand(client):
-    rv = client.post('/biz-types', json={
-        "reqNo": uuid.uuid4(),
-        "productCode": "1",
-        "queryData": {
-            "name": "刘劭卓",
-            "idno": "430105199106096118",
-            "phone": "11111111111",
-            "userType": "PERSONAL"
-        }
-    })
+    rv = client.post('/biz-types', json={"reqNo": "Q348578907643084800", "productCode": "001",
+                                         "queryData": {"name": "测试一", "idno": "421003198904091086",
+                                                       "phone": "18516315591", "userType": "PERSONAL"},
+                                         "versionNo": "1.0"})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
@@ -39,9 +32,8 @@ def test_shake_hand(client):
 
 def test_strategy(client):
     rv = client.post('/strategy', json={
-        "strategyParam": {"reqNo": "Q344619174854819841", "stepReqNo": "S344619174854819841",
-                          "productCode": "test10086",
-                          "queryData": {"name": "测试二", "idno": "421003198904091087", "phone": "18516315592",
+        "strategyParam": {"reqNo": "Q348791397404540928", "stepReqNo": "S348791397404540929", "productCode": "001",
+                          "queryData": {"name": "测试一", "idno": "421003198904091086", "phone": "18516315591",
                                         "userType": "PERSONAL"},
                           "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001",
                                       "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002",

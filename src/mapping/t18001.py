@@ -41,11 +41,6 @@ class T18001(Transformer):
         """
         if df is not None and len(df) > 0:
             self.variables['per_bus_leg_entrevoke_cnt'] = df['cnt'][0]
-            if self.variables['per_bus_leg_entrevoke_cnt'] > 0:
-                self.out_decision_code['WT001'] = [{
-                                                        'name': self.user_name,
-                                                        'idno': self.id_card_no
-                                                    }]
 
     def _info_per_bus_shareholder_df(self, status, ratio=0.2):
         sql = """
@@ -72,11 +67,6 @@ class T18001(Transformer):
         if df is not None and len(df) > 0:
             if df['cnt'][0] > 0:
                 self.variables['per_bus_shh_entrevoke_cnt'] = df['cnt'][0]
-                if self.variables['per_bus_leg_entrevoke_cnt'] > 0:
-                    self.out_decision_code['WT002'] = [{
-                        'name': self.user_name,
-                        'idno': self.id_card_no
-                    }]
 
     def _per_bus_leg_ent_cnt(self, df=None):
         """
@@ -85,11 +75,6 @@ class T18001(Transformer):
         if df is not None and len(df) > 0:
             if df['cnt'][0] > 0:
                 self.variables['per_bus_leg_ent_cnt'] = df['cnt'][0]
-                if self.variables['per_bus_leg_ent_cnt'] != '' and self.variables['per_bus_leg_ent_cnt'] > 0:
-                    self.out_decision_code['WT003'] = [{
-                        'name': self.user_name,
-                        'idno': self.id_card_no
-                    }]
 
     def _per_bus_shh_ent_cnt(self, df=None):
         """
@@ -97,11 +82,6 @@ class T18001(Transformer):
         """
         if df is not None and len(df) > 0:
             self.variables['per_bus_shh_ent_cnt'] = df['cnt'][0]
-            if self.variables['per_bus_shh_ent_cnt'] != '' and self.variables['per_bus_shh_ent_cnt'] > 0:
-                self.out_decision_code['WT004'] = [{
-                    'name': self.user_name,
-                    'idno': self.id_card_no
-                }]
 
     def transform(self):
         ent_revoke = ['吊销', '吊销，未注销']
