@@ -159,7 +159,10 @@ def strategy():
         else:
             raise ServerException(code=502, description=strategy_response.text)
     except Exception as err:
-        raise ServerException(code=500, description=str(err))
+        if isinstance(err, HTTPException):
+            raise ServerException(code=err.code, description=err.description)
+        else:
+            raise err
 
 
 @app.route("/health", methods=['GET'])
