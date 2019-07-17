@@ -364,8 +364,8 @@ class Tf0004(Transformer):
 
     def transform(self):
         ent_on_status = ['在营（开业）', '存续（在营、开业、在册）']
-        legal_df = self._per_bus_legal_df(status=ent_on_status)
-        shareholder_df = self._per_bus_shareholder_df(status=ent_on_status)
+        legal_df = self._com_bus_frinv_df(status=ent_on_status)
+        shareholder_df = self._com_bus_entinvitem_df(status=ent_on_status)
         concat_df = pd.concat([shareholder_df, legal_df])
         if concat_df is not None and concat_df['ent_name'].shape[0] > 0:
             # 查出法院核查主表的ids
