@@ -1,9 +1,9 @@
 import pandas as pd
 from mapping.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
+
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
-
 
 
 class T24001(Transformer):
@@ -54,7 +54,7 @@ class T24001(Transformer):
     # 获取目标数据集1
     def _info_com_bus_face(self):
         sql = '''
-            SELECT ent_status,open_to 
+            SELECT ent_status,open_from,open_to,reg_cap,ent_type,es_date,industry_phy_code,area_code,industry_code,province,city
             FROM info_com_bus_face 
             WHERE basic_id 
             IN (
@@ -81,18 +81,62 @@ class T24001(Transformer):
             else:
                 self.variables['com_bus_status'] = 1
 
+    # 计算工商核查_营业期限自
+    def _com_bus_openfrom(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_openfrom'] = str(df['open_from'].values[0])[0:10]
+
     # 计算工商核查_营业期限至
     def _com_bus_endtime(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_endtime'] = str(df['open_to'].values[0])[0:10]
 
+    # 计算工商核查_注册资本（万元）
+    def _com_bus_registered_capital(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_registered_capital'] = df['reg_cap'].values[0]
+
+    # 计算工商核查_类型
+    def _com_bus_enttype(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_enttype'] = df['ent_type'].values[0]
+
+    # 计算工商核查_成立日期
+    def _com_bus_esdate(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_esdate'] = str(df['es_date'].values[0])[0:10]
+
+    # 计算工商核查_行业门类代码
+    def _com_bus_industryphycode(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_industryphycode'] = df['industry_phy_code'].values[0]
+
+    # 计算工商核查_住所所在行政区划代码
+    def _com_bus_areacode(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_areacode'] = df['area_code'].values[0]
+
+    # 计算工商核查_国民经济行业代码
+    def _com_bus_industrycode(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_industrycode'] = df['industry_code'].values[0]
+
+    # 计算工商核查_省
+    def _com_bus_province(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_province'] = df['province'].values[0]
+
+    # 计算工商核查_市
+    def _com_bus_city(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_city'] = df['city'].values[0]
+
     # 获取目标数据集2
     def _info_com_bus_entinvitem_frinv(self):
         sql1 = '''
-            SELECT ent_name 
+            SELECT ent_name,ent_status
             FROM info_com_bus_entinvitem
             WHERE funded_ratio >= 0.2 
-            AND ent_status LIKE '%吊销%'
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
@@ -108,35 +152,34 @@ class T24001(Transformer):
             );
         '''
         sql2 = '''
-            SELECT ent_name
+            SELECT ent_name,ent_status
             FROM info_com_bus_frinv
-            WHERE ent_status LIKE '%吊销%'
-                AND fr_name 
-                IN (
-                    SELECT cbb.ent_name 
-                    FROM (
-                        SELECT ent_name
-                        FROM info_com_bus_basic
-                        WHERE ent_name = %(user_name)s 
-                            AND credit_code = %(id_card_no)s 
-                            AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                        ORDER BY id DESC 
-                        LIMIT 1
-                    ) cbb
-                )
-                AND basic_id 
-                IN (
-                    SELECT cbb.basic_id 
-                    FROM (
-                        SELECT id basic_id
-                        FROM info_com_bus_basic
-                        WHERE ent_name = %(user_name)s 
-                            AND credit_code = %(id_card_no)s 
-                            AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                        ORDER BY id DESC 
-                        LIMIT 1
-                    ) cbb
-                );
+            WHERE fr_name 
+            IN (
+                SELECT cbb.ent_name 
+                FROM (
+                    SELECT ent_name
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s 
+                        AND credit_code = %(id_card_no)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) cbb
+            )
+            AND basic_id 
+            IN (
+                SELECT cbb.basic_id 
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s 
+                        AND credit_code = %(id_card_no)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) cbb
+            );
         '''
         df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
@@ -145,9 +188,16 @@ class T24001(Transformer):
 
     # 计算工商核查_关联公司吊销个数
     def _com_bus_relent_revoke(self, df=None):
+        df = df[df.ent_status.str.contains('吊销')]
         if df is not None and len(df) > 0:
-            df = df.drop_diplicates()
+            df = df.drop_diplicates(subset=['ent_name'], keep='first')
             self.variables['com_bus_relent_revoke'] = len(df)
+
+    # 计算工商核查_企业关联公司个数
+    def _com_bus_saicAffiliated(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df.drop_diplicates(subset=['ent_name'], keep='first')
+            self.variables['com_bus_saicAffiliated'] = len(df)
 
     # 获取目标数据集3
     def _info_com_bus_case(self):
@@ -160,8 +210,8 @@ class T24001(Transformer):
                 FROM (
                     SELECT id basic_id
                     FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
+                    WHERE ent_name = %(user_name)s
+                        AND credit_code = %(id_card_no)s
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC 
                     LIMIT 1
@@ -379,7 +429,7 @@ class T24001(Transformer):
     # 获取目标数据集11
     def _info_com_bus_exception(self):
         sql = '''
-            SELECT basic_id
+            SELECT basic_id,result_in
             FROM info_com_bus_exception
             WHERE result_out is NULL
             AND basic_id 
@@ -403,6 +453,18 @@ class T24001(Transformer):
     def _com_bus_exception(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_exception'] = 1
+
+    # 计算工商核查_经营异常原因
+    def _com_bus_exception_result(self, df=None):
+        if df is not None and len(df) > 0:
+            if True in df.result_in.str.contains('弄虚作假'):
+                self.variables['com_bus_exception_result'] = 3
+            elif (True in df.result_in.str.contains('无法联系')) or (True in df.result_in.str.contains('无法取得联系')):
+                self.variables['com_bus_exception_result'] = 2
+            elif True in df.result_in.str.contains('年度报告'):
+                self.variables['com_bus_exception_result'] = 1
+            else:
+                self.variables['com_bus_exception_result'] = 0
 
     # 获取目标数据集12
     def _info_com_bus_exception2(self):
@@ -488,8 +550,196 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_illegal_list_his'] = 1
 
+    # 获取目标数据集15
+    def _info_com_bus_alter(self):
+        sql = '''
+            SELECT a.id,a.alt_item,a.alt_date,b.create_time
+            FROM info_com_bus_alter a
+            LEFT JOIN info_com_bus_basic b
+            ON a.basic_id = b.id
+            WHERE a.basic_id
+            IN (
+                SELECT cbb.basic_id
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s
+                        AND credit_code = %(id_card_no)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) cbb
+            );
+        '''
+        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df['date_dif'] = df[subtract_datetime_col(df, create_time, alt_date, 'Y')]
+        return df
 
+    # 计算工商核查_法定代表人最近5年内变更次数
+    def _com_bus_saicChanLegal_5y(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df[df.date_dif < 5 and df.alt_item.str.contains('法定代表人')]
+            self.variables['com_bus_saicChanLegal_5y'] = len(df)
 
+    # 计算工商核查_投资人最近5年内变更次数
+    def _com_bus_saicChanInvestor_5y(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df[df.date_dif < 5 and df.alt_item.str.contains('投资人')]
+            self.variables['com_bus_saicChanInvestor_5y'] = len(df)
 
+    # 计算工商核查_注册资本最近5年内变更次数
+    def _com_bus_saicChanRegister_5y(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df[df.date_dif < 5 and df.alt_item.str.contains('注册资本')]
+            self.variables['com_bus_saicChanRegister_5y'] = len(df)
 
+    # 计算工商核查_经营范围变更次数
+    def _com_bus_saicChanRunscope(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df[df.alt_item.str.contains('经营范围')]
+            self.variables['com_bus_saicChanRunscope'] = len(df)
 
+    # 获取目标数据集16
+    def _info_com_bus_face_shareholder(self):
+        sql1 = '''
+            SELECT fr_name
+            FROM info_com_bus_face
+            WHERE basic_id
+            IN (
+                SELECT cbb.basic_id
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s
+                        AND credit_code = %(id_card_no)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) cbb
+            ); 
+        '''
+        sql2 = '''
+            SELECT share_holder_name
+            FROM info_com_bus_shareholder
+            WHERE basic_id 
+            IN (
+                SELECT cbb.basic_id
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s
+                        AND credit_code = %(id_card_no)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC
+                    LIMIT 1
+                ) cbb
+            ); 
+        '''
+        df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df1, df2
+
+    # 计算工商核查_法人非股东
+    def _com_bus_leg_not_shh(self,df=None):
+        if df[0].fr_name.values[0] not in df[1].share_holder_name.values:
+            self.variables['com_bus_leg_not_shh'] = 1
+
+    # 获取目标数据集17
+    def _info_com_bus_entinvitem_frinv2(self):
+        sql1 = '''
+            SELECT ent_name,ent_status
+            FROM info_com_bus_entinvitem
+            WHERE funded_ratio >= 0.2 
+            AND basic_id 
+            IN (
+                SELECT cbb.basic_id 
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s 
+                        AND credit_code = %(id_card_no)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) cbb
+            );
+        '''
+        sql2 = '''
+            SELECT ent_name,ent_status
+            FROM info_com_bus_frinv
+            WHERE funded_ratio >= 0.2 
+            AND basic_id 
+            IN (
+                SELECT cbb.basic_id 
+                FROM (
+                    SELECT id basic_id
+                    FROM info_com_bus_basic
+                    WHERE ent_name = %(user_name)s 
+                        AND credit_code = %(id_card_no)s 
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                ) cbb
+            );
+        '''
+        df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df = pd.concat([df1,df2], ignore_index=True)
+        return df
+
+    # 计算工商核查_企业和法人关联公司是否存在吊销
+    def _com_bus_legper_relent_revoke(self, df=None):
+        if True in df.ent_status.str.contains('吊销'):
+            self.variables['com_bus_legper_relent_revoke'] = 1
+
+    # 计算工商核查_企业、法人对外投资的公司数量
+    def _com_bus_legper_outwardCount1(self, df=None):
+        if df is not None and len(df) > 0:
+            df = df.drop_duplicates(subset=['ent_name'], keep='first')
+            self.variables['com_bus_legper_outwardCount1'] = len(df)
+
+    #  执行变量转换
+    def transform(self):
+        info_com_bus_face = self._info_com_bus_face()
+        if info_com_bus_face is not None and len(info_com_bus_face) > 0:
+            self._com_bus_status(info_com_bus_face)
+            self._com_bus_openfrom(info_com_bus_face)
+            self._com_bus_endtime(info_com_bus_face)
+            self._com_bus_registered_capital(info_com_bus_face)
+            self._com_bus_enttype(info_com_bus_face)
+            self._com_bus_esdate(info_com_bus_face)
+            self._com_bus_industryphycode(info_com_bus_face)
+            self._com_bus_areacode(info_com_bus_face)
+            self._com_bus_industrycode(info_com_bus_face)
+            self._com_bus_province(info_com_bus_face)
+            self._com_bus_city(info_com_bus_face)
+        info_com_bus_entinvitem_frinv = self._info_com_bus_entinvitem_frinv()
+        if info_com_bus_entinvitem_frinv is not None and len(info_com_bus_entinvitem_frinv) > 0:
+            self._com_bus_relent_revoke(info_com_bus_entinvitem_frinv)
+            self._com_bus_saicAffiliated(info_com_bus_entinvitem_frinv)
+        self._com_bus_case_info(self._info_com_bus_case())
+        self._com_bus_shares_frost(self._info_com_bus_shares_frost())
+        self._com_bus_shares_frost_his(self._info_com_bus_shares_frost2())
+        self._com_bus_shares_impawn(self._info_com_bus_shares_impawn())
+        self._com_bus_shares_impawn_his(self._info_com_bus_shares_impawn2())
+        self._com_bus_mor_detail(self._info_com_bus_mort_basic())
+        self._com_bus_mor_detail_his(self._info_com_bus_mort_basic2())
+        self._com_bus_liquidation(self._info_com_bus_liquidation())
+        info_com_bus_exception = self._info_com_bus_exception()
+        if info_com_bus_exception is not None and len(info_com_bus_exception) > 0:
+            self._com_bus_exception(info_com_bus_exception)
+            self._com_bus_exception_result(info_com_bus_exception)
+        self._com_bus_exception_his(self._info_com_bus_exception2())
+        self._com_bus_illegal_list(self._info_com_bus_illegal())
+        self._com_bus_illegal_list_his(self._info_com_bus_illegal2())
+        info_com_bus_alter = self._info_com_bus_alter()
+        if info_com_bus_alter is not None and len(info_com_bus_alter) > 0:
+            self._com_bus_saicChanLegal_5y(info_com_bus_alter)
+            self._com_bus_saicChanInvestor_5y(info_com_bus_alter)
+            self._com_bus_saicChanRegister_5y(info_com_bus_alter)
+            self._com_bus_saicChanRunscope(info_com_bus_alter)
+        self._com_bus_leg_not_shh(self._info_com_bus_face_shareholder())
+        info_com_bus_entinvitem_frinv2 = self._info_com_bus_entinvitem_frinv2()
+        if info_com_bus_entinvitem_frinv2 is not None and len(info_com_bus_entinvitem_frinv2) > 0:
+            self._com_bus_legper_relent_revoke(info_com_bus_entinvitem_frinv2)
+            self._com_bus_legper_outwardCount1(info_com_bus_entinvitem_frinv2)
