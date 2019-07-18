@@ -23,8 +23,8 @@ app = Flask(__name__)
 
 # 湛泸产品编码和决策process的对应关系
 product_code_process_dict = {
-    "001": "Level1_m", # 一级个人报告
-    "002": "Level1_m", # 一级企业
+    "001": "Level1_m",  # 一级个人报告
+    "002": "Level1_m",  # 一级企业
     "003": "Level1_m"
 }
 
@@ -46,6 +46,10 @@ def _build_request(req_no, product_code, variables={}):
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
     :return:
     """
+    # 替換None值，因爲決策不認
+    for key, value in variables.items():
+        if value is None:
+            variables[key] = ''
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
@@ -86,20 +90,18 @@ def shake_hand():
         # 调用决策引擎
 
         response = requests.post(STRATEGY_URL, json=strategy_request)
-        if response.status_code == 200:
-            resp_json = response.json()
-            error = jsonpath(resp_json, '$..Error')
-            if error is False:
-                resp = {
-                    'productCode': json_data.get('productCode'),
-                    'reqNo': json_data.get('reqNo'),
-                    'bizType': _get_biz_types(resp_json)
-                }
-                return jsonify(resp)
-            else:
-                raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
-        else:
+        if response.status_code != 200:
             raise ServerException(code=502, description="strategyOne错误:" + response.text)
+        resp_json = response.json()
+        error = jsonpath(resp_json, '$..Error')
+        if error:
+            raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
+        resp = {
+            'productCode': json_data.get('productCode'),
+            'reqNo': json_data.get('reqNo'),
+            'bizType': _get_biz_types(resp_json)
+        }
+        return jsonify(resp)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
@@ -152,25 +154,23 @@ def strategy():
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         logger.debug(strategy_response)
-        if strategy_response.status_code == 200:
-            strategy_resp = strategy_response.json()
-            error = jsonpath(strategy_resp, '$..Error')
-            if error is False:
-                biz_types = _get_biz_types(strategy_resp)
-                strategy_param['bizType'] = biz_types
-                # 最后返回报告详情
-                if STRATEGE_DONE in biz_types:
-                    detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
-                    json_data['reportDetail'] = [detail]
-                # 处理关联人
-                _relation_risk_subject(strategy_resp, out_decision_code)
-                json_data['strategyResult'] = strategy_resp
-                json_data['strategyInputVariables'] = variables
-                return jsonify(json_data)
-            else:
-                raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
-        else:
+        if strategy_response.status_code != 200:
             raise ServerException(code=502, description=strategy_response.text)
+        strategy_resp = strategy_response.json()
+        error = jsonpath(strategy_resp, '$..Error')
+        if error:
+            raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
+        biz_types = _get_biz_types(strategy_resp)
+        strategy_param['bizType'] = biz_types
+        # 最后返回报告详情
+        if STRATEGE_DONE in biz_types:
+            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
+            json_data['reportDetail'] = [detail]
+        # 处理关联人
+        _relation_risk_subject(strategy_resp, out_decision_code)
+        json_data['strategyResult'] = strategy_resp
+        json_data['strategyInputVariables'] = variables
+        return jsonify(json_data)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 

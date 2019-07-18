@@ -33,7 +33,7 @@ def test_shake_hand(client):
 def test_strategy(client):
     rv = client.post('/strategy', json={
         "strategyParam": {"reqNo": "Q348791397404540928", "stepReqNo": "S348791397404540929", "productCode": "001",
-                          "queryData": {"name": "测试一", "idno": "421003198904091086", "phone": "18516315591",
+                          "queryData": {"name": "嵇明", "idno": "31000019890823697X", "phone": "18516315591",
                                         "userType": "PERSONAL"},
                           "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001",
                                       "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002",
