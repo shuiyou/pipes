@@ -132,7 +132,9 @@ def strategy():
         # 获取请求参数
         json_data = request.get_json()
         strategy_param = json_data.get('strategyParam')
-        origin_input = json_data.get('strategyInputVariables', {})
+        origin_input = json_data.get('strategyInputVariables')
+        if origin_input is None:
+            origin_input = {}
         req_no = strategy_param.get('reqNo')
         product_code = strategy_param.get('productCode')
         query_data = strategy_param.get('queryData')

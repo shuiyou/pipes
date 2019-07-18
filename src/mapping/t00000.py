@@ -1,7 +1,7 @@
 import datetime
 
 from mapping.id_card_info import GetInformation
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
 

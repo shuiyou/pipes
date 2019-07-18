@@ -1,4 +1,4 @@
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
 

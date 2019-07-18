@@ -1,6 +1,6 @@
 import pandas as pd
 
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
 
@@ -402,7 +402,7 @@ class Tf0001(Transformer):
                 self._ps_court_criminal_suspect(df=suspect_df,court_df=court_merge_df)
                 # 是否存在各种类型的纠纷案件
                 dispute_df = pd.concat([judicative_df, trial_df])
-                self._ps_dispute(df=dispute_df)
+                self._ps_dispute(df=dispute_df,court_df=court_merge_df)
                 # 裁判文书诉讼地位标识
                 if judicative_df is not None and len(judicative_df) > 0:
                     self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
