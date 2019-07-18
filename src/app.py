@@ -21,6 +21,13 @@ sys.path.append(file_dir)
 
 app = Flask(__name__)
 
+# 湛泸产品编码和决策process的对应关系
+product_code_process_dict = {
+    "001": "Level1_m", # 一级个人报告
+    "002": "Level1_m", # 一级企业
+    "003": "Level1_m"
+}
+
 
 def _get_process_code(product_code):
     """
@@ -28,8 +35,10 @@ def _get_process_code(product_code):
     :param product_code:
     :return:
     """
-    # TODO 需要配置一下product_code 和 决策的process code映射表
-    return 'Level1_m'
+    if product_code in product_code_process_dict.keys():
+        return product_code_process_dict.get(product_code)
+    else:
+        raise ServerException(code=500, description="产品编码：{} 不能找到对应的决策流程" % product_code)
 
 
 def _build_request(req_no, product_code, variables={}):
@@ -123,7 +132,9 @@ def strategy():
         # 获取请求参数
         json_data = request.get_json()
         strategy_param = json_data.get('strategyParam')
-        origin_input = json_data.get('strategyInputVariables', {})
+        origin_input = json_data.get('strategyInputVariables')
+        if origin_input is None:
+            origin_input = {}
         req_no = strategy_param.get('reqNo')
         product_code = strategy_param.get('productCode')
         query_data = strategy_param.get('queryData')

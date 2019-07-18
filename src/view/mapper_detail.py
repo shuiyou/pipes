@@ -13,10 +13,17 @@ logger = LoggerUtil().logger(__name__)
 # 标识决策引擎交互完成。
 STRATEGE_DONE = 'fffff'
 
+product_code_view_dict = {
+    "001": ['10001', '13001', '12001', '17001', '07001', '09001'],
+}
+
 
 def _get_codes_by_product_code(product_code):
-    # TODO: 需要根据产品编码配置对应的code
-    return ['10001', '13001', '12001', '17001', '07001', '09001']
+    if product_code in product_code_view_dict.keys():
+        return product_code_view_dict.get(product_code)
+    else:
+        return []
+
 
 def extension_variables(variables):
     """

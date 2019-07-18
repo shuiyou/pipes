@@ -7,7 +7,7 @@ from jsonpath import jsonpath
 
 from app import app
 from logger.logger_util import LoggerUtil
-from mapping import mysql_reader
+from util import mysql_reader
 from view.mapper_detail import round_max
 
 logger = LoggerUtil().logger(__name__)

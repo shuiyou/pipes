@@ -3,7 +3,7 @@ import json
 import jsonpath
 import pandas as pd
 
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
 pd.set_option('display.max_columns', None)
