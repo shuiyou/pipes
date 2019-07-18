@@ -123,6 +123,7 @@ def strategy():
         # 获取请求参数
         json_data = request.get_json()
         strategy_param = json_data.get('strategyParam')
+        origin_input = json_data.get('strategyInputVariables', {})
         req_no = strategy_param.get('reqNo')
         product_code = strategy_param.get('productCode')
         query_data = strategy_param.get('queryData')
@@ -134,8 +135,10 @@ def strategy():
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
-        variables['out_strategyBranch'] = ','.join(codes)
-        strategy_request = _build_request(req_no, product_code, variables)
+        origin_input['out_strategyBranch'] = ','.join(codes)
+        # 合并新的转换变量
+        origin_input.update(variables)
+        strategy_request = _build_request(req_no, product_code, origin_input)
         logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
@@ -153,6 +156,7 @@ def strategy():
                 # 处理关联人
                 _relation_risk_subject(strategy_resp, out_decision_code)
                 json_data['strategyResult'] = strategy_resp
+                json_data['strategyInputVariables'] = variables
                 return jsonify(json_data)
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))

@@ -83,6 +83,9 @@ def test_t_f0002_case():
 def test_t_f0003_case():
     _assert_union_multi_to_one_df('f003')
 
+def test_t_f0005_case():
+    _assert_union_multi_to_multi_df('f0005')
+
 
 def test_v_10001_case():
     _assert_single_detail_df('10001')
