@@ -1,8 +1,8 @@
 
 from faker import Faker
 
-from src.mapping.mysql_reader import sql_insert
-from src.mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_insert
+from util.mysql_reader import sql_to_df
 from tests.data.process_excel_case import Process
 
 
@@ -121,15 +121,15 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     insert_value_array = []
     query_key_array = []
     for key_value in key_array:
-        if key_value in ['unique_name', 'user_name', 'name']:
+        if key_value in ['unique_name', 'user_name', 'name','ent_name'] and key_value not in title:
             name_key_word = key_value
-            name_key_value = fake.name()
-        if key_value in ['unique_id_no', 'id_card_no']:
+            name_key_value = '\'' + str(fake.name())+ '\''
+        if key_value in ['unique_id_no', 'id_card_no','credit_code'] and key_value not in title:
             id_no_key_word = key_value
-            id_no_key_value = fake.ssn()
-        if ('phone' == key_value):
+            id_no_key_value = '\'' +str(fake.ssn())+ '\''
+        if ('phone' == key_value) and key_value not in title:
             phone_key_word = key_value
-            phone_key_value = fake.phone_number()
+            phone_key_value =  '\'' +str(fake.phone_number())+ '\''
     # 关联主键不是id，faker一个数字
     if len(key_word_sub_table) > 0 and 'id' != key_word_sub_table:
         insert_key_array.append(key_word_sub_table)
@@ -137,15 +137,15 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     query_key_array.append(key_word_sub_table)
     if len(name_key_word) > 0:
         insert_key_array.append(name_key_word)
-        insert_value_array.append('\'' + str(name_key_value) + '\'')
+        insert_value_array.append(name_key_value)
         query_key_array.append(name_key_word)
     if len(id_no_key_word) > 0:
         insert_key_array.append(id_no_key_word)
-        insert_value_array.append('\'' + str(id_no_key_value) + '\'')
+        insert_value_array.append(id_no_key_value)
         query_key_array.append(id_no_key_word)
     if len(phone_key_word) > 0:
         insert_key_array.append(phone_key_word)
-        insert_value_array.append('\'' + str(phone_key_value) + '\'')
+        insert_value_array.append(phone_key_value)
         query_key_array.append(phone_key_word)
     # 主表要插入字段
     if (len(title_array) > 1):
@@ -153,10 +153,23 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
         for info in title_array:
             count = count + 1
             if count > 1:
-                insert_key_array.append(info.split('=')[0].split('.')[1])
-                value = str(info.split('=')[1])
+                key = info.split('=')[0].split('.')[1]
+                value = info.split('=')[1]
+                if key in ['unique_name', 'user_name', 'name','ent_name']:
+                    query_key_array.append(key)
+                    name_key_word = key
+                    name_key_value = value
+                elif key in ['unique_id_no', 'id_card_no','credit_code']:
+                    query_key_array.append(key)
+                    id_no_key_word = key
+                    id_no_key_value = value
+                elif key == 'phone':
+                    query_key_array.append(key)
+                    phone_key_word = key
+                    phone_key_value = value
+                insert_key_array.append(key)
                 if len(value) > 0:
-                    insert_value_array.append(value)
+                    insert_value_array.append(str(value))
                 else:
                     insert_value_array.append('Null')
     insert_key_array.append('expired_at')
@@ -182,11 +195,11 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     info_main_table_sql += ','.join(query_key_array)
     info_main_table_sql += ' from ' + table_name + ' where '
     if len(name_key_word) > 0:
-        info_main_table_sql += name_key_word + '=' + '\'' + name_key_value + '\'' + ' and '
+        info_main_table_sql += name_key_word + '=' + name_key_value + ' and '
     if len(id_no_key_word) > 0:
-        info_main_table_sql += id_no_key_word + '=' + '\'' + id_no_key_value + '\'' + ' and '
+        info_main_table_sql += id_no_key_word + '='+ id_no_key_value + ' and '
     if len(phone_key_word) > 0:
-        info_main_table_sql += phone_key_word + '=' + '\'' + phone_key_value + '\'' + ' and '
+        info_main_table_sql += phone_key_word + '=' + phone_key_value + ' and '
     info_main_table_sql = info_main_table_sql[0:len(info_main_table_sql) - 4]
     info_main_table_sql += ' order by id desc limit 1'
     df = sql_to_df(sql=info_main_table_sql)

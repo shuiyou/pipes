@@ -1,8 +1,8 @@
 from faker import Faker
 
 from tests.data.process_excel_case import Process
-from src.mapping.mysql_reader import sql_insert
-from src.mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_insert
+from util.mysql_reader import sql_to_df
 
 
 # 处理主表数据
@@ -27,10 +27,10 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
     insert_value_array = []
     query_key_array = []
     for key_value in key_array:
-        if key_value in ['unique_name', 'user_name', 'name']:
+        if key_value in ['unique_name', 'user_name', 'name','ent_name']:
             name_key_word = key_value
             name_key_value = fake.name()
-        if key_value in ['unique_id_no', 'id_card_no']:
+        if key_value in ['unique_id_no', 'id_card_no','credit_code']:
             id_no_key_word = key_value
             id_no_key_value = fake.ssn()
         if ('phone' == key_value):

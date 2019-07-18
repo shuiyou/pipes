@@ -24,7 +24,7 @@ node {
     }
 
     stage('trigger deploy') {
-         build job: 'mf014-pipes-external-deploy',
+         build job: 'mf014-pipes-test-deploy',
                             parameters: [
                                 string(name: 'DOCKER_TAG_NUMBER', value: "${BUILD_ID}")
                             ]

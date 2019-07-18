@@ -7,7 +7,7 @@ from jsonpath import jsonpath
 
 from app import app
 from logger.logger_util import LoggerUtil
-from mapping import mysql_reader
+from util import mysql_reader
 from view.mapper_detail import round_max
 
 logger = LoggerUtil().logger(__name__)
@@ -40,7 +40,7 @@ def test_strategy(client):
                                       "f0003"], "versionNo": "1.0"}, "strategyResult": {}})
     assert rv.status_code == 200
     v = rv.get_json()
-    print(v)
+    print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
 
 

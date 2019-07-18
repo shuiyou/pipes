@@ -1,9 +1,11 @@
-from mapping.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer, subtract_datetime_col
 import pandas as pd
+
+from util.mysql_reader import sql_to_df
+from mapping.tranformer import Transformer, subtract_datetime_col
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
 
 class V10001(Transformer):
     """
@@ -15,6 +17,7 @@ class V10001(Transformer):
         self.variables = {
             'ovdu_overdue_time_amt': None
         }
+
     # 读取目标数据集
     def _info_risk_overdue_df(self):
         sql = """
@@ -31,7 +34,7 @@ class V10001(Transformer):
                 LIMIT 1
                 );
         """
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name,"id_card_no": self.id_card_no})
+        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'data_build_time', 'M')]
         return df
 
@@ -72,7 +75,5 @@ class V10001(Transformer):
             if len(new_list) > 0:
                 self.variables['ovdu_overdue_time_amt'] = new_list
 
-
     def transform(self):
         self._ovdu_overdue_time_amt(self._info_risk_overdue_df())
-

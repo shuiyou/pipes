@@ -21,6 +21,13 @@ sys.path.append(file_dir)
 
 app = Flask(__name__)
 
+# 湛泸产品编码和决策process的对应关系
+product_code_process_dict = {
+    "001": "Level1_m", # 一级个人报告
+    "002": "Level1_m", # 一级企业
+    "003": "Level1_m"
+}
+
 
 def _get_process_code(product_code):
     """
@@ -28,8 +35,10 @@ def _get_process_code(product_code):
     :param product_code:
     :return:
     """
-    # TODO 需要配置一下product_code 和 决策的process code映射表
-    return 'Level1_m'
+    if product_code in product_code_process_dict.keys():
+        return product_code_process_dict.get(product_code)
+    else:
+        raise ServerException(code=500, description="产品编码：{} 不能找到对应的决策流程" % product_code)
 
 
 def _build_request(req_no, product_code, variables={}):
@@ -123,6 +132,9 @@ def strategy():
         # 获取请求参数
         json_data = request.get_json()
         strategy_param = json_data.get('strategyParam')
+        origin_input = json_data.get('strategyInputVariables')
+        if origin_input is None:
+            origin_input = {}
         req_no = strategy_param.get('reqNo')
         product_code = strategy_param.get('productCode')
         query_data = strategy_param.get('queryData')
@@ -134,8 +146,10 @@ def strategy():
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
-        variables['out_strategyBranch'] = ','.join(codes)
-        strategy_request = _build_request(req_no, product_code, variables)
+        origin_input['out_strategyBranch'] = ','.join(codes)
+        # 合并新的转换变量
+        origin_input.update(variables)
+        strategy_request = _build_request(req_no, product_code, origin_input)
         logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
@@ -153,16 +167,14 @@ def strategy():
                 # 处理关联人
                 _relation_risk_subject(strategy_resp, out_decision_code)
                 json_data['strategyResult'] = strategy_resp
+                json_data['strategyInputVariables'] = variables
                 return jsonify(json_data)
             else:
                 raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
         else:
             raise ServerException(code=502, description=strategy_response.text)
     except Exception as err:
-        if isinstance(err, HTTPException):
-            raise ServerException(code=err.code, description=err.description)
-        else:
-            raise err
+        raise ServerException(code=500, description=str(err))
 
 
 @app.route("/health", methods=['GET'])
