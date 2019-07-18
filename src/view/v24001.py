@@ -572,7 +572,7 @@ class T24001(Transformer):
             );
         '''
         df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        df['date_dif'] = df[subtract_datetime_col(df, create_time, alt_date, 'Y')]
+        df['date_dif'] = df[subtract_datetime_col(df, 'create_time', 'alt_date', 'Y')]
         return df
 
     # 计算工商核查_法定代表人最近5年内变更次数
