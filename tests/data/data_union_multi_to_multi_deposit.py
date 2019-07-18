@@ -1,8 +1,8 @@
 
 from faker import Faker
 
-from src.mapping.mysql_reader import sql_insert
-from src.mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_insert
+from util.mysql_reader import sql_to_df
 from tests.data.process_excel_case import Process
 
 
