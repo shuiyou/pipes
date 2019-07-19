@@ -23,8 +23,8 @@ app = Flask(__name__)
 
 # 湛泸产品编码和决策process的对应关系
 product_code_process_dict = {
-    "001": "Level1_m", # 一级个人报告
-    "002": "Level1_m", # 一级企业
+    "001": "Level1_m",  # 一级个人报告
+    "002": "Level1_m",  # 一级企业
     "003": "Level1_m"
 }
 
@@ -37,15 +37,18 @@ def _get_process_code(product_code):
     """
     if product_code in product_code_process_dict.keys():
         return product_code_process_dict.get(product_code)
-    else:
-        raise ServerException(code=500, description="产品编码：{} 不能找到对应的决策流程" % product_code)
+    raise Exception("产品编码：{} 不能找到对应的决策流程".format(product_code))
 
 
-def _build_request(req_no, product_code, variables={}):
+def _build_request(req_no, product_code, variables=None):
     """
     根据http请求构建出决策需要的请求, 需要去查数据库获取相关的数据
     :return:
     """
+    # 替換None值，因爲決策不認
+    for key, value in variables.items():
+        if value is None:
+            variables[key] = ''
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
@@ -80,32 +83,31 @@ def shake_hand():
         phone = query_data.get('phone')
         user_type = query_data.get('userType')
         variables = T00000().run(user_name, id_card_no, phone, user_type)['variables']
+        # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
         strategy_request = _build_request(req_no, product_code, variables=variables)
         logger.info(strategy_request)
         # 调用决策引擎
 
         response = requests.post(STRATEGY_URL, json=strategy_request)
-        if response.status_code == 200:
-            resp_json = response.json()
-            error = jsonpath(resp_json, '$..Error')
-            if error is False:
-                resp = {
-                    'productCode': json_data.get('productCode'),
-                    'reqNo': json_data.get('reqNo'),
-                    'bizType': _get_biz_types(resp_json)
-                }
-                return jsonify(resp)
-            else:
-                raise ServerException(code=501, description=';'.join(jsonpath(resp_json, '$..Description')))
-        else:
-            raise ServerException(code=502, description="strategyOne错误:" + response.text)
+        if response.status_code != 200:
+            raise Exception("strategyOne错误:" + response.text)
+        resp_json = response.json()
+        error = jsonpath(resp_json, '$..Error')
+        if error:
+            raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
+        resp = {
+            'productCode': json_data.get('productCode'),
+            'reqNo': json_data.get('reqNo'),
+            'bizType': _get_biz_types(resp_json)
+        }
+        return jsonify(resp)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
 
-def _get_biz_types(json):
-    res = jsonpath(json, '$..out_strategyBranch')
+def _get_biz_types(input_json):
+    res = jsonpath(input_json, '$..out_strategyBranch')
     if isinstance(res, list) and len(res) > 0:
         biz_types = res[0].split(',')
     else:
@@ -154,25 +156,23 @@ def strategy():
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         logger.debug(strategy_response)
-        if strategy_response.status_code == 200:
-            strategy_resp = strategy_response.json()
-            error = jsonpath(strategy_resp, '$..Error')
-            if error is False:
-                biz_types = _get_biz_types(strategy_resp)
-                strategy_param['bizType'] = biz_types
-                # 最后返回报告详情
-                if STRATEGE_DONE in biz_types:
-                    detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
-                    json_data['reportDetail'] = [detail]
-                # 处理关联人
-                _relation_risk_subject(strategy_resp, out_decision_code)
-                json_data['strategyResult'] = strategy_resp
-                json_data['strategyInputVariables'] = variables
-                return jsonify(json_data)
-            else:
-                raise ServerException(code=501, description=';'.join(jsonpath(strategy_resp, '$..Description')))
-        else:
-            raise ServerException(code=502, description=strategy_response.text)
+        if strategy_response.status_code != 200:
+            raise Exception("strategyOne错误:" + strategy_response.text)
+        strategy_resp = strategy_response.json()
+        error = jsonpath(strategy_resp, '$..Error')
+        if error:
+            raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
+        biz_types = _get_biz_types(strategy_resp)
+        strategy_param['bizType'] = biz_types
+        # 最后返回报告详情
+        if STRATEGE_DONE in biz_types:
+            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
+            json_data['reportDetail'] = [detail]
+        # 处理关联人
+        _relation_risk_subject(strategy_resp, out_decision_code)
+        json_data['strategyResult'] = strategy_resp
+        json_data['strategyInputVariables'] = variables
+        return jsonify(json_data)
     except Exception as err:
         raise ServerException(code=500, description=str(err))
 
@@ -192,19 +192,17 @@ def flask_global_exception_handler(e):
     if isinstance(e, APIException):
         return e
     # 判断异常是不是HTTPException
-    elif isinstance(e, HTTPException):
+    if isinstance(e, HTTPException):
         error = APIException()
         error.code = e.code
         error.description = e.description
         return error
     # 异常肯定是Exception
-    else:
-        from flask import current_app
-        # 如果是调试模式,则返回e的具体异常信息。否则返回json格式的ServerException对象！
-        if current_app.config["DEBUG"]:
-            return e
-        else:
-            return ServerException()
+    from flask import current_app
+    # 如果是调试模式,则返回e的具体异常信息。否则返回json格式的ServerException对象！
+    if current_app.config["DEBUG"]:
+        return e
+    return ServerException()
 
 
 if __name__ == '__main__':
