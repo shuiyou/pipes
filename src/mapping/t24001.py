@@ -1,5 +1,5 @@
 import pandas as pd
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
 pd.set_option('display.max_columns', None)
@@ -16,7 +16,7 @@ class T24001(Transformer):
 
         super().__init__()
         self.variables = {
-            'com_bus_status': None,  # 工商核查_企业登记状态异常
+            'com_bus_status': 0,  # 工商核查_企业登记状态异常
             'com_bus_endtime': None,  # 工商核查_营业期限至
             'com_bus_relent_revoke': 0,  # 工商核查_关联公司吊销个数
             'com_bus_case_info': 0,  # 工商核查_现在是否有行政处罚信息
@@ -44,7 +44,7 @@ class T24001(Transformer):
             'com_bus_saicAffiliated': 0,  # 工商核查_企业关联公司个数
             'com_bus_province': None,  # 工商核查_省
             'com_bus_city': None,  # 工商核查_市
-            'com_bus_leg_not_shh': None,  # 工商核查_法人非股东
+            'com_bus_leg_not_shh': 0,  # 工商核查_法人非股东
             'com_bus_exception_result': 0,  # 工商核查_经营异常原因
             'com_bus_saicChanRunscope': 0,  # 工商核查_经营范围变更次数
             'com_bus_legper_relent_revoke': 0,  # 工商核查_企业和法人关联公司是否存在吊销
@@ -94,7 +94,7 @@ class T24001(Transformer):
     # 计算工商核查_注册资本（万元）
     def _com_bus_registered_capital(self, df=None):
         if df is not None and len(df) > 0:
-            self.variables['com_bus_registered_capital'] = df['reg_cap'].values[0]
+            self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0]/10000, 2)
 
     # 计算工商核查_类型
     def _com_bus_enttype(self, df=None):
@@ -499,7 +499,7 @@ class T24001(Transformer):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_result_out is NULL
+            WHERE illegal_rresult_out is NULL
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
@@ -527,7 +527,7 @@ class T24001(Transformer):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_result_out is not NULL
+            WHERE illegal_rresult_out is not NULL
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
