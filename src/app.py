@@ -29,6 +29,53 @@ product_code_process_dict = {
 }
 
 
+def _append_rules():
+    rules = {
+        "01001": [
+            {
+                "relatedType": "SHAREHOLDER",
+                "rule": {
+                    "entStatus": "OPENING",
+                    "ratioOfInvestments": "0.2"
+                }
+            },
+            {
+                "relatedType": "LEGAL",
+                "rule": {
+                    "entStatus": "OPENING"
+                }
+            },
+            {
+                "relatedType": "SENIOR",
+                "rule": {
+                    "entStatus": "OPENING"
+                }
+            }
+        ],
+        "01002": [
+            {
+                "relatedType": "SHAREHOLDER",
+                "rule": {
+                    "entStatus": "OPENING",
+                    "ratioOfInvestments": "0.2"
+                }
+            },
+            {
+                "relatedType": "LEGAL",
+                "rule": {
+                    "entStatus": "OPENING"
+                }
+            },
+            {
+                "relatedType": "SENIOR",
+                "rule": {
+                    "entStatus": "OPENING"
+                }
+            }
+        ]
+    }
+    return rules
+
 def _get_process_code(product_code):
     """
     根据产品编码得到对应的process code： 决策引擎的流程编码
@@ -99,7 +146,8 @@ def shake_hand():
         resp = {
             'productCode': json_data.get('productCode'),
             'reqNo': json_data.get('reqNo'),
-            'bizType': _get_biz_types(resp_json)
+            'bizType': _get_biz_types(resp_json),
+            'rules': _append_rules()
         }
         return jsonify(resp)
     except Exception as err:
