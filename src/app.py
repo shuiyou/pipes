@@ -38,7 +38,7 @@ def _get_process_code(product_code):
     if product_code in product_code_process_dict.keys():
         return product_code_process_dict.get(product_code)
     else:
-        raise ServerException(code=500, description="产品编码：{} 不能找到对应的决策流程" % product_code)
+        raise Exception("产品编码：{} 不能找到对应的决策流程".format(product_code))
 
 
 def _build_request(req_no, product_code, variables={}):
