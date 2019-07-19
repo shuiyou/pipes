@@ -30,51 +30,28 @@ product_code_process_dict = {
 
 
 def _append_rules():
-    rules = {
-        "01001": [
-            {
-                "relatedType": "SHAREHOLDER",
-                "rule": {
-                    "entStatus": "OPENING",
-                    "ratioOfInvestments": "0.2"
+    rules = [
+        {
+            "code": "f0003",
+            "data": [
+                {
+                    "relatedType": "SHAREHOLDER",
+                    "rule": {
+                        "entStatus": "OPENING",
+                        "ratioOfInvestments": "0.2"
+                    }
+                },
+                {
+                    "relatedType": "LEGAL",
+                    "rule": {
+                        "entStatus": "OPENING"
+                    }
                 }
-            },
-            {
-                "relatedType": "LEGAL",
-                "rule": {
-                    "entStatus": "OPENING"
-                }
-            },
-            {
-                "relatedType": "SENIOR",
-                "rule": {
-                    "entStatus": "OPENING"
-                }
-            }
-        ],
-        "01002": [
-            {
-                "relatedType": "SHAREHOLDER",
-                "rule": {
-                    "entStatus": "OPENING",
-                    "ratioOfInvestments": "0.2"
-                }
-            },
-            {
-                "relatedType": "LEGAL",
-                "rule": {
-                    "entStatus": "OPENING"
-                }
-            },
-            {
-                "relatedType": "SENIOR",
-                "rule": {
-                    "entStatus": "OPENING"
-                }
-            }
-        ]
-    }
+            ]
+        }
+    ]
     return rules
+
 
 def _get_process_code(product_code):
     """
