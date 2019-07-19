@@ -66,6 +66,7 @@ class Tf0003(Transformer):
              WHERE  unix_timestamp(NOW()) < unix_timestamp(a.expired_at)
              AND a.name = %(user_name)s AND a.id_card_no = %(id_card_no)s
              AND b.ent_status in ('在营（开业）','存续（在营、开业、在册）')
+             AND b.funded_ratio>=0.2
              ORDER BY b.funded_ratio DESC,b.reg_cap DESC,b.jhi_date LIMIT 1
             ;
          """

@@ -38,7 +38,7 @@ def _get_process_code(product_code):
     if product_code in product_code_process_dict.keys():
         return product_code_process_dict.get(product_code)
     else:
-        raise ServerException(code=500, description="产品编码：{} 不能找到对应的决策流程" % product_code)
+        raise Exception("产品编码：{} 不能找到对应的决策流程".format(product_code))
 
 
 def _build_request(req_no, product_code, variables={}):
@@ -134,7 +134,9 @@ def strategy():
         # 获取请求参数
         json_data = request.get_json()
         strategy_param = json_data.get('strategyParam')
-        origin_input = json_data.get('strategyInputVariables', {})
+        origin_input = json_data.get('strategyInputVariables')
+        if origin_input is None:
+            origin_input = {}
         req_no = strategy_param.get('reqNo')
         product_code = strategy_param.get('productCode')
         query_data = strategy_param.get('queryData')
