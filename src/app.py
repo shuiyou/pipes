@@ -128,6 +128,7 @@ def shake_hand():
         }
         return jsonify(resp)
     except Exception as err:
+        logger.error(str(err))
         raise ServerException(code=500, description=str(err))
 
 
@@ -199,6 +200,7 @@ def strategy():
         json_data['strategyInputVariables'] = variables
         return jsonify(json_data)
     except Exception as err:
+        logger.error(str(err))
         raise ServerException(code=500, description=str(err))
 
 
