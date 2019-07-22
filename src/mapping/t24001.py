@@ -232,23 +232,19 @@ class T24001(Transformer):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_shares_frost
-            WHERE judicial_froz_state LIKE '%冻结%'
-            AND judicial_froz_state NOT LIKE '%解冻%'
-            AND judicial_froz_state NOT LIKE '%失效%'
-            AND judicial_froz_state NOT LIKE '%解除%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
+            WHERE basic_id 
+            = (SELECT id
                     FROM info_com_bus_basic
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC 
                     LIMIT 1
-                ) cbb
-            );
+                ) 
+            AND judicial_froz_state LIKE '%冻结%'
+            AND judicial_froz_state NOT LIKE '%解冻%'
+            AND judicial_froz_state NOT LIKE '%失效%'
+            AND judicial_froz_state NOT LIKE '%解除%'          
         '''
         df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
