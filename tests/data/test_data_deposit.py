@@ -71,6 +71,8 @@ def test_t_17001_case():
 def test_t_18001_case():
     _assert_single_df('18001')
 
+def test_t_24001_case():
+    _assert_single_df('24001')
 
 def test_t_f0001_case():
     _assert_union_multi_to_multi_df('f0001')
