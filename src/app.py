@@ -29,7 +29,7 @@ product_code_process_dict = {
 }
 
 
-def _append_rules():
+def _append_rules(biz_types):
     rules = [
         {
             "code": "f0003",
@@ -50,7 +50,11 @@ def _append_rules():
             ]
         }
     ]
-    return rules
+    result = []
+    for r in rules:
+        if r['code'] in biz_types:
+            result.append(r)
+    return result
 
 
 def _get_process_code(product_code):
@@ -120,11 +124,12 @@ def shake_hand():
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
+        biz_types = _get_biz_types(resp_json)
         resp = {
             'productCode': json_data.get('productCode'),
             'reqNo': json_data.get('reqNo'),
-            'bizType': _get_biz_types(resp_json),
-            'rules': _append_rules()
+            'bizType': biz_types,
+            'rules': _append_rules(biz_types)
         }
         return jsonify(resp)
     except Exception as err:
@@ -198,6 +203,7 @@ def strategy():
         _relation_risk_subject(strategy_resp, out_decision_code)
         json_data['strategyResult'] = strategy_resp
         json_data['strategyInputVariables'] = variables
+        json_data['rules'] = _append_rules(biz_types)
         return jsonify(json_data)
     except Exception as err:
         logger.error(str(err))
