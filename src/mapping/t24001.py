@@ -93,6 +93,7 @@ class T24001(Transformer):
 
     # 计算工商核查_注册资本（万元）
     def _com_bus_registered_capital(self, df=None):
+        df = df.dropna(subset=['reg_cap'], how='any')
         if df is not None and len(df) > 0:
             self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0]/10000, 2)
 
@@ -229,27 +230,23 @@ class T24001(Transformer):
     # 获取目标数据集4
     def _info_com_bus_shares_frost(self):
         sql = '''
-            SELECT basic_id
+            SELECT judicial_froz_state
             FROM info_com_bus_shares_frost
-            WHERE judicial_froz_state LIKE '%冻结%'
-            AND judicial_froz_state NOT LIKE '%解冻%'
-            AND judicial_froz_state NOT LIKE '%失效%'
-            AND judicial_froz_state NOT LIKE '%解除%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
+            WHERE basic_id 
+            = (SELECT id
                     FROM info_com_bus_basic
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC 
                     LIMIT 1
-                ) cbb
-            );
+                ) 
+            AND judicial_froz_state LIKE  %(L1)s
+            AND judicial_froz_state NOT LIKE  %(L2)s
+            AND judicial_froz_state NOT LIKE  %(L3)s
+            AND judicial_froz_state NOT LIKE  %(L4)s        
         '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no,"L1":'%冻结%',"L2":'%解冻%',"L3":'%失效%',"L4":'%解除%'})
         return df
 
     # 计算工商核查_现在是否有股权冻结信息
@@ -260,7 +257,7 @@ class T24001(Transformer):
     # 获取目标数据集5
     def _info_com_bus_shares_frost2(self):
         sql = '''
-            SELECT basic_id
+            SELECT judicial_froz_state
             FROM info_com_bus_shares_frost
             WHERE judicial_froz_state LIKE '%解冻%'
             OR judicial_froz_state LIKE '%失效%'
@@ -290,7 +287,7 @@ class T24001(Transformer):
     # 获取目标数据集6
     def _info_com_bus_shares_impawn(self):
         sql = '''
-            SELECT basic_id
+            SELECT imp_exe_state
             FROM info_com_bus_shares_impawn
             WHERE imp_exe_state LIKE '%有效%'
             AND basic_id 
@@ -346,7 +343,7 @@ class T24001(Transformer):
     # 获取目标数据集8
     def _info_com_bus_mort_basic(self):
         sql = '''
-            SELECT basic_id
+            SELECT mort_state
             FROM info_com_bus_mort_basic
             WHERE mort_state LIKE '%有效%'
             AND basic_id 
