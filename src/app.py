@@ -1,4 +1,5 @@
 import json
+import numpy
 import os
 import sys
 
@@ -77,6 +78,9 @@ def _build_request(req_no, product_code, variables=None):
     for key, value in variables.items():
         if value is None:
             variables[key] = ''
+        if type(value) is numpy.float64:
+            variables[key] = round(value, 2)
+
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
