@@ -93,6 +93,7 @@ class T24001(Transformer):
 
     # 计算工商核查_注册资本（万元）
     def _com_bus_registered_capital(self, df=None):
+        df = df.dropna(subset=['reg_cap'], how='any')
         if df is not None and len(df) > 0:
             self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0]/10000, 2)
 
