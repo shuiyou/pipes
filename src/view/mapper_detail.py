@@ -120,10 +120,10 @@ def extension_variables(variables):
 def round_max(max_arr, median_arr=None, ratio=0.3):
     if median_arr is None:
         median_arr = max_arr
-    return round(
+    return int(round(
         numpy.amax(max_arr) + ratio * numpy.median(median_arr),
         0
-    )
+    ))
 
 
 def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None):
