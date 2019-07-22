@@ -230,7 +230,7 @@ class T24001(Transformer):
     # 获取目标数据集4
     def _info_com_bus_shares_frost(self):
         sql = '''
-            SELECT basic_id
+            SELECT judicial_froz_state
             FROM info_com_bus_shares_frost
             WHERE basic_id 
             = (SELECT id
@@ -241,12 +241,12 @@ class T24001(Transformer):
                     ORDER BY id DESC 
                     LIMIT 1
                 ) 
-            AND judicial_froz_state LIKE '%冻结%'
-            AND judicial_froz_state NOT LIKE '%解冻%'
-            AND judicial_froz_state NOT LIKE '%失效%'
-            AND judicial_froz_state NOT LIKE '%解除%'          
+            AND judicial_froz_state LIKE  %(L1)s
+            AND judicial_froz_state NOT LIKE  %(L2)s
+            AND judicial_froz_state NOT LIKE  %(L3)s
+            AND judicial_froz_state NOT LIKE  %(L4)s        
         '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no,"L1":'%冻结%',"L2":'%解冻%',"L3":'%失效%',"L4":'%解除%'})
         return df
 
     # 计算工商核查_现在是否有股权冻结信息
@@ -257,7 +257,7 @@ class T24001(Transformer):
     # 获取目标数据集5
     def _info_com_bus_shares_frost2(self):
         sql = '''
-            SELECT basic_id
+            SELECT judicial_froz_state
             FROM info_com_bus_shares_frost
             WHERE judicial_froz_state LIKE '%解冻%'
             OR judicial_froz_state LIKE '%失效%'
@@ -287,7 +287,7 @@ class T24001(Transformer):
     # 获取目标数据集6
     def _info_com_bus_shares_impawn(self):
         sql = '''
-            SELECT basic_id
+            SELECT imp_exe_state
             FROM info_com_bus_shares_impawn
             WHERE imp_exe_state LIKE '%有效%'
             AND basic_id 
@@ -343,7 +343,7 @@ class T24001(Transformer):
     # 获取目标数据集8
     def _info_com_bus_mort_basic(self):
         sql = '''
-            SELECT basic_id
+            SELECT mort_state
             FROM info_com_bus_mort_basic
             WHERE mort_state LIKE '%有效%'
             AND basic_id 
