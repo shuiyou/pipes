@@ -339,6 +339,8 @@ class Tf0001(Transformer):
                     return 2
                 elif number_defendant == 0 and number_plaintiff < number_total:
                     return 3
+            else:
+                return 0
 
     # 执行公开信息
     def _court_excute_public_df(self, df=None):

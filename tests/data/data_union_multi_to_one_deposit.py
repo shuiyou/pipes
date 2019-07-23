@@ -131,7 +131,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
             count = count + 1
             if count > 1:
                 insert_key_array.append(info.split('=')[0].split('.')[1])
-                value = str(info.split('=')[1])
+                value = str(info.split('=')[1]).strip()
                 if len(value) > 0:
                     insert_value_array.append(value)
                 else:
