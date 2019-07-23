@@ -79,7 +79,7 @@ def _build_request(req_no, product_code, variables=None):
         if value is None:
             variables[key] = ''
         if type(value) is numpy.float64:
-            variables[key] = round(value, 2)
+            variables[key] = int(round(value))
         if str(value) == 'nan':
             variables[key] = 0
 
@@ -200,6 +200,7 @@ def strategy():
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
+        score_to_int(strategy_resp)
         biz_types = _get_biz_types(strategy_resp)
         logger.info(biz_types)
         strategy_param['bizType'] = biz_types
@@ -216,6 +217,15 @@ def strategy():
     except Exception as err:
         logger.error(str(err))
         raise ServerException(code=500, description=str(err))
+
+
+def score_to_int(strategy_resp):
+    resp_variables = jsonpath(strategy_resp, '$..Application.Variables')
+    if resp_variables is not None:
+        variables_ = resp_variables[0]
+        for key, value in variables_.items():
+            if key.startswith('score'):
+                variables_[key] = int(round(value))
 
 
 @app.route("/health", methods=['GET'])
