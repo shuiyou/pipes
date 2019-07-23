@@ -48,13 +48,15 @@ class T24001(Transformer):
             'com_bus_exception_result': 0,  # 工商核查_经营异常原因
             'com_bus_saicChanRunscope': 0,  # 工商核查_经营范围变更次数
             'com_bus_legper_relent_revoke': 0,  # 工商核查_企业和法人关联公司是否存在吊销
-            'com_bus_legper_outwardCount1': 0  # 工商核查_企业、法人对外投资的公司数量
+            'com_bus_legper_outwardCount1': 0,  # 工商核查_企业、法人对外投资的公司数量
+            'com_bus_industryphyname': None  # 工商核查_行业门类名称
         }
 
     # 获取目标数据集1
     def _info_com_bus_face(self):
         sql = '''
-            SELECT ent_status,open_from,open_to,reg_cap,ent_type,es_date,industry_phy_code,area_code,industry_code,province,city
+            SELECT ent_status,open_from,open_to,reg_cap,ent_type,es_date,industry_phy_code,area_code,industry_code,
+            province,city,industry_phyname
             FROM info_com_bus_face 
             WHERE basic_id 
             IN (
@@ -131,6 +133,11 @@ class T24001(Transformer):
     def _com_bus_city(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_city'] = df['city'].values[0]
+
+    # 计算工商核查_行业门类名称
+    def _com_bus_industryphyname(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_industryphyname'] = df['industry_phyname'].values[0]
 
     # 获取目标数据集2
     def _info_com_bus_entinvitem_frinv(self):
