@@ -248,15 +248,15 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有股权冻结信息
     def _com_bus_shares_frost(self, df=None):
-        df = df[(df['judicial_froz_state'].str.find('冻结') == 1) & (df['judicial_froz_state'].str.find('解冻') == -1) &
-                (df['judicial_froz_state'].str.find('解除') == -1) & (df['judicial_froz_state'].str.find('失效') == -1)]
+        df = df[df['judicial_froz_state'].str.contains('冻结') & ~df['judicial_froz_state'].str.contains('解冻') &
+                ~df['judicial_froz_state'].str.contains('解除') & ~df['judicial_froz_state'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_frost'] = 1
 
     # 计算工商核查_曾经是否有股权冻结信息
     def _com_bus_shares_frost_his(self, df=None):
-        df = df[(df['judicial_froz_state'].str.find('解冻') == 1) | (df['judicial_froz_state'].str.find('解除') == 1) |
-                (df['judicial_froz_state'].str.find('失效') == 1)]
+        df = df[df['judicial_froz_state'].str.contains('解冻') | df['judicial_froz_state'].str.contains('解除') |
+                df['judicial_froz_state'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_frost_his'] = 1
 
@@ -358,10 +358,9 @@ class T24001(Transformer):
     # 获取目标数据集8
     def _info_com_bus_exception(self):
         sql = '''
-            SELECT basic_id,result_in
+            SELECT result_in,result_out,date_out
             FROM info_com_bus_exception
-            WHERE result_out is NULL
-            AND basic_id 
+            WHERE basic_id
             IN (
                 SELECT cbb.basic_id 
                 FROM (
@@ -380,12 +379,14 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有经营异常信息
     def _com_bus_exception(self, df=None):
-        if df is not None and len(df) > 0:
+        df = df[df['result_out'].isnull().values == True]
+        if len(df) > 0:
             self.variables['com_bus_exception'] = 1
 
     # 计算工商核查_经营异常原因
     def _com_bus_exception_result(self, df=None):
-        if df is not None and len(df) > 0:
+        df = df[df['date_out'].isnull().values == True]
+        if len(df) > 0:
             if True in df.result_in.str.contains('弄虚作假'):
                 self.variables['com_bus_exception_result'] = 3
             elif (True in df.result_in.str.contains('无法联系')) or (True in df.result_in.str.contains('无法取得联系')):
@@ -395,35 +396,13 @@ class T24001(Transformer):
             else:
                 self.variables['com_bus_exception_result'] = 0
 
-    # 获取目标数据集9
-    def _info_com_bus_exception2(self):
-        sql = '''
-            SELECT basic_id
-            FROM info_com_bus_exception
-            WHERE result_out is not NULL
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
-        '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df
-
     # 计算工商核查_曾经是否有经营异常信息
     def _com_bus_exception_his(self, df=None):
-        if df is not None and len(df) > 0:
+        df = df[df['result_out'].isnull().values == False]
+        if len(df) > 0:
             self.variables['com_bus_exception_his'] = 1
 
-    # 获取目标数据集10
+    # 获取目标数据集9
     def _info_com_bus_illegal(self):
         sql = '''
             SELECT basic_id
@@ -451,7 +430,7 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_illegal_list'] = 1
 
-    # 获取目标数据集11
+    # 获取目标数据集10
     def _info_com_bus_illegal2(self):
         sql = '''
             SELECT basic_id
@@ -479,7 +458,7 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_illegal_list_his'] = 1
 
-    # 获取目标数据集12
+    # 获取目标数据集11
     def _info_com_bus_alter(self):
         sql = '''
             SELECT a.id,a.alt_item,a.alt_date,b.create_time
@@ -528,7 +507,7 @@ class T24001(Transformer):
             df = df[df.alt_item.str.contains('经营范围')]
             self.variables['com_bus_saicChanRunscope'] = len(df)
 
-    # 获取目标数据集13
+    # 获取目标数据集12
     def _info_com_bus_face_shareholder(self):
         sql1 = '''
             SELECT fr_name
@@ -614,7 +593,7 @@ class T24001(Transformer):
         '''
         df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        df = pd.concat([df1,df2], ignore_index=True)
+        df = pd.concat([df1, df2], ignore_index=True)
         return df
 
     # 计算工商核查_企业和法人关联公司是否存在吊销
@@ -665,7 +644,7 @@ class T24001(Transformer):
         if info_com_bus_exception is not None and len(info_com_bus_exception) > 0:
             self._com_bus_exception(info_com_bus_exception)
             self._com_bus_exception_result(info_com_bus_exception)
-        self._com_bus_exception_his(self._info_com_bus_exception2())
+            self._com_bus_exception_his(info_com_bus_exception)
         self._com_bus_illegal_list(self._info_com_bus_illegal())
         self._com_bus_illegal_list_his(self._info_com_bus_illegal2())
         info_com_bus_alter = self._info_com_bus_alter()
