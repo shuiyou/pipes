@@ -79,7 +79,7 @@ def _build_request(req_no, product_code, variables=None):
         if value is None:
             variables[key] = ''
         if type(value) is numpy.float64:
-            variables[key] = round(value, 2)
+            variables[key] = int(round(value))
         if str(value) == 'nan':
             variables[key] = 0
 
