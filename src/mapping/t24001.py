@@ -387,11 +387,11 @@ class T24001(Transformer):
     def _com_bus_exception_result(self, df=None):
         df = df[df['date_out'].isnull().values == True]
         if len(df) > 0:
-            if True in df.result_in.str.contains('弄虚作假'):
+            if True in df['result_in'].str.contains('弄虚作假').values:
                 self.variables['com_bus_exception_result'] = 3
-            elif (True in df.result_in.str.contains('无法联系')) or (True in df.result_in.str.contains('无法取得联系')):
+            elif (True in df['result_in'].str.contains('无法联系').values) or (True in df.result_in.str.contains('无法取得联系').values):
                 self.variables['com_bus_exception_result'] = 2
-            elif True in df.result_in.str.contains('年度报告'):
+            elif True in df['result_in'].str.contains('年度报告').values:
                 self.variables['com_bus_exception_result'] = 1
             else:
                 self.variables['com_bus_exception_result'] = 0
@@ -598,7 +598,7 @@ class T24001(Transformer):
 
     # 计算工商核查_企业和法人关联公司是否存在吊销
     def _com_bus_legper_relent_revoke(self, df=None):
-        if True in df.ent_status.str.contains('吊销'):
+        if True in df['ent_status'].str.contains('吊销').values:
             self.variables['com_bus_legper_relent_revoke'] = 1
 
     # 计算工商核查_企业、法人对外投资的公司数量
