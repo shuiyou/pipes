@@ -225,7 +225,7 @@ def score_to_int(strategy_resp):
         variables_ = resp_variables[0]
         for key, value in variables_.items():
             if key.startswith('score*'):
-                variables_[key] = int(value)
+                variables_[key] = int(round(value))
 
 
 @app.route("/health", methods=['GET'])
