@@ -1,4 +1,5 @@
 import json
+import numpy
 import os
 import sys
 
@@ -77,6 +78,11 @@ def _build_request(req_no, product_code, variables=None):
     for key, value in variables.items():
         if value is None:
             variables[key] = ''
+        if type(value) is numpy.float64:
+            variables[key] = round(value, 2)
+        if str(value) == 'nan':
+            variables[key] = 0
+
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
@@ -164,6 +170,7 @@ def strategy():
     try:
         # 获取请求参数
         json_data = request.get_json()
+        logger.debug(json.dumps(json_data))
         strategy_param = json_data.get('strategyParam')
         origin_input = json_data.get('strategyInputVariables')
         if origin_input is None:
@@ -194,6 +201,7 @@ def strategy():
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
         biz_types = _get_biz_types(strategy_resp)
+        logger.info(biz_types)
         strategy_param['bizType'] = biz_types
         # 最后返回报告详情
         if STRATEGE_DONE in biz_types:

@@ -28,8 +28,7 @@ class T00000(Transformer):
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
-                               "id_card_no": self.id_card_no,
-                               "phone": self.phone})
+                               "id_card_no": self.id_card_no})
         if df is not None and len(df) > 0:
             if df['base_black'][0] > 0:
                 self.variables['base_black'] = 1
