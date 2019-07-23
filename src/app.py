@@ -224,7 +224,7 @@ def score_to_int(strategy_resp):
     if resp_variables is not None:
         variables_ = resp_variables[0]
         for key, value in variables_.items():
-            if key.startswith('score*'):
+            if key.startswith('score'):
                 variables_[key] = int(round(value))
 
 
