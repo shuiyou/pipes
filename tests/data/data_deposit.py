@@ -74,7 +74,7 @@ def _insert_main_table_data(title, key, channel_api_no, expired_at='2030-12-20')
                     phone_key_word = key
                     phone_key_value = value
                 insert_key_array.append(key)
-                if len(value) > 0:
+                if len(str(value).strip()) > 0:
                     insert_value_array.append(str(value))
                 else:
                     insert_value_array.append('Null')

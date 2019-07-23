@@ -5,7 +5,7 @@ import pandas as pd
 
 def test_tf_0001():
     ps = Tf0001()
-    ps.run(user_name='台文', id_card_no='150928199901188522', phone='')
+    ps.run(user_name='彭欣', id_card_no='431228200101060120', phone='')
     print(ps.variables)
     # assert ps.variables['relent_court_open_admi_violation'] == 3
     # assert ps.variables['relent_court_admi_violation_max'] == 128461.54
