@@ -1,5 +1,5 @@
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col, extract_money, extract_money_court_excute_public
+from util.mysql_reader import sql_to_df
 
 
 def check_is_contain(key, value):
@@ -37,10 +37,10 @@ class T16002(Transformer):
             'court_ent_fin_loan_con': 0,
             'court_ent_loan_con': 0,
             'court_ent_pop_loan': 0,
-            'court_ent_pub_info_max':0,
-            'court_ent_judge_max':0,
-            'court_ent_tax_arrears_max':0,
-            'court_ent_admi_violation_max':0
+            'court_ent_pub_info_max': 0,
+            'court_ent_judge_max': 0,
+            'court_ent_tax_arrears_max': 0,
+            'court_ent_admi_violation_max': 0
         }
 
     # 行政违法记录sql
@@ -65,8 +65,8 @@ class T16002(Transformer):
             if df1 is not None and len(df1) > 0:
                 df1['max_money'] = df1.apply(lambda x: extract_money(x['execution_result']), axis=1)
                 self.variables['court_ent_admi_vio_amt_3y'] = df1['max_money'].sum()
-            df_max = df.dropna(subset=['execution_result'],how='any')
-            if df_max is not None and len(df_max)>0:
+            df_max = df.dropna(subset=['execution_result'], how='any')
+            if df_max is not None and len(df_max) > 0:
                 df_max['max_money'] = df_max.apply(lambda x: extract_money(x['execution_result']), axis=1)
                 self.variables['court_ent_admi_violation_max'] = float('%.2f' % df_max['max_money'].max())
 
@@ -91,8 +91,8 @@ class T16002(Transformer):
 
             df2 = df.query(self.dff_year + ' < 3')
             self.variables['court_ent_judge_amt_3y'] = float('%.2f' % df2['case_amount'].sum())
-            df_max = df.dropna(subset=['case_amount'],how='any')
-            if df_max is not None and len(df_max)>0:
+            df_max = df.dropna(subset=['case_amount'], how='any')
+            if df_max is not None and len(df_max) > 0:
                 self.variables['court_ent_judge_max'] = float('%.2f' % df_max['case_amount'].max())
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
@@ -206,8 +206,8 @@ class T16002(Transformer):
             self.variables['court_ent_tax_arrears'] = df.shape[0]
             df1 = df.query(self.dff_year + "< 3")
             self.variables['court_ent_tax_arrears_amt_3y'] = df1['taxes'].sum()
-            df_max = df.dropna(subset=['taxes'],how='any')
-            if df_max is not None and len(df_max)>0:
+            df_max = df.dropna(subset=['taxes'], how='any')
+            if df_max is not None and len(df_max) > 0:
                 self.variables['court_ent_tax_arrears_max'] = float('%.2f' % df_max['taxes'].max())
 
     # 失信老赖名单sql
@@ -284,11 +284,13 @@ class T16002(Transformer):
             self.variables['court_ent_pub_info'] = df.shape[0]
             df_3_year = df.query(self.dff_year + ' < 3')
             if df_3_year is not None and len(df_3_year) > 0:
-                df_3_year['max_money'] = df_3_year.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
+                df_3_year['max_money'] = df_3_year.apply(
+                    lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
                 self.variables['court_ent_pub_info_amt_3y'] = float("%.2f" % df_3_year['max_money'].sum())
-            df_max = df.dropna(subset=['execute_content'],how='any')
-            if df_max is not None and len(df_max)>0:
-                df_max['max_money'] = df_max.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
+            df_max = df.dropna(subset=['execute_content'], how='any')
+            if df_max is not None and len(df_max) > 0:
+                df_max['max_money'] = df_max.apply(lambda x: extract_money_court_excute_public(x['execute_content']),
+                                                   axis=1)
                 self.variables['court_ent_pub_info_max'] = float("%.2f" % df_max['max_money'].max())
 
     # 罪犯及嫌疑人名单sql

@@ -80,5 +80,3 @@ class Vf0003(Transformer):
             ent_name = ent_name_df1['ent_name'][0]
             info_sql_com_bus_face_df = self._info_sql_com_bus_face_df(ent_name=ent_name)
             self._per_com_industryphyname(info_sql_com_bus_face_df)
-
-

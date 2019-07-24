@@ -1,8 +1,8 @@
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
+from util.mysql_reader import sql_to_df
 
 
 def check_is_contain(key, value):
@@ -11,7 +11,8 @@ def check_is_contain(key, value):
     else:
         return 0
 
-def get_out_decision_code(df,court_df):
+
+def get_out_decision_code(df, court_df):
     # df-court_id去重
     df = df.drop_duplicates(subset=['id'])
     # 与court_df merge left,取出主体
@@ -110,11 +111,11 @@ class Tf0001(Transformer):
         return violation_df
 
     # 行政违法记录-数据处理
-    def _ps_court_administrative_violation(self, df=None,court_df=None):
+    def _ps_court_administrative_violation(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_admi_violation'] = df.shape[0]
-            if self.variables['relent_court_open_admi_violation']>0:
-                administrative_violation_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_admi_violation'] > 0:
+                administrative_violation_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT003'] = administrative_violation_array
             df['max_money'] = df.apply(lambda x: extract_money(x['execution_result']),
                                        axis=1)
@@ -132,11 +133,11 @@ class Tf0001(Transformer):
         return judicative_df
 
     # 民商事裁判文书-数据处理
-    def _ps_court_judicative_pape(self, df=None,court_df=None):
+    def _ps_court_judicative_pape(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_judge_docu'] = df.shape[0]
-            if self.variables['relent_court_open_judge_docu']>0:
-                judicative_pape_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_judge_docu'] > 0:
+                judicative_pape_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT004'] = judicative_pape_array
             self.variables['relent_court_judge_max'] = df['case_amount'].max()
 
@@ -152,11 +153,11 @@ class Tf0001(Transformer):
         return trial_df
 
     # 民商事审判流程-数据处理
-    def _ps_court_trial_process(self, df=None,court_df=None):
+    def _ps_court_trial_process(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_judge_proc'] = df.shape[0]
-            if self.variables['relent_court_open_judge_proc']>0:
-                trial_process_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_judge_proc'] > 0:
+                trial_process_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT005'] = trial_process_array
 
     # 纳税非正常户
@@ -171,11 +172,11 @@ class Tf0001(Transformer):
         return taxable_df
 
     # 纳税非正常户-数据处理
-    def _ps_court_taxable_abnormal_user(self, df=None,court_df=None):
+    def _ps_court_taxable_abnormal_user(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_tax_pay'] = df.shape[0]
-            if self.variables['relent_court_open_tax_pay']>0:
-                abnormal_user_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_tax_pay'] > 0:
+                abnormal_user_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT006'] = abnormal_user_array
 
     # 欠款欠费名单sql
@@ -190,11 +191,11 @@ class Tf0001(Transformer):
         return arrearage_df
 
     # 欠款欠费名单-数据处理
-    def _ps_court_arrearage(self, df=None,court_df=None):
+    def _ps_court_arrearage(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_owed_owe'] = df.shape[0]
             if self.variables['relent_court_open_owed_owe'] > 0:
-                array = get_out_decision_code(df=df,court_df=court_df)
+                array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['X001'] = array
                 self.out_decision_code['XM001'] = array
 
@@ -210,11 +211,11 @@ class Tf0001(Transformer):
         return tax_df
 
     # 欠税名单-数据处理
-    def _ps_court_tax_arrears(self, df=None,court_df=None):
+    def _ps_court_tax_arrears(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_tax_arrears'] = df.shape[0]
-            if self.variables['relent_court_open_tax_arrears']>0:
-                tax_arrears_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_tax_arrears'] > 0:
+                tax_arrears_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT001'] = tax_arrears_array
             self.variables['relent_court_tax_arrears_max'] = df['taxes'].max()
 
@@ -230,15 +231,16 @@ class Tf0001(Transformer):
         return deadbeat_df
 
     # 失信老赖名单-数据处理
-    def _ps_court_deadbeat(self, df=None,court_df=None):
+    def _ps_court_deadbeat(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_court_dishonesty'] = df.shape[0]
             if self.variables['relent_court_open_court_dishonesty'] > 0:
-                array = get_out_decision_code(df=df,court_df=court_df)
+                array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['X002'] = array
                 self.out_decision_code['XM002'] = array
 
             # 限制出入境sql
+
     def _court_limited_entry_exit_df(self, df=None):
         info_court_limited_entry_exit = """
         SELECT execute_content,court_id as id
@@ -250,15 +252,16 @@ class Tf0001(Transformer):
         return exit_df
 
     # 限制出入境-数据处理
-    def _ps_court_limited_entry_exit(self, df=None,court_df=None):
+    def _ps_court_limited_entry_exit(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_rest_entry'] = df.shape[0]
-            if self.variables['relent_court_open_rest_entry']>0:
-                court_limited_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_rest_entry'] > 0:
+                court_limited_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['X003'] = court_limited_array
                 self.out_decision_code['XM003'] = court_limited_array
 
                 # 限制高消费sql
+
     def _court_limit_hignspending_df(self, df=None):
         info_court_limit_hignspending = """
         SELECT execute_content,court_id as id
@@ -270,15 +273,16 @@ class Tf0001(Transformer):
         return hignspending_df
 
     # 限制高消费-数据处理
-    def _ps_court_limit_hignspending(self, df=None,court_df=None):
+    def _ps_court_limit_hignspending(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_high_cons'] = df.shape[0]
-            if self.variables['relent_court_open_high_cons']>0:
-                limit_hignspending_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_high_cons'] > 0:
+                limit_hignspending_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['X004'] = limit_hignspending_array
                 self.out_decision_code['XM004'] = limit_hignspending_array
 
                 # 罪犯及嫌疑人名单sql
+
     def _court_criminal_suspect_df(self, df=None):
         info_court_criminal_suspect = """
         SELECT trial_date,court_id as id
@@ -290,16 +294,17 @@ class Tf0001(Transformer):
         return suspect_df
 
     # 罪犯及嫌疑人名单-数据处理
-    def _ps_court_criminal_suspect(self, df=None,court_df=None):
+    def _ps_court_criminal_suspect(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_cri_sus'] = df.shape[0]
-            if self.variables['relent_court_open_cri_sus']>0:
-                criminal_suspect_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_cri_sus'] > 0:
+                criminal_suspect_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['X005'] = criminal_suspect_array
                 self.out_decision_code['XM005'] = criminal_suspect_array
 
                 # 各种类型的纠纷案件
-    def _ps_dispute(self, df=None,court_df=None):
+
+    def _ps_dispute(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             df = df.dropna(subset=['legal_status'], how='any')
             if df is not None and len(df) > 0:
@@ -307,7 +312,7 @@ class Tf0001(Transformer):
                 lend_loan_df = df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason')
                 if lend_loan_df.shape[0] > 0:
                     self.variables['relent_court_open_fin_loan_con'] = 1
-                    lend_loan_array = get_out_decision_code(df=lend_loan_df,court_df=court_df)
+                    lend_loan_array = get_out_decision_code(df=lend_loan_df, court_df=court_df)
                     self.out_decision_code['X006'] = lend_loan_array
                     self.out_decision_code['XM006'] = lend_loan_array
                 loan_df = df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason')
@@ -354,11 +359,11 @@ class Tf0001(Transformer):
         return public_df
 
     # 执行公开信息-数据处理
-    def _ps_court_excute_public(self, df=None,court_df=None):
+    def _ps_court_excute_public(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_pub_info'] = len(df)
-            if self.variables['relent_court_open_pub_info']>0:
-                excute_public_array = get_out_decision_code(df=df,court_df=court_df)
+            if self.variables['relent_court_open_pub_info'] > 0:
+                excute_public_array = get_out_decision_code(df=df, court_df=court_df)
                 self.out_decision_code['XT002'] = excute_public_array
             df['max_money'] = df.apply(lambda x: extract_money_court_excute_public(x['execute_content']), axis=1)
             self.variables['relent_court_pub_info_max'] = df['max_money'].max()
@@ -374,37 +379,37 @@ class Tf0001(Transformer):
             if court_merge_df is not None and len(court_merge_df) > 0:
                 # 行政违法记录
                 violation_df = self._court_administrative_violation_df(df=court_merge_df)
-                self._ps_court_administrative_violation(df=violation_df,court_df=court_merge_df)
+                self._ps_court_administrative_violation(df=violation_df, court_df=court_merge_df)
                 # 民商事裁判文书
                 judicative_df = self._court_judicative_pape_df(df=court_merge_df)
-                self._ps_court_judicative_pape(df=judicative_df,court_df=court_merge_df)
+                self._ps_court_judicative_pape(df=judicative_df, court_df=court_merge_df)
                 # 民商事审判流程
                 trial_df = self._court_trial_process_df(df=court_merge_df)
-                self._ps_court_trial_process(df=trial_df,court_df=court_merge_df)
+                self._ps_court_trial_process(df=trial_df, court_df=court_merge_df)
                 # 纳税非正常户
                 taxable_df = self._court_taxable_abnormal_user_df(df=court_merge_df)
-                self._ps_court_taxable_abnormal_user(df=taxable_df,court_df=court_merge_df)
+                self._ps_court_taxable_abnormal_user(df=taxable_df, court_df=court_merge_df)
                 # 欠款欠费名单
                 arrearage_df = self._court_arrearage_df(df=court_merge_df)
-                self._ps_court_arrearage(df=arrearage_df,court_df=court_merge_df)
+                self._ps_court_arrearage(df=arrearage_df, court_df=court_merge_df)
                 # 欠税名单
                 tax_df = self._court_tax_arrears_df(df=court_merge_df)
-                self._ps_court_tax_arrears(df=tax_df,court_df=court_merge_df)
+                self._ps_court_tax_arrears(df=tax_df, court_df=court_merge_df)
                 # 失信老赖名单
                 deadbeat_df = self._court_deadbeat_df(df=court_merge_df)
-                self._ps_court_deadbeat(df=deadbeat_df,court_df=court_merge_df)
+                self._ps_court_deadbeat(df=deadbeat_df, court_df=court_merge_df)
                 # 限制出入境名单
                 exit_df = self._court_limited_entry_exit_df(df=court_merge_df)
-                self._ps_court_limited_entry_exit(df=exit_df,court_df=court_merge_df)
+                self._ps_court_limited_entry_exit(df=exit_df, court_df=court_merge_df)
                 # 限制高消费名单
                 hignspending_df = self._court_limit_hignspending_df(df=court_merge_df)
-                self._ps_court_limit_hignspending(df=hignspending_df,court_df=court_merge_df)
+                self._ps_court_limit_hignspending(df=hignspending_df, court_df=court_merge_df)
                 # 罪犯及嫌疑人名单
                 suspect_df = self._court_criminal_suspect_df(df=court_merge_df)
-                self._ps_court_criminal_suspect(df=suspect_df,court_df=court_merge_df)
+                self._ps_court_criminal_suspect(df=suspect_df, court_df=court_merge_df)
                 # 是否存在各种类型的纠纷案件
                 dispute_df = pd.concat([judicative_df, trial_df])
-                self._ps_dispute(df=dispute_df,court_df=court_merge_df)
+                self._ps_dispute(df=dispute_df, court_df=court_merge_df)
                 # 裁判文书诉讼地位标识
                 if judicative_df is not None and len(judicative_df) > 0:
                     self.variables['relent_court_open_docu_status'] = self._ps_judicative_litigation(judicative_df)
@@ -413,4 +418,4 @@ class Tf0001(Transformer):
                     self.variables['relent_court_open_proc_status'] = self._ps_judicative_litigation(trial_df)
                 # 执行公开信息最大金额
                 public_df = self._court_excute_public_df(df=court_merge_df)
-                self._ps_court_excute_public(df=public_df,court_df=court_merge_df)
+                self._ps_court_excute_public(df=public_df, court_df=court_merge_df)

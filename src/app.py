@@ -1,8 +1,8 @@
 import json
-import numpy
 import os
 import sys
 
+import numpy
 import requests
 from flask import Flask, request, jsonify
 from jsonpath import jsonpath
@@ -21,7 +21,6 @@ file_dir = os.path.dirname(__file__)
 sys.path.append(file_dir)
 
 app = Flask(__name__)
-
 
 
 def _append_rules(biz_types):

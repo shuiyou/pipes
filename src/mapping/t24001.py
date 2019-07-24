@@ -1,13 +1,13 @@
 import pandas as pd
-from util.mysql_reader import sql_to_df
+
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.mysql_reader import sql_to_df
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
 
 class T24001(Transformer):
-
     """
     工商核查相关的变量模块
     """
@@ -97,7 +97,7 @@ class T24001(Transformer):
     def _com_bus_registered_capital(self, df=None):
         df = df.dropna(subset=['reg_cap'], how='any')
         if df is not None and len(df) > 0:
-            self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0]/10000, 2)
+            self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0] / 10000, 2)
 
     # 计算工商核查_类型
     def _com_bus_enttype(self, df=None):
@@ -191,7 +191,7 @@ class T24001(Transformer):
         '''
         df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        df = pd.concat([df1,df2], ignore_index=True)
+        df = pd.concat([df1, df2], ignore_index=True)
         return df
 
     # 计算工商核查_关联公司吊销个数
@@ -396,7 +396,8 @@ class T24001(Transformer):
         if len(df) > 0:
             if True in df['result_in'].str.contains('弄虚作假').values:
                 self.variables['com_bus_exception_result'] = 3
-            elif (True in df['result_in'].str.contains('无法联系').values) or (True in df.result_in.str.contains('无法取得联系').values):
+            elif (True in df['result_in'].str.contains('无法联系').values) or (
+                    True in df.result_in.str.contains('无法取得联系').values):
                 self.variables['com_bus_exception_result'] = 2
             elif True in df['result_in'].str.contains('年度报告').values:
                 self.variables['com_bus_exception_result'] = 1
@@ -555,7 +556,7 @@ class T24001(Transformer):
         return df1, df2
 
     # 计算工商核查_法人非股东
-    def _com_bus_leg_not_shh(self,df=None):
+    def _com_bus_leg_not_shh(self, df=None):
         if df[0] is not None and len(df[0]) > 0:
             if df[0].fr_name.values[0] not in df[1].share_holder_name.values:
                 self.variables['com_bus_leg_not_shh'] = 1

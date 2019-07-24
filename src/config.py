@@ -17,7 +17,6 @@ GEARS_DB = {
     'db': os.getenv('DB_NAME', 'gears_test'),
 }
 
-
 # 湛泸产品编码和决策process的对应关系
 product_code_process_dict = {
     "001": "Level1_m",  # 一级个人报告

@@ -1,7 +1,8 @@
-from util.mysql_reader import sql_to_df
-from mapping.tranformer import Transformer
-import pandas as pd
 import numpy as np
+import pandas as pd
+
+from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 
 class V07001(Transformer):
@@ -15,6 +16,7 @@ class V07001(Transformer):
             'loan_analyst_overdue_time': '',
             'loan_analyst_overdue_amt_interval': ''
         }
+
     # 读取目标数据集
     def _info_loan_stats_df(self):
         sql = """
@@ -47,10 +49,13 @@ class V07001(Transformer):
                                                         'RECENTLY_6M': '最近6个月', 'RECENTLY_12M': '最近12个月', '': ''})
             self.variables['loan_analyst_overdue_time'] = df['recent_mth'].tolist()
             df1 = df.fillna(0)
-            df1['value'] = df1.apply(lambda x: x['low_balance_fail_count']*x['success_pay_avg_amount'], axis=1)
+            df1['value'] = df1.apply(lambda x: x['low_balance_fail_count'] * x['success_pay_avg_amount'], axis=1)
             if df1[df1['value'] > 0].shape[0] > 0:
-                df1['overdue_value'] = pd.cut(df1['value'], [-1, 0, 1999.99, 4999.99, 9999.99, 29999.99, 49999.99, 99999.99,np.inf],
-                                            right=True, labels=['', '0~0.2万', '0.2万~0.5万', '0.5万~1万', '1万~3万', '3万~5万', '5万~10万', '10万以上'])
+                df1['overdue_value'] = pd.cut(df1['value'],
+                                              [-1, 0, 1999.99, 4999.99, 9999.99, 29999.99, 49999.99, 99999.99, np.inf],
+                                              right=True,
+                                              labels=['', '0~0.2万', '0.2万~0.5万', '0.5万~1万', '1万~3万', '3万~5万', '5万~10万',
+                                                      '10万以上'])
                 self.variables['loan_analyst_overdue_amt_interval'] = df1['overdue_value'].tolist()
 
     def transform(self):
