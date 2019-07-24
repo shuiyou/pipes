@@ -13,7 +13,9 @@ logger = LoggerUtil().logger(__name__)
 # 标识决策引擎交互完成。
 STRATEGE_DONE = 'fffff'
 
+# 在这个dict里针对不同的产品设置他的详情字段转换
 product_code_view_dict = {
+    # 一级个人报告
     "001": ['10001', '13001', '12001', '17001', '07001', '09001', 'f0003'],
 }
 
