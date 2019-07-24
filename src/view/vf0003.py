@@ -12,7 +12,7 @@ class Vf0003(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            per_com_industryphyname: None  # 联企工商_行业门类名称
+            'per_com_industryphyname': None  # 联企工商_行业门类名称
         }
 
     def _info_sql_shareholder_df(self):
