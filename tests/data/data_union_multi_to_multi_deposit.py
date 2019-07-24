@@ -249,7 +249,7 @@ def _insert_main_1_table_sub_data(title,df_main_id_array):
                 number = 0
                 for detail in value_array:
                     if detail.find('['+str(i)+'-'+str(j)+']')>=0:
-                        detail_value = str(detail.split('=')[1])
+                        detail_value = str(detail.split('=')[1]).strip()
                         if len(detail_value) > 0:
                             data.append(detail_value)
                         else:
