@@ -1,6 +1,4 @@
 import json
-import os
-import sys
 
 import numpy
 import requests
@@ -16,9 +14,6 @@ from mapping.t00000 import T00000
 from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
-
-file_dir = os.path.dirname(__file__)
-sys.path.append(file_dir)
 
 app = Flask(__name__)
 
