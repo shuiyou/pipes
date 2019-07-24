@@ -1,6 +1,6 @@
 import datetime
 
-from mapping.id_card_info import GetInformation
+from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
@@ -41,3 +41,4 @@ class T00000(Transformer):
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+            self.variables['base_division'] = information.get_division()
