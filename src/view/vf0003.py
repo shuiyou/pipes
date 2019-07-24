@@ -64,7 +64,7 @@ class Vf0003(Transformer):
 
     def _per_com_industryphyname(self, df=None):
         if df is not None and len(df) > 0:
-            self.variables['per_com_industryphyname'] = df.values[0]
+            self.variables['per_com_industryphyname'] = df['industry_phyname'].values[0]
 
     def transform(self):
         """
@@ -82,42 +82,5 @@ class Vf0003(Transformer):
             ent_name = ent_name_df1['ent_name'][0]
             info_sql_com_bus_face_df = self._info_sql_com_bus_face_df(ent_name=ent_name)
             self._per_com_industryphyname(info_sql_com_bus_face_df)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def transform(self):
-        """
-        执行变量转换
-        :return:
-        """
-
-
-
-
-
-
 
 
