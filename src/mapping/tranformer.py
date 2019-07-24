@@ -13,6 +13,8 @@ def numpy_to_int(variables):
     for key, value in variables.items():
         if type(value) == numpy.int64:
             variables[key] = int(value)
+        elif type(value) == numpy.float64:
+            variables[key] = int(round(value))
 
 
 def extract_money(value):

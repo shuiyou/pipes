@@ -4,6 +4,7 @@ import importlib
 # from app import logger
 import numpy
 
+from config import product_code_view_dict
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer, numpy_to_int
@@ -12,12 +13,6 @@ logger = LoggerUtil().logger(__name__)
 
 # 标识决策引擎交互完成。
 STRATEGE_DONE = 'fffff'
-
-# 在这个dict里针对不同的产品设置他的详情字段转换
-product_code_view_dict = {
-    # 一级个人报告
-    "001": ['10001', '13001', '12001', '17001', '07001', '09001', 'f0003'],
-}
 
 
 def _get_codes_by_product_code(product_code):

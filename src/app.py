@@ -8,7 +8,7 @@ from flask import Flask, request, jsonify
 from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
-from config import STRATEGY_URL
+from config import STRATEGY_URL, product_code_process_dict
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
@@ -22,12 +22,6 @@ sys.path.append(file_dir)
 
 app = Flask(__name__)
 
-# 湛泸产品编码和决策process的对应关系
-product_code_process_dict = {
-    "001": "Level1_m",  # 一级个人报告
-    "002": "Level1_m",  # 一级企业
-    "003": "Level1_m"
-}
 
 
 def _append_rules(biz_types):
@@ -122,7 +116,6 @@ def shake_hand():
         strategy_request = _build_request(req_no, product_code, variables=variables)
         logger.info(strategy_request)
         # 调用决策引擎
-
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
