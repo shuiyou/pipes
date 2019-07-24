@@ -1,7 +1,5 @@
-import pandas as pd
-
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 
 class Vf0003(Transformer):

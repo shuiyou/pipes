@@ -7,11 +7,11 @@ from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
 
-def get_js(df, var):
+def get_js(df, value):
     index_name = df.index.name
     row_list = []
     for index, col in df.iterrows():
-        row_str = dict(col).get(var, '{}')
+        row_str = dict(col).get(value, '{}')
         row_dict = simplejson.loads(row_str)
         row_dict[index_name] = str(index)
         row_list.append(row_dict)
@@ -21,7 +21,7 @@ def get_js(df, var):
 
 def get_money(var, name):
     if var is not None and len(var) > 0:
-        if re.compile(r"(?<=%s\:)\d+\.?\d*" % name).search(var) != None:
+        if re.compile(r"(?<=%s:)\d+\.?\d*" % name).search(var) is not None:
             value = int(re.compile(r"(?<=%s\:)\d+\.?\d*" % name).search(var).group(0))
         else:
             value = int(0)
