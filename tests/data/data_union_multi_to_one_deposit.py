@@ -278,12 +278,13 @@ class unit_deposit(Process):
                     if 'table_main_1' == title:
                         # 插入第二张主表的数据，返回多条数据的主表子表关联主键
                         title = str(row[title])
-                        key = str(row['main_1_key'])
-                        channel_api_no = str(row['测试模块'])
-                        if (len(channel_api_no)) < 5:
-                            channel_api_no = '0' + channel_api_no
-                        df_main = _insert_main_1_table_data(title, key, channel_api_no)
-                        df_mian_1_id = df_main['key_sub'][0]
+                        if title is not None and title != 'nan' and len(title) > 0:
+                            key = str(row['main_1_key'])
+                            channel_api_no = str(row['测试模块'])
+                            if (len(channel_api_no)) < 5:
+                                channel_api_no = '0' + channel_api_no
+                            df_main = _insert_main_1_table_data(title, key, channel_api_no)
+                            df_mian_1_id = df_main['key_sub'][0]
                     if title.find('table_main_1_sub') >= 0:
                         # 插入第二张主表关联的子表数据
                         title = str(row[title])

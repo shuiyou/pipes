@@ -365,7 +365,9 @@ class unit_multi_deposit(Process):
                             _insert_main_table_sub_data(title_value, df_main_id)
                     if 'table_main_1' == title:
                         # 插入第二张主表的数据，返回多条数据的主表子表关联主键
-                        df_main_1_key_array = _insert_main_1_table_data(str(row[title]), key_main_1, channel_api_no)
+                        title_value = str(row[title])
+                        if title_value is not None and title_value != 'nan' and len(title_value) > 0:
+                            df_main_1_key_array = _insert_main_1_table_data(title_value, key_main_1, channel_api_no)
                     if title.find('table_main_1_sub') >= 0:
                         # 插入第二张主表关联的子表数据
                         title_value = str(row[title])
