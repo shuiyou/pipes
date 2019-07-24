@@ -12,7 +12,7 @@ class Vf0003(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            per_com_industryphyname: None  # 联企工商_行业门类名称
+            'per_com_industryphyname': None  # 联企工商_行业门类名称
         }
 
     def _info_sql_shareholder_df(self):
@@ -82,42 +82,3 @@ class Vf0003(Transformer):
             ent_name = ent_name_df1['ent_name'][0]
             info_sql_com_bus_face_df = self._info_sql_com_bus_face_df(ent_name=ent_name)
             self._per_com_industryphyname(info_sql_com_bus_face_df)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def transform(self):
-        """
-        执行变量转换
-        :return:
-        """
-
-
-
-
-
-
-
-
