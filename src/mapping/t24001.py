@@ -1,5 +1,5 @@
 import pandas as pd
-from mapping.mysql_reader import sql_to_df
+from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
 
 pd.set_option('display.max_columns', None)
@@ -16,7 +16,7 @@ class T24001(Transformer):
 
         super().__init__()
         self.variables = {
-            'com_bus_status': None,  # 工商核查_企业登记状态异常
+            'com_bus_status': 0,  # 工商核查_企业登记状态异常
             'com_bus_endtime': None,  # 工商核查_营业期限至
             'com_bus_relent_revoke': 0,  # 工商核查_关联公司吊销个数
             'com_bus_case_info': 0,  # 工商核查_现在是否有行政处罚信息
@@ -44,17 +44,19 @@ class T24001(Transformer):
             'com_bus_saicAffiliated': 0,  # 工商核查_企业关联公司个数
             'com_bus_province': None,  # 工商核查_省
             'com_bus_city': None,  # 工商核查_市
-            'com_bus_leg_not_shh': None,  # 工商核查_法人非股东
+            'com_bus_leg_not_shh': 0,  # 工商核查_法人非股东
             'com_bus_exception_result': 0,  # 工商核查_经营异常原因
             'com_bus_saicChanRunscope': 0,  # 工商核查_经营范围变更次数
             'com_bus_legper_relent_revoke': 0,  # 工商核查_企业和法人关联公司是否存在吊销
-            'com_bus_legper_outwardCount1': 0  # 工商核查_企业、法人对外投资的公司数量
+            'com_bus_legper_outwardCount1': 0,  # 工商核查_企业、法人对外投资的公司数量
+            'com_bus_industryphyname': None  # 工商核查_行业门类名称
         }
 
     # 获取目标数据集1
     def _info_com_bus_face(self):
         sql = '''
-            SELECT ent_status,open_from,open_to,reg_cap,ent_type,es_date,industry_phy_code,area_code,industry_code,province,city
+            SELECT ent_status,open_from,open_to,reg_cap,ent_type,es_date,industry_phy_code,area_code,industry_code,
+            province,city,industry_phyname
             FROM info_com_bus_face 
             WHERE basic_id 
             IN (
@@ -93,8 +95,9 @@ class T24001(Transformer):
 
     # 计算工商核查_注册资本（万元）
     def _com_bus_registered_capital(self, df=None):
+        df = df.dropna(subset=['reg_cap'], how='any')
         if df is not None and len(df) > 0:
-            self.variables['com_bus_registered_capital'] = df['reg_cap'].values[0]
+            self.variables['com_bus_registered_capital'] = round(df['reg_cap'].values[0]/10000, 2)
 
     # 计算工商核查_类型
     def _com_bus_enttype(self, df=None):
@@ -130,6 +133,11 @@ class T24001(Transformer):
     def _com_bus_city(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_city'] = df['city'].values[0]
+
+    # 计算工商核查_行业门类名称
+    def _com_bus_industryphyname(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['com_bus_industryphyname'] = df['industry_phyname'].values[0]
 
     # 获取目标数据集2
     def _info_com_bus_entinvitem_frinv(self):
@@ -188,15 +196,16 @@ class T24001(Transformer):
 
     # 计算工商核查_关联公司吊销个数
     def _com_bus_relent_revoke(self, df=None):
+        df = df.dropna(subset=['ent_status'], how='any')
         df = df[df.ent_status.str.contains('吊销')]
         if df is not None and len(df) > 0:
-            df = df.drop_diplicates(subset=['ent_name'], keep='first')
+            df = df.drop_duplicates(subset=['ent_name'], keep='first')
             self.variables['com_bus_relent_revoke'] = len(df)
 
     # 计算工商核查_企业关联公司个数
     def _com_bus_saicAffiliated(self, df=None):
         if df is not None and len(df) > 0:
-            df = df.drop_diplicates(subset=['ent_name'], keep='first')
+            df = df.drop_duplicates(subset=['ent_name'], keep='first')
             self.variables['com_bus_saicAffiliated'] = len(df)
 
     # 获取目标数据集3
@@ -229,71 +238,41 @@ class T24001(Transformer):
     # 获取目标数据集4
     def _info_com_bus_shares_frost(self):
         sql = '''
-            SELECT basic_id
+            SELECT judicial_froz_state
             FROM info_com_bus_shares_frost
-            WHERE judicial_froz_state LIKE '%冻结%'
-            AND judicial_froz_state NOT LIKE '%解冻%'
-            AND judicial_froz_state NOT LIKE '%失效%'
-            AND judicial_froz_state NOT LIKE '%解除%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
+            WHERE basic_id 
+            = (SELECT id
+               FROM info_com_bus_basic
+               WHERE ent_name = %(user_name)s 
+                    AND credit_code = %(id_card_no)s 
+                    AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                ORDER BY id DESC 
+                LIMIT 1
+                )    
         '''
         df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
     # 计算工商核查_现在是否有股权冻结信息
     def _com_bus_shares_frost(self, df=None):
+        df = df[df['judicial_froz_state'].str.contains('冻结') & ~df['judicial_froz_state'].str.contains('解冻') &
+                ~df['judicial_froz_state'].str.contains('解除') & ~df['judicial_froz_state'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_frost'] = 1
 
-    # 获取目标数据集5
-    def _info_com_bus_shares_frost2(self):
-        sql = '''
-            SELECT basic_id
-            FROM info_com_bus_shares_frost
-            WHERE judicial_froz_state LIKE '%解冻%'
-            OR judicial_froz_state LIKE '%失效%'
-            OR judicial_froz_state LIKE '%解除%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
-        '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df
-
     # 计算工商核查_曾经是否有股权冻结信息
     def _com_bus_shares_frost_his(self, df=None):
+        df = df[df['judicial_froz_state'].str.contains('解冻') | df['judicial_froz_state'].str.contains('解除') |
+                df['judicial_froz_state'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_frost_his'] = 1
 
-    # 获取目标数据集6
+    # 获取目标数据集5
     def _info_com_bus_shares_impawn(self):
         sql = '''
-            SELECT basic_id
+            SELECT imp_exe_state
             FROM info_com_bus_shares_impawn
-            WHERE imp_exe_state LIKE '%有效%'
-            AND basic_id 
+            WHERE basic_id 
             IN (
                 SELECT cbb.basic_id 
                 FROM (
@@ -312,44 +291,22 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有股权出质登记信息
     def _com_bus_shares_impawn(self, df=None):
+        df = df[df['imp_exe_state'].str.contains('有效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_impawn'] = 1
 
-    # 获取目标数据集7
-    def _info_com_bus_shares_impawn2(self):
-        sql = '''
-            SELECT basic_id
-            FROM info_com_bus_shares_impawn
-            WHERE imp_exe_state LIKE '%失效%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
-        '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df
-
     # 计算工商核查_曾经是否有股权出质登记信息
     def _com_bus_shares_impawn_his(self, df=None):
+        df = df[df['imp_exe_state'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_shares_impawn_his'] = 1
 
-    # 获取目标数据集8
+    # 获取目标数据集6
     def _info_com_bus_mort_basic(self):
         sql = '''
-            SELECT basic_id
+            SELECT mort_status
             FROM info_com_bus_mort_basic
-            WHERE mort_state LIKE '%有效%'
-            AND basic_id 
+            WHERE basic_id 
             IN (
                 SELECT cbb.basic_id 
                 FROM (
@@ -368,38 +325,17 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有动产抵押登记信息
     def _com_bus_mor_detail(self, df=None):
+        df = df[df['mort_status'].str.contains('有效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_mor_detail'] = 1
 
-    # 获取目标数据集9
-    def _info_com_bus_mort_basic2(self):
-        sql = '''
-            SELECT basic_id
-            FROM info_com_bus_mort_basic
-            WHERE mort_state LIKE '%失效%'
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
-        '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df
-
     # 计算工商核查_曾经是否有动产抵押登记信息
     def _com_bus_mor_detail_his(self, df=None):
+        df = df[df['mort_status'].str.contains('失效')]
         if df is not None and len(df) > 0:
             self.variables['com_bus_mor_detail_his'] = 1
 
-    # 获取目标数据集10
+    # 获取目标数据集7
     def _info_com_bus_liquidation(self):
         sql = '''
             SELECT basic_id
@@ -426,13 +362,12 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_liquidation'] = 1
 
-    # 获取目标数据集11
+    # 获取目标数据集8
     def _info_com_bus_exception(self):
         sql = '''
-            SELECT basic_id,result_in
+            SELECT result_in,result_out,date_out
             FROM info_com_bus_exception
-            WHERE result_out is NULL
-            AND basic_id 
+            WHERE basic_id
             IN (
                 SELECT cbb.basic_id 
                 FROM (
@@ -451,55 +386,35 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有经营异常信息
     def _com_bus_exception(self, df=None):
-        if df is not None and len(df) > 0:
+        df = df[df['result_out'].isnull().values == True]
+        if len(df) > 0:
             self.variables['com_bus_exception'] = 1
 
     # 计算工商核查_经营异常原因
     def _com_bus_exception_result(self, df=None):
-        if df is not None and len(df) > 0:
-            if True in df.result_in.str.contains('弄虚作假'):
+        df = df[df['date_out'].isnull().values == True]
+        if len(df) > 0:
+            if True in df['result_in'].str.contains('弄虚作假').values:
                 self.variables['com_bus_exception_result'] = 3
-            elif (True in df.result_in.str.contains('无法联系')) or (True in df.result_in.str.contains('无法取得联系')):
+            elif (True in df['result_in'].str.contains('无法联系').values) or (True in df.result_in.str.contains('无法取得联系').values):
                 self.variables['com_bus_exception_result'] = 2
-            elif True in df.result_in.str.contains('年度报告'):
+            elif True in df['result_in'].str.contains('年度报告').values:
                 self.variables['com_bus_exception_result'] = 1
             else:
                 self.variables['com_bus_exception_result'] = 0
 
-    # 获取目标数据集12
-    def _info_com_bus_exception2(self):
-        sql = '''
-            SELECT basic_id
-            FROM info_com_bus_exception
-            WHERE result_out is not NULL
-            AND basic_id 
-            IN (
-                SELECT cbb.basic_id 
-                FROM (
-                    SELECT id basic_id
-                    FROM info_com_bus_basic
-                    WHERE ent_name = %(user_name)s 
-                        AND credit_code = %(id_card_no)s 
-                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ORDER BY id DESC 
-                    LIMIT 1
-                ) cbb
-            );
-        '''
-        df = sql_to_df(sql=sql, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        return df
-
     # 计算工商核查_曾经是否有经营异常信息
     def _com_bus_exception_his(self, df=None):
-        if df is not None and len(df) > 0:
+        df = df[df['result_out'].isnull().values == False]
+        if len(df) > 0:
             self.variables['com_bus_exception_his'] = 1
 
-    # 获取目标数据集13
+    # 获取目标数据集9
     def _info_com_bus_illegal(self):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_result_out is NULL
+            WHERE illegal_rresult_out is NULL
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
@@ -522,12 +437,12 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_illegal_list'] = 1
 
-    # 获取目标数据集14
+    # 获取目标数据集10
     def _info_com_bus_illegal2(self):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_result_out is not NULL
+            WHERE illegal_rresult_out is not NULL
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
@@ -550,7 +465,7 @@ class T24001(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_illegal_list_his'] = 1
 
-    # 获取目标数据集15
+    # 获取目标数据集11
     def _info_com_bus_alter(self):
         sql = '''
             SELECT a.id,a.alt_item,a.alt_date,b.create_time
@@ -578,19 +493,19 @@ class T24001(Transformer):
     # 计算工商核查_法定代表人最近5年内变更次数
     def _com_bus_saicChanLegal_5y(self, df=None):
         if df is not None and len(df) > 0:
-            df = df[df.date_dif < 5 and df.alt_item.str.contains('法定代表人')]
+            df = df[(df.date_dif < 5) & df.alt_item.str.contains('法定代表人')]
             self.variables['com_bus_saicChanLegal_5y'] = len(df)
 
     # 计算工商核查_投资人最近5年内变更次数
     def _com_bus_saicChanInvestor_5y(self, df=None):
         if df is not None and len(df) > 0:
-            df = df[df.date_dif < 5 and df.alt_item.str.contains('投资人')]
+            df = df[(df.date_dif < 5) & df.alt_item.str.contains('投资人')]
             self.variables['com_bus_saicChanInvestor_5y'] = len(df)
 
     # 计算工商核查_注册资本最近5年内变更次数
     def _com_bus_saicChanRegister_5y(self, df=None):
         if df is not None and len(df) > 0:
-            df = df[df.date_dif < 5 and df.alt_item.str.contains('注册资本')]
+            df = df[(df.date_dif < 5) & df.alt_item.str.contains('注册资本')]
             self.variables['com_bus_saicChanRegister_5y'] = len(df)
 
     # 计算工商核查_经营范围变更次数
@@ -599,7 +514,7 @@ class T24001(Transformer):
             df = df[df.alt_item.str.contains('经营范围')]
             self.variables['com_bus_saicChanRunscope'] = len(df)
 
-    # 获取目标数据集16
+    # 获取目标数据集12
     def _info_com_bus_face_shareholder(self):
         sql1 = '''
             SELECT fr_name
@@ -641,10 +556,11 @@ class T24001(Transformer):
 
     # 计算工商核查_法人非股东
     def _com_bus_leg_not_shh(self,df=None):
-        if df[0].fr_name.values[0] not in df[1].share_holder_name.values:
-            self.variables['com_bus_leg_not_shh'] = 1
+        if df[0] is not None and len(df[0]) > 0:
+            if df[0].fr_name.values[0] not in df[1].share_holder_name.values:
+                self.variables['com_bus_leg_not_shh'] = 1
 
-    # 获取目标数据集17
+    # 获取目标数据集14
     def _info_com_bus_entinvitem_frinv2(self):
         sql1 = '''
             SELECT ent_name,ent_status
@@ -684,12 +600,12 @@ class T24001(Transformer):
         '''
         df1 = sql_to_df(sql=sql1, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         df2 = sql_to_df(sql=sql2, params={"user_name": self.user_name, "id_card_no": self.id_card_no})
-        df = pd.concat([df1,df2], ignore_index=True)
+        df = pd.concat([df1, df2], ignore_index=True)
         return df
 
     # 计算工商核查_企业和法人关联公司是否存在吊销
     def _com_bus_legper_relent_revoke(self, df=None):
-        if True in df.ent_status.str.contains('吊销'):
+        if True in df['ent_status'].str.contains('吊销').values:
             self.variables['com_bus_legper_relent_revoke'] = 1
 
     # 计算工商核查_企业、法人对外投资的公司数量
@@ -713,23 +629,30 @@ class T24001(Transformer):
             self._com_bus_industrycode(info_com_bus_face)
             self._com_bus_province(info_com_bus_face)
             self._com_bus_city(info_com_bus_face)
+            self._com_bus_industryphyname(info_com_bus_face)
         info_com_bus_entinvitem_frinv = self._info_com_bus_entinvitem_frinv()
         if info_com_bus_entinvitem_frinv is not None and len(info_com_bus_entinvitem_frinv) > 0:
             self._com_bus_relent_revoke(info_com_bus_entinvitem_frinv)
             self._com_bus_saicAffiliated(info_com_bus_entinvitem_frinv)
         self._com_bus_case_info(self._info_com_bus_case())
-        self._com_bus_shares_frost(self._info_com_bus_shares_frost())
-        self._com_bus_shares_frost_his(self._info_com_bus_shares_frost2())
-        self._com_bus_shares_impawn(self._info_com_bus_shares_impawn())
-        self._com_bus_shares_impawn_his(self._info_com_bus_shares_impawn2())
-        self._com_bus_mor_detail(self._info_com_bus_mort_basic())
-        self._com_bus_mor_detail_his(self._info_com_bus_mort_basic2())
+        info_com_bus_shares_frost = self._info_com_bus_shares_frost()
+        if info_com_bus_shares_frost is not None and len(info_com_bus_shares_frost) > 0:
+            self._com_bus_shares_frost(info_com_bus_shares_frost)
+            self._com_bus_shares_frost_his(info_com_bus_shares_frost)
+        info_com_bus_shares_impawn = self._info_com_bus_shares_impawn()
+        if info_com_bus_shares_impawn is not None and len(info_com_bus_shares_impawn) > 0:
+            self._com_bus_shares_impawn(info_com_bus_shares_impawn)
+            self._com_bus_shares_impawn_his(info_com_bus_shares_impawn)
+        info_com_bus_mort_basic = self._info_com_bus_mort_basic()
+        if info_com_bus_mort_basic is not None and len(info_com_bus_mort_basic) > 0:
+            self._com_bus_mor_detail(info_com_bus_mort_basic)
+            self._com_bus_mor_detail_his(info_com_bus_mort_basic)
         self._com_bus_liquidation(self._info_com_bus_liquidation())
         info_com_bus_exception = self._info_com_bus_exception()
         if info_com_bus_exception is not None and len(info_com_bus_exception) > 0:
             self._com_bus_exception(info_com_bus_exception)
             self._com_bus_exception_result(info_com_bus_exception)
-        self._com_bus_exception_his(self._info_com_bus_exception2())
+            self._com_bus_exception_his(info_com_bus_exception)
         self._com_bus_illegal_list(self._info_com_bus_illegal())
         self._com_bus_illegal_list_his(self._info_com_bus_illegal2())
         info_com_bus_alter = self._info_com_bus_alter()

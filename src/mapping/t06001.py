@@ -36,38 +36,39 @@ class T06001(Transformer):
     def _ps_crime_type(self, df=None):
         if df is not None and 'crime_type' in df.columns and len(df) == 1:
             value = df['crime_type'][0]
-            crime_type = [x.strip() for x in value.split(',')] if ',' in value else value
-            if 'AT_LARGE' in crime_type:
-                self.variables['ps_run'] = 1
-            if 'DRUG' in crime_type:
-                self.variables['ps_drug'] = 1
-            if "DRUG_RELATED" in crime_type or "ILLEGAL_F" in crime_type:
-                self.variables['ps_involve_drug'] = 1
-            if 'ILLEGAL_B' in crime_type:
-                self.variables['ps_seri_crim'] = 1
-            if 'ILLEGAL_C' in crime_type:
-                self.variables['ps_mali_crim'] = 1
-            if 'ILLEGAL_E' in crime_type:
-                self.variables['ps_econ_crim'] = 1
-            if 'REVOKE' in crime_type:
-                self.variables['ps_amend_staff'] = 1
-            if 'ILLEGAL_A' in crime_type:
-                self.variables['ps_illeg_crim'] = 1
-                cp = df['case_period'][0]
-                if cp is not None and ',' in cp:
-                    r = cp.replace('[', '').replace(')', '')
-                    max_month = int(r.split(',')[1])
-                    year = max_month / 12
-                    if year == 0:
-                        self.variables['ps_illegal_record_time'] = 4
-                    elif year <= 1:
-                        self.variables['ps_illegal_record_time'] = 1
-                    elif year <= 2:
-                        self.variables['ps_illegal_record_time'] = 2
-                    elif year <= 5:
-                        self.variables['ps_illegal_record_time'] = 3
-                    else:
-                        self.variables['ps_illegal_record_time'] = 4
+            if value is not None:
+                crime_type = [x.strip() for x in value.split(',')] if ',' in value else value
+                if 'AT_LARGE' in crime_type:
+                    self.variables['ps_run'] = 1
+                if 'DRUG' in crime_type:
+                    self.variables['ps_drug'] = 1
+                if "DRUG_RELATED" in crime_type or "ILLEGAL_F" in crime_type:
+                    self.variables['ps_involve_drug'] = 1
+                if 'ILLEGAL_B' in crime_type:
+                    self.variables['ps_seri_crim'] = 1
+                if 'ILLEGAL_C' in crime_type:
+                    self.variables['ps_mali_crim'] = 1
+                if 'ILLEGAL_E' in crime_type:
+                    self.variables['ps_econ_crim'] = 1
+                if 'REVOKE' in crime_type:
+                    self.variables['ps_amend_staff'] = 1
+                if 'ILLEGAL_A' in crime_type:
+                    self.variables['ps_illeg_crim'] = 1
+                    cp = df['case_period'][0]
+                    if cp is not None and ',' in cp:
+                        r = cp.replace('[', '').replace(')', '')
+                        max_month = int(r.split(',')[1])
+                        year = max_month / 12
+                        if year == 0:
+                            self.variables['ps_illegal_record_time'] = 4
+                        elif year <= 1:
+                            self.variables['ps_illegal_record_time'] = 1
+                        elif year <= 2:
+                            self.variables['ps_illegal_record_time'] = 2
+                        elif year <= 5:
+                            self.variables['ps_illegal_record_time'] = 3
+                        else:
+                            self.variables['ps_illegal_record_time'] = 4
 
     def transform(self):
         """

@@ -16,3 +16,4 @@ jsonpath
 openpyxl
 Faker==0.7.11
 fake2db
+GB2260

@@ -1,5 +1,5 @@
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.mysql_reader import sql_to_df
 
 
 class T10001(Transformer):
@@ -43,7 +43,9 @@ class T10001(Transformer):
         """
         if df is not None and len(df) > 0:
             df_out = df.query(self.diff_year + ' < 1')
-            self.variables['ovdu_sco_1y'] = df_out['risk_score'].max()
+            score_max = df_out['risk_score'].max()
+            if str(score_max) != 'nan':
+                self.variables['ovdu_sco_1y'] = score_max
 
     def _ovdu_sco(self, df=None):
         """

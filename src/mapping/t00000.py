@@ -1,6 +1,6 @@
 import datetime
 
-from mapping.id_card_info import GetInformation
+from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
 
@@ -28,8 +28,7 @@ class T00000(Transformer):
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
-                               "id_card_no": self.id_card_no,
-                               "phone": self.phone})
+                               "id_card_no": self.id_card_no})
         if df is not None and len(df) > 0:
             if df['base_black'][0] > 0:
                 self.variables['base_black'] = 1
@@ -42,3 +41,4 @@ class T00000(Transformer):
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+            self.variables['base_division'] = information.get_division()

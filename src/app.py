@@ -1,4 +1,5 @@
 import json
+import numpy
 import os
 import sys
 
@@ -7,7 +8,7 @@ from flask import Flask, request, jsonify
 from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
-from config import STRATEGY_URL
+from config import STRATEGY_URL, product_code_process_dict
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
@@ -21,15 +22,9 @@ sys.path.append(file_dir)
 
 app = Flask(__name__)
 
-# 湛泸产品编码和决策process的对应关系
-product_code_process_dict = {
-    "001": "Level1_m",  # 一级个人报告
-    "002": "Level1_m",  # 一级企业
-    "003": "Level1_m"
-}
 
 
-def _append_rules():
+def _append_rules(biz_types):
     rules = [
         {
             "code": "f0003",
@@ -50,7 +45,11 @@ def _append_rules():
             ]
         }
     ]
-    return rules
+    result = []
+    for r in rules:
+        if r['code'] in biz_types:
+            result.append(r)
+    return result
 
 
 def _get_process_code(product_code):
@@ -73,6 +72,11 @@ def _build_request(req_no, product_code, variables=None):
     for key, value in variables.items():
         if value is None:
             variables[key] = ''
+        if type(value) is numpy.float64:
+            variables[key] = int(round(value))
+        if str(value) == 'nan':
+            variables[key] = 0
+
     strategy_request = {
         "StrategyOneRequest": {
             "Header": {
@@ -112,7 +116,6 @@ def shake_hand():
         strategy_request = _build_request(req_no, product_code, variables=variables)
         logger.info(strategy_request)
         # 调用决策引擎
-
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
@@ -120,11 +123,12 @@ def shake_hand():
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
+        biz_types = _get_biz_types(resp_json)
         resp = {
             'productCode': json_data.get('productCode'),
             'reqNo': json_data.get('reqNo'),
-            'bizType': _get_biz_types(resp_json),
-            'rules': _append_rules()
+            'bizType': biz_types,
+            'rules': _append_rules(biz_types)
         }
         return jsonify(resp)
     except Exception as err:
@@ -159,6 +163,7 @@ def strategy():
     try:
         # 获取请求参数
         json_data = request.get_json()
+        logger.debug(json.dumps(json_data))
         strategy_param = json_data.get('strategyParam')
         origin_input = json_data.get('strategyInputVariables')
         if origin_input is None:
@@ -188,7 +193,9 @@ def strategy():
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
+        score_to_int(strategy_resp)
         biz_types = _get_biz_types(strategy_resp)
+        logger.info(biz_types)
         strategy_param['bizType'] = biz_types
         # 最后返回报告详情
         if STRATEGE_DONE in biz_types:
@@ -198,10 +205,20 @@ def strategy():
         _relation_risk_subject(strategy_resp, out_decision_code)
         json_data['strategyResult'] = strategy_resp
         json_data['strategyInputVariables'] = variables
+        json_data['rules'] = _append_rules(biz_types)
         return jsonify(json_data)
     except Exception as err:
         logger.error(str(err))
         raise ServerException(code=500, description=str(err))
+
+
+def score_to_int(strategy_resp):
+    resp_variables = jsonpath(strategy_resp, '$..Application.Variables')
+    if resp_variables is not None:
+        variables_ = resp_variables[0]
+        for key, value in variables_.items():
+            if key.startswith('score'):
+                variables_[key] = int(round(value))
 
 
 @app.route("/health", methods=['GET'])

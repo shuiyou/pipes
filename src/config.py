@@ -16,3 +16,17 @@ GEARS_DB = {
     'port': os.getenv('DB_PORT', 3360),
     'db': os.getenv('DB_NAME', 'gears_test'),
 }
+
+
+# 湛泸产品编码和决策process的对应关系
+product_code_process_dict = {
+    "001": "Level1_m",  # 一级个人报告
+    "002": "Level1_m",  # 一级企业
+    "003": "Level1_m"
+}
+
+# 在这个dict里针对不同的产品设置他的详情字段转换
+product_code_view_dict = {
+    # 一级个人报告
+    "001": ['10001', '13001', '12001', '17001', '07001', '09001', 'f0003'],
+}
