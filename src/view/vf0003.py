@@ -12,7 +12,7 @@ class Vf0003(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            per_com_industryphyname: None
+            per_com_industryphyname: None  # 联企工商_行业门类名称
         }
 
     def _info_sql_shareholder_df(self):
@@ -56,6 +56,7 @@ class Vf0003(Transformer):
             on c.id=d.basic_id 
             WHERE c.ent_name = %(ent_name)s 
             and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            ORDER BY c.id DESC LIMIT 1
            ;
         """
         df = sql_to_df(sql=sql, params={"ent_name": ent_name})

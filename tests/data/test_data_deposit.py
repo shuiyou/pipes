@@ -85,7 +85,7 @@ def test_t_f0002_case():
 
 
 def test_t_f0003_case():
-    _assert_union_multi_to_one_df('f003')
+    _assert_union_multi_to_one_df('f0003')
 
 
 def test_t_f0005_case():
@@ -119,6 +119,9 @@ def test_v_09001_case():
 def test_v_13001_case():
     _assert_single_detail_df('13001')
 
+def test_v_f0003_case():
+    _assert_union_multi_to_one_detail_df('f0003')
+
 
 def _assert_single_three_structure_df(code):
     ps = single_three_deposit()
@@ -147,6 +150,11 @@ def _assert_single_detail_df(code):
 
 def _assert_single_three_structure_detail_df(code):
     ps = single_three_deposit()
+    _assert_detail_df(ps, code)
+
+
+def _assert_union_multi_to_one_detail_df(code):
+    ps = unit_deposit()
     _assert_detail_df(ps, code)
 
 

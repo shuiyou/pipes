@@ -629,6 +629,7 @@ class T24001(Transformer):
             self._com_bus_industrycode(info_com_bus_face)
             self._com_bus_province(info_com_bus_face)
             self._com_bus_city(info_com_bus_face)
+            self._com_bus_industryphyname(info_com_bus_face)
         info_com_bus_entinvitem_frinv = self._info_com_bus_entinvitem_frinv()
         if info_com_bus_entinvitem_frinv is not None and len(info_com_bus_entinvitem_frinv) > 0:
             self._com_bus_relent_revoke(info_com_bus_entinvitem_frinv)
