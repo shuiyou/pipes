@@ -281,6 +281,5 @@ def test_round_max():
 
 
 def test_division():
-    divi = Division.search('362422')
-    print(divi)
-    print(divi.stack())
+    divi = Division.search('310110')
+    print(divi.province.name if divi.is_province else '' + divi.prefecture.name if divi.is_prefecture else '' )

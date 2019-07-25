@@ -87,7 +87,6 @@ class Division(object):
             cache[key] = instance
             return instance
 
-        raise ValueError('%r is not valid division code' % code)
 
     @classmethod
     def search(cls, code):
