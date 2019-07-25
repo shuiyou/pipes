@@ -1,7 +1,6 @@
 import datetime
 
 from exceptions import ServerException
-from util.division import Division
 
 
 class GetInformation(object):
@@ -42,8 +41,3 @@ class GetInformation(object):
                 return year - self.birth_year - 1
             else:
                 return year - self.birth_year
-
-    def get_division(self):
-        input = int(self.id[0:6])
-        divi = Division.search(input)
-        return divi.province.name if divi.is_province else '' + divi.prefecture.name if divi.is_prefecture else ''
