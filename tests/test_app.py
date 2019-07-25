@@ -8,6 +8,7 @@ from jsonpath import jsonpath
 from app import app
 from logger.logger_util import LoggerUtil
 from util import mysql_reader
+from util.division import Division
 from view.mapper_detail import round_max
 
 logger = LoggerUtil().logger(__name__)
@@ -277,3 +278,8 @@ def test_round_max():
     median_arr = [1, 2, 3]
     v = round_max(max_arr, median_arr, 0.3)
     assert v == 4.0
+
+
+def test_division():
+    divi = Division.search('310110')
+    print(divi.province.name if divi.is_province else '' + divi.prefecture.name if divi.is_prefecture else '' )

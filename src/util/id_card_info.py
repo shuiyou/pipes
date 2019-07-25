@@ -1,8 +1,7 @@
 import datetime
 
-import gb2260
-
 from exceptions import ServerException
+from util.division import Division
 
 
 class GetInformation(object):
@@ -46,5 +45,5 @@ class GetInformation(object):
 
     def get_division(self):
         input = int(self.id[0:6])
-        division = gb2260.get(input)
-        return division.province.name + division.prefecture.name
+        divi = Division.search(input)
+        return divi.province.name if divi.is_province else '' + divi.prefecture.name if divi.is_prefecture else ''
