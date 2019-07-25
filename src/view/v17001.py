@@ -3,8 +3,8 @@ import re
 
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 
 def get_js(df, value):

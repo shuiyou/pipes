@@ -1,7 +1,7 @@
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 
 def _face_relent_indus_count_1(df):

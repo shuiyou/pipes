@@ -1,7 +1,7 @@
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -43,7 +43,7 @@ class T12001(Transformer):
     ## 获取目标数据集1
     def _info_anti_fraud_rule(self):
         sql = '''
-            SELECT info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo 
+            SELECT DISTINCT(info_anti_fraud_rule.rule_id),info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo
             FROM info_anti_fraud_rule 
             LEFT JOIN info_anti_fraud_strategy 
             ON info_anti_fraud_rule.anti_fraud_rule_id = info_anti_fraud_strategy.anti_fraud_rule_id

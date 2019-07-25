@@ -1,7 +1,5 @@
 import datetime
 
-import gb2260
-
 from exceptions import ServerException
 
 
@@ -43,8 +41,3 @@ class GetInformation(object):
                 return year - self.birth_year - 1
             else:
                 return year - self.birth_year
-
-    def get_division(self):
-        input = int(self.id[0:6])
-        division = gb2260.get(input)
-        return division.province.name + division.prefecture.name

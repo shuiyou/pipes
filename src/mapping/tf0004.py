@@ -1,8 +1,8 @@
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
+from util.mysql_reader import sql_to_df
 
 
 def check_is_contain(key, value):
@@ -135,7 +135,6 @@ class Tf0004(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_judge_proc'] = df.shape[0]
 
-
     # 纳税非正常户
     def _court_taxable_abnormal_user_df(self, df=None):
         info_court_taxable_abnormal_user = """
@@ -152,7 +151,6 @@ class Tf0004(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_tax_pay'] = df.shape[0]
 
-
     # 欠款欠费名单sql
     def _court_arrearage_df(self, df=None):
         info_court_arrearage = """
@@ -168,7 +166,6 @@ class Tf0004(Transformer):
     def _ps_court_arrearage(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_owed_owe'] = df.shape[0]
-
 
     # 欠税名单sql
     def _court_tax_arrears_df(self, df=None):
@@ -204,6 +201,7 @@ class Tf0004(Transformer):
             self.variables['com_bus_court_open_court_dishonesty'] = df.shape[0]
 
             # 限制出入境sql
+
     def _court_limited_entry_exit_df(self, df=None):
         info_court_limited_entry_exit = """
         SELECT execute_content,court_id as id
@@ -219,8 +217,8 @@ class Tf0004(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_rest_entry'] = df.shape[0]
 
+            # 限制高消费sql
 
-                # 限制高消费sql
     def _court_limit_hignspending_df(self, df=None):
         info_court_limit_hignspending = """
         SELECT execute_content,court_id as id
@@ -236,8 +234,8 @@ class Tf0004(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_high_cons'] = df.shape[0]
 
+            # 罪犯及嫌疑人名单sql
 
-                # 罪犯及嫌疑人名单sql
     def _court_criminal_suspect_df(self, df=None):
         info_court_criminal_suspect = """
         SELECT trial_date,court_id as id
@@ -253,8 +251,8 @@ class Tf0004(Transformer):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_cri_sus'] = df.shape[0]
 
+            # 各种类型的纠纷案件
 
-                # 各种类型的纠纷案件
     def _ps_dispute(self, df=None):
         if df is not None and len(df) > 0:
             df = df.dropna(subset=['legal_status'], how='any')
@@ -269,7 +267,6 @@ class Tf0004(Transformer):
                 private_lend_df = df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason')
                 if private_lend_df.shape[0] > 0:
                     self.variables['com_bus_court_open_pop_loan'] = 1
-
 
     # 裁判文书/审判流程诉讼地位标识
     def _ps_judicative_litigation(self, df=None):

@@ -1,7 +1,7 @@
 import pandas as pd
 
-from util.mysql_reader import sql_to_df
 from mapping.tranformer import Transformer
+from util.mysql_reader import sql_to_df
 
 
 def _face_relent_indus_count_1(df):
@@ -31,6 +31,7 @@ def _face_relent_indus_code1(df):
     df_out = sql_to_df(sql=sql, params={"ids": df['id'].unique().tolist()})
     return ','.join(df_out['industry_phy_code'].tolist())
 
+
 class Tf0005(Transformer):
     """
        工商照面
@@ -43,8 +44,8 @@ class Tf0005(Transformer):
             'com_bus_face_outwardindusCount1': 0
         }
 
-    def _info_com_bus_entinvitem_df(self,ratio=0.2):
-        sql="""
+    def _info_com_bus_entinvitem_df(self, ratio=0.2):
+        sql = """
         SELECT DISTINCT(ent_name) as ent_name FROM info_com_bus_entinvitem a,
         (SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s and credit_code = %(id_card_no)s
         AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1) b
@@ -58,7 +59,7 @@ class Tf0005(Transformer):
         return df
 
     def _info_com_bus_frinv_df(self):
-        sql="""
+        sql = """
         SELECT DISTINCT(ent_name) as ent_name FROM info_com_bus_frinv a,
         (SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s and credit_code = %(id_card_no)s
         AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1) b
@@ -84,14 +85,10 @@ class Tf0005(Transformer):
                                               how='left')
             return com_bus_basic_merge_df
 
-
-
-
-
     def transform(self):
         entinvitem_df = self._info_com_bus_entinvitem_df()
         frinv_df = self._info_com_bus_frinv_df()
-        df = pd.concat([entinvitem_df,frinv_df])
+        df = pd.concat([entinvitem_df, frinv_df])
         if df is not None and len(df) > 0 and df['ent_name'].shape[0] > 0:
             # 查出企业照面主表的ids
             court_merge_df = self._info_com_bus_basic(df=df)
