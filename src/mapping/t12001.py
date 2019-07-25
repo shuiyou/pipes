@@ -43,7 +43,7 @@ class T12001(Transformer):
     ## 获取目标数据集1
     def _info_anti_fraud_rule(self):
         sql = '''
-            SELECT info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo 
+            SELECT DISTINCT(info_anti_fraud_rule.rule_id),info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo
             FROM info_anti_fraud_rule 
             LEFT JOIN info_anti_fraud_strategy 
             ON info_anti_fraud_rule.anti_fraud_rule_id = info_anti_fraud_strategy.anti_fraud_rule_id
