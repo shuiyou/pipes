@@ -1,6 +1,3 @@
-import time
-
-
 def to_string(obj):
     if obj is None:
         return ''
@@ -9,6 +6,6 @@ def to_string(obj):
 
 def format_timestamp(obj):
     if obj is not None:
-        return time.strftime('%Y-%m-%d %H:%M:%S', obj)
+        return obj.strftime('%Y-%m-%d')
     else:
         return ''
