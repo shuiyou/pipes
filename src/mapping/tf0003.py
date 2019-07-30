@@ -1,6 +1,7 @@
 import pandas as pd
 
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.common_util import format_timestamp
 from util.mysql_reader import sql_to_df
 
 
@@ -313,9 +314,9 @@ class Tf0003(Transformer):
     def _industryphycode_info(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_industryphycode'] = df['industry_phy_code'][0]
-            self.variables['per_com_endtime'] = df['open_to'][0]
-            self.variables['per_com_openfrom'] = df['open_from'][0]
-            self.variables['per_com_esdate'] = df['es_date'][0]
+            self.variables['per_com_endtime'] = format_timestamp(df['open_to'][0])
+            self.variables['per_com_openfrom'] = format_timestamp(df['open_from'][0])
+            self.variables['per_com_esdate'] = format_timestamp(df['es_date'][0])
             self.variables['per_com_areacode'] = df['area_code'][0]
             self.variables['per_com_industrycode'] = df['industry_code'][0]
             self.variables['per_com_province'] = df['province'][0]
