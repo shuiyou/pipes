@@ -43,7 +43,7 @@ class T12001(Transformer):
     ## 获取目标数据集1
     def _info_anti_fraud_rule(self):
         sql = '''
-            SELECT DISTINCT(info_anti_fraud_rule.rule_id),info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo
+            SELECT DISTINCT(rule_id),info_anti_fraud_rule.rule_name,info_anti_fraud_rule.rule_memo
             FROM info_anti_fraud_rule 
             LEFT JOIN info_anti_fraud_strategy 
             ON info_anti_fraud_rule.anti_fraud_rule_id = info_anti_fraud_strategy.anti_fraud_rule_id
@@ -65,6 +65,7 @@ class T12001(Transformer):
         '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+
         return df
 
     # 计算反欺诈_身份证比对信贷行业信用消费黑名单
