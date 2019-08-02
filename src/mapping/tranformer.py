@@ -8,13 +8,17 @@ import numpy
 import numpy as np
 import pandas as pd
 
+from util.common_util import format_timestamp
 
-def numpy_to_int(variables):
+
+def fix_cannot_to_json(variables):
     for key, value in variables.items():
         if type(value) == numpy.int64:
             variables[key] = int(value)
         elif type(value) == numpy.float64:
             variables[key] = int(round(value))
+        elif type(value) == pd.Timestamp:
+            variables[key] = format_timestamp(value)
 
 
 def extract_money(value):

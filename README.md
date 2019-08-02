@@ -85,3 +85,10 @@ $ docker-compose up -d --no-recreate --scale app=5
 
 日志会根据系统的环境变量'ENV'设置的值来选择对应环境的配置。
 ENV可设置为 DEV，FAT，UAT，PROD
+
+### 如何发布上线
+1. 在gitlab上创建merge request，把develop分支合并到release分支。
+2. 到jenkins上运行mf014-pipes-external-build， 查看console里的Successfully tagged registry.cn-shanghai.aliyuncs.com/transformer/pipes
+3. 编辑docker-compose.yml文件，修改image: registry.cn-shanghai.aliyuncs.com/transformer/pipes:<docker image tag>， 替换这里的docker image tag。
+4. 到docker-compose.yml所在目录下运行docker-compose up -d
+5. 在成功发布上线后，把release分支合并到master分支，并且在master分支上打上对应的tag。

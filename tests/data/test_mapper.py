@@ -3,7 +3,7 @@ import importlib
 
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
-from mapping.tranformer import Transformer, numpy_to_int
+from mapping.tranformer import Transformer, fix_cannot_to_json
 
 # from app import logger
 
@@ -30,7 +30,7 @@ def translate_for_strategy(codes, user_name=None, id_card_no=None, phone=None, u
         logger.error(c + ">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
     # 转换类型，这样解决tojson的问题
-    numpy_to_int(variables)
+    fix_cannot_to_json(variables)
     return variables
 
 

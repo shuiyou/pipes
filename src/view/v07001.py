@@ -13,8 +13,7 @@ class V07001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'loan_analyst_overdue_time': '',
-            'loan_analyst_overdue_amt_interval': ''
+            'loan_analyst_overdue_time_amt': None
         }
 
     # 读取目标数据集
@@ -47,16 +46,16 @@ class V07001(Transformer):
         if df is not None and len(df) > 0:
             df['recent_mth'] = df['recent_months'].map({'RECENTLY_1M': '最近1个月', 'RECENTLY_3M': '最近3个月',
                                                         'RECENTLY_6M': '最近6个月', 'RECENTLY_12M': '最近12个月', '': ''})
-            self.variables['loan_analyst_overdue_time'] = df['recent_mth'].tolist()
-            df1 = df.fillna(0)
-            df1['value'] = df1.apply(lambda x: x['low_balance_fail_count'] * x['success_pay_avg_amount'], axis=1)
-            if df1[df1['value'] > 0].shape[0] > 0:
-                df1['overdue_value'] = pd.cut(df1['value'],
-                                              [-1, 0, 1999.99, 4999.99, 9999.99, 29999.99, 49999.99, 99999.99, np.inf],
-                                              right=True,
-                                              labels=['', '0~0.2万', '0.2万~0.5万', '0.5万~1万', '1万~3万', '3万~5万', '5万~10万',
-                                                      '10万以上'])
-                self.variables['loan_analyst_overdue_amt_interval'] = df1['overdue_value'].tolist()
+            df = df.fillna(0)
+            df['value'] = df.apply(lambda x: x['low_balance_fail_count'] * x['success_pay_avg_amount'], axis=1)
+            df['overdue_value'] = pd.cut(df['value'],
+                                         [-1, 0, 1999.99, 4999.99, 9999.99, 29999.99, 49999.99, 99999.99, np.inf],
+                                         right=True,
+                                         labels=['', '0~0.2万', '0.2万~0.5万', '0.5万~1万', '1万~3万', '3万~5万', '5万~10万',
+                                                 '10万以上'])
+            df['list'] = df.apply(lambda x: x['recent_mth'] + ':' + x['overdue_value'], axis=1)
+            self.variables['loan_analyst_overdue_time_amt'] = df['list'].tolist()
+
 
     def transform(self):
         self._info_loan_stats(self._info_loan_stats_df())
