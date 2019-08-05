@@ -1,7 +1,6 @@
 import pandas as pd
 
 from mapping.tranformer import Transformer, subtract_datetime_col
-from util.common_util import format_timestamp
 from util.mysql_reader import sql_to_df
 
 
@@ -57,10 +56,39 @@ class Tf0003(Transformer):
             'per_com_province': '',
             'per_com_city': ''
         }
+        self.out_decision_code = {
+            'IT004': None,
+            'IT012': None,
+            'IT010': None,
+            'IT005': None,
+            'IT016': None,
+            'I006': None,
+            'IM006': None,
+            'IT017': None,
+            'I007': None,
+            'IM007': None,
+            'IT018': None,
+            'I005': None,
+            'IM005': None,
+            'I004': None,
+            'IM004': None,
+            'IT015': None,
+            'IT019': None,
+            'IT011': None,
+            'IT007': None,
+            'IT006': None,
+            'IT008': None,
+            'I002': None,
+            'IM002': None,
+            'IT013': None,
+            'I003': None,
+            'IM003': None,
+            'IT014': None
+        }
 
     def _info_sql_shareholder_df(self):
         info_sql_df = """
-             SELECT b.ent_name
+             SELECT b.ent_name,b.credit_code
              FROM info_per_bus_basic as a
              INNER JOIN info_per_bus_shareholder as b
              ON a.id=b.basic_id
@@ -77,7 +105,7 @@ class Tf0003(Transformer):
 
     def _info_sql_legal_df(self):
         info_sql_df = """
-             SELECT b.ent_name
+             SELECT b.ent_name,b.credit_code
              FROM info_per_bus_basic as a
              INNER JOIN info_per_bus_legal as b
              ON a.id=b.basic_id
@@ -314,9 +342,9 @@ class Tf0003(Transformer):
     def _industryphycode_info(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_industryphycode'] = df['industry_phy_code'][0]
-            self.variables['per_com_endtime'] = format_timestamp(df['open_to'][0])
-            self.variables['per_com_openfrom'] = format_timestamp(df['open_from'][0])
-            self.variables['per_com_esdate'] = format_timestamp(df['es_date'][0])
+            self.variables['per_com_endtime'] = df['open_to'][0]
+            self.variables['per_com_openfrom'] = df['open_from'][0]
+            self.variables['per_com_esdate'] = df['es_date'][0]
             self.variables['per_com_areacode'] = df['area_code'][0]
             self.variables['per_com_industrycode'] = df['industry_code'][0]
             self.variables['per_com_province'] = df['province'][0]
@@ -362,6 +390,37 @@ class Tf0003(Transformer):
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
             self._industryphycode_info(industryphycode_df)
 
+            df = ent_name_df.drop_duplicates()
+            array = [{col: str(df[col][0]) for col in df.columns}]
+            self.out_decision_code = {
+                'IT004': array,
+                'IT012': array,
+                'IT010': array,
+                'IT005': array,
+                'IT016': array,
+                 'I006': array,
+                'IM006': array,
+                'IT017': array,
+                 'I007': array,
+                'IM007': array,
+                'IT018': array,
+                 'I005': array,
+                'IM005': array,
+                 'I004': array,
+                'IM004': array,
+                'IT015': array,
+                'IT019': array,
+                'IT011': array,
+                'IT007': array,
+                'IT006': array,
+                'IT008': array,
+                 'I002': array,
+                'IM002': array,
+                'IT013': array,
+                 'I003': array,
+                'IM003': array,
+                'IT014': array
+            }
         elif ent_name_df1.shape[0] > 0:
             ent_name = ent_name_df1['ent_name'][0]
             case_df = self._info_case_df(ent_name=ent_name)
@@ -393,3 +452,35 @@ class Tf0003(Transformer):
 
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
             self._industryphycode_info(industryphycode_df)
+
+            df = ent_name_df1.drop_duplicates()
+            array = [{col: str(df[col][0]) for col in df.columns}]
+            self.out_decision_code = {
+                'IT004': array,
+                'IT012': array,
+                'IT010': array,
+                'IT005': array,
+                'IT016': array,
+                 'I006': array,
+                'IM006': array,
+                'IT017': array,
+                 'I007': array,
+                'IM007': array,
+                'IT018': array,
+                 'I005': array,
+                'IM005': array,
+                 'I004': array,
+                'IM004': array,
+                'IT015': array,
+                'IT019': array,
+                'IT011': array,
+                'IT007': array,
+                'IT006': array,
+                'IT008': array,
+                 'I002': array,
+                'IM002': array,
+                'IT013': array,
+                 'I003': array,
+                'IM003': array,
+                'IT014': array
+            }
