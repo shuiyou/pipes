@@ -141,6 +141,9 @@ def _get_biz_types(input_json):
 
 def _relation_risk_subject(strategy_resp, out_decision_code):
     branch_code = jsonpath(strategy_resp, '$.StrategyOneResponse.Body.Application.Categories..Variables')
+    if type(branch_code) == bool:
+        return
+
     for c in branch_code:
         code_key = c['out_decisionBranchCode']
         if code_key is not None and code_key in out_decision_code.keys():

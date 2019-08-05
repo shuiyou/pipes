@@ -20,7 +20,10 @@ def client():
 
 
 def test_shake_hand(client):
-    rv = client.post('/biz-types', json={"reqNo":"Q351697278932779008","productCode":"001","queryData":{"name":"温烈祥","idno":"362137198208311018","phone":"13761659574","userType":"PERSONAL"},"versionNo":"1.0"})
+    rv = client.post('/biz-types', json={"reqNo": "Q351697278932779008", "productCode": "001",
+                                         "queryData": {"name": "温烈祥", "idno": "362137198208311018",
+                                                       "phone": "13761659574", "userType": "PERSONAL"},
+                                         "versionNo": "1.0"})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
@@ -28,11 +31,43 @@ def test_shake_hand(client):
 
 
 def test_strategy(client):
-    rv = client.post('/strategy', json={"strategyParam": {"reqNo": "Q351052366570749952", "stepReqNo": "S351052366570749953", "productCode": "001", "queryData": {"name": "\u738b\u5e73\u5e73", "idno": "362422198701220023", "phone": "13970668820", "userType": "PERSONAL"}, "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001", "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002", "f0003"], "versionNo": "1.0"}})
+    rv = client.post('/strategy', json={
+        "strategyParam": {"reqNo": "Q351052366570749952", "stepReqNo": "S351052366570749953", "productCode": "001",
+                          "queryData": {"name": "\u738b\u5e73\u5e73", "idno": "362422198701220023",
+                                        "phone": "13970668820", "userType": "PERSONAL"},
+                          "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001",
+                                      "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002",
+                                      "f0003"], "versionNo": "1.0"}})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
+
+
+def test_qiye_strategy(client):
+    rv = client.post('/strategy', json={
+        "strategyParam": {
+            "reqNo": "Q344619174854866677",
+            "stepReqNo": "S344619174854819846",
+            "productCode": "002",
+            "queryData": {
+                "name": "上海卫园餐饮管理有限公司",
+                "idno": "91310115088687037K",
+                "phone": "",
+                "userType": "COMPANY"
+            },
+            "bizType": [
+                "16002",
+                "24001",
+                "f004",
+                "f005"
+            ],
+            "versionNo": "1.0"
+        }
+    })
+    assert rv.status_code == 200
+    v = rv.get_json()
+    print(json.dumps(v))
 
 
 def test_sql_to_df():
