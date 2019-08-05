@@ -1,7 +1,6 @@
 import pandas as pd
 
 from mapping.tranformer import Transformer, subtract_datetime_col
-from util.common_util import format_timestamp
 from util.mysql_reader import sql_to_df
 
 
@@ -58,33 +57,33 @@ class Tf0003(Transformer):
             'per_com_city': ''
         }
         self.out_decision_code = {
-            'I002': None,
-            'I003': None,
-            'I004': None,
-            'I005': None,
-            'I006': None,
-            'I007': None,
-            'IM002': None,
-            'IM003': None,
-            'IM004': None,
-            'IM005': None,
-            'IM006': None,
-            'IM007': None,
             'IT004': None,
-            'IT005': None,
-            'IT006': None,
-            'IT007': None,
-            'IT008': None,
-            'IT010': None,
-            'IT011': None,
             'IT012': None,
-            'IT013': None,
-            'IT014': None,
-            'IT015': None,
+            'IT010': None,
+            'IT005': None,
             'IT016': None,
+            'I006': None,
+            'IM006': None,
             'IT017': None,
+            'I007': None,
+            'IM007': None,
             'IT018': None,
-            'IT019': None
+            'I005': None,
+            'IM005': None,
+            'I004': None,
+            'IM004': None,
+            'IT015': None,
+            'IT019': None,
+            'IT011': None,
+            'IT007': None,
+            'IT006': None,
+            'IT008': None,
+            'I002': None,
+            'IM002': None,
+            'IT013': None,
+            'I003': None,
+            'IM003': None,
+            'IT014': None
         }
 
     def _info_sql_shareholder_df(self):
@@ -139,7 +138,7 @@ class Tf0003(Transformer):
 
     def _info_shares_frost_df(self, ent_name):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,c.credit_code,d.basic_id,d.judicial_froz_state
+            SELECT c.ent_name,d.basic_id,d.judicial_froz_state
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_frost as d
             on c.id=d.basic_id
@@ -156,16 +155,12 @@ class Tf0003(Transformer):
             df['jiedong'] = df.apply(lambda x: jiedong(x['judicial_froz_state']), axis=1)
             if df[df['dongjie']].shape[0] > 0:
                 self.variables['per_com_shares_frost'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IM002'] = [{col: str(df1[col][0]) for col in df1.columns}]
             if df[df['jiedong']].shape[0] > 0:
                 self.variables['per_com_shares_frost_his'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IT013'] = [{col: str(df1[col][0]) for col in df1.columns}]
 
     def _info_shares_impawn_df(self, ent_name):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,c.credit_code,d.basic_id,d.imp_exe_state
+            SELECT c.ent_name,d.basic_id,d.imp_exe_state
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_shares_impawn as d
             on c.id=d.basic_id
@@ -182,16 +177,12 @@ class Tf0003(Transformer):
             df['shixiao'] = df.apply(lambda x: True if '失效' in x['imp_exe_state'] else False, axis=1)
             if df[df['youxiao']].shape[0] > 0:
                 self.variables['per_com_shares_impawn'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IM003'] = [{col: str(df1[col][0]) for col in df1.columns}]
             if df[df['shixiao']].shape[0] > 0:
                 self.variables['per_com_shares_impawn_his'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IT014'] = [{col: str(df1[col][0]) for col in df1.columns}]
 
     def _info_mor_detail_df(self, ent_name):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,c.credit_code,d.basic_id,d.mort_status
+            SELECT c.ent_name,d.basic_id,d.mort_status
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
@@ -208,12 +199,8 @@ class Tf0003(Transformer):
             df['shixiao'] = df.apply(lambda x: True if '失效' in x['mort_status'] else False, axis=1)
             if df[df['youxiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IM004'] = [{col: str(df1[col][0]) for col in df1.columns}]
             if df[df['shixiao']].shape[0] > 0:
                 self.variables['per_com_mor_detail_his'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IT015'] = [{col: str(df1[col][0]) for col in df1.columns}]
 
     def _info_liquidation_df(self, ent_name):
         info_per_bus_shareholder = """
@@ -234,7 +221,7 @@ class Tf0003(Transformer):
 
     def _info_exception_df(self, ent_name):
         info_per_bus_shareholder = """
-            SELECT c.ent_name,c.credit_code,d.basic_id,d.result_out,d.result_in,d.date_out
+            SELECT c.ent_name,d.basic_id,d.result_out,d.result_in,d.date_out
             FROM info_com_bus_basic as c
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
@@ -249,12 +236,8 @@ class Tf0003(Transformer):
         if df is not None and len(df) > 0:
             if df[df['result_out'].isna()].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IT005'] = [{col: str(df1[col][0]) for col in df1.columns}]
             if df[df['result_out'].isna()].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
-                df1 = df[['ent_nme', 'credit_code']].drop_duplicates()
-                self.out_decision_code['IT016'] = [{col: str(df1[col][0]) for col in df1.columns}]
             if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
             elif df[(df['date_out'].isna()) & (df['result_in'].str.contains('无法联系'))].shape[0] > 0:
@@ -359,9 +342,9 @@ class Tf0003(Transformer):
     def _industryphycode_info(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['per_com_industryphycode'] = df['industry_phy_code'][0]
-            self.variables['per_com_endtime'] = format_timestamp(df['open_to'][0])
-            self.variables['per_com_openfrom'] = format_timestamp(df['open_from'][0])
-            self.variables['per_com_esdate'] = format_timestamp(df['es_date'][0])
+            self.variables['per_com_endtime'] = df['open_to'][0]
+            self.variables['per_com_openfrom'] = df['open_from'][0]
+            self.variables['per_com_esdate'] = df['es_date'][0]
             self.variables['per_com_areacode'] = df['area_code'][0]
             self.variables['per_com_industrycode'] = df['industry_code'][0]
             self.variables['per_com_province'] = df['province'][0]
@@ -407,6 +390,37 @@ class Tf0003(Transformer):
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
             self._industryphycode_info(industryphycode_df)
 
+            df = ent_name_df.drop_duplicates()
+            array = [{col: str(df[col][0]) for col in df.columns}]
+            self.out_decision_code = {
+                'IT004': array,
+                'IT012': array,
+                'IT010': array,
+                'IT005': array,
+                'IT016': array,
+                 'I006': array,
+                'IM006': array,
+                'IT017': array,
+                 'I007': array,
+                'IM007': array,
+                'IT018': array,
+                 'I005': array,
+                'IM005': array,
+                 'I004': array,
+                'IM004': array,
+                'IT015': array,
+                'IT019': array,
+                'IT011': array,
+                'IT007': array,
+                'IT006': array,
+                'IT008': array,
+                 'I002': array,
+                'IM002': array,
+                'IT013': array,
+                 'I003': array,
+                'IM003': array,
+                'IT014': array
+            }
         elif ent_name_df1.shape[0] > 0:
             ent_name = ent_name_df1['ent_name'][0]
             case_df = self._info_case_df(ent_name=ent_name)
@@ -438,3 +452,35 @@ class Tf0003(Transformer):
 
             industryphycode_df = self._info_industryphycode_df(ent_name=ent_name)
             self._industryphycode_info(industryphycode_df)
+
+            df = ent_name_df1.drop_duplicates()
+            array = [{col: str(df[col][0]) for col in df.columns}]
+            self.out_decision_code = {
+                'IT004': array,
+                'IT012': array,
+                'IT010': array,
+                'IT005': array,
+                'IT016': array,
+                 'I006': array,
+                'IM006': array,
+                'IT017': array,
+                 'I007': array,
+                'IM007': array,
+                'IT018': array,
+                 'I005': array,
+                'IM005': array,
+                 'I004': array,
+                'IM004': array,
+                'IT015': array,
+                'IT019': array,
+                'IT011': array,
+                'IT007': array,
+                'IT006': array,
+                'IT008': array,
+                 'I002': array,
+                'IM002': array,
+                'IT013': array,
+                 'I003': array,
+                'IM003': array,
+                'IT014': array
+            }
