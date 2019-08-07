@@ -16,7 +16,7 @@ def fix_cannot_to_json(variables):
         if type(value) == numpy.int64:
             variables[key] = int(value)
         elif type(value) == numpy.float64:
-            variables[key] = int(round(value))
+            variables[key] = round(value, 2)
         elif type(value) == pd.Timestamp:
             variables[key] = format_timestamp(value)
 
