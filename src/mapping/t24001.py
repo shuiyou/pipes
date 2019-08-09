@@ -1,6 +1,7 @@
 import pandas as pd
 
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
 
 pd.set_option('display.max_columns', None)
@@ -391,6 +392,7 @@ class T24001(Transformer):
             self.variables['com_bus_exception'] = 1
 
     # 计算工商核查_经营异常原因
+    @exception('purpose= 工商核查&author=gulongwei')
     def _com_bus_exception_result(self, df=None):
         df = df[df['date_out'].isnull().values == True]
         if len(df) > 0:
@@ -605,6 +607,7 @@ class T24001(Transformer):
         return df
 
     # 计算工商核查_企业和法人关联公司是否存在吊销
+    @exception('purpose= 工商核查&author=gulongwei')
     def _com_bus_legper_relent_revoke(self, df=None):
         if True in df['ent_status'].str.contains('吊销').values:
             self.variables['com_bus_legper_relent_revoke'] = 1

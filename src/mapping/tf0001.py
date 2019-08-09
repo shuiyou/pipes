@@ -2,6 +2,7 @@ import pandas as pd
 
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
 
 
@@ -111,6 +112,7 @@ class Tf0001(Transformer):
         return violation_df
 
     # 行政违法记录-数据处理
+    @exception('purpose= 联企法院&author=liujinhao')
     def _ps_court_administrative_violation(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_admi_violation'] = df.shape[0]
@@ -302,8 +304,8 @@ class Tf0001(Transformer):
                 self.out_decision_code['X005'] = criminal_suspect_array
                 self.out_decision_code['XM005'] = criminal_suspect_array
 
-                # 各种类型的纠纷案件
-
+    # 各种类型的纠纷案件
+    @exception('purpose= 联企法院&author=liujinhao')
     def _ps_dispute(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             df = df.dropna(subset=['legal_status'], how='any')
@@ -329,6 +331,7 @@ class Tf0001(Transformer):
                     self.out_decision_code['XM008'] = private_lend_array
 
     # 裁判文书/审判流程诉讼地位标识
+    @exception('purpose= 联企法院&author=liujinhao')
     def _ps_judicative_litigation(self, df=None):
         if df is not None and len(df) > 0:
             df = df.dropna(subset=['legal_status'], how='any')
@@ -359,6 +362,7 @@ class Tf0001(Transformer):
         return public_df
 
     # 执行公开信息-数据处理
+    @exception('purpose= 联企法院&author=liujinhao')
     def _ps_court_excute_public(self, df=None, court_df=None):
         if df is not None and len(df) > 0:
             self.variables['relent_court_open_pub_info'] = len(df)

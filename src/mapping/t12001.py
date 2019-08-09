@@ -2,6 +2,7 @@ import pandas as pd
 
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
+from util.common_util import exception
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -167,6 +168,7 @@ class T12001(Transformer):
             self.variables['anti_idno_legal_break_faith'] = len(df)
 
     # 计算反欺诈_身份证一个月内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_idno_apply_1m(self, df=None):
 
         df = df.loc[df['rule_name'] == '身份证一个月内多头申请过多', 'rule_memo'].copy()
@@ -174,6 +176,7 @@ class T12001(Transformer):
             self.variables['anti_idno_apply_1m'] = int(df.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证三个月内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_idno_apply_3m(self, df=None):
 
         df2 = df.loc[df['rule_name'] == '身份证三个月内多头申请过多', 'rule_memo'].copy()
@@ -181,6 +184,7 @@ class T12001(Transformer):
             self.variables['anti_idno_apply_3m'] = int(df2.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号一个月内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_tel_apply_1m(self, df=None):
 
         df3 = df.loc[df['rule_name'] == '手机号一个月内多头申请过多', 'rule_memo'].copy()
@@ -188,6 +192,7 @@ class T12001(Transformer):
             self.variables['anti_tel_apply_1m'] = int(df3.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号三个月内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_tel_apply_3m(self, df=None):
 
         df4 = df.loc[df['rule_name'] == '手机号三个月内多头申请过多', 'rule_memo'].copy()
@@ -195,6 +200,7 @@ class T12001(Transformer):
             self.variables['anti_tel_apply_3m'] = int(df4.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证三天内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_idno_apply_3d(self, df=None):
 
         df5 = df.loc[df['rule_name'] == '身份证三天内多头申请过多', 'rule_memo'].copy()
@@ -202,6 +208,7 @@ class T12001(Transformer):
             self.variables['anti_idno_apply_3d'] = int(df5.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_身份证七天内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_idno_apply_7d(self, df=None):
 
         df6 = df.loc[df['rule_name'] == '身份证七天内多头申请过多', 'rule_memo'].copy()
@@ -209,6 +216,7 @@ class T12001(Transformer):
             self.variables['anti_idno_apply_7d'] = int(df6.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号三天内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_tel_apply_3d(self, df=None):
 
         df7 = df.loc[df['rule_name'] == '手机号三天内多头申请过多', 'rule_memo'].copy()
@@ -216,6 +224,7 @@ class T12001(Transformer):
             self.variables['anti_tel_apply_3d'] = int(df7.values[0].split(',')[0].split(':')[1])
 
     # 计算反欺诈_手机号七天内多头申请过多_次数
+    @exception('purpose= 反欺诈&author=gulongwei')
     def _anti_tel_apply_7d(self, df=None):
 
         df8 = df.loc[df['rule_name'] == '手机号七天内多头申请过多', 'rule_memo'].copy()
