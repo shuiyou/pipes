@@ -5,9 +5,12 @@ import pandas as pd
 
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
+from util.common_util import exception
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
+
+
 
 
 ## 网申核查相关的变量模块
@@ -103,6 +106,7 @@ class T17001(Transformer):
         return df
 
     # 计算个人基本信息核查模块字段
+    @exception('purpose= 网申核查&author=gulongwei')
     def _per_base_info(self, df=None):
 
         if len(df[df['item_group'] == '个人基本信息核查']) != 0:
@@ -165,6 +169,7 @@ class T17001(Transformer):
             self.variables['net_idc_name_hit_exec_vague'] = len(df_22)
 
     # 计算客户行为检测模块字段
+    @exception('purpose= 网申核查&author=gulongwei')
     def _cus_behav(self, df=None):
         df1 = df.dropna(subset=['item_detail'], how='any')
         df1 = df1.query('item_group == "客户行为检测"')
@@ -218,6 +223,7 @@ class T17001(Transformer):
             self.variables['net_applicant_tel_3m_morethan2'] = len(df7)
 
     # 计算多平台借贷申请检测模块字段
+    @exception('purpose= 网申核查&author=gulongwei')
     def _mulplat_loan_app(self, df=None):
         df1 = df.loc[(df['item_group'] == '多平台借贷申请检测') & (df['item_name'] == '7天内申请人在多个平台申请借款'), :]
         if len(df1) > 0:
@@ -254,6 +260,7 @@ class T17001(Transformer):
         return df
 
     # 计算网申核查_风险分数
+    @exception('purpose= 网申核查&author=gulongwei')
     def _net_final_score(self, df=None):
         if df is not None and len(df) > 0 and df['final_score'].array[0] is not None:
             self.variables['net_final_score'] = int(df['final_score'].array[0])

@@ -1,4 +1,5 @@
 from mapping.tranformer import Transformer, subtract_datetime_col, extract_money, extract_money_court_excute_public
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
 
 
@@ -58,6 +59,7 @@ class T16002(Transformer):
         return df
 
     # 行政违法记录-数据处理
+    @exception('purpose= 法院核查_企业&author=liujinhao')
     def _ps_court_administrative_violation(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_admi_vio'] = df.shape[0]
@@ -85,6 +87,7 @@ class T16002(Transformer):
         return df
 
     # 民商事裁判文书-数据处理
+    @exception('purpose= 法院核查_企业&author=liujinhao')
     def _ps_court_judicative_pape(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_judge'] = df.shape[0]
@@ -127,6 +130,7 @@ class T16002(Transformer):
         return df
 
     # 民商事审判流程-数据处理
+    @exception('purpose= 法院核查_企业&author=liujinhao')
     def _ps_court_trial_process(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_trial_proc'] = df.shape[0]
@@ -279,6 +283,7 @@ class T16002(Transformer):
         return df
 
     # 执行公开信息-数据处理
+    @exception('purpose= 法院核查_企业&author=liujinhao')
     def _ps_court_excute_public(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_ent_pub_info'] = df.shape[0]

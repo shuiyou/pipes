@@ -1,5 +1,6 @@
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
+from util.common_util import exception
 
 
 class T06001(Transformer):
@@ -33,6 +34,7 @@ class T06001(Transformer):
                        params={"user_name": user_name, "id_card_no": id_card_no})
         return df
 
+    @exception('purpose= 公安核查&author=luokui')
     def _ps_crime_type(self, df=None):
         if df is not None and 'crime_type' in df.columns and len(df) == 1:
             value = df['crime_type'][0]
