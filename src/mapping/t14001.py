@@ -1,5 +1,7 @@
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
+
 
 
 class T14001(Transformer):
@@ -62,6 +64,7 @@ class T14001(Transformer):
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
         return df
 
+    @exception('purpose= 社交核查&author=Allen')
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
             df['contacts_class_1_cnt'] = df['contacts_class_1_cnt'].fillna(0)

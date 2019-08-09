@@ -2,6 +2,7 @@ import pandas as pd
 
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
 
 
@@ -95,6 +96,7 @@ class Tf0004(Transformer):
         return violation_df
 
     # 行政违法记录-数据处理
+    @exception('purpose= 工商法院&author=Allen')
     def _ps_court_administrative_violation(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_admi_violation'] = df.shape[0]
@@ -299,6 +301,7 @@ class Tf0004(Transformer):
         return public_df
 
     # 执行公开信息-数据处理
+    @exception('purpose= 工商法院&author=Allen')
     def _ps_court_excute_public(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['com_bus_court_open_pub_info'] = len(df)

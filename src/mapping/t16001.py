@@ -1,6 +1,7 @@
 import re
 
 from mapping.tranformer import Transformer, subtract_datetime_col
+from util.common_util import exception
 from util.mysql_reader import sql_to_df
 
 
@@ -84,6 +85,7 @@ class T16001(Transformer):
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
+    @exception('purpose= 个人法院核查&author=Allen')
     def _admi_vio(self, df=None):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'create_time', 'specific_date', 'Y')
@@ -105,6 +107,7 @@ class T16001(Transformer):
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
+    @exception('purpose= 个人法院核查&author=Allen')
     def _judge(self, df=None):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'create_time', 'closed_time', 'Y')
@@ -137,6 +140,7 @@ class T16001(Transformer):
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
+    @exception('purpose= 个人法院核查&author=Allen')
     def _trial_proc(self, df=None):
         if df is not None and len(df) > 0:
             self.variables['court_trial_proc'] = df.shape[0]
@@ -271,6 +275,7 @@ class T16001(Transformer):
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no})
         return df
 
+    @exception('purpose= 个人法院核查&author=Allen')
     def _pub_info(self, df=None):
         if df is not None and len(df) > 0:
             self.year = subtract_datetime_col(df, 'create_time', 'filing_time', 'Y')

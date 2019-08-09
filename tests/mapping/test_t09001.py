@@ -1,8 +1,11 @@
 import re
 
 import pandas as pd
+import json
+
 
 from mapping.t09001 import T09001
+from util.common_util import exception
 
 
 def test_ps_loan_other():
@@ -116,4 +119,18 @@ def test_round():
     print(int(round(1.53,0)))
 
 
+
+@exception('purpose=企业工商&author=刘金昊')
+def fun1():
+    a = ['AA', 'CC', 'BB']
+    b = [11, 22, 11]
+    c = [11]
+    df = pd.DataFrame({'execution_result': a, 'specific_date': b})
+    row_str = '{frequency_detail_list=[{"detail":"7天内身份证申请次数：6"}], type=frequency_detail}'
+    row_dict = json.loads(row_str)
+    return df
+
+def test_robust():
+    a = fun1();
+    print(a)
 
