@@ -15,14 +15,15 @@ class T14001(Transformer):
             'social_name_tel_in_black': 0,
             'social_idc_name_in_black': 0,
             'social_tel_gray_sco': '',
-            'social_query_mac_cnt': '',
+            'user_name': '',
             'social_dir_in_black_rate': '',
             'social_indir_in_black_rate': '',
             'social_dir_rel_indir_rate': '',
             'social_reg_app_cnt': 0,
             'social_query_else_cnt': 0,
             'social_query_else_cnt_6m': 0,
-            'social_query_else_cnt_24m': 0
+            'social_query_else_cnt_24m': 0,
+            'social_query_mac_cnt':None
         }
 
     def _info_social_blacklist_df(self):
