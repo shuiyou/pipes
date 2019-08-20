@@ -113,7 +113,7 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'create_time', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3].fillna(0)['case_amount'].sum()
-            self.variables['court_judge_max'] = df.fillna(0)['case_amount'].max()
+            self.variables['court_judge_max'] = round(df.fillna(0)['case_amount'].max(),2)
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
