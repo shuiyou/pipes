@@ -41,6 +41,7 @@ class V10001(Transformer):
     # 计算“逾期核查_逾期时间_金额”字段
     def _ovdu_overdue_time_amt(self, df=None):
         new_list = list()
+        df.dropna(axis=0, how='any', inplace=True)
         if df is not None and len(df) > 0:
             df['risk_score'] = df['risk_score'].replace(to_replace='11', value='0W～0.1W')
             df['risk_score'] = df['risk_score'].replace(to_replace='12', value='0.1W～0.5W')
