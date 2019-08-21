@@ -116,7 +116,7 @@ def test_dropna():
     # print(array)
 
 def test_round():
-    print(int(round(1.53,0)))
+    print(round(0.007,2))
 
 
 

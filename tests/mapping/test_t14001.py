@@ -59,5 +59,5 @@ pd.set_option('display.max_rows', None)
 
 def test_t14001():
     ps1 = T14001()
-    ps1.run("李琳", "520425198311158217", "18849553961")
+    ps1.run("施网明", "310108196610024859", "13301778997")
     print(ps1.variables)
