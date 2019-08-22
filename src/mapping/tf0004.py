@@ -60,10 +60,10 @@ class Tf0004(Transformer):
     # 企业工商-法人信息
     def _com_bus_frinv_df(self, status):
         info_com_bus_frinv = """
-       SELECT ent_name FROM info_com_bus_frinv a,(SELECT id FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
+       SELECT a.ent_name FROM info_com_bus_frinv a,(SELECT id,ent_name FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
         unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id 
-        and a.fr_name=ent_name
+        and a.fr_name = b.ent_name
         and a.ent_status in %(status)s;
         """
         df = sql_to_df(sql=info_com_bus_frinv,
