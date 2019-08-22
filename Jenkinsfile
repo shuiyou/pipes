@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 
 node {
+
+    imageVersion = 'registry.cn-shanghai.aliyuncs.com/transformer/pipes:1.0.0-' + env.JOB_BASE_NAME + '-' + env.BUILD_NUMBER
     stage('checkout') {
          def scmVars = checkout scm
          env.GIT_COMMIT = scmVars.GIT_COMMIT
@@ -14,9 +16,17 @@ node {
 
     stage('build image') {
         sh "sh build.sh"
+        sh "docker build --no-cache -t " + imageVersion + " ./src"
     }
 
     stage('push image') {
-        sh "docker push registry.cn-shanghai.aliyuncs.com/transformer/pipes"
+        sh "docker push " + imageVersion
+    }
+
+    stage('trigger deploy') {
+         build job: 'mf014-pipes-external-deploy',
+                            parameters: [
+                                string(name: 'DOCKER_TAG_NUMBER', value: "${BUILD_ID}")
+                            ]
     }
 }

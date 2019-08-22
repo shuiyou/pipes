@@ -1,8 +1,11 @@
-import logging
-
 # import pandas as pd
 # from metabasepy import Client
+import datetime
+import os
+import time
+
 import pandas as pd
+from dateutil import parser
 from metabasepy import Client
 
 from logger.logger_util import LoggerUtil
@@ -12,11 +15,18 @@ logger.info('python-logstash-async: tests logstash info message.')
 
 token = None
 with open("token.txt", "r") as myfile:
-    lines = myfile.readlines()
-    if len(lines) > 0:
-        token = lines[0]
+    mtime = time.ctime(os.path.getmtime(myfile.name))
+    current_time = datetime.datetime.now()
+    delta_days = (current_time - parser.parse(mtime)).days
+    print(delta_days)
+    if delta_days < 1:
+        lines = myfile.readlines()
+        if len(lines) > 0:
+            token = lines[0]
 
-cli = Client(username='luokui@magfin.cn', password="laokai1981", base_url="http://192.168.1.37:3000", token=token)
+cli = Client(username='gulongwei@magfin.cn', password="gulongweiqq123..", base_url="http://192.168.1.37:3000",
+             token=token)
+
 if token is None:
     cli.authenticate()
     with open("token.txt", "w") as token_file:
@@ -31,7 +41,5 @@ def read_as_df(database_name, query):
     return pd.DataFrame(query_response)
 
 
-df = read_as_df(database_name="金融产品部", query="select cont_amt from acc_loan")
+df = read_as_df(database_name="湛泸生产环境", query="select * from assets_business_data")
 print(df.shape)
-
-

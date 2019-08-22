@@ -1,37 +1,39 @@
 # -*- coding: utf-8 -*-
 import importlib
-import os
 
-import pandas as pd
+from exceptions import ServerException
+from logger.logger_util import LoggerUtil
+from mapping.tranformer import Transformer, fix_cannot_to_json
 
 # from app import logger
-from logger.logger_util import LoggerUtil
-from mapping.tranformer import Transformer
+
 logger = LoggerUtil().logger(__name__)
 
-def translate(product_code, user_name=None, id_card_no=None, phone=None):
+
+def translate_for_strategy(codes, user_name=None, id_card_no=None, phone=None, user_type=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
     """
-    product_df = read_product(product_code)
-    codes = product_df['code'].unique()
     variables = {}
-    for c in codes:
-        trans = get_transformer(c)
-        trans.transform(user_name=user_name,
-                        id_card_no=id_card_no,
-                        phone=phone)
-        variables.update(trans.variables)
-
-    return variables
-
-
-def read_product(product_code):
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    excel_file = os.path.join(root_dir, 'product', product_code + '.xlsx')
-    return pd.read_excel(excel_file, usecols=[0, 1], dtype={'code': str})
+    out_decision_code = {}
+    c = None
+    try:
+        for c in codes:
+            trans = get_transformer(c)
+            trans_result = trans.run(user_name=user_name,
+                                     id_card_no=id_card_no,
+                                     phone=phone,
+                                     user_type=user_type)
+            variables.update(trans_result['variables'])
+            out_decision_code.update(trans_result['out_decision_code'])
+    except Exception as err:
+        logger.error(c + ">>> translate error: " + str(err))
+        raise ServerException(code=500, description=str(err))
+    # 转换类型，这样解决tojson的问题
+    fix_cannot_to_json(variables)
+    return variables, out_decision_code
 
 
 def get_transformer(code) -> Transformer:

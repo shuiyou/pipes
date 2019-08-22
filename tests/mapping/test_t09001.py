@@ -1,0 +1,136 @@
+import re
+
+import pandas as pd
+import json
+
+
+from mapping.t09001 import T09001
+from util.common_util import exception
+
+
+def test_ps_loan_other():
+    ps = T09001()
+    ps.run(user_name='', id_card_no='410305197903240547', phone='')
+    print(ps.variables)
+    assert ps.variables['oth_loan_hit_org_cnt'] == 1
+    assert ps.variables['oth_loan_hit_bank_cnt'] == 2
+    assert ps.variables['oth_loan_hit_finance_cnt'] == 5
+    assert ps.variables['oth_loan_hit_p2p_cnt'] == 3
+    assert ps.variables['oth_loan_query_mac_cnt_6m'] == 6
+    assert ps.variables['oth_loan_query_mac_cnt_3m'] == 5
+    assert ps.variables['oth_loan_apro_cnt_6m'] == 2
+    assert ps.variables['oth_loan_hit_org_cnt_3m'] == 1
+
+
+def test_get_oney_from_string():
+    value = "一、撤销湖北省武汉市中级人民法院(2015)鄂武汉中行终字第00569号行政判决；二、维持武汉市黄陂区人民法院(2015)鄂黄陂行初字第00030号行政判决。一、二审案件受理费各50元，均由武汉市黄陂区农业机械有限责任公司负担。本判决为终审判决。"
+    value = re.sub(r"(第?[0-9]\d*号)", "", value)
+    value = re.sub(r"\([0-9]{4}\)", "", value)
+    value = re.sub(r"〔[0-9]{4}〕", "", value)
+    value = re.sub(r"(http://)((\w)|(\W)|(\.))*", "", value)
+    moneyArray = re.findall(r"\d+\.?\d*", value)
+    moneyMax = 0
+    for money in moneyArray:
+        if ('万元') in value:
+            moneyRe = float(money) * 10000
+        else:
+            moneyRe = float(money)
+        if moneyRe > moneyMax:
+            moneyMax = moneyRe
+    print("%.2f" % moneyMax)
+
+
+def test_match_string():
+    money = 0
+    money_str = "0.00"
+    value = "上海市宝山区卫生和计划生育委员会作出的宝第xxxxxxxxxx号行政处罚决定合法，准予强制执行。被执行人上海越飞酒店用品有限公司必须在收到本裁定书之日起五日内缴纳罚款人民币2,000元，逾期本院将依法强制执行。本案申请执行费人民币50元，由被执行人上海越飞酒店用品有限公司负担。本裁定书送达后立即生效。"
+    # value = "[金额:176.45]"
+    # value = "荆州市德泰工贸有限公司（以下简称“公司”）采取规避监管的方式排放水污染物一案，经荆州市环境监察支队现场调查，现已审查终结。 一、环境违法事实和证据 我局依法查明，你公司采取规避监管的方式排放水污染物，利用软管将含泥废水排放至附近池塘。 以上事实有荆州市环境监察支队2015年9月2日制作的《荆州市环保局调查询问笔录》为证。 你公司上述行为违反了《中华人民共和国水污染防治法》第二十二条第二款的规定。 2015年9月18日，我局依照法律程序告知你公司违法事实、处罚依据和拟作出的处罚决定，并告知你公司有权进行陈述、申辩。你公司在规定期限内放弃了陈述、申辩的权利。 以上事实，有我局《行政处罚事先告知书》（荆环法〔2015〕174号）及送达回执、2015年9月29日荆州市环境监察支队制作的《荆州市环境保护局调查询问笔录》为证。 二、行政处罚的依据、种类 《中华人民共和国水污染防治法》第七十五条第二款“除前款规定外，违反法律、行政法规和国务院环境保护主管部门的规定设置排污口或者私设暗管的，由县级以上地方人民政府环境保护主管部门责令限期拆除，处二万元以上十万元以下的罚款；逾期不拆除的，强制拆除，所需费用由违法者承担，处十万元以上五十万元以下的罚款；私设暗管或者有其他严重情节的，县级以上地方人民政府环境保护主管部门可以提请县级以上地方人民政府责令停产整顿”。 依据上述规定，我局决定对你公司作出罚款2万元的行政处罚。 三、行政处罚决定的履行方式和期限 根据《中华人民共和国行政处罚法》和《罚款决定与罚款收缴分离实施办法》的规定，你公司应于收到本处罚决定书之日起15日内，持荆州市环境监察支队出具的《湖北省非税收入一般缴款书》将罚款缴至荆州市非税收入管理局。 你公司缴纳罚款后，应将一般缴款书第一联报送荆州市环境监察支队备案。逾期不缴纳罚款的，依据《行政处罚法》第五十一条第（一）项规定，每日按罚款数额的3%加处罚款。 我局委托荆州市环境监察支队对你公司履行处罚决定的情况实施监督检查。 四、申请复议或者提起诉讼的途径和期限 你公司如不服本处罚决定，可在接到处罚决定书之日起六十日内向湖北省环境保护厅或荆州市人民政府申请复议，也可在接到处罚决定书之日起六个月内提起行政诉讼。逾期不申请行政复议，也未向人民法院起诉，又不履行本处罚决定的，我局将依法申请人民法院强制执行。"
+    value = re.sub(r'\,', "", value)
+    print(value)
+    pattern1 = re.compile(r'(?<=罚款金额\(单位：万元\)\:)\d+\.?\d*')
+    pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
+    pattern3 = re.compile(r'(?<=罚款)\d+\.?\d*')
+    pattern4 = re.compile(r'(?<=罚款人民币)\d+\.?\d*')
+    if pattern1.search(value) != None:
+        money_str = pattern1.search(value).group(0)
+        print("pattern1")
+    elif pattern2.search(value) != None:
+        money_str = pattern2.search(value).group(0)
+        print("pattern2")
+    elif pattern3.search(value) != None:
+        money_str = pattern3.search(value).group(0)
+        print("pattern3")
+    elif pattern4.search(value) != None:
+        money_str = pattern4.search(value).group(0)
+        print("pattern4")
+    print(money_str)
+    money = float(money_str)
+    if ("万元" in value):
+        money = money * 10000
+    money = "%.2f" % money
+    print(money)
+
+
+def test_extract_money_court_excute_public():
+    """
+    执行公开信息模块从执行内容中提取金额
+    :param value:
+    :return:
+    """
+    value = "执行标的金额（元）:22000"
+    value = re.sub(r'\,', "", value)
+    money_array = re.findall(r"\d+\.?\d*", value)
+    money_max = 0
+    if money_array is not None and len(money_array) > 0:
+        for money in money_array:
+            if ('万元') in value:
+                money_re = float(money) * 10000
+            else:
+                money_re = float(money)
+            if money_re > money_max:
+                money_max = money_re
+        money_max = float("%.2f" % money_max)
+    print(money_max)
+
+
+def test_dropna():
+    a = ['AA', 'CC', 'BB']
+    b = [11, 22, 11]
+    c = [11]
+    df = pd.DataFrame({'execution_result': a, 'specific_date': b})
+    df = df.drop_duplicates(subset=['specific_date'])
+    print(df)
+    # df2 = pd.DataFrame({'specific_date': c})
+    # df_merge = pd.merge(df2,df,on=['specific_date'],how='left')
+    # print(df_merge)
+    # df1 = df.dropna(subset=['execution_result'], how='any')
+    # print(df1)
+    # array = []
+    # for index, row in df.iterrows():
+    #     value={
+    #         'name':row['execution_result'],
+    #         'id_card_no':row['specific_date']
+    #     }
+    #     array.append(value)
+    # print(array)
+
+def test_round():
+    print(int(round(1.53,0)))
+
+
+
+@exception('purpose=企业工商&author=刘金昊')
+def fun1():
+    a = ['AA', 'CC', 'BB']
+    b = [11, 22, 11]
+    c = [11]
+    df = pd.DataFrame({'execution_result': a, 'specific_date': b})
+    row_str = '{frequency_detail_list=[{"detail":"7天内身份证申请次数：6"}], type=frequency_detail}'
+    row_dict = json.loads(row_str)
+    return df
+
+def test_robust():
+    a = fun1();
+    print(a)
+
