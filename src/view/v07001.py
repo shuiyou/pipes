@@ -43,6 +43,7 @@ class V07001(Transformer):
 
     # 计算字段
     def _info_loan_stats(self, df=None):
+        df.dropna(axis=0, how='any', inplace=True)
         if df is not None and len(df) > 0:
             df['recent_mth'] = df['recent_months'].map({'RECENTLY_1M': '最近1个月', 'RECENTLY_3M': '最近3个月',
                                                         'RECENTLY_6M': '最近6个月', 'RECENTLY_12M': '最近12个月', '': ''})
