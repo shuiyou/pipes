@@ -43,9 +43,9 @@ class T10001(Transformer):
         """
         if df is not None and len(df) > 0:
             df_out = df.query(self.diff_year + ' < 1')
-            score_max = df_out.fillna(0)['risk_score'].max()
+            score_max = df_out['risk_score'].map({'': '0'}).max()
             if str(score_max) != 'nan':
-                self.variables['ovdu_sco_1y'] = score_max
+                self.variables['ovdu_sco_1y'] = int(score_max)
 
     def _ovdu_sco(self, df=None):
         """
@@ -54,7 +54,7 @@ class T10001(Transformer):
         :return:
         """
         if df is not None and len(df) > 0:
-            self.variables['ovdu_sco'] = df.fillna(0)['risk_score'][0]
+            self.variables['ovdu_sco'] = int(df['risk_score'].map({'': '0'})[0])
 
     def _ovdu_sco_time(self, df=None):
         """
