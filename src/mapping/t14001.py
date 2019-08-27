@@ -15,7 +15,6 @@ class T14001(Transformer):
             'social_name_tel_in_black': 0,
             'social_idc_name_in_black': 0,
             'social_tel_gray_sco': '',
-            'user_name': '',
             'social_dir_in_black_rate': '',
             'social_indir_in_black_rate': '',
             'social_dir_rel_indir_rate': '',
