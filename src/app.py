@@ -100,7 +100,7 @@ def shake_hand():
         req_no = json_data.get('reqNo')
         product_code = json_data.get('productCode')
         query_data = json_data.get('queryData')
-        _name = query_data.get('name')
+        user_name = query_data.get('name')
         id_card_no = query_data.get('idno')
         phone = query_data.get('phone')
         user_type = query_data.get('userType')
