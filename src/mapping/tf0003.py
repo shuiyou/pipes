@@ -234,9 +234,9 @@ class Tf0003(Transformer):
 
     def _exception_info(self, df=None):
         if df is not None and len(df) > 0:
-            if df[df['result_out'].isna()].shape[0] > 0:
+            if df[df['result_out'] == ''].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
-            if df[df['result_out'].isna()].shape[0] != df.shape[0]:
+            if df[df['result_out'] == ''].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
             if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
