@@ -12,7 +12,6 @@ from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
-from mapping.tranformer import Transformer
 from product.generate import Generate
 from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
