@@ -31,6 +31,14 @@ def test_shake_hand(client):
     print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
 
+def test_shake_hand_new(client):
+    rv = client.post('/biz-types-test', json={"reqNo": "Q351697278932779008", "productCode": "001",
+                                         "queryData": {"name": "温烈祥", "idno": "362137198208311018",
+                                                       "phone": "13761659574", "userType": "PERSONAL"},
+                                         "versionNo": "1.0"})
+    v = rv.get_json()
+    print(json.dumps(v))
+
 
 def test_strategy(client):
     rv = client.post('/strategy', json={

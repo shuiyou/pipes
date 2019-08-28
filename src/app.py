@@ -1,3 +1,4 @@
+import importlib
 import json
 
 import numpy
@@ -11,6 +12,8 @@ from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
+from mapping.tranformer import Transformer
+from product.generate import Generate
 from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
@@ -85,6 +88,42 @@ def _build_request(req_no, product_code, variables=None):
         }
     }
     return strategy_request
+
+
+@app.route("/biz-types-test",methods=['POST'])
+def shake_hand_test():
+    """
+    根据productCode调用对应的handler处理业务
+    :return:
+    """
+    json_data = request.get_json()
+    product_code = json_data.get('productCode')
+    handler = get_product_handler(product_code)
+    resp = handler.shack_hander(json_data)
+    return jsonify(resp)
+
+@app.route("/strategy-test", methods=['POST'])
+def strategy_test():
+    json_data = request.get_json()
+    strategy_param = json_data.get('strategyParam')
+    product_code = strategy_param.get('productCode')
+    handler = get_product_handler(product_code)
+    resp = handler.call_strategy(json_data)
+    return jsonify(resp)
+
+def get_product_handler(product_code) -> Generate:
+    try:
+        model = importlib.import_module("product.p" + str(product_code))
+        api_class = getattr(model, "P" + str(product_code))
+        api_instance = api_class()
+        return api_instance
+    except Exception as err:
+        logger.error(str(err))
+
+
+
+
+
 
 
 @app.route("/biz-types", methods=['POST'])
