@@ -56,7 +56,8 @@ class V07001(Transformer):
                                          labels=['', '0~0.2万', '0.2万~0.5万', '0.5万~1万', '1万~3万', '3万~5万', '5万~10万',
                                                  '10万以上'])
             df['list'] = df.apply(lambda x: x['recent_mth'] + ':' + x['overdue_value'], axis=1)
-            self.variables['loan_analyst_overdue_time_amt'] = df[df['value'] > 0]['list'].tolist()
+            if len(df[df['value'] > 0]) > 0:
+                self.variables['loan_analyst_overdue_time_amt'] = df[df['value'] > 0]['list'].tolist()
 
 
     def transform(self):
