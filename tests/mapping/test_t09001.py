@@ -134,3 +134,20 @@ def test_robust():
     a = fun1();
     print(a)
 
+def test_number():
+    rate = '0.5000'
+    is_auth = True
+    if is_auth:
+        print("true")
+    else:
+        print("false")
+    if float(rate) >= 0.50:
+        print("true")
+    else:
+        print("false")
+
+def test_json_append():
+    resp = {}
+    resp['name'] = 'test'
+    resp['bizTypes'] = ['001','002','003']
+    print(resp)

@@ -32,10 +32,76 @@ def test_shake_hand(client):
     # assert v.get('bizTypes')[0] == '05002'
 
 def test_shake_hand_new(client):
-    rv = client.post('/biz-types-test', json={"reqNo": "Q351697278932779008", "productCode": "001",
-                                         "queryData": {"name": "温烈祥", "idno": "362137198208311018",
-                                                       "phone": "13761659574", "userType": "PERSONAL"},
-                                         "versionNo": "1.0"})
+    rv = client.post('/biz-types-test', json={
+    "reqNo": "Q361209453934182400",
+    "productCode": "003",
+    "versionNo": "1.0",
+    "queryData": [
+        {
+            "name": "施网明",
+            "idno": "310108196610024859",
+            "phone": "11111111111",
+            "userType": "PERSONAL",
+            "authorStatus": "AUTHORIZED",
+            "fundratio": None,
+            "ralation": "MAIN"
+        },
+        {
+            "name": "王强",
+            "idno": "32038119920718061X",
+            "phone": None,
+            "userType": "PERSONAL",
+            "authorStatus": "AUTHORIZED",
+            "fundratio": None,
+            "ralation": "SPOUSE"
+        },
+        {
+            "name": "刘志明",
+            "idno": "142327198208273573",
+            "phone": "15333015677",
+            "userType": "PERSONAL",
+            "authorStatus": "AUTHORIZED",
+            "fundratio": None,
+            "ralation": "GUARANTOR"
+        },
+        {
+            "name": "刘华",
+            "idno": "321088195611130033",
+            "phone": None,
+            "userType": "PERSONAL",
+            "authorStatus": "UNAUTHORIZED",
+            "fundratio": None,
+            "ralation": "GUARANTOR"
+        },
+        {
+            "name": "上海怡顺建设发展有限公司",
+            "idno": "91310115798977004Q",
+            "phone": None,
+            "userType": "COMPANY",
+            "authorStatus": None,
+            "fundratio": "0.5125",
+            "ralation": "SHAREHOLDER"
+        },
+        {
+            "name": "上海新门投资管理有限公司",
+            "idno": "91310230059371826X",
+            "phone": None,
+            "userType": "COMPANY",
+            "authorStatus": None,
+            "fundratio": "0.4000",
+            "ralation": "SHAREHOLDER"
+        },
+        {
+            "name": "武汉磁信科技有限公司",
+            "idno": "91420100MA4K2H1B6N",
+            "phone": None,
+            "userType": "COMPANY",
+            "authorStatus": None,
+            "fundratio": None,
+            "ralation": "GUARANTOR"
+        }
+    ]
+})
     v = rv.get_json()
     print(json.dumps(v))
 

@@ -116,22 +116,28 @@ class Transformer(object):
         self.user_name = None
         self.phone = None
         self.user_type = None
+        self.base_type = None
         self.variables = {}
         self.out_decision_code = {}
 
-    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None) -> dict:
-        self.input(id_card_no, phone, user_name, user_type)
+    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None) -> dict:
+        self.input(id_card_no, phone, user_name, user_type,base_type)
         self.transform()
         return {
             "variables": self.variables,
             "out_decision_code": self.out_decision_code
         }
 
-    def input(self, id_card_no, phone, user_name, user_type=None):
+
+    def input(self, id_card_no, phone, user_name, user_type=None,base_type=None):
         self.id_card_no = id_card_no
         self.user_name = user_name
         self.phone = phone
         self.user_type = user_type
+        self.base_type = base_type
+
+
+
 
     @abstractmethod
     def transform(self):

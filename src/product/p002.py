@@ -21,9 +21,6 @@ logger = LoggerUtil().logger(__name__)
 
 class P002(Generate):
 
-    def __init__(self)->None:
-        super().__init__()
-        self.reponse:{}
 
     def shack_hander_process(self):
         try:
@@ -56,8 +53,7 @@ class P002(Generate):
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types)
             }
-            self.reponse = resp
-            return jsonify(self.reponse)
+            return jsonify(resp)
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
@@ -82,7 +78,8 @@ class P002(Generate):
             codes = strategy_param.get('bizType')
             biz_types = codes.copy()
             biz_types.append('00000')
-            variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type)
+            variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
+                                                                  'COMPANY')
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
@@ -103,15 +100,15 @@ class P002(Generate):
             strategy_param['bizType'] = biz_types
             # 最后返回报告详情
             if STRATEGE_DONE in biz_types:
-                detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type)
+                detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
+                                                     'COMPANY')
                 json_data['reportDetail'] = [detail]
             # 处理关联人
             _relation_risk_subject(strategy_resp, out_decision_code)
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
-            self.reponse = json_data
-            return jsonify( self.reponse)
+            return jsonify(json_data)
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
