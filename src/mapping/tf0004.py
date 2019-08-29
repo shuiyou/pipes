@@ -60,9 +60,10 @@ class Tf0004(Transformer):
     # 企业工商-法人信息
     def _com_bus_frinv_df(self, status):
         info_com_bus_frinv = """
-       SELECT ent_name FROM info_com_bus_frinv a,(SELECT id FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
-        WHERE a.basic_id = b.id
+       SELECT a.ent_name FROM info_com_bus_frinv a,(SELECT id,ent_name FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
+        unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' ORDER BY id  desc LIMIT 1) b
+        WHERE a.basic_id = b.id 
+        and a.fr_name = b.ent_name
         and a.ent_status in %(status)s;
         """
         df = sql_to_df(sql=info_com_bus_frinv,
@@ -74,7 +75,7 @@ class Tf0004(Transformer):
     def _com_bus_entinvitem_df(self, status, ratio=0.2):
         info_com_bus_entinvitem = """
         SELECT ent_name FROM info_com_bus_entinvitem a,(SELECT id FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
+        unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id
         and a.ent_status in %(status)s
         and a.funded_ratio >= %(ratio)s;
@@ -84,6 +85,7 @@ class Tf0004(Transformer):
                                "status": status,
                                "ratio": ratio})
         return df
+
 
     def _court_info_df(self, df=None):
         info_court = """
@@ -96,6 +98,8 @@ class Tf0004(Transformer):
             court_group_df = court_df[['id', 'unique_name']].groupby(by='unique_name', as_index=False).max()
             court_merge_df = pd.merge(court_group_df, court_df, on=['id', 'unique_name'], how='left')
             return court_merge_df
+
+
 
     # 行政违法记录
     def _court_administrative_violation_df(self, df=None):

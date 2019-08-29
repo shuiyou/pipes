@@ -122,7 +122,7 @@ def test_round():
 
 @exception('purpose=企业工商&author=刘金昊')
 def fun1():
-    a = ['AA', 'CC', 'BB']
+    a = ['', 'CC', 'BB']
     b = [11, 22, 11]
     c = [11]
     df = pd.DataFrame({'execution_result': a, 'specific_date': b})
@@ -134,3 +134,10 @@ def test_robust():
     a = fun1();
     print(a)
 
+def test_replace():
+    a = ['', 'CC', 'BB']
+    b = [11, 22, 11]
+    df = pd.DataFrame({'execution_result': a, 'specific_date': b})
+    print(df)
+    df['execution_result'].replace('',0,inplace=True)
+    print(df)

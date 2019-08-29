@@ -48,7 +48,7 @@ class Tf0005(Transformer):
         sql = """
         SELECT DISTINCT(ent_name) as ent_name FROM info_com_bus_entinvitem a,
         (SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s and credit_code = %(id_card_no)s
-        AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1) b
+        AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc limit 1) b
         WHERE a.basic_id = b.id
         and a.funded_ratio >= %(ratio)s
         """
@@ -62,7 +62,7 @@ class Tf0005(Transformer):
         sql = """
         SELECT DISTINCT(ent_name) as ent_name FROM info_com_bus_frinv a,
         (SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s and credit_code = %(id_card_no)s
-        AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1) b
+        AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc limit 1) b
         WHERE a.basic_id = b.id
         and a.fr_name = %(user_name)s
         """
@@ -74,7 +74,7 @@ class Tf0005(Transformer):
     def _info_com_bus_basic(self, df=None):
         info_com_bus_basic = """
             SELECT id,ent_name FROM info_com_bus_basic WHERE 
-            unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+            unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='27001'
             AND ent_name in %(ent_names)s;
         """
         com_bus_basic_df = sql_to_df(sql=info_com_bus_basic,
