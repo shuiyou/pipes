@@ -79,7 +79,7 @@ class T24001(Transformer):
     # 计算工商核查_企业登记状态异常
     def _com_bus_status(self, df=None):
         if df is not None and len(df) > 0:
-            if df['ent_status'].values[0] == '在营(开业)':
+            if df['ent_status'].values[0] == '在营（开业）':
                 self.variables['com_bus_status'] = 0
             else:
                 self.variables['com_bus_status'] = 1

@@ -10,10 +10,10 @@ class T07001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'lend_score': '',
-            'lend_fail_rate': '',
-            'lend_cha_cnt_12m': '',
-            'lend_chafail_cnt_12m': ''
+            'lend_score': None,
+            'lend_fail_rate': None,
+            'lend_cha_cnt_12m': None,
+            'lend_chafail_cnt_12m': None
         }
 
     def _info_loan_stats_df(self):

@@ -29,7 +29,9 @@ def get_spec_money1(var):
 
 def get_spec_money2(var):
     if var is not None and len(var) > 0:
-        if re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
+        if re.compile(r"(?<=执行标的\:)\d+\.?\d*").search(var) != None:
+            value = float(re.compile(r"(?<=执行标的\:)\d+\.?\d*").search(var).group(0))
+        elif re.compile(r"(?<=金额\:)\d+\.?\d*").search(var) != None:
             value = float(re.compile(r"(?<=金额\:)\d+\.?\d*").search(var).group(0))
         else:
             value = float(0)

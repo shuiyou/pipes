@@ -18,12 +18,13 @@ STRATEGY_URL = os.getenv('STRATEGY_URL',
 # }
 
 GEARS_DB = {
-    'user': os.getenv('DB_USER', 'gears_external'),
-    'pw': os.getenv('DB_PW', 'j83eckas'),
+    'user': os.getenv('DB_USER', 'gears_test'),
+    'pw': os.getenv('DB_PW', 'bd3by68u'),
     'host': os.getenv('DB_HOST', '192.168.1.9'),
     'port': os.getenv('DB_PORT', 3360),
-    'db': os.getenv('DB_NAME', 'gears_external'),
+    'db': os.getenv('DB_NAME', 'gears_test'),
 }
+
 
 # 湛泸产品编码和决策process的对应关系
 product_code_process_dict = {
