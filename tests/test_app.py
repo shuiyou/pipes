@@ -31,7 +31,7 @@ def test_shake_hand(client):
 
 
 def test_strategy(client):
-    rv = client.post('/strategy', json={"strategyParam": {"reqNo": "Q364097658362691584", "stepReqNo": "S364097658362691585", "productCode": "001", "queryData": {"name": "张哲", "idno": "360424197302115337", "phone": "13870296677", "userType": "PERSONAL"}, "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001", "11001", "12001", "13001", "14001", "16001", "17001", "23001", "f0001", "f0002", "f0003"], "versionNo": "1.0"}, "strategyInputVariables": None})
+    rv = client.post('/strategy', json={"strategyParam":{"reqNo":"Q364436375665278976","stepReqNo":"S364436375665278977","productCode":"001","queryData":{"name":"蒋林园","idno":"51102319870728517X","phone":"18628030688","userType":"PERSONAL"},"bizType":["01001","02001","05001","05002","06001","07001","08001","09001","10001","11001","12001","13001","14001","16001","17001","18001","f0001","f0002","f0003"],"versionNo":"1.0"},"strategyInputVariables":None})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
