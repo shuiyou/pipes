@@ -2,10 +2,9 @@ import re
 
 import pandas as pd
 import json
-
-
 from mapping.t09001 import T09001
 from util.common_util import exception
+from jsonpath import jsonpath
 
 
 def test_ps_loan_other():
@@ -151,3 +150,82 @@ def test_json_append():
     resp['name'] = 'test'
     resp['bizTypes'] = ['001','002','003']
     print(resp)
+
+def test_str_in():
+    array = ['U_PERSONAL','G_PERSONAL']
+    str1 = 'U_S_PERSONAL'
+    if str1 in array:
+        print("true")
+    else:
+        print('false')
+
+def test_json_path():
+    resp_json = {
+    "StrategyOneResponse": {
+        "Header": {
+            "InquiryCode": "Q356548494120615936",
+            "ProcessCode": "Level1_m",
+            "OrganizationCode": "",
+            "ProcessVersion": 33,
+            "LayoutVersion": 11
+        },
+        "Body": {
+            "Application": {
+                "Variables": {
+                    "out_strategyBranch": "fffff",
+                    "out_isQuery": "N",
+                    "score_fraud": 39,
+                    "score_debit": 85,
+                    "score_credit": 52.5,
+                    "score_business": 40.6,
+                    "score_black": 100,
+                    "score": 100,
+                    "SCORE_GE_RAW": 59,
+                    "out_result": "A",
+                    "level": "高",
+                    "level_black": "高",
+                    "level_business": "中",
+                    "level_credit": "中",
+                    "level_debit": "高",
+                    "level_fraud": "中",
+                    "l_m_critical_score": 30,
+                    "m_h_critical_score": 70
+                },
+                "Categories": [
+                    {
+                        "Reason": {
+                            "Variables": {
+                                "out_decisionBranchCode": "S001",
+                                "out_ReasonCode": "RR205"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+    res = jsonpath(resp_json, '$..score_aa')
+    if isinstance(res, list) and len(res) > 0:
+        print(res[0])
+    else:
+        print(None)
+
+
+def test_get_json_value():
+    json = {
+    "name": "施网明",
+    "userType": "PERSONAL",
+    "fundratio": "0.50",
+    "ralation": "借款主体",
+    "per_face_relent_indusCode1": "",
+    "com_bus_face_outwardindusCode1": "",
+    "com_bus_industrycode": "",
+    "score_black": 0,
+    "score_credit": 16,
+    "score_debit": 31,
+    "score_fraud": 30,
+    "score_business": 10,
+    "score": 56
+}
+    print(jsonpath(json, '$..name'))
