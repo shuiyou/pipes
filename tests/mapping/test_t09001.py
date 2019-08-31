@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import json
 from mapping.t09001 import T09001
+from product.p003 import P003
 from util.common_util import exception
 from jsonpath import jsonpath
 
@@ -436,3 +437,7 @@ def sort_union_person_df(df):
         else:
             df.loc[index, 'order'] = 999
 
+def test_private_fun():
+    p003 = P003()
+    p003._test_pro_fuc()
+    p003._test_fuc()

@@ -97,7 +97,7 @@ def shake_hand_test():
     """
     json_data = request.get_json()
     product_code = json_data.get('productCode')
-    handler = get_product_handler(product_code)
+    handler = _get_product_handler(product_code)
     resp = handler.shack_hander(json_data)
     return jsonify(resp)
 
@@ -106,11 +106,11 @@ def strategy_test():
     json_data = request.get_json()
     strategy_param = json_data.get('strategyParam')
     product_code = strategy_param.get('productCode')
-    handler = get_product_handler(product_code)
+    handler = _get_product_handler(product_code)
     resp = handler.call_strategy(json_data)
     return jsonify(resp)
 
-def get_product_handler(product_code) -> Generate:
+def _get_product_handler(product_code) -> Generate:
     try:
         model = importlib.import_module("product.p" + str(product_code))
         api_class = getattr(model, "P" + str(product_code))

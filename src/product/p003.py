@@ -31,7 +31,7 @@ class P003(Generate):
             response_array = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
-                response_array.append(self.shack_hander_response(data, product_code, req_no))
+                response_array.append(self._shack_hander_response(data, product_code, req_no))
             resp = {
                 'productCode': product_code,
                 'reqNo': req_no,
@@ -59,11 +59,11 @@ class P003(Generate):
             cache_arry = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
-                array, resp = self.strategy_second_hand(data, product_code, req_no)
+                array, resp = self._strategy_second_hand(data, product_code, req_no)
                 subject.append(resp)
                 cache_arry.append(array)
             # 封装第二次调用参数
-            variables = self.create_strategy_second_request(cache_arry)
+            variables = self._create_strategy_second_request(cache_arry)
             strategy_request = _build_request(req_no, product_code, variables=variables)
             logger.info(strategy_request)
             # 调用决策引擎
@@ -77,13 +77,13 @@ class P003(Generate):
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
             score_to_int(strategy_resp)
             # 封装最终返回json
-            self.create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo)
+            self._create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo)
             return jsonify(resp)
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
 
-    def create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo):
+    def _create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo):
         resp['reqNo'] = req_no
         resp['product_code'] = product_code
         resp['stepReqNo'] = step_req_no
@@ -91,7 +91,7 @@ class P003(Generate):
         resp['strategyInputVariables'] = variables
         resp['strategyResult'] = strategy_resp
 
-    def create_strategy_second_request(self, cache_arry):
+    def _create_strategy_second_request(self, cache_arry):
         """
         挑选最多10个个人主体和10个企业主体封装入参
         :param cache_arry:
@@ -100,10 +100,10 @@ class P003(Generate):
         df = pd.DataFrame(cache_arry)
         if df.query('ralation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
             # 借款主体为个人-联合报告-排序
-            self.sort_union_person_df(df)
+            self._sort_union_person_df(df)
         elif df.query('ralation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
             # 借款主体为企业-联合报告-排序
-            self.sort_union_company_df(df)
+            self._sort_union_company_df(df)
         else:
             raise ServerException(code=500, description=str('没有借款主体'))
         # 取前10行数据
@@ -112,10 +112,10 @@ class P003(Generate):
         df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"], ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
         # 拼接入参variables
-        variables = self.strategy_second_request_variables(df_compay, df_person)
+        variables = self._strategy_second_request_variables(df_compay, df_person)
         return variables
 
-    def strategy_second_request_variables(self, df_compay, df_person):
+    def _strategy_second_request_variables(self, df_compay, df_person):
         variables = {}
         person_index = 0
         company_index = 0
@@ -127,7 +127,7 @@ class P003(Generate):
             variables['score_debit_a' + str(person_index)] = row['score_debit']
             variables['score_fraud_a' + str(person_index)] = row['score_fraud']
             variables['score_a' + str(person_index)] = row['score']
-            self.phycode_type_array(
+            self._phycode_type_array(
                 [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
                 phycode_array)
         for index, row in df_compay.iterrows():
@@ -135,19 +135,19 @@ class P003(Generate):
             variables['score_black_c' + str(company_index)] = row['score_black']
             variables['score_business_c' + str(company_index)] = row['score_business']
             variables['score_c' + str(company_index)] = row['score']
-            self.phycode_type_array(
+            self._phycode_type_array(
                 [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
                 phycode_array)
         variables['u_industryphycode'] = len(phycode_array)
         variables['base_type'] = 'UNION'
         return variables
 
-    def phycode_type_array(self, values, array):
+    def _phycode_type_array(self, values, array):
         for value in values:
             if value is not None and value != '' and value not in array:
                 array.append(value)
 
-    def sort_union_company_df(self, df):
+    def _sort_union_company_df(self, df):
         for index, row in df.iterrows():
             if row['ralation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
@@ -170,7 +170,7 @@ class P003(Generate):
             else:
                 df.loc[index, 'order'] = 999
 
-    def sort_union_person_df(self, df):
+    def _sort_union_person_df(self, df):
         for index, row in df.iterrows():
             if row['ralation'] == 'MAIN' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
@@ -197,7 +197,7 @@ class P003(Generate):
             else:
                 df.loc[index, 'order'] = 999
 
-    def strategy_second_hand(self, data, product_code, req_no):
+    def _strategy_second_hand(self, data, product_code, req_no):
         resp = {}
         array = {}
         origin_input = data.get('strategyInputVariables')
@@ -232,12 +232,12 @@ class P003(Generate):
         score_to_int(strategy_resp)
         biz_types = _get_biz_types(strategy_resp)
         logger.info(biz_types)
-        self.strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
+        self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                        resp, strategy_resp, user_name, user_type, variables)
-        self.get_strategy_second_array(array, fundratio, ralation, strategy_resp, user_name, user_type, variables)
+        self._get_strategy_second_array(array, fundratio, ralation, strategy_resp, user_name, user_type, variables)
         return array, resp
 
-    def get_strategy_second_array(self, array, fundratio, ralation, strategy_resp, user_name, user_type, variables):
+    def _get_strategy_second_array(self, array, fundratio, ralation, strategy_resp, user_name, user_type, variables):
         array['name'] = user_name
         array['userType'] = user_type
         if fundratio is not None and fundratio != '':
@@ -254,16 +254,16 @@ class P003(Generate):
         array['score_debit'] = self.get_json_path_value(strategy_resp, '$..score_debit')
         array['score_fraud'] = self.get_json_path_value(strategy_resp, '$..score_fraud')
         array['score_business'] = self.get_json_path_value(strategy_resp, '$..score_business')
-        array['score'] = self.get_json_path_value(strategy_resp, '$..score')
+        array['score'] = self._get_json_path_value(strategy_resp, '$..score')
 
-    def get_json_path_value(self, strategy_resp, path):
+    def _get_json_path_value(self, strategy_resp, path):
         res = jsonpath(strategy_resp, path)
         if isinstance(res, list) and len(res) > 0:
             return res[0]
         else:
             return ""
 
-    def strategy_second_loop_resp(self, base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
+    def _strategy_second_loop_resp(self, base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                   resp, strategy_resp, user_name, user_type, variables):
         """
         每次循环后封装每个主体的resp信息
@@ -294,7 +294,7 @@ class P003(Generate):
         resp['rules'] = _append_rules(biz_types)
         resp['queryData'] = data
 
-    def shack_hander_response(self, data, product_code, req_no):
+    def _shack_hander_response(self, data, product_code, req_no):
         """
         和决策交互，封装response
         :param data:
@@ -311,7 +311,7 @@ class P003(Generate):
         fundratio = data.get('fundratio')
         ralation = data.get('ralation')
         # 获取base_type
-        base_type = self.get_base_type(fundratio, auth_status, phone, ralation, user_type)
+        base_type = self._get_base_type(fundratio, auth_status, phone, ralation, user_type)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
@@ -339,7 +339,7 @@ class P003(Generate):
         resp['rules'] = rules
         return resp
 
-    def get_base_type(self, fundratio, auth_status, phone, ralation, user_type):
+    def _get_base_type(self, fundratio, auth_status, phone, ralation, user_type):
         """
         封装base_type
         :param fundratio:
