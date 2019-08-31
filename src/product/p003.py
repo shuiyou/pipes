@@ -13,6 +13,7 @@ from product.generate import Generate
 from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject
 from util.common_util import exception
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
+import pandas as pd
 
 logger = LoggerUtil().logger(__name__)
 
@@ -28,13 +29,13 @@ class P003(Generate):
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
             response_array = []
-            #遍历query_data_array调用strategy
+            # 遍历query_data_array调用strategy
             for data in query_data_array:
                 response_array.append(self.shack_hander_response(data, product_code, req_no))
             resp = {
                 'productCode': product_code,
                 'reqNo': req_no,
-                'queryData':response_array
+                'queryData': response_array
             }
             return jsonify(resp)
         except Exception as err:
@@ -51,6 +52,8 @@ class P003(Generate):
             strategy_param = json_data.get('strategyParam')
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
+            step_req_no = strategy_param.get('stepReqNo')
+            versionNo = strategy_param.get('versionNo')
             query_data_array = json_data.get('queryData')
             subject = []
             cache_arry = []
@@ -59,7 +62,7 @@ class P003(Generate):
                 array, resp = self.strategy_second_hand(data, product_code, req_no)
                 subject.append(resp)
                 cache_arry.append(array)
-            #封装第二次调用参数
+            # 封装第二次调用参数
             variables = self.create_strategy_second_request(cache_arry)
             strategy_request = _build_request(req_no, product_code, variables=variables)
             logger.info(strategy_request)
@@ -73,15 +76,126 @@ class P003(Generate):
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
             score_to_int(strategy_resp)
-            #封装最终返回json
-
+            # 封装最终返回json
+            self.create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo)
             return jsonify(resp)
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
 
+    def create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo):
+        resp['reqNo'] = req_no
+        resp['product_code'] = product_code
+        resp['stepReqNo'] = step_req_no
+        resp['versionNo'] = versionNo
+        resp['strategyInputVariables'] = variables
+        resp['strategyResult'] = strategy_resp
+
     def create_strategy_second_request(self, cache_arry):
-        pass
+        """
+        挑选最多10个个人主体和10个企业主体封装入参
+        :param cache_arry:
+        :return:
+        """
+        df = pd.DataFrame(cache_arry)
+        if df.query('ralation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
+            # 借款主体为个人-联合报告-排序
+            self.sort_union_person_df(df)
+        elif df.query('ralation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
+            # 借款主体为企业-联合报告-排序
+            self.sort_union_company_df(df)
+        else:
+            raise ServerException(code=500, description=str('没有借款主体'))
+        # 取前10行数据
+        df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"], ascending=False).sort_values(
+            by=["order"], ascending=True)[0:10]
+        df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"], ascending=False).sort_values(
+            by=["order"], ascending=True)[0:10]
+        # 拼接入参variables
+        variables = self.strategy_second_request_variables(df_compay, df_person)
+        return variables
+
+    def strategy_second_request_variables(self, df_compay, df_person):
+        variables = {}
+        person_index = 0
+        company_index = 0
+        phycode_array = []
+        for index, row in df_person.iterrows():
+            person_index = person_index + 1
+            variables['score_black_a' + str(person_index)] = row['score_black']
+            variables['score_credit_a' + str(person_index)] = row['score_credit']
+            variables['score_debit_a' + str(person_index)] = row['score_debit']
+            variables['score_fraud_a' + str(person_index)] = row['score_fraud']
+            variables['score_a' + str(person_index)] = row['score']
+            self.phycode_type_array(
+                [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
+                phycode_array)
+        for index, row in df_compay.iterrows():
+            company_index = company_index + 1
+            variables['score_black_c' + str(company_index)] = row['score_black']
+            variables['score_business_c' + str(company_index)] = row['score_business']
+            variables['score_c' + str(company_index)] = row['score']
+            self.phycode_type_array(
+                [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
+                phycode_array)
+        variables['u_industryphycode'] = len(phycode_array)
+        variables['base_type'] = 'UNION'
+        return variables
+
+    def phycode_type_array(self, values, array):
+        for value in values:
+            if value is not None and value != '' and value not in array:
+                array.append(value)
+
+    def sort_union_company_df(self, df):
+        for index, row in df.iterrows():
+            if row['ralation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 0
+            elif row['ralation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 1
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
+                df.loc[index, 'order'] = 2
+            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 3
+            elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 0
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+                df.loc[index, 'order'] = 1
+            elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 2
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+                df.loc[index, 'order'] = 4
+            elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 5
+            else:
+                df.loc[index, 'order'] = 999
+
+    def sort_union_person_df(self, df):
+        for index, row in df.iterrows():
+            if row['ralation'] == 'MAIN' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 0
+            elif row['ralation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 1
+            elif row['ralation'] == 'CHILDREN' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 2
+            elif row['ralation'] == 'PARENT' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 3
+            elif row['ralation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 4
+            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 5
+            elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 0
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+                df.loc[index, 'order'] = 1
+            elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 2
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+                df.loc[index, 'order'] = 4
+            elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
+                df.loc[index, 'order'] = 5
+            else:
+                df.loc[index, 'order'] = 999
 
     def strategy_second_hand(self, data, product_code, req_no):
         resp = {}
@@ -126,7 +240,10 @@ class P003(Generate):
     def get_strategy_second_array(self, array, fundratio, ralation, strategy_resp, user_name, user_type, variables):
         array['name'] = user_name
         array['userType'] = user_type
-        array['fundratio'] = fundratio
+        if fundratio is not None and fundratio != '':
+            array['fundratio'] = float(fundratio)
+        else:
+            array['fundratio'] = 0.00
         array['ralation'] = ralation
         array['per_face_relent_indusCode1'] = self.get_json_path_value(variables, '$..per_face_relent_indusCode1')
         array['com_bus_face_outwardindusCode1'] = self.get_json_path_value(variables,
@@ -139,12 +256,12 @@ class P003(Generate):
         array['score_business'] = self.get_json_path_value(strategy_resp, '$..score_business')
         array['score'] = self.get_json_path_value(strategy_resp, '$..score')
 
-    def get_json_path_value(self,strategy_resp,path):
+    def get_json_path_value(self, strategy_resp, path):
         res = jsonpath(strategy_resp, path)
         if isinstance(res, list) and len(res) > 0:
             return res[0]
         else:
-           return None
+            return ""
 
     def strategy_second_loop_resp(self, base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                   resp, strategy_resp, user_name, user_type, variables):
@@ -167,7 +284,7 @@ class P003(Generate):
         data['bizType'] = biz_types
         data['strategyInputVariables'] = variables
         # 最后返回报告详情
-        if STRATEGE_DONE in biz_types and base_type in ['U_PERSONAL','G_PERSONAL']:
+        if STRATEGE_DONE in biz_types and base_type in ['U_PERSONAL', 'G_PERSONAL']:
             detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
                                                  base_type)
             resp['reportDetail'] = [detail]
@@ -194,8 +311,8 @@ class P003(Generate):
         fundratio = data.get('fundratio')
         ralation = data.get('ralation')
         # 获取base_type
-        base_type =  self.get_base_type(fundratio, auth_status, phone, ralation, user_type)
-        variables = T00000().run(user_name, id_card_no, phone, user_type,base_type)['variables']
+        base_type = self.get_base_type(fundratio, auth_status, phone, ralation, user_type)
+        variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
         strategy_request = _build_request(req_no, product_code, variables=variables)
@@ -253,8 +370,3 @@ class P003(Generate):
                 return 'U_COMPANY'
             else:
                 return 'U_S_COMPANY'
-
-
-
-
-

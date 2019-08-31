@@ -154,6 +154,46 @@ def test_to_strategy():
     print(strategy_resp)
     print(error)
 
+def test_to_strategy_second():
+    # 调用决策引擎
+    strategy_response = requests.post(STRATEGY_URL, json={
+        'StrategyOneRequest': {'Header': {'InquiryCode': 'Q360763137919713280', 'ProcessCode': 'Level1_m'}, 'Body': {
+            'Application': {'Variables': {
+    'score_black_a1': 0,
+    'score_credit_a1': 16,
+    'score_debit_a1': 31,
+    'score_fraud_a1': 30,
+    'score_a1': 56,
+    'score_black_a2': 0,
+    'score_credit_a2': 16,
+    'score_debit_a2': 31,
+    'score_fraud_a2': 30,
+    'score_a2': 56,
+    'score_black_a3': 0,
+    'score_credit_a3': 16,
+    'score_debit_a3': 31,
+    'score_fraud_a3': 30,
+    'score_a3': 56,
+    'score_black_c1': 0,
+    'score_business_c1': 10,
+    'score_c1': 56,
+    'score_black_c2': 0,
+    'score_business_c2': 10,
+    'score_c2': 56,
+    'score_black_c3': 0,
+    'score_business_c3': 10,
+    'score_c3': 56,
+    'score_black_c4': 0,
+    'score_business_c4': 10,
+    'score_c4': 56,
+'u_industryphycode':3,
+'base_type':'UNION'
+}}}}})
+    strategy_resp = strategy_response.json()
+    error = jsonpath(strategy_resp, '$..Error')
+    print(strategy_resp)
+    print(error)
+
 def test_json_path():
     json_obj = {
         "strategyParam": {

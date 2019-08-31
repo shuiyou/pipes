@@ -218,7 +218,7 @@ def test_get_json_value():
     "userType": "PERSONAL",
     "fundratio": "0.50",
     "ralation": "借款主体",
-    "per_face_relent_indusCode1": "",
+    "per_face_relent_indusCode1": None,
     "com_bus_face_outwardindusCode1": "",
     "com_bus_industrycode": "",
     "score_black": 0,
@@ -228,4 +228,211 @@ def test_get_json_value():
     "score_business": 10,
     "score": 56
 }
-    print(jsonpath(json, '$..name'))
+    print(jsonpath(json, '$..per_face_relent_indusCode1'))
+
+
+def test_json_df():
+    array = [{
+        'name': '施网明',
+        'userType': 'PERSONAL',
+        'fundratio': 0.00,
+        'ralation': 'MAIN',
+        'per_face_relent_indusCode1': "N",
+        'com_bus_face_outwardindusCode1': "",
+        'com_bus_industrycode': "L",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order':None
+    },{
+        'name': '001',
+        'userType': 'PERSONAL',
+        'fundratio':0.00,
+        'ralation': 'SPOUSE',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '002',
+        'userType': 'PERSONAL',
+        'fundratio':0.65,
+        'ralation': 'PARTNER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '003',
+        'userType': 'COMPANY',
+        'fundratio':0.48,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '004',
+        'userType': 'COMPANY',
+        'fundratio':0.58,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '006',
+        'userType': 'COMPANY',
+        'fundratio':0.68,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '005',
+        'userType': 'COMPANY',
+        'fundratio':0.58,
+        'ralation': 'CONTROLLER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    }]
+    print(type(array))
+    df = pd.DataFrame(array)
+    if df.query('ralation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
+        sort_union_person_df(df)
+    elif df.query('ralation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
+        sort_union_company_df(df)
+    else:
+        pass
+    df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
+    df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
+
+    person_index = 0
+    company_index = 0
+    variables = {}
+    phycode_array = []
+    for index, row in df_person.iterrows():
+        person_index = person_index + 1
+        variables['score_black_a'+ str(person_index)] = row['score_black']
+        variables['score_credit_a' + str(person_index)] = row['score_credit']
+        variables['score_debit_a' + str(person_index)] = row['score_debit']
+        variables['score_fraud_a' + str(person_index)] = row['score_fraud']
+        variables['score_a' + str(person_index)] = row['score']
+        create_phycode_array(
+            [row['per_face_relent_indusCode1'],row['com_bus_face_outwardindusCode1'],row['com_bus_industrycode']],phycode_array)
+
+    for index, row in df_compay.iterrows():
+        company_index = company_index + 1
+        variables['score_black_c'+str(company_index)] = row['score_black']
+        variables['score_business_c' + str(company_index)] = row['score_business']
+        variables['score_c' + str(company_index)] = row['score']
+        create_phycode_array(
+            [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
+            phycode_array)
+
+
+
+    print(len(df_person))
+    print(len(df_compay))
+    print(variables)
+    print(phycode_array)
+
+def create_phycode_array(values,array):
+    for value in values:
+        if value is not None and value != '' and value not in array:
+            array.append(value)
+
+
+def sort_union_company_df(df):
+    for index, row in df.iterrows():
+        if row['ralation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 3
+        elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+            df.loc[index, 'order'] = 4
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 5
+        else:
+            df.loc[index, 'order'] = 999
+
+
+def sort_union_person_df(df):
+    for index, row in df.iterrows():
+        if row['ralation'] == 'MAIN' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'CHILDREN' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'PARENT' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 3
+        elif row['ralation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 4
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 5
+        elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+            df.loc[index, 'order'] = 4
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 5
+        else:
+            df.loc[index, 'order'] = 999
+
