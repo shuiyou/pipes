@@ -90,7 +90,7 @@ def _build_request(req_no, product_code, variables=None):
     return strategy_request
 
 
-@app.route("/biz-types-test",methods=['POST'])
+@app.route("/biz-types-test", methods=['POST'])
 def shake_hand_test():
     """
     根据productCode调用对应的handler处理业务
@@ -102,6 +102,7 @@ def shake_hand_test():
     resp = handler.shake_hand(json_data)
     return jsonify(resp)
 
+
 @app.route("/strategy-test", methods=['POST'])
 def strategy_test():
     json_data = request.get_json()
@@ -111,6 +112,7 @@ def strategy_test():
     resp = handler.call_strategy(json_data)
     return jsonify(resp)
 
+
 def _get_product_handler(product_code) -> Generate:
     try:
         model = importlib.import_module("product.p" + str(product_code))
@@ -119,11 +121,6 @@ def _get_product_handler(product_code) -> Generate:
         return api_instance
     except Exception as err:
         logger.error(str(err))
-
-
-
-
-
 
 
 @app.route("/biz-types", methods=['POST'])

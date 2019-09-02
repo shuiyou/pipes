@@ -1,9 +1,7 @@
-
 import json
 import requests
 from flask import request, jsonify
 from jsonpath import jsonpath
-
 
 from config import STRATEGY_URL
 from exceptions import ServerException
@@ -19,8 +17,12 @@ logger = LoggerUtil().logger(__name__)
 
 
 
+
+
 class P002(Generate):
 
+    def __init__(self)->None:
+        self.reponse:{}
 
     def shake_hand_process(self):
         try:
@@ -53,7 +55,8 @@ class P002(Generate):
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types)
             }
-            return jsonify(resp)
+            self.reponse = resp
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
@@ -79,7 +82,7 @@ class P002(Generate):
             biz_types = codes.copy()
             biz_types.append('00000')
             variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
-                                                                  'COMPANY')
+                                                                  'PERSONAL')
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
@@ -101,14 +104,15 @@ class P002(Generate):
             # 最后返回报告详情
             if STRATEGE_DONE in biz_types:
                 detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
-                                                     'COMPANY')
+                                                     'PERSONAL')
                 json_data['reportDetail'] = [detail]
             # 处理关联人
             _relation_risk_subject(strategy_resp, out_decision_code)
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
-            return jsonify(json_data)
+            self.reponse = json_data
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))

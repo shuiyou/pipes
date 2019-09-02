@@ -441,3 +441,9 @@ def test_private_fun():
     p003 = P003()
     p003._test_pro_fuc()
     p003._test_fuc()
+
+def test_read_file():
+    f = open('../resource/shake_hand_p003.txt','r', encoding='UTF-8')
+    json = f.read()
+    f.close()
+    print(json)

@@ -20,6 +20,9 @@ logger = LoggerUtil().logger(__name__)
 
 class P003(Generate):
 
+    def __init__(self)->None:
+        self.reponse:{}
+
     @exception('purpose= 联合报告shack_hander_process&author=liujinhao')
     def shake_hand_process(self):
         try:
@@ -37,7 +40,8 @@ class P003(Generate):
                 'reqNo': req_no,
                 'queryData': response_array
             }
-            return jsonify(resp)
+            self.reponse = resp
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
@@ -77,19 +81,21 @@ class P003(Generate):
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
             score_to_int(strategy_resp)
             # 封装最终返回json
-            self._create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo)
-            return jsonify(resp)
+            self._create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo,subject)
+            self.reponse = resp
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
 
-    def _create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo):
+    def _create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo,subject):
         resp['reqNo'] = req_no
         resp['product_code'] = product_code
         resp['stepReqNo'] = step_req_no
         resp['versionNo'] = versionNo
         resp['strategyInputVariables'] = variables
         resp['strategyResult'] = strategy_resp
+        resp['subject'] = subject
 
     def _create_strategy_second_request(self, cache_arry):
         """

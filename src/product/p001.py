@@ -21,6 +21,9 @@ logger = LoggerUtil().logger(__name__)
 
 class P001(Generate):
 
+    def __init__(self)->None:
+        self.reponse:{}
+
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
@@ -52,7 +55,8 @@ class P001(Generate):
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types)
             }
-            return jsonify(resp)
+            self.reponse = resp
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
@@ -107,7 +111,8 @@ class P001(Generate):
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
-            return jsonify( json_data)
+            self.reponse = json_data
+            return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))

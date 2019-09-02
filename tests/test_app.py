@@ -31,77 +31,21 @@ def test_shake_hand(client):
     print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
 
-def test_shake_hand_new(client):
-    rv = client.post('/biz-types-test', json={
-    "reqNo": "Q361209453934182400",
-    "productCode": "003",
-    "versionNo": "1.0",
-    "queryData": [
-        {
-            "name": "施网明",
-            "idno": "310108196610024859",
-            "phone": "11111111111",
-            "userType": "PERSONAL",
-            "authorStatus": "AUTHORIZED",
-            "fundratio": None,
-            "ralation": "MAIN"
-        },
-        {
-            "name": "王强",
-            "idno": "32038119920718061X",
-            "phone": None,
-            "userType": "PERSONAL",
-            "authorStatus": "AUTHORIZED",
-            "fundratio": None,
-            "ralation": "SPOUSE"
-        },
-        {
-            "name": "刘志明",
-            "idno": "142327198208273573",
-            "phone": "15333015677",
-            "userType": "PERSONAL",
-            "authorStatus": "AUTHORIZED",
-            "fundratio": None,
-            "ralation": "GUARANTOR"
-        },
-        {
-            "name": "刘华",
-            "idno": "321088195611130033",
-            "phone": None,
-            "userType": "PERSONAL",
-            "authorStatus": "UNAUTHORIZED",
-            "fundratio": None,
-            "ralation": "GUARANTOR"
-        },
-        {
-            "name": "上海怡顺建设发展有限公司",
-            "idno": "91310115798977004Q",
-            "phone": None,
-            "userType": "COMPANY",
-            "authorStatus": None,
-            "fundratio": "0.5125",
-            "ralation": "SHAREHOLDER"
-        },
-        {
-            "name": "上海新门投资管理有限公司",
-            "idno": "91310230059371826X",
-            "phone": None,
-            "userType": "COMPANY",
-            "authorStatus": None,
-            "fundratio": "0.4000",
-            "ralation": "SHAREHOLDER"
-        },
-        {
-            "name": "武汉磁信科技有限公司",
-            "idno": "91420100MA4K2H1B6N",
-            "phone": None,
-            "userType": "COMPANY",
-            "authorStatus": None,
-            "fundratio": None,
-            "ralation": "GUARANTOR"
-        }
-    ]
-})
+
+def test_shake_hand_p003(client):
+    f = open('resource/shake_hand_p003.txt', 'r', encoding='UTF-8')
+    str = f.read()
+    f.close()
+    rv = client.post('/biz-types-test', json=json.loads(str))
+    v = rv.get_json()
+    print(json.dumps(v))
+
+
+def test_strategy_p003(client):
+    f = open('resource/strategy_p003.txt', 'r', encoding='UTF-8')
+    str = f.read()
+    f.close()
+    rv = client.post('/strategy-test', json=json.loads(str))
     v = rv.get_json()
     print(json.dumps(v))
 
@@ -113,6 +57,18 @@ def test_strategy(client):
     v = rv.get_json()
     print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
+
+def test_strategy_p003(client):
+    rv = client.post('/strategy', json={
+        "strategyParam": {"reqNo": "Q356548494120615936", "stepReqNo": "S356548494120615937", "productCode": "001",
+                          "queryData": {"name": "施网明", "idno": "310108196610024859", "phone": "13301778997",
+                                        "userType": "PERSONAL"},
+                          "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001",
+                                      "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002",
+                                      "f0003"], "versionNo": "1.0"}})
+    assert rv.status_code == 200
+    v = rv.get_json()
+    print(json.dumps(v))
 
 
 def test_qiye_strategy(client):
