@@ -21,7 +21,7 @@ logger = LoggerUtil().logger(__name__)
 
 class P001(Generate):
 
-    def shack_hander_process(self):
+    def shake_hand_process(self):
         try:
             json_data = request.get_json()
             logger.debug(json.dumps(json_data))

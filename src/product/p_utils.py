@@ -1,7 +1,9 @@
 import numpy
 
-from config import product_code_process_dict
+
 from jsonpath import jsonpath
+
+from product.p_config import product_code_process_dict
 
 
 def _build_request(req_no, product_code, variables=None):

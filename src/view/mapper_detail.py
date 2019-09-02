@@ -4,10 +4,10 @@ import importlib
 # from app import logger
 import numpy
 
-from config import product_code_view_dict
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer, fix_cannot_to_json
+from product.p_config import product_code_view_dict
 
 logger = LoggerUtil().logger(__name__)
 

@@ -10,14 +10,14 @@ class Generate(object):
         self.reponse = {}
 
 
-    def shack_hander(self,request=None):
+    def shake_hand(self,request=None):
         """
         第一次交互
         :param request:
         :return:
         """
         self.input(request)
-        self.shack_hander_process()
+        self.shake_hand_process()
         return self.reponse
 
     def call_strategy(self,request=None):
@@ -34,7 +34,7 @@ class Generate(object):
         self.request = request
 
     @abstractmethod
-    def shack_hander_process(self):
+    def shake_hand_process(self):
         """
         defensor第一次调用处理逻辑
         :return:

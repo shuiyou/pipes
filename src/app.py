@@ -7,12 +7,13 @@ from flask import Flask, request, jsonify
 from jsonpath import jsonpath
 from werkzeug.exceptions import HTTPException
 
-from config import STRATEGY_URL, product_code_process_dict
+from config import STRATEGY_URL
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
+from product.p_config import product_code_process_dict
 from view.mapper_detail import translate_for_report_detail, STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
@@ -98,7 +99,7 @@ def shake_hand_test():
     json_data = request.get_json()
     product_code = json_data.get('productCode')
     handler = _get_product_handler(product_code)
-    resp = handler.shack_hander(json_data)
+    resp = handler.shake_hand(json_data)
     return jsonify(resp)
 
 @app.route("/strategy-test", methods=['POST'])
