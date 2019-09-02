@@ -36,7 +36,7 @@ def test_shake_hand_p003(client):
     f = open('resource/shake_hand_p003.txt', 'r', encoding='UTF-8')
     str = f.read()
     f.close()
-    rv = client.post('/biz-types-test', json=json.loads(str))
+    rv = client.post('/biz-types', json=json.loads(str))
     v = rv.get_json()
     print(json.dumps(v))
 
@@ -47,7 +47,7 @@ def test_stratey_p003(client):
     f = open('resource/strategy_p003.txt', 'r', encoding='UTF-8')
     str = f.read()
     f.close()
-    rv = client.post('/strategy-test', json=json.loads(str))
+    rv = client.post('/strategy', json=json.loads(str))
     v = rv.get_json()
     print(json.dumps(v))
 
