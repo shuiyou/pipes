@@ -20,8 +20,8 @@ logger = LoggerUtil().logger(__name__)
 
 class P003(Generate):
 
-    def __init__(self)->None:
-        self.reponse:{}
+    def __init__(self) -> None:
+        self.reponse: {}
 
     @exception('purpose= 联合报告shack_hander_process&author=liujinhao')
     def shake_hand_process(self):
@@ -50,7 +50,6 @@ class P003(Generate):
     def strategy_process(self):
         try:
             # 获取请求参数
-            resp = {}
             json_data = request.get_json()
             logger.debug(json.dumps(json_data))
             strategy_param = json_data.get('strategyParam')
@@ -58,7 +57,7 @@ class P003(Generate):
             product_code = strategy_param.get('productCode')
             step_req_no = strategy_param.get('stepReqNo')
             versionNo = strategy_param.get('versionNo')
-            query_data_array = json_data.get('queryData')
+            query_data_array = strategy_param.get('queryData')
             subject = []
             cache_arry = []
             # 遍历query_data_array调用strategy
@@ -81,14 +80,16 @@ class P003(Generate):
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
             score_to_int(strategy_resp)
             # 封装最终返回json
-            self._create_strategy_resp(product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo,subject)
-            self.reponse = resp
+            resp_end = self._create_strategy_resp(product_code, req_no, step_req_no, strategy_resp, variables,
+                                                  versionNo, subject)
+            self.reponse = resp_end
             return self.reponse
         except Exception as err:
             logger.error(str(err))
             raise ServerException(code=500, description=str(err))
 
-    def _create_strategy_resp(self, product_code, req_no, resp, step_req_no, strategy_resp, variables, versionNo,subject):
+    def _create_strategy_resp(self, product_code, req_no, step_req_no, strategy_resp, variables, versionNo, subject):
+        resp = {}
         resp['reqNo'] = req_no
         resp['product_code'] = product_code
         resp['stepReqNo'] = step_req_no
@@ -96,6 +97,7 @@ class P003(Generate):
         resp['strategyInputVariables'] = variables
         resp['strategyResult'] = strategy_resp
         resp['subject'] = subject
+        return resp
 
     def _create_strategy_second_request(self, cache_arry):
         """
@@ -113,9 +115,11 @@ class P003(Generate):
         else:
             raise ServerException(code=500, description=str('没有借款主体'))
         # 取前10行数据
-        df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"], ascending=False).sort_values(
+        df_person = df.query('userType=="PERSONAL" and order != 999').sort_values(by=["fundratio"],
+                                                                                  ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
-        df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"], ascending=False).sort_values(
+        df_compay = df.query('userType=="COMPANY" and order != 999').sort_values(by=["fundratio"],
+                                                                                 ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
         # 拼接入参variables
         variables = self._strategy_second_request_variables(df_compay, df_person)
@@ -161,18 +165,16 @@ class P003(Generate):
                 df.loc[index, 'order'] = 1
             elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
                 df.loc[index, 'order'] = 2
-            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            elif row['ralation'] == 'LEGAL' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 3
+            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
+                df.loc[index, 'order'] = 4
+            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+                df.loc[index, 'order'] = 5
             elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 0
             elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
                 df.loc[index, 'order'] = 1
-            elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 2
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
-                df.loc[index, 'order'] = 4
-            elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 5
             else:
                 df.loc[index, 'order'] = 999
 
@@ -198,8 +200,6 @@ class P003(Generate):
                 df.loc[index, 'order'] = 2
             elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 4
-            elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 5
             else:
                 df.loc[index, 'order'] = 999
 
@@ -239,7 +239,7 @@ class P003(Generate):
         biz_types = _get_biz_types(strategy_resp)
         logger.info(biz_types)
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                       resp, strategy_resp, user_name, user_type, variables)
+                                        resp, strategy_resp, user_name, user_type, variables)
         self._get_strategy_second_array(array, fundratio, ralation, strategy_resp, user_name, user_type, variables)
         return array, resp
 
@@ -251,15 +251,15 @@ class P003(Generate):
         else:
             array['fundratio'] = 0.00
         array['ralation'] = ralation
-        array['per_face_relent_indusCode1'] = self.get_json_path_value(variables, '$..per_face_relent_indusCode1')
-        array['com_bus_face_outwardindusCode1'] = self.get_json_path_value(variables,
-                                                                           '$..com_bus_face_outwardindusCode1')
-        array['com_bus_industrycode'] = self.get_json_path_value(variables, '$..com_bus_industrycode')
-        array['score_black'] = self.get_json_path_value(strategy_resp, '$..score_black')
-        array['score_credit'] = self.get_json_path_value(strategy_resp, '$..score_credit')
-        array['score_debit'] = self.get_json_path_value(strategy_resp, '$..score_debit')
-        array['score_fraud'] = self.get_json_path_value(strategy_resp, '$..score_fraud')
-        array['score_business'] = self.get_json_path_value(strategy_resp, '$..score_business')
+        array['per_face_relent_indusCode1'] = self._get_json_path_value(variables, '$..per_face_relent_indusCode1')
+        array['com_bus_face_outwardindusCode1'] = self._get_json_path_value(variables,
+                                                                            '$..com_bus_face_outwardindusCode1')
+        array['com_bus_industrycode'] = self._get_json_path_value(variables, '$..com_bus_industrycode')
+        array['score_black'] = self._get_json_path_value(strategy_resp, '$..score_black')
+        array['score_credit'] = self._get_json_path_value(strategy_resp, '$..score_credit')
+        array['score_debit'] = self._get_json_path_value(strategy_resp, '$..score_debit')
+        array['score_fraud'] = self._get_json_path_value(strategy_resp, '$..score_fraud')
+        array['score_business'] = self._get_json_path_value(strategy_resp, '$..score_business')
         array['score'] = self._get_json_path_value(strategy_resp, '$..score')
 
     def _get_json_path_value(self, strategy_resp, path):
@@ -270,7 +270,7 @@ class P003(Generate):
             return ""
 
     def _strategy_second_loop_resp(self, base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                  resp, strategy_resp, user_name, user_type, variables):
+                                   resp, strategy_resp, user_name, user_type, variables):
         """
         每次循环后封装每个主体的resp信息
         :param base_type:

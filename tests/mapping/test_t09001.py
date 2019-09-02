@@ -327,7 +327,7 @@ def test_json_df():
         'name': '005',
         'userType': 'COMPANY',
         'fundratio':0.58,
-        'ralation': 'CONTROLLER',
+        'ralation': 'OTHER',
         'per_face_relent_indusCode1': "",
         'com_bus_face_outwardindusCode1': "p",
         'com_bus_industrycode': "N",
@@ -348,7 +348,7 @@ def test_json_df():
     else:
         pass
     df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
-    df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
+    df_compay = df.query('userType=="COMPANY" and order != 999').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
 
     person_index = 0
     company_index = 0
@@ -398,14 +398,8 @@ def sort_union_company_df(df):
             df.loc[index, 'order'] = 3
         elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
             df.loc[index, 'order'] = 0
-        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY':
             df.loc[index, 'order'] = 1
-        elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
-            df.loc[index, 'order'] = 2
-        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
-            df.loc[index, 'order'] = 4
-        elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
-            df.loc[index, 'order'] = 5
         else:
             df.loc[index, 'order'] = 999
 
@@ -432,8 +426,6 @@ def sort_union_person_df(df):
             df.loc[index, 'order'] = 2
         elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
             df.loc[index, 'order'] = 4
-        elif row['ralation'] == 'OTHER' and row['userType'] == 'COMPANY':
-            df.loc[index, 'order'] = 5
         else:
             df.loc[index, 'order'] = 999
 

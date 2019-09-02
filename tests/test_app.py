@@ -41,13 +41,16 @@ def test_shake_hand_p003(client):
     print(json.dumps(v))
 
 
-def test_strategy_p003(client):
+
+
+def test_stratey_p003(client):
     f = open('resource/strategy_p003.txt', 'r', encoding='UTF-8')
     str = f.read()
     f.close()
     rv = client.post('/strategy-test', json=json.loads(str))
     v = rv.get_json()
     print(json.dumps(v))
+
 
 
 def test_strategy(client):
