@@ -61,7 +61,7 @@ class Tf0004(Transformer):
     def _com_bus_frinv_df(self, status):
         info_com_bus_frinv = """
        SELECT a.ent_name FROM info_com_bus_frinv a,(SELECT id,ent_name FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
+        unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id 
         and a.fr_name = b.ent_name
         and a.ent_status in %(status)s;
@@ -75,7 +75,7 @@ class Tf0004(Transformer):
     def _com_bus_entinvitem_df(self, status, ratio=0.2):
         info_com_bus_entinvitem = """
         SELECT ent_name FROM info_com_bus_entinvitem a,(SELECT id FROM info_com_bus_basic WHERE ent_name = %(user_name)s and 
-        unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) b
+        unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' ORDER BY id  desc LIMIT 1) b
         WHERE a.basic_id = b.id
         and a.ent_status in %(status)s
         and a.funded_ratio >= %(ratio)s;

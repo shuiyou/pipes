@@ -68,6 +68,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -155,6 +156,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -172,6 +174,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -185,6 +188,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -223,6 +227,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s
                         AND credit_code = %(id_card_no)s
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -247,6 +252,7 @@ class T24001(Transformer):
                WHERE ent_name = %(user_name)s 
                     AND credit_code = %(id_card_no)s 
                     AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    AND channel_api_no='24001'
                 ORDER BY id DESC 
                 LIMIT 1
                 )    
@@ -282,6 +288,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -316,6 +323,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -350,6 +358,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -377,6 +386,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -427,6 +437,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -455,6 +466,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -484,6 +496,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s
                         AND credit_code = %(id_card_no)s
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC
                     LIMIT 1
                 ) cbb
@@ -531,6 +544,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s
                         AND credit_code = %(id_card_no)s
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC
                     LIMIT 1
                 ) cbb
@@ -548,6 +562,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s
                         AND credit_code = %(id_card_no)s
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC
                     LIMIT 1
                 ) cbb
@@ -578,6 +593,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
@@ -596,6 +612,7 @@ class T24001(Transformer):
                     WHERE ent_name = %(user_name)s 
                         AND credit_code = %(id_card_no)s 
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                        AND channel_api_no='24001'
                     ORDER BY id DESC 
                     LIMIT 1
                 ) cbb
