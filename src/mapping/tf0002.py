@@ -81,7 +81,8 @@ class Tf0002(Transformer):
         info_com_bus_basic = """
             SELECT id,ent_name FROM info_com_bus_basic WHERE 
             unix_timestamp(NOW()) < unix_timestamp(expired_at) 
-            AND ent_name in %(ent_names)s;
+            AND ent_name in %(ent_names)s
+            AND channel_api_no = '27001';
         """
         com_bus_basic_df = sql_to_df(sql=info_com_bus_basic,
                                      params={"ent_names": df['ent_name'].unique().tolist()})

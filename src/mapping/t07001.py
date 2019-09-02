@@ -45,7 +45,7 @@ class T07001(Transformer):
         if df is not None and len(df) > 0:
             result = df['fail_rate'][0]
             if result is not None:
-                self.variables['lend_fail_rate'] = result
+                self.variables['lend_fail_rate'] = float(result)
 
     def _lend_cha_cnt_12m(self, df=None):
         """

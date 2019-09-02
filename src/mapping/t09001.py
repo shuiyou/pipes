@@ -32,6 +32,7 @@ class T09001(Transformer):
 
     def _ps_loan_other(self, df=None):
         if df is not None and len(df) > 0:
+            df = df.fillna(0)
             self.variables['oth_loan_hit_org_cnt'] = df['amount'][0]
             self.variables['oth_loan_hit_bank_cnt'] = df['bank_amount'][0]
             self.variables['oth_loan_hit_finance_cnt'] = df['consumer_finance_amount'][0]

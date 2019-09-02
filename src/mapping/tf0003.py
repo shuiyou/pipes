@@ -126,6 +126,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_case as d
             on c.id=d.basic_id 
             WHERE c.ent_name = %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -143,6 +144,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_shares_frost as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -165,6 +167,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_shares_impawn as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -187,6 +190,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_mort_basic as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -209,6 +213,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_liquidation as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -226,6 +231,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_exception as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -234,9 +240,9 @@ class Tf0003(Transformer):
 
     def _exception_info(self, df=None):
         if df is not None and len(df) > 0:
-            if df[df['result_out'].isna()].shape[0] > 0:
+            if df[df['result_out'] == ''].shape[0] > 0:
                 self.variables['per_com_exception'] = 1
-            if df[df['result_out'].isna()].shape[0] != df.shape[0]:
+            if df[df['result_out'] == ''].shape[0] != df.shape[0]:
                 self.variables['per_com_exception_his'] = 1
             if df[(df['date_out'].isna()) & (df['result_in'].str.contains('弄虚作假'))].shape[0] > 0:
                 self.variables['per_com_exception_result'] = 3
@@ -254,6 +260,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_illegal as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -274,6 +281,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_alter as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder,
@@ -298,6 +306,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_entinvitem as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         info_per_bus_shareholder_frinv = """
@@ -306,6 +315,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_frinv as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
            ;
         """
         df = sql_to_df(sql=info_per_bus_shareholder_entinvitem,
@@ -332,6 +342,7 @@ class Tf0003(Transformer):
             INNER JOIN info_com_bus_face as d
             on c.id=d.basic_id
             WHERE c.ent_name =  %(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(c.expired_at)
+            and c.channel_api_no = '24001'
             ORDER BY d.id DESC LIMIT 1
            ;
         """
