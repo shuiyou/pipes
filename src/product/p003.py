@@ -218,7 +218,6 @@ class P003(Generate):
     def _strategy_second_hand(self, data, product_code, req_no):
         resp = {}
         array = {}
-        9/0
         origin_input = data.get('strategyInputVariables')
         if origin_input is None:
             origin_input = {}
