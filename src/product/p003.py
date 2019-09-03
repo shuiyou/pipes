@@ -45,7 +45,7 @@ class P003(Generate):
             }
             self.reponse = resp
             logger.info(">>>>>>>>>>>>>pipes callback defensor <<<<<<<<<<<<<<<<<<")
-            logger.info(resp)
+            logger.info(self.reponse)
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -92,7 +92,7 @@ class P003(Generate):
             self.reponse = resp_end
             logger.info(">>>>>>>>>>>>>>>>>>>>pipes callback defensor  "
                         "<<<<<<<<<<<<<<<<<<<<<<")
-            logger.info(resp_end)
+            logger.info(self.reponse)
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -241,12 +241,11 @@ class P003(Generate):
         logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
         logger.debug(strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
-        logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
-        logger.debug(strategy_response)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -337,7 +336,6 @@ class P003(Generate):
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
         strategy_request = _build_request(req_no, product_code, variables=variables)
-        logger.info(strategy_request)
         # 调用决策引擎
         logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
         logger.info(strategy_request)
