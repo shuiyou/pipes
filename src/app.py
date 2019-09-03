@@ -42,8 +42,9 @@ def _get_product_handler(product_code) -> Generate:
         api_class = getattr(model, "P" + str(product_code))
         api_instance = api_class()
         return api_instance
-    except Exception as err:
+    except ModuleNotFoundError as err:
         logger.error(str(err))
+        return Generate()
 
 
 @app.route("/health", methods=['GET'])

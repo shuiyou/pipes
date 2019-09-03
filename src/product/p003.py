@@ -1,4 +1,7 @@
 import json
+import traceback
+from pydoc import describe
+
 import requests
 from flask import request, jsonify
 from jsonpath import jsonpath
@@ -23,10 +26,10 @@ class P003(Generate):
     def __init__(self) -> None:
         self.reponse: {}
 
-    @exception('purpose= 联合报告shack_hander_process&author=liujinhao')
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
+            logger.info(">>>>>>>>>>report_union_level_1  defensor invoke pipes do shake hand<<<<<<<<<<<<<")
             logger.debug(json.dumps(json_data))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
@@ -41,16 +44,18 @@ class P003(Generate):
                 'queryData': response_array
             }
             self.reponse = resp
+            logger.info(">>>>>>>>>>>>>pipes callback defensor <<<<<<<<<<<<<<<<<<")
+            logger.info(resp)
             return self.reponse
         except Exception as err:
-            logger.error(str(err))
+            logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    @exception('purpose= 联合报告strategy_process&author=liujinhao')
     def strategy_process(self):
+        # 获取请求参数
         try:
-            # 获取请求参数
             json_data = request.get_json()
+            logger.info(">>>>>>>>>>report_union_level_1  defensor invoke pipes do strategy<<<<<<<<<<<<<")
             logger.debug(json.dumps(json_data))
             strategy_param = json_data.get('strategyParam')
             req_no = strategy_param.get('reqNo')
@@ -68,9 +73,11 @@ class P003(Generate):
             # 封装第二次调用参数
             variables = self._create_strategy_second_request(cache_arry)
             strategy_request = _build_request(req_no, product_code, variables=variables)
+            logger.info(">>>>>>>>>>>>>>>>>>>>pipes start invoke stratey second time<<<<<<<<<<<<<<<<<<<<<<<")
             logger.info(strategy_request)
             # 调用决策引擎
             strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+            logger.info(">>>>>>>>>>>>>>>>>>>strategy reponse second time<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
             logger.debug(strategy_response)
             if strategy_response.status_code != 200:
                 raise Exception("strategyOne错误:" + strategy_response.text)
@@ -83,10 +90,14 @@ class P003(Generate):
             resp_end = self._create_strategy_resp(product_code, req_no, step_req_no, strategy_resp, variables,
                                                   versionNo, subject)
             self.reponse = resp_end
+            logger.info(">>>>>>>>>>>>>>>>>>>>pipes callback defensor  "
+                        "<<<<<<<<<<<<<<<<<<<<<<")
+            logger.info(resp_end)
             return self.reponse
         except Exception as err:
-            logger.error(str(err))
+            logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
+
 
     def _create_strategy_resp(self, product_code, req_no, step_req_no, strategy_resp, variables, versionNo, subject):
         resp = {}
@@ -206,6 +217,7 @@ class P003(Generate):
     def _strategy_second_hand(self, data, product_code, req_no):
         resp = {}
         array = {}
+        9/0
         origin_input = data.get('strategyInputVariables')
         if origin_input is None:
             origin_input = {}
@@ -225,6 +237,7 @@ class P003(Generate):
         # 合并新的转换变量
         origin_input.update(variables)
         strategy_request = _build_request(req_no, product_code, origin_input)
+        logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
         logger.debug(strategy_request)
         # 调用决策引擎
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
@@ -232,6 +245,8 @@ class P003(Generate):
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
+        logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
+        logger.debug(strategy_response)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -324,10 +339,14 @@ class P003(Generate):
         strategy_request = _build_request(req_no, product_code, variables=variables)
         logger.info(strategy_request)
         # 调用决策引擎
+        logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
+        logger.info(strategy_request)
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()
+        logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
+        logger.info(resp_json)
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))

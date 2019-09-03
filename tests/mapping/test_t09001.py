@@ -429,13 +429,13 @@ def sort_union_person_df(df):
         else:
             df.loc[index, 'order'] = 999
 
-def test_private_fun():
-    p003 = P003()
-    p003._test_pro_fuc()
-    p003._test_fuc()
 
 def test_read_file():
     f = open('../resource/shake_hand_p003.txt','r', encoding='UTF-8')
     json = f.read()
     f.close()
     print(json)
+
+def test_number_format():
+    fundretaio = 1.0000
+    print(float(fundretaio))

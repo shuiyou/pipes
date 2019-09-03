@@ -1,4 +1,6 @@
 import json
+import traceback
+
 import requests
 from flask import request, jsonify
 from jsonpath import jsonpath
@@ -26,6 +28,7 @@ class P001(Generate):
 
     def shake_hand_process(self):
         try:
+            logger.info(">>>>>>>>>>report_person_level_1  defensor invoke pipes do shake hand<<<<<<<<<<<<<")
             json_data = request.get_json()
             logger.debug(json.dumps(json_data))
             req_no = json_data.get('reqNo')
@@ -39,12 +42,15 @@ class P001(Generate):
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
             strategy_request = _build_request(req_no, product_code, variables=variables)
+            logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
             logger.info(strategy_request)
             # 调用决策引擎
             response = requests.post(STRATEGY_URL, json=strategy_request)
             if response.status_code != 200:
                 raise Exception("strategyOne错误:" + response.text)
             resp_json = response.json()
+            logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
+            logger.info(resp_json)
             error = jsonpath(resp_json, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
@@ -55,15 +61,18 @@ class P001(Generate):
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types)
             }
+            logger.info(">>>>>>>>>>>>>pipes callback defensor <<<<<<<<<<<<<<<<<<")
+            logger.info(resp)
             self.reponse = resp
             return self.reponse
         except Exception as err:
-            logger.error(str(err))
+            logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
 
     def strategy_process(self):
         try:
+            logger.info(">>>>>>>>>>report_person_level_1  defensor invoke pipes do strategy<<<<<<<<<<<<<")
             # 获取请求参数
             json_data = request.get_json()
             logger.debug(json.dumps(json_data))
@@ -89,7 +98,10 @@ class P001(Generate):
             strategy_request = _build_request(req_no, product_code, origin_input)
             logger.debug(strategy_request)
             # 调用决策引擎
+            logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
+            logger.info(strategy_request)
             strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+            logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
             logger.debug(strategy_response)
             if strategy_response.status_code != 200:
                 raise Exception("strategyOne错误:" + strategy_response.text)
@@ -111,8 +123,10 @@ class P001(Generate):
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
+            logger.info(">>>>>>>>>>>>>pipes callback defensor<<<<<<<<<<<<<<<<<<")
+            logger.info(json_data)
             self.reponse = json_data
             return self.reponse
         except Exception as err:
-            logger.error(str(err))
+            logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
