@@ -18,13 +18,10 @@ from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 logger = LoggerUtil().logger(__name__)
 
 
-
-
-
 class P001(Generate):
 
-    def __init__(self)->None:
-        self.reponse:{}
+    def __init__(self) -> None:
+        self.reponse: {}
 
     def shake_hand_process(self):
         try:
@@ -38,7 +35,9 @@ class P001(Generate):
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
             user_type = query_data.get('userType')
-            variables = T00000().run(user_name, id_card_no, phone, user_type)['variables']
+            auth_status = query_data.get('authorStatus')
+            base_type = self._get_base_type(auth_status)
+            variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
             logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
@@ -68,7 +67,6 @@ class P001(Generate):
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
-
 
     def strategy_process(self):
         try:
@@ -128,3 +126,9 @@ class P001(Generate):
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
+
+    def _get_base_type(self, auth_status):
+        if auth_status == 'AUTHORIZED':
+            return 'PERSONAL'
+        else:
+            return 'S_PERSONAL'

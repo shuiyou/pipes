@@ -38,7 +38,7 @@ class P002(Generate):
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
             user_type = query_data.get('userType')
-            variables = T00000().run(user_name, id_card_no, phone, user_type)['variables']
+            variables = T00000().run(user_name, id_card_no, phone, user_type,'COMPANY')['variables']
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
             logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
