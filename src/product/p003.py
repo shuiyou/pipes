@@ -29,8 +29,8 @@ class P003(Generate):
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
-            logger.info("1-》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.debug(json.dumps(json_data))
+            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.debug("1-1 json_data----"+json.dumps(json_data))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
@@ -44,8 +44,8 @@ class P003(Generate):
                 'queryData': response_array
             }
             self.reponse = resp
-            logger.info("2-》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("response----"+self.reponse)
+            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info("5-1 response----"+self.reponse)
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -335,17 +335,17 @@ class P003(Generate):
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
-        logger.info("1》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info("2-》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
         strategy_request = _build_request(req_no, product_code, variables=variables)
-        logger.info(strategy_request)
+        logger.info("2-1 strategy_request----"+strategy_request)
         # 调用决策引擎
-        logger.info("2》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info("3》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()
-        logger.info("3》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-        logger.info(resp_json)
+        logger.info("4》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info("4-1 resp_json-----"+resp_json)
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
