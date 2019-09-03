@@ -13,7 +13,8 @@ from mapping.mapper import translate_for_strategy
 
 from mapping.t00000 import T00000
 from product.generate import Generate
-from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject
+from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject, \
+    _get_thread_id
 from util.common_util import exception
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 import pandas as pd
@@ -29,8 +30,8 @@ class P003(Generate):
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
-            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.debug("1-1 json_data----"+str(json.dumps(json_data)))
+            logger.info(str(_get_thread_id)+"1- 》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.debug(str(_get_thread_id)+"1-1 json_data----"+str(json.dumps(json_data)))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
@@ -44,8 +45,8 @@ class P003(Generate):
                 'queryData': response_array
             }
             self.reponse = resp
-            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("5-1 response----"+ str(self.reponse))
+            logger.info(str(_get_thread_id)+"5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info(str(_get_thread_id)+"5-1 response----"+ str(self.reponse))
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -335,17 +336,17 @@ class P003(Generate):
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
-        logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info(str(_get_thread_id)+"2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
         strategy_request = _build_request(req_no, product_code, variables=variables)
-        logger.info("2-1 strategy_request----"+str(strategy_request))
+        logger.info(str(_get_thread_id)+"2-1 strategy_request----"+str(strategy_request))
         # 调用决策引擎
-        logger.info("3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info(str(_get_thread_id)+"3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()
-        logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-        logger.info("4-1 resp_json-----"+str(resp_json))
+        logger.info(str(_get_thread_id)+"4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        logger.info(str(_get_thread_id)+"4-1 resp_json-----"+str(resp_json))
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))

@@ -1,3 +1,5 @@
+import threading
+
 import numpy
 
 
@@ -52,6 +54,9 @@ def _get_biz_types(input_json):
     else:
         biz_types = []
     return biz_types
+
+def _get_thread_id():
+    return threading.currentThread().ident
 
 
 def _append_rules(biz_types):

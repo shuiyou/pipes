@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
+import threading
 
 import pytest
 from jsonpath import jsonpath
@@ -37,6 +38,8 @@ def test_shake_hand_p003(client):
     str = f.read()
     f.close()
     rv = client.post('/biz-types', json=json.loads(str))
+    print(threading.currentThread().ident )
+    print(threading.currentThread().name)
     v = rv.get_json()
     print(json.dumps(v))
 
