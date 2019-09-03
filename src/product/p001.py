@@ -28,9 +28,9 @@ class P001(Generate):
 
     def shake_hand_process(self):
         try:
-            logger.info(">>>>>>>>>>report_person_level_1  defensor invoke pipes do shake hand<<<<<<<<<<<<<")
             json_data = request.get_json()
-            logger.debug(json.dumps(json_data))
+            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级个人详版报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.debug("1-1 json_data》》》》" + str(json.dumps(json_data)))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data = json_data.get('queryData')
@@ -41,16 +41,16 @@ class P001(Generate):
             variables = T00000().run(user_name, id_card_no, phone, user_type)['variables']
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
+            logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             strategy_request = _build_request(req_no, product_code, variables=variables)
-            logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
-            logger.info(strategy_request)
-            # 调用决策引擎
+            logger.info("2-1 strategy_request》》》》" + str(strategy_request))
+            logger.info("3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             response = requests.post(STRATEGY_URL, json=strategy_request)
             if response.status_code != 200:
                 raise Exception("strategyOne错误:" + response.text)
             resp_json = response.json()
-            logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
-            logger.info(resp_json)
+            logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info("4-1 resp_json》》》》" + str(resp_json))
             error = jsonpath(resp_json, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
@@ -61,9 +61,9 @@ class P001(Generate):
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types)
             }
-            logger.info(">>>>>>>>>>>>>pipes callback defensor <<<<<<<<<<<<<<<<<<")
-            logger.info(resp)
             self.reponse = resp
+            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info("5-1 response》》》》" + str(self.reponse))
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -72,10 +72,9 @@ class P001(Generate):
 
     def strategy_process(self):
         try:
-            logger.info(">>>>>>>>>>report_person_level_1  defensor invoke pipes do strategy<<<<<<<<<<<<<")
-            # 获取请求参数
             json_data = request.get_json()
-            logger.debug(json.dumps(json_data))
+            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级个人详版报告 defensor invoke pipes 获取策略引擎结果，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.debug("1-1 json_data》》》》》" + str(json.dumps(json_data)))
             strategy_param = json_data.get('strategyParam')
             origin_input = json_data.get('strategyInputVariables')
             if origin_input is None:
@@ -95,17 +94,16 @@ class P001(Generate):
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
+            logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             strategy_request = _build_request(req_no, product_code, origin_input)
-            logger.debug(strategy_request)
-            # 调用决策引擎
-            logger.info(">>>>>>>>>>>>>start invoke strategy<<<<<<<<<<<<<<<<<<")
-            logger.info(strategy_request)
+            logger.info("2-1 strategy_request》》》》" + str(strategy_request))
+            logger.info("3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-            logger.info(">>>>>>>>>>>>>strategy response<<<<<<<<<<<<<<<<<<")
-            logger.debug(strategy_response)
             if strategy_response.status_code != 200:
                 raise Exception("strategyOne错误:" + strategy_response.text)
             strategy_resp = strategy_response.json()
+            logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info("4-1 resp_json》》》》" + str(strategy_resp))
             error = jsonpath(strategy_resp, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -123,9 +121,9 @@ class P001(Generate):
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
-            logger.info(">>>>>>>>>>>>>pipes callback defensor<<<<<<<<<<<<<<<<<<")
-            logger.info(json_data)
             self.reponse = json_data
+            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            logger.info("5-1 response》》》》" + str(self.reponse))
             return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
