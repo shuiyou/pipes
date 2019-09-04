@@ -3,6 +3,7 @@ import re
 import pandas as pd
 import json
 from mapping.t09001 import T09001
+from mapping.tranformer import extract_money
 from product.p003 import P003
 from util.common_util import exception
 from jsonpath import jsonpath
@@ -439,3 +440,7 @@ def test_read_file():
 def test_number_format():
     fundretaio = 1.0000
     print(float(fundretaio))
+
+def test_extract_money():
+    value = '[罚款金额（万元）:0.800000]'
+    print(extract_money(value))

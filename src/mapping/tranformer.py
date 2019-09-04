@@ -35,6 +35,7 @@ def extract_money(value):
         pattern2 = re.compile(r'(?<=金额\:)\d+\.?\d*')
         pattern3 = re.compile(r'(?<=罚款)\d+\.?\d*')
         pattern4 = re.compile(r'(?<=罚款人民币)\d+\.?\d*')
+        pattern5 = re.compile(r'(?<=罚款金额\（万元）\:)\d+\.?\d*')
         if pattern1.search(value) != None:
             money_str = pattern1.search(value).group(0)
         elif pattern2.search(value) != None:
@@ -43,6 +44,8 @@ def extract_money(value):
             money_str = pattern3.search(value).group(0)
         elif pattern4.search(value) != None:
             money_str = pattern4.search(value).group(0)
+        elif pattern5.search(value) != None:
+            money_str = pattern5.search(value).group(0)
         money = float(money_str)
         if ("万元" in value):
             money = money * 10000
