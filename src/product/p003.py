@@ -117,10 +117,10 @@ class P003(Generate):
         :return:
         """
         df = pd.DataFrame(cache_arry)
-        if df.query('ralation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
+        if df.query('relation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
             # 借款主体为个人-联合报告-排序
             self._sort_union_person_df(df)
-        elif df.query('ralation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
+        elif df.query('relation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
             # 借款主体为企业-联合报告-排序
             self._sort_union_company_df(df)
         else:
@@ -170,46 +170,46 @@ class P003(Generate):
 
     def _sort_union_company_df(self, df):
         for index, row in df.iterrows():
-            if row['ralation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
+            if row['relation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
-            elif row['ralation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 1
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
+            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
                 df.loc[index, 'order'] = 2
-            elif row['ralation'] == 'LEGAL' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'LEGAL' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 3
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
+            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 4
-            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'OTHER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 5
-            elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 0
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
                 df.loc[index, 'order'] = 1
             else:
                 df.loc[index, 'order'] = 999
 
     def _sort_union_person_df(self, df):
         for index, row in df.iterrows():
-            if row['ralation'] == 'MAIN' and row['userType'] == 'PERSONAL':
+            if row['relation'] == 'MAIN' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
-            elif row['ralation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 1
-            elif row['ralation'] == 'CHILDREN' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'CHILDREN' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 2
-            elif row['ralation'] == 'PARENT' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'PARENT' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 3
-            elif row['ralation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 4
-            elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            elif row['relation'] == 'OTHER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 5
-            elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 0
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
                 df.loc[index, 'order'] = 1
-            elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+            elif row['relation'] == 'LEGAL' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 2
-            elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 4
             else:
                 df.loc[index, 'order'] = 999
@@ -226,7 +226,7 @@ class P003(Generate):
         user_type = data.get('userType')
         codes = data.get('bizType')
         base_type = data.get('baseType')
-        ralation = data.get('ralation')
+        relation = data.get('relation')
         fundratio = data.get('fundratio')
         biz_types = codes.copy()
         biz_types.append('00000')
@@ -254,17 +254,17 @@ class P003(Generate):
         logger.info(biz_types)
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                         resp, strategy_resp, user_name, user_type, variables)
-        self._get_strategy_second_array(array, fundratio, ralation, strategy_resp, user_name, user_type, variables)
+        self._get_strategy_second_array(array, fundratio, relation, strategy_resp, user_name, user_type, variables)
         return array, resp
 
-    def _get_strategy_second_array(self, array, fundratio, ralation, strategy_resp, user_name, user_type, variables):
+    def _get_strategy_second_array(self, array, fundratio, relation, strategy_resp, user_name, user_type, variables):
         array['name'] = user_name
         array['userType'] = user_type
         if fundratio is not None and fundratio != '':
             array['fundratio'] = float(fundratio)
         else:
             array['fundratio'] = 0.00
-        array['ralation'] = ralation
+        array['relation'] = relation
         array['per_face_relent_indusCode1'] = self._get_json_path_value(variables, '$..per_face_relent_indusCode1')
         array['com_bus_face_outwardindusCode1'] = self._get_json_path_value(variables,
                                                                             '$..com_bus_face_outwardindusCode1')
@@ -329,9 +329,9 @@ class P003(Generate):
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
         fundratio = data.get('fundratio')
-        ralation = data.get('ralation')
+        relation = data.get('relation')
         # 获取base_type
-        base_type = self._get_base_type(fundratio, auth_status, phone, ralation, user_type)
+        base_type = self._get_base_type(fundratio, auth_status, phone, relation, user_type)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
@@ -358,22 +358,22 @@ class P003(Generate):
         resp['authStatus'] = auth_status
         resp['fundratio'] = fundratio
         resp['baseType'] = base_type
-        resp['ralation'] = ralation
+        resp['relation'] = relation
         resp['bizType'] = biz_types
         resp['rules'] = rules
         return resp
 
-    def _get_base_type(self, fundratio, auth_status, phone, ralation, user_type):
+    def _get_base_type(self, fundratio, auth_status, phone, relation, user_type):
         """
         封装base_type
         :param fundratio:
         :param auth_status:
         :param phone:
-        :param ralation:
+        :param relation:
         :param user_type:
         :return: base_type
         """
-        if ralation == 'GUARANTOR':
+        if relation == 'GUARANTOR':
             if user_type == 'COMPANY':
                 return 'G_COMPANY'
             elif auth_status == 'AUTHORIZED':
@@ -386,11 +386,11 @@ class P003(Generate):
             else:
                 return 'U_S_PERSONAL'
         if user_type == 'COMPANY':
-            if ralation == 'CONTROLLER':
+            if relation == 'CONTROLLER':
                 return 'U_COMPANY'
-            elif ralation == 'LEGAL':
+            elif relation == 'LEGAL':
                 return 'U_COMPANY'
-            elif ralation == 'SHAREHOLDER' and float(fundratio) >= 0.50:
+            elif relation == 'SHAREHOLDER' and float(fundratio) >= 0.50:
                 return 'U_COMPANY'
             else:
                 return 'U_S_COMPANY'

@@ -442,5 +442,5 @@ def test_number_format():
     print(float(fundretaio))
 
 def test_extract_money():
-    value = '[罚款金额（万元）:0.800000]'
+    value = '[罚款金额:0.02]'
     print(extract_money(value))
