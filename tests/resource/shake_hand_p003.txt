@@ -10,7 +10,7 @@
             "userType": "PERSONAL",
             "authorStatus": "AUTHORIZED",
             "fundratio": null,
-            "ralation": "MAIN"
+            "relation": "MAIN"
         },
         {
             "name": "王强",
@@ -19,7 +19,7 @@
             "userType": "PERSONAL",
             "authorStatus": "AUTHORIZED",
             "fundratio": null,
-            "ralation": "SPOUSE"
+            "relation": "SPOUSE"
         },
         {
             "name": "刘志明",
@@ -28,7 +28,7 @@
             "userType": "PERSONAL",
             "authorStatus": "AUTHORIZED",
             "fundratio": null,
-            "ralation": "GUARANTOR"
+            "relation": "GUARANTOR"
         },
         {
             "name": "刘华",
@@ -37,7 +37,7 @@
             "userType": "PERSONAL",
             "authorStatus": "UNAUTHORIZED",
             "fundratio": null,
-            "ralation": "GUARANTOR"
+            "relation": "GUARANTOR"
         },
         {
             "name": "上海怡顺建设发展有限公司",
@@ -46,7 +46,7 @@
             "userType": "COMPANY",
             "authorStatus": null,
             "fundratio": "0.5125",
-            "ralation": "SHAREHOLDER"
+            "relation": "SHAREHOLDER"
         },
         {
             "name": "上海新门投资管理有限公司",
@@ -55,7 +55,7 @@
             "userType": "COMPANY",
             "authorStatus": null,
             "fundratio": "0.4000",
-            "ralation": "SHAREHOLDER"
+            "relation": "SHAREHOLDER"
         },
         {
             "name": "武汉磁信科技有限公司",
@@ -64,7 +64,7 @@
             "userType": "COMPANY",
             "authorStatus": null,
             "fundratio": null,
-            "ralation": "GUARANTOR"
+            "relation": "GUARANTOR"
         }
     ]
 }

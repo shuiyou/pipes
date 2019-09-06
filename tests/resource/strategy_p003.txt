@@ -1,110 +1,17 @@
 {
     "strategyParam": {
-        "reqNo": "Q351052366570749952",
-        "stepReqNo": "S351052366570749953",
+        "reqNo": "Q367375243825807360",
+        "stepReqNo": "S367375243825807361",
         "productCode": "003",
-        "versionNo": "1.0",
         "queryData": [
             {
-                "name": "施网明",
-                "idno": "310108196610024859",
-                "phone": "11111111111",
+                "name": "马慧丽",
+                "idno": "310222197408170040",
+                "phone": "13916010806",
                 "userType": "PERSONAL",
-                "authorStatus": "AUTHORIZED",
-                "fundratio": null,
-                "ralation": "MAIN",
-                "baseType": "U_PERSONAL",
-                "bizType": [
-                    "01001",
-                    "02001",
-                    "05001",
-                    "05002",
-                    "06001",
-                    "07001",
-                    "08001",
-                    "09001",
-                    "10001",
-                    "11001",
-                    "12001",
-                    "13001",
-                    "14001",
-                    "16001",
-                    "17001",
-                    "23001"
-                ],
-                "strategyInputVariables": null
-            },
-            {
-                "name": "王强",
-                "idno": "32038119920718061X",
-                "phone": null,
-                "userType": "PERSONAL",
-                "authorStatus": "AUTHORIZED",
-                "fundratio": null,
-                "ralation": "SPOUSE",
-                "baseType": "U_S_PERSONAL",
-                "bizType": [
-                    "16001",
-                    "23001"
-                ],
-                "strategyInputVariables": null
-            },
-            {
-                "name": "刘志明",
-                "idno": "142327198208273573",
-                "phone": "15333015677",
-                "userType": "PERSONAL",
-                "authorStatus": "AUTHORIZED",
-                "fundratio": null,
-                "ralation": "GUARANTOR",
-                "baseType": "G_PERSONAL",
-                "bizType": [
-                    "01001",
-                    "02001",
-                    "05001",
-                    "05002",
-                    "06001",
-                    "07001",
-                    "08001",
-                    "09001",
-                    "10001",
-                    "11001",
-                    "12001",
-                    "13001",
-                    "14001",
-                    "16001",
-                    "17001",
-                    "23001",
-                    "f0001",
-                    "f0002",
-                    "f0003"
-                ],
-                "strategyInputVariables": null
-            },
-            {
-                "name": "王强",
-                "idno": "32038119920718061X",
-                "phone": null,
-                "userType": "PERSONAL",
-                "authorStatus": "AUTHORIZED",
-                "fundratio": null,
-                "ralation": "SPOUSE",
-                "baseType": "U_S_PERSONAL",
-                "bizType": [
-                    "16001",
-                    "23001"
-                ],
-                "strategyInputVariables": null
-            },
-            {
-                "name": "刘华",
-                "idno": "321088195611130033",
-                "phone": null,
-                "userType": "PERSONAL",
-                "authorStatus": "UNAUTHORIZED",
-                "fundratio": null,
-                "ralation": "GUARANTOR",
+                "fundratio": 0.0,
                 "baseType": "G_S_PERSONAL",
+                "relation": "GUARANTOR",
                 "bizType": [
                     "16001",
                     "23001",
@@ -112,57 +19,75 @@
                     "f0002",
                     "f0003"
                 ],
-                "strategyInputVariables": null
+                "rules": [
+                    {
+                        "code": "f0003",
+                        "data": [
+                            {
+                                "relatedType": "SHAREHOLDER",
+                                "rule": {
+                                    "entStatus": "OPENING",
+                                    "ratioOfInvestments": "0.2"
+                                }
+                            },
+                            {
+                                "relatedType": "LEGAL",
+                                "rule": {
+                                    "entStatus": "OPENING"
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 "name": "上海怡顺建设发展有限公司",
                 "idno": "91310115798977004Q",
-                "phone": null,
                 "userType": "COMPANY",
-                "authorStatus": null,
-                "fundratio": "0.5125",
-                "ralation": "SHAREHOLDER",
+                "fundratio": 0.6,
                 "baseType": "U_COMPANY",
+                "relation": "SHAREHOLDER",
                 "bizType": [
                     "16002",
-                    "24001",
-                    "f0004",
-                    "f0005"
+                    "24001"
                 ],
-                "strategyInputVariables": null
+                "rules": [
+
+                ]
             },
             {
-                "name": "上海新门投资管理有限公司",
-                "idno": "91310230059371826X",
-                "phone": null,
-                "userType": "COMPANY",
-                "authorStatus": null,
-                "fundratio": "0.4000",
-                "ralation": "SHAREHOLDER",
-                "baseType": "U_S_COMPANY",
+                "name": "施网明",
+                "idno": "310108196610024859",
+                "phone": "13301778997",
+                "userType": "PERSONAL",
+                "fundratio": 0.0,
+                "baseType": "U_S_PERSONAL",
+                "relation": "MAIN",
                 "bizType": [
-                    "16002",
-                    "27001"
+                    "16001",
+                    "23001"
                 ],
-                "strategyInputVariables": null
+                "rules": [
+
+                ]
             },
             {
-                "name": "武汉磁信科技有限公司",
-                "idno": "91420100MA4K2H1B6N",
-                "phone": null,
-                "userType": "COMPANY",
-                "authorStatus": null,
-                "fundratio": null,
-                "ralation": "GUARANTOR",
-                "baseType": "G_COMPANY",
+                "name": "王平平",
+                "idno": "362422198701220023",
+                "phone": "13970668820",
+                "userType": "PERSONAL",
+                "fundratio": 0.0,
+                "baseType": "U_S_PERSONAL",
+                "relation": "SPOUSE",
                 "bizType": [
-                    "16002",
-                    "24001",
-                    "f0004",
-                    "f0005"
+                    "16001",
+                    "23001"
                 ],
-                "strategyInputVariables": null
+                "rules": [
+
+                ]
             }
-        ]
+        ],
+        "versionNo": "1.0"
     }
 }

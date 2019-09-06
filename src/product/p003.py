@@ -281,7 +281,7 @@ class P003(Generate):
         if isinstance(res, list) and len(res) > 0:
             return res[0]
         else:
-            return ""
+            return 0
 
     def _strategy_second_loop_resp(self, base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                    resp, strategy_resp, user_name, user_type, variables):
