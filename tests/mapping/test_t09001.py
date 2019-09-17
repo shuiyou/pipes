@@ -444,3 +444,24 @@ def test_number_format():
 def test_extract_money():
     value = '[罚款金额:0.02]'
     print(extract_money(value))
+
+
+def test_read_excel():
+    df = pd.read_excel('c:/users/杨也晰/desktop/t1.xlsx')
+    df_person = df.query('status == "END" and product_name == "个人一级风险报告"')
+    # for index,row in df_person.iterrows():
+    #     resp = json.loads(row['resp'])
+    #     Categories = resp['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+    #     print(resp)
+    #     print(Categories)
+    for i in range(len(df_person)):
+        if i==4:
+            s = pd.read_json(df_person.ix[i, 'resp'], typ='series')
+            res = s['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+            print("1111", type(s))
+            print("222", type(res))
+        if i==5:
+            s = pd.read_json(df_person.ix[i, 'resp'], typ='series')
+            res = s['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+            print("1111", type(s))
+            print("222", type(res))
