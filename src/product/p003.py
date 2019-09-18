@@ -126,10 +126,10 @@ class P003(Generate):
         else:
             raise ServerException(code=500, description=str('没有借款主体'))
         # 取前10行数据
-        df_person = df.query('userType=="PERSONAL" and order != 999').sort_values(by=["fundratio"],
+        df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],
                                                                                   ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
-        df_compay = df.query('userType=="COMPANY" and order != 999').sort_values(by=["fundratio"],
+        df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],
                                                                                  ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
         # 拼接入参variables
@@ -180,8 +180,6 @@ class P003(Generate):
                 df.loc[index, 'order'] = 3
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 4
-            elif row['relation'] == 'OTHER' and row['userType'] == 'PERSONAL':
-                df.loc[index, 'order'] = 5
             elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 0
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
@@ -201,8 +199,6 @@ class P003(Generate):
                 df.loc[index, 'order'] = 3
             elif row['relation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 4
-            elif row['relation'] == 'OTHER' and row['userType'] == 'PERSONAL':
-                df.loc[index, 'order'] = 5
             elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 0
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
@@ -210,7 +206,7 @@ class P003(Generate):
             elif row['relation'] == 'LEGAL' and row['userType'] == 'COMPANY':
                 df.loc[index, 'order'] = 2
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
-                df.loc[index, 'order'] = 4
+                df.loc[index, 'order'] = 3
             else:
                 df.loc[index, 'order'] = 999
 
