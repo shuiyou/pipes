@@ -58,6 +58,7 @@ class P001(Generate):
                 'productCode': json_data.get('productCode'),
                 'reqNo': json_data.get('reqNo'),
                 'bizType': biz_types,
+                'authorStatus':auth_status,
                 'rules': _append_rules(biz_types)
             }
             self.reponse = resp
@@ -85,10 +86,11 @@ class P001(Generate):
             phone = query_data.get('phone')
             user_type = query_data.get('userType')
             codes = strategy_param.get('bizType')
+            auth_status = query_data.get('authorStatus')
             biz_types = codes.copy()
             biz_types.append('00000')
             variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
-                                                                  'PERSONAL')
+                                                                  auth_status)
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
