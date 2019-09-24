@@ -197,7 +197,7 @@ def test_json_path():
                     {
                         "Reason": {
                             "Variables": {
-                                "out_decisionBranchCode": "S001",
+                                "out_decisionBranchCode": "",
                                 "out_ReasonCode": "RR205"
                             }
                         }

@@ -397,8 +397,11 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有经营异常信息
     def _com_bus_exception(self, df=None):
-        df = df[df['result_out'].isnull().values == True]
-        if len(df) > 0:
+        df1 = df.dropna(subset=['result_out'],how='any')
+        df2 = df.query('result_out == ""')
+        if len(df) != len(df1):
+            self.variables['com_bus_exception'] = 1
+        if len(df2) > 0:
             self.variables['com_bus_exception'] = 1
 
     # 计算工商核查_经营异常原因
@@ -418,9 +421,16 @@ class T24001(Transformer):
 
     # 计算工商核查_曾经是否有经营异常信息
     def _com_bus_exception_his(self, df=None):
-        df = df[df['result_out'].isnull().values == False]
-        if len(df) > 0:
+        df1 = df.dropna(subset=['result_out'],how='any')
+        df2 = df.query('result_out == ""')
+        if len(df1) > 0:
             self.variables['com_bus_exception_his'] = 1
+        else:
+            self.variables['com_bus_exception_his'] = 0
+        if len(df) != len(df2):
+            self.variables['com_bus_exception_his'] = 1
+        else:
+            self.variables['com_bus_exception_his'] = 0
 
     # 获取目标数据集9
     def _info_com_bus_illegal(self):

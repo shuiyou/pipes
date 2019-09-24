@@ -54,8 +54,7 @@ def test_stratey_p003(client):
 
 
 def test_strategy(client):
-    rv = client.post('/strategy', json={
-        "strategyParam": {"reqNo": "Q356548494120615936", "stepReqNo": "S356548494120615937", "productCode": "001", "queryData": {"name": "施网明", "idno": "310108196610024859", "phone": "13301778997", "userType": "PERSONAL"}, "bizType": ["01001", "02001", "05001", "05002", "06001", "07001", "08001", "09001", "10001", "11001", "12001", "13001", "14001", "16001", "17001", "18001", "f0001", "f0002", "f0003"], "versionNo": "1.0"}})
+    rv = client.post('/strategy', json={"strategyParam":{"reqNo":"Q371742817959182336","stepReqNo":"S371742817988542464","productCode":"001","queryData":{"name":"郁春军","idno":"310225198203135616","phone":"13816716288","userType":"PERSONAL","authorStatus":"AUTHORIZED","baseType":"PERSONAL","bizType":["01001","02001","05001","05002","06001","07001","08001","09001","10001","11001","12001","13001","14001","16001","17001","18001","f0001","f0002","f0003"]},"versionNo":"1.0"},"strategyInputVariables":None})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
