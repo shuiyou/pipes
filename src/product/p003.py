@@ -386,6 +386,8 @@ class P003(Generate):
                 return 'U_COMPANY'
             elif relation == 'LEGAL':
                 return 'U_COMPANY'
+            elif relation == 'MAIN':
+                return 'U_COMPANY'
             elif relation == 'SHAREHOLDER' and float(fundratio) >= 0.50:
                 return 'U_COMPANY'
             else:
