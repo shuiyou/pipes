@@ -35,7 +35,10 @@ class T00000(Transformer):
 
     def transform(self):
         self.variables['base_idno'] = self.id_card_no
-        self.variables['base_type'] = self.user_type
+        if self.base_type is not None:
+            self.variables['base_type'] = self.base_type
+        else:
+            self.variables['base_type'] = self.user_type
         self._base_black()
         if self.user_type == 'PERSONAL' and self.id_card_no is not None:
             information = GetInformation(self.id_card_no)

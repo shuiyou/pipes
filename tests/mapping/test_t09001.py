@@ -2,10 +2,11 @@ import re
 
 import pandas as pd
 import json
-
-
 from mapping.t09001 import T09001
+from mapping.tranformer import extract_money
+from product.p003 import P003
 from util.common_util import exception
+from jsonpath import jsonpath
 
 
 def test_ps_loan_other():
@@ -116,13 +117,13 @@ def test_dropna():
     # print(array)
 
 def test_round():
-    print(int(round(1.53,0)))
+    print(round(0.007,2))
 
 
 
 @exception('purpose=企业工商&author=刘金昊')
 def fun1():
-    a = ['', 'CC', 'BB']
+    a = ['AA', 'CC', 'BB']
     b = [11, 22, 11]
     c = [11]
     df = pd.DataFrame({'execution_result': a, 'specific_date': b})
@@ -134,10 +135,333 @@ def test_robust():
     a = fun1();
     print(a)
 
-def test_replace():
-    a = ['', 'CC', 'BB']
-    b = [11, 22, 11]
-    df = pd.DataFrame({'execution_result': a, 'specific_date': b})
-    print(df)
-    df['execution_result'].replace('',0,inplace=True)
-    print(df)
+def test_number():
+    rate = '0.5000'
+    is_auth = True
+    if is_auth:
+        print("true")
+    else:
+        print("false")
+    if float(rate) >= 0.50:
+        print("true")
+    else:
+        print("false")
+
+def test_json_append():
+    resp = {}
+    resp['name'] = 'test'
+    resp['bizTypes'] = ['001','002','003']
+    print(resp)
+
+def test_str_in():
+    array = ['U_PERSONAL','G_PERSONAL']
+    str1 = 'U_S_PERSONAL'
+    if str1 in array:
+        print("true")
+    else:
+        print('false')
+
+def test_json_path():
+    resp_json = {
+    "StrategyOneResponse": {
+        "Header": {
+            "InquiryCode": "Q356548494120615936",
+            "ProcessCode": "Level1_m",
+            "OrganizationCode": "",
+            "ProcessVersion": 33,
+            "LayoutVersion": 11
+        },
+        "Body": {
+            "Application": {
+                "Variables": {
+                    "out_strategyBranch": "fffff",
+                    "out_isQuery": "N",
+                    "score_fraud": 39,
+                    "score_debit": 85,
+                    "score_credit": 52.5,
+                    "score_business": 40.6,
+                    "score_black": 100,
+                    "score": 100,
+                    "SCORE_GE_RAW": 59,
+                    "out_result": "A",
+                    "level": "高",
+                    "level_black": "高",
+                    "level_business": "中",
+                    "level_credit": "中",
+                    "level_debit": "高",
+                    "level_fraud": "中",
+                    "l_m_critical_score": 30,
+                    "m_h_critical_score": 70
+                },
+                "Categories": [
+                    {
+                        "Reason": {
+                            "Variables": {
+                                "out_decisionBranchCode": "",
+                                "out_ReasonCode": "RR205"
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+    res = jsonpath(resp_json, '$..score_aa')
+    if isinstance(res, list) and len(res) > 0:
+        print(res[0])
+    else:
+        print(None)
+
+
+def test_get_json_value():
+    json = {
+    "name": "施网明",
+    "userType": "PERSONAL",
+    "fundratio": "0.50",
+    "ralation": "借款主体",
+    "per_face_relent_indusCode1": None,
+    "com_bus_face_outwardindusCode1": "",
+    "com_bus_industrycode": "",
+    "score_black": 0,
+    "score_credit": 16,
+    "score_debit": 31,
+    "score_fraud": 30,
+    "score_business": 10,
+    "score": 56
+}
+    print(jsonpath(json, '$..per_face_relent_indusCode1'))
+
+
+def test_json_df():
+    array = [{
+        'name': '施网明',
+        'userType': 'PERSONAL',
+        'fundratio': 0.00,
+        'ralation': 'MAIN',
+        'per_face_relent_indusCode1': "N",
+        'com_bus_face_outwardindusCode1': "",
+        'com_bus_industrycode': "L",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order':None
+    },{
+        'name': '001',
+        'userType': 'PERSONAL',
+        'fundratio':0.00,
+        'ralation': 'SPOUSE',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '002',
+        'userType': 'PERSONAL',
+        'fundratio':0.65,
+        'ralation': 'PARTNER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '003',
+        'userType': 'COMPANY',
+        'fundratio':0.48,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '004',
+        'userType': 'COMPANY',
+        'fundratio':0.58,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '006',
+        'userType': 'COMPANY',
+        'fundratio':0.68,
+        'ralation': 'SHAREHOLDER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    },{
+        'name': '005',
+        'userType': 'COMPANY',
+        'fundratio':0.58,
+        'ralation': 'OTHER',
+        'per_face_relent_indusCode1': "",
+        'com_bus_face_outwardindusCode1': "p",
+        'com_bus_industrycode': "N",
+        'score_black': 0,
+        'score_credit': 16,
+        'score_debit': 31,
+        'score_fraud': 30,
+        'score_business': 10,
+        'score': 56,
+        'order': None
+    }]
+    print(type(array))
+    df = pd.DataFrame(array)
+    if df.query('ralation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
+        sort_union_person_df(df)
+    elif df.query('ralation == "MAIN" and userType == "COMPANY"').shape[0] > 0:
+        sort_union_company_df(df)
+    else:
+        pass
+    df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
+    df_compay = df.query('userType=="COMPANY" and order != 999').sort_values(by=["fundratio"],ascending=False).sort_values(by=["order"],ascending=True)[0:10]
+
+    person_index = 0
+    company_index = 0
+    variables = {}
+    phycode_array = []
+    for index, row in df_person.iterrows():
+        person_index = person_index + 1
+        variables['score_black_a'+ str(person_index)] = row['score_black']
+        variables['score_credit_a' + str(person_index)] = row['score_credit']
+        variables['score_debit_a' + str(person_index)] = row['score_debit']
+        variables['score_fraud_a' + str(person_index)] = row['score_fraud']
+        variables['score_a' + str(person_index)] = row['score']
+        create_phycode_array(
+            [row['per_face_relent_indusCode1'],row['com_bus_face_outwardindusCode1'],row['com_bus_industrycode']],phycode_array)
+
+    for index, row in df_compay.iterrows():
+        company_index = company_index + 1
+        variables['score_black_c'+str(company_index)] = row['score_black']
+        variables['score_business_c' + str(company_index)] = row['score_business']
+        variables['score_c' + str(company_index)] = row['score']
+        create_phycode_array(
+            [row['per_face_relent_indusCode1'], row['com_bus_face_outwardindusCode1'], row['com_bus_industrycode']],
+            phycode_array)
+
+
+
+    print(len(df_person))
+    print(len(df_compay))
+    print(variables)
+    print(phycode_array)
+
+def create_phycode_array(values,array):
+    for value in values:
+        if value is not None and value != '' and value not in array:
+            array.append(value)
+
+
+def sort_union_company_df(df):
+    for index, row in df.iterrows():
+        if row['ralation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 3
+        elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 1
+        else:
+            df.loc[index, 'order'] = 999
+
+
+def sort_union_person_df(df):
+    for index, row in df.iterrows():
+        if row['ralation'] == 'MAIN' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'CHILDREN' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'PARENT' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 3
+        elif row['ralation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 4
+        elif row['ralation'] == 'OTHER' and row['userType'] == 'PERSONAL':
+            df.loc[index, 'order'] = 5
+        elif row['ralation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 0
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
+            df.loc[index, 'order'] = 1
+        elif row['ralation'] == 'LEGAL' and row['userType'] == 'COMPANY':
+            df.loc[index, 'order'] = 2
+        elif row['ralation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
+            df.loc[index, 'order'] = 4
+        else:
+            df.loc[index, 'order'] = 999
+
+
+def test_read_file():
+    f = open('../resource/shake_hand_p003.txt','r', encoding='UTF-8')
+    json = f.read()
+    f.close()
+    print(json)
+
+def test_number_format():
+    fundretaio = 1.0000
+    print(float(fundretaio))
+
+def test_extract_money():
+    value = '[罚款金额:0.02]'
+    print(extract_money(value))
+
+
+def test_read_excel():
+    df = pd.read_excel('c:/users/杨也晰/desktop/t1.xlsx')
+    df_person = df.query('status == "END" and product_name == "个人一级风险报告"')
+    # for index,row in df_person.iterrows():
+    #     resp = json.loads(row['resp'])
+    #     Categories = resp['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+    #     print(resp)
+    #     print(Categories)
+    for i in range(len(df_person)):
+        if i==4:
+            s = pd.read_json(df_person.ix[i, 'resp'], typ='series')
+            res = s['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+            print("1111", type(s))
+            print("222", type(res))
+        if i==5:
+            s = pd.read_json(df_person.ix[i, 'resp'], typ='series')
+            res = s['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
+            print("1111", type(s))
+            print("222", type(res))

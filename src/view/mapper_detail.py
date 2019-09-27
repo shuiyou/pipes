@@ -4,10 +4,10 @@ import importlib
 # from app import logger
 import numpy
 
-from config import product_code_view_dict
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer, fix_cannot_to_json
+from product.p_config import product_code_view_dict
 
 logger = LoggerUtil().logger(__name__)
 
@@ -123,7 +123,7 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
     ))
 
 
-def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None):
+def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None):
     """
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
@@ -138,7 +138,8 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
             trans_result = trans.run(user_name=user_name,
                                      id_card_no=id_card_no,
                                      phone=phone,
-                                     user_type=user_type)
+                                     user_type=user_type,
+                                     base_type = base_type)
             variables.update(trans_result['variables'])
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
