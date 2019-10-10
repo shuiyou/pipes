@@ -246,7 +246,7 @@ class P003(Generate):
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
         score_to_int(strategy_resp)
-        biz_types = _get_biz_types(strategy_resp)
+        biz_types, categories = _get_biz_types(strategy_resp)
         logger.info(biz_types)
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                         resp, strategy_resp, user_name, user_type, variables)
@@ -345,7 +345,7 @@ class P003(Generate):
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
-        biz_types = _get_biz_types(resp_json)
+        biz_types, categories = _get_biz_types(resp_json)
         rules = _append_rules(biz_types)
         resp['name'] = user_name
         resp['idno'] = id_card_no
@@ -357,6 +357,7 @@ class P003(Generate):
         resp['relation'] = relation
         resp['bizType'] = biz_types
         resp['rules'] = rules
+        resp['categories'] = categories
         return resp
 
     def _get_base_type(self, fundratio, auth_status, phone, relation, user_type):

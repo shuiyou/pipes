@@ -23,7 +23,7 @@ def client():
 
 
 def test_shake_hand(client):
-    rv = client.post('/biz-types', json={"reqNo":"Q371373969674240000","productCode":"001","queryData":{"name":"曹欢欢","idno":"420901197211011187","phone":"15921664870","userType":"PERSONAL","authorStatus":"AUTHORIZED"},"versionNo":"1.0"})
+    rv = client.post('/biz-types', json={"reqNo":"Q371373969674240000","productCode":"001","queryData":{"name":"叶秋容","idno":"352228198705243025","phone":"18650135230","userType":"PERSONAL","authorStatus":"AUTHORIZED"},"versionNo":"1.0"})
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))

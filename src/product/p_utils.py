@@ -49,11 +49,12 @@ def _get_process_code(product_code):
 
 def _get_biz_types(input_json):
     res = jsonpath(input_json, '$..out_strategyBranch')
+    categories = jsonpath(input_json, '$..Categories')[0]
     if isinstance(res, list) and len(res) > 0:
         biz_types = res[0].split(',')
     else:
         biz_types = []
-    return biz_types
+    return biz_types,categories
 
 def _get_thread_id():
     return threading.currentThread().ident
