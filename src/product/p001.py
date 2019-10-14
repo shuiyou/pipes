@@ -65,7 +65,6 @@ class P001(Generate):
             self.reponse = resp
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             logger.info("5-1 response》》》》" + str(self.reponse))
-            return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -125,7 +124,6 @@ class P001(Generate):
             self.reponse = json_data
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             logger.info("5-1 response》》》》" + str(self.reponse))
-            return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
