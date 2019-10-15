@@ -17,7 +17,8 @@ class T09001(Transformer):
             'oth_loan_hit_p2p_cnt': 0,
             'oth_loan_hit_org_cnt_3m': 0,
             'oth_loan_query_mac_cnt_6m': 0,
-            'oth_loan_query_mac_cnt_3m': 0
+            'oth_loan_query_mac_cnt_3m': 0,
+            'oth_loan_query_amount':0
         }
 
     def _loan_other_df(self):
@@ -39,6 +40,7 @@ class T09001(Transformer):
             self.variables['oth_loan_hit_p2p_cnt'] = df['p_2_p_amount'][0]
             self.variables['oth_loan_query_mac_cnt_6m'] = df['query_amount_six_month'][0]
             self.variables['oth_loan_query_mac_cnt_3m'] = df['query_amount_three_month'][0]
+            self.variables['oth_loan_query_amount'] = df['query_amount'][0]
 
     def _loan_date_df(self):
         info_loan_other = """

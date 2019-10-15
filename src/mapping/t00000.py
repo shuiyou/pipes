@@ -18,7 +18,8 @@ class T00000(Transformer):
             'base_gender': 0,
             'base_age': 0,
             'base_black': 0,
-            'base_type': 'PERSON'
+            'base_type': 'PERSON',
+            'base_phone':''
         }
 
     def _base_black(self):
@@ -35,6 +36,7 @@ class T00000(Transformer):
 
     def transform(self):
         self.variables['base_idno'] = self.id_card_no
+        self.variables['base_phone'] = self.phone
         if self.base_type is not None:
             self.variables['base_type'] = self.base_type
         else:

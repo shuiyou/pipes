@@ -54,17 +54,17 @@ class P002(Generate):
             error = jsonpath(resp_json, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
-            biz_types = _get_biz_types(resp_json)
+            biz_types,categories = _get_biz_types(resp_json)
             resp = {
                 'productCode': json_data.get('productCode'),
                 'reqNo': json_data.get('reqNo'),
                 'bizType': biz_types,
-                'rules': _append_rules(biz_types)
+                'rules': _append_rules(biz_types),
+                'categories': categories
             }
             self.reponse = resp
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             logger.info("5-1 response》》》》" + str(self.reponse))
-            return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -108,7 +108,7 @@ class P002(Generate):
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
             score_to_int(strategy_resp)
-            biz_types = _get_biz_types(strategy_resp)
+            biz_types, categories = _get_biz_types(strategy_resp)
             logger.info(biz_types)
             strategy_param['bizType'] = biz_types
             # 最后返回报告详情
@@ -124,7 +124,6 @@ class P002(Generate):
             self.reponse = json_data
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
             logger.info("5-1 response》》》》" + str(self.reponse))
-            return self.reponse
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
