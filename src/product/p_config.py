@@ -3,7 +3,8 @@
 product_code_process_dict = {
     "001": "Level1_m",  # 一级个人报告
     "002": "Level1_m",  # 一级企业
-    "003": "Level1_m"   # 一级联合报告
+    "003": "Level1_m",   # 一级联合报告
+    "004": "Level1_m"   # 风险拦截
 }
 
 # 在这个dict里针对不同的产品设置他的详情字段转换

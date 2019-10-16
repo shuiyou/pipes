@@ -2,14 +2,13 @@ import json
 import traceback
 
 import requests
-from flask import request, jsonify
+from flask import request
 from jsonpath import jsonpath
 
 from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
-
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject

@@ -9,7 +9,6 @@ class Generate(object):
         self.request = {}
         self.reponse = {}
 
-
     def shake_hand(self,request=None):
         """
         第一次交互

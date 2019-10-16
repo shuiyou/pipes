@@ -8,7 +8,7 @@ class LoggerUtil:
 
     def logger(self, module_name):
         if self.__LOGGER_CONFIG is None:
-            app_env = os.getenv("ENV", 'prod').lower()  # 读取环境变量
+            app_env = os.getenv("ENV", 'dev').lower()  # 读取环境变量
             print("app_env is :" + app_env)
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 返回文件路径
             conf_file = os.path.join(root_dir, 'logger', 'logging-' + app_env + '.conf')  # 连接目录与文件名或目录
