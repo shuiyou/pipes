@@ -584,7 +584,7 @@ class T24001(Transformer):
 
     # 计算工商核查_法人非股东
     def _com_bus_leg_not_shh(self, df=None):
-        if df[0] is not None and len(df[0]) > 0:
+        if df[0] is not None and len(df[0]) > 0 and df[1] is not None and len(df[1]) > 0 :
             if df[0].fr_name.values[0] not in df[1].share_holder_name.values:
                 self.variables['com_bus_leg_not_shh'] = 1
 
