@@ -11,8 +11,8 @@ from product.p003 import P003
 logger = LoggerUtil().logger(__name__)
 
 
-# 风险拦截
-class P004(P003):
+# 移出灰名单操作
+class P005(P003):
     def __init__(self) -> None:
         super().__init__()
         self.reponse: {}
