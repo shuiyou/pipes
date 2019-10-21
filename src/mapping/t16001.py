@@ -335,6 +335,7 @@ class T16001(Transformer):
             elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('民间借贷纠纷'))].shape[0] > 0:
                 self.variables['court_pop_loan'] = 1
 
+    # 以下为灰名单相关变量
     # 法院核查_个人_失信老赖名单命中的最新时间
     # court_dishonesty_time
     # select max(execute_date) from info_court_deadbeat where court_id in(select id from info_court where
