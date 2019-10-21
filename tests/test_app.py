@@ -52,6 +52,12 @@ def test_stratey_p003(client):
     print(json.dumps(v))
 
 
+def test_shake_hand_005(client):
+    rv = client.post('/biz-types', json={"reqNo":"Q382578784613859328","productCode":"005","queryData":[{"name":"九江市昊林土石方有限公司","idno":"91360406MA38JGWHXF","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"九江安恒装饰有限公司","idno":"91360402MA38EC295K","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"吴燕","idno":"360403197510240341","phone":"17607028888","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"MAIN"},{"name":"汪杰","idno":"360403197312150935","phone":"15707921111","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"SPOUSE"}],"versionNo":"1.0"})
+    assert rv.status_code == 200
+    v = rv.get_json()
+    print(json.dumps(v))
+
 
 def test_strategy(client):
     rv = client.post('/strategy', json={"strategyParam":{"reqNo":"Q371742817959182336","stepReqNo":"S371742817988542464","productCode":"001","queryData":{"name":"郁春军","idno":"310225198203135616","phone":"13816716288","userType":"PERSONAL","authorStatus":"AUTHORIZED","baseType":"PERSONAL","bizType":["01001","02001","05001","05002","06001","07001","08001","09001","10001","11001","12001","13001","14001","16001","17001","18001","f0001","f0002","f0003"]},"versionNo":"1.0"},"strategyInputVariables":None})

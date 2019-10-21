@@ -16,7 +16,7 @@ class DefensorClient(object):
             self.app_id = headers.get("appId")
             self.grey_list_query_url = headers.get("greyListQueryUrl")
             logger.info("appId:", self.app_id)
-            logger.info("grey_list_query_url:" + self.grey_list_query_url)
+            logger.info("grey_list_query_url:", self.grey_list_query_url)
         else:
             self.app_id = None
             self.grey_list_query_url = None

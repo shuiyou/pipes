@@ -6,9 +6,13 @@ from util.defensor_client import DefensorClient
 
 
 def test_json_2_df():
-    info = '''[{"id": 1, "appId": "0000000000", "riskDetail": "\u6cd5\u9662\u5931\u4fe1\u660e\u5355", "strategyCode": "222,333,4444", "dataService": "\u5931\u4fe1\u540d\u5355", "createTime": "2019-10-16T02:50:06Z", "modifyTime": "2019-10-16T02:50:11Z"}]'''
+    info = '''[{"id": 1, "appId": "0000000000", "riskDetail": "法院失信名单", "strategyCode": "222,333,4444", "dataService": "\u5931\u4fe1\u540d\u5355", "createTime": "2019-10-16T02:50:06Z", "modifyTime": "2019-10-16T02:50:11Z"}]'''
     df = pd.read_json(info)
-    print(df)
+    print("\n")
+    print(df.query('riskDetail == "法院失信名单"').empty)
+
+    risk_detail = "法院失信名单"
+    print(not df.query('riskDetail=="' + risk_detail + '"').empty)
 
 
 def test_json_2_df1():
