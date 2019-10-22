@@ -4,14 +4,14 @@ import json
 import threading
 
 import pytest
+import requests
 from jsonpath import jsonpath
 
 from app import app
+from config import STRATEGY_URL
 from logger.logger_util import LoggerUtil
 from util import mysql_reader
 from view.mapper_detail import round_max
-import requests
-from config import STRATEGY_URL
 
 logger = LoggerUtil().logger(__name__)
 
@@ -41,20 +41,11 @@ def test_shake_hand_p003(client):
     print(json.dumps(v))
 
 
-
-
-def test_stratey_p003(client):
+def test_strategy_p003(client):
     f = open('resource/strategy_p003.txt', 'r', encoding='UTF-8')
     str = f.read()
     f.close()
     rv = client.post('/strategy', json=json.loads(str))
-    v = rv.get_json()
-    print(json.dumps(v))
-
-
-def test_shake_hand_005(client):
-    rv = client.post('/biz-types', json={"reqNo":"Q382578784613859328","productCode":"005","queryData":[{"name":"九江市昊林土石方有限公司","idno":"91360406MA38JGWHXF","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"九江安恒装饰有限公司","idno":"91360402MA38EC295K","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"吴燕","idno":"360403197510240341","phone":"17607028888","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"MAIN"},{"name":"汪杰","idno":"360403197312150935","phone":"15707921111","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"SPOUSE"}],"versionNo":"1.0"})
-    assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
 
@@ -65,6 +56,7 @@ def test_strategy(client):
     v = rv.get_json()
     print(json.dumps(v))
     # assert v.get('bizTypes')[0] == '05002'
+
 
 def test_strategy_p003(client):
     rv = client.post('/strategy', json={
@@ -77,6 +69,22 @@ def test_strategy_p003(client):
     assert rv.status_code == 200
     v = rv.get_json()
     print(json.dumps(v))
+
+
+def test_shake_hand_005(client):
+    rv = client.post('/biz-types', json={"reqNo":"Q382578784613859328","productCode":"005","queryData":[{"name":"九江市昊林土石方有限公司","idno":"91360406MA38JGWHXF","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"九江安恒装饰有限公司","idno":"91360402MA38EC295K","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"吴燕","idno":"360403197510240341","phone":"17607028888","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"MAIN"},{"name":"汪杰","idno":"360403197312150935","phone":"15707921111","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"SPOUSE"}],"versionNo":"1.0"})
+    print("rv:", rv)
+    assert rv.status_code == 200
+    v = rv.get_json()
+    print("response:", json.dumps(v))
+
+
+def test_strategy_005(client):
+    f = open("resource/strategy_p005.txt", 'r', encoding="UTF-8")
+    str_msg = f.read()
+    response = client.post("/strategy", json=json.loads(str_msg))
+    response_content = response.get_json()
+    print("response:", json.dumps(response_content))
 
 
 def test_qiye_strategy(client):

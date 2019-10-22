@@ -42,10 +42,10 @@ class T16002(Transformer):
             'court_ent_judge_max': 0,
             'court_ent_tax_arrears_max': 0,
             'court_ent_admi_violation_max': 0,
-            'court_ent_dishonesty_time': None,
-            'court_ent_high_cons_time': None,
-            'court_ent_loan_con_time': None,
-            'court_ent_pop_loan_time': None
+            'court_ent_dishonesty_time': "",
+            'court_ent_high_cons_time': "",
+            'court_ent_loan_con_time': "",
+            'court_ent_pop_loan_time': ""
         }
 
     # 行政违法记录sql
@@ -378,8 +378,10 @@ class T16002(Transformer):
 
     # df 转换为时间字符串
     def _parse_time_df(self, var_name, df=None):
-        if df is not None and not df.empty:
-            self.variables[var_name] = str(df.hit_time.iloc[0])
+        if df is not None:
+            df = df.dropna()
+            if not df.empty:
+                self.variables[var_name] = str(df.hit_time.iloc[0])
 
     def transform(self, user_name=None, id_card_no=None, phone=None):
         self._ps_court_administrative_violation(df=self._court_administrative_violation_df())

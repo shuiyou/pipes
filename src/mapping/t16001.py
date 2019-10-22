@@ -406,8 +406,10 @@ class T16001(Transformer):
         return df1 if not df1.empty else df2
 
     def _parse_time_df(self, var_name, df=None):
-        if df is not None and not df.empty:
-            self.variables[var_name] = str(df.hit_time.iloc[0])
+        if df is not None:
+            df = df.dropna()
+            if not df.empty:
+                self.variables[var_name] = str(df.hit_time.iloc[0])
 
     def transform(self):
         """
