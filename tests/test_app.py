@@ -72,7 +72,9 @@ def test_strategy_p003(client):
 
 
 def test_shake_hand_005(client):
-    rv = client.post('/biz-types', json={"reqNo":"Q382578784613859328","productCode":"005","queryData":[{"name":"九江市昊林土石方有限公司","idno":"91360406MA38JGWHXF","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"九江安恒装饰有限公司","idno":"91360402MA38EC295K","userType":"COMPANY","fundratio":0.0000,"relation":"CONTROLLER"},{"name":"吴燕","idno":"360403197510240341","phone":"17607028888","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"MAIN"},{"name":"汪杰","idno":"360403197312150935","phone":"15707921111","userType":"PERSONAL","authorStatus":"AUTHORIZED","fundratio":0.0000,"relation":"SPOUSE"}],"versionNo":"1.0"})
+    f = open("resource/shake_hand_p005.txt", 'r', encoding="UTF-8")
+    str_msg = f.read()
+    rv = client.post('/biz-types', json=json.loads(str_msg))
     print("rv:", rv)
     assert rv.status_code == 200
     v = rv.get_json()
