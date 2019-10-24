@@ -13,8 +13,13 @@ from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _append_rules, _relation_risk_subject
+from util.defensor_client import DefensorClient
 
 logger = LoggerUtil().logger(__name__)
+
+
+def step_log(step, msg):
+    logger.info("%s～～～～～～～～～～%s", step, msg)
 
 
 # 移出灰名单操作
@@ -27,12 +32,12 @@ class P005(Generate):
         try:
             resp_data = self.df_client.query_grey_list(name="小明", id_no="61242938382828347", id_type="ID_CARD_NO")
             content_data = json.dumps(resp_data)
-            logger.info("resp_data-" + content_data)
+            step_log("resp_data", content_data)
             df = pd.read_json(content_data)
             print(df)
 
             json_data = request.get_json()
-            logger.info("灰名单移除决策SharkHand-01" + str(json.dumps(json_data)))
+            step_log("灰名单移除决策SharkHand-01", json_data)
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
@@ -46,7 +51,7 @@ class P005(Generate):
                 'queryData': response_array
             }
             self.response = resp
-            logger.info("灰名单移除决策SharkHand结束-02" + str(self.response))
+            step_log("灰名单移除决策SharkHand结束-02", self.response)
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -55,7 +60,7 @@ class P005(Generate):
         # 获取请求参数
         try:
             json_data = request.get_json()
-            logger.info("灰名单移除决策strategy请求开始" + str(json.dumps(json_data)))
+            step_log("灰名单移除决策strategy请求开始", json_data)
             strategy_param = json_data.get('strategyParam')
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
@@ -71,7 +76,7 @@ class P005(Generate):
             resp_end = self._create_strategy_resp(product_code, req_no, step_req_no,
                                                   version_no, subject)
             self.response = resp_end
-            logger.info("灰名单移除决策 流程结束 pipes 回调 defensor:" + str(self.response))
+            step_log("灰名单移除决策 流程结束 pipes 回调 defensor:", self.response)
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -99,7 +104,7 @@ class P005(Generate):
         codes = data.get('bizType')
         base_type = data.get('baseType')
         relation = data.get('relation')
-        fundratio = data.get('fundratio')
+        fund_ratio = data.get('fundratio')
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone,
@@ -109,13 +114,13 @@ class P005(Generate):
         origin_input.update(variables)
         logger.info("productCode:005-_strategy_second_hand begin")
         strategy_request = _build_request(req_no, product_code, origin_input)
-        logger.info("productCode:005-_strategy_second_hand strategy_request:" + str(strategy_request))
+        logger.info("productCode:005-_strategy_second_hand strategy_request:%s", strategy_request)
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         logger.debug(strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
-        logger.info("productCode:005-_strategy_second_hand,strategy_resp:" + str(strategy_resp))
+        logger.info("productCode:005-_strategy_second_hand,strategy_resp:%s", strategy_resp)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -138,37 +143,30 @@ class P005(Generate):
         resp['queryData'] = data
 
     def _shark_hand_response(self, data, product_code, req_no):
-        """
-        和决策交互，封装response
-        :param data:
-        :param product_code:
-        :param req_no:
-        :return:
-        """
         resp = {}
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
-        fundratio = data.get('fundratio')
+        fund_ratio = data.get('fundratio')
         relation = data.get('relation')
         # 获取base_type
-        base_type = self._get_base_type(fundratio, auth_status, phone, relation, user_type)
+        base_type = self._get_base_type(fund_ratio, auth_status, phone, relation, user_type)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
         logger.info("productCode:005, 开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, variables=variables)
-        logger.info("2-1 strategy_request》》》》" + str(strategy_request))
+        step_log("2-1", strategy_request)
         # 调用决策引擎
-        logger.info("3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        step_log(3, "开始调用策略引擎")
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()
-        logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-        logger.info("4-1 resp_json》》》》" + str(resp_json))
+        step_log(4, "策略引擎调用成功")
+        step_log("4-1", resp_json)
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
@@ -179,7 +177,7 @@ class P005(Generate):
         resp['phone'] = phone
         resp['userType'] = user_type
         resp['authStatus'] = auth_status
-        resp['fundratio'] = fundratio
+        resp['fundratio'] = fund_ratio
         resp['baseType'] = base_type
         resp['relation'] = relation
         resp['bizType'] = biz_types
@@ -187,16 +185,7 @@ class P005(Generate):
         resp['categories'] = categories
         return resp
 
-    def _get_base_type(self, fundratio, auth_status, phone, relation, user_type):
-        """
-        封装base_type
-        :param fundratio:
-        :param auth_status:
-        :param phone:
-        :param relation:
-        :param user_type:
-        :return: base_type
-        """
+    def _get_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
         if relation == 'GUARANTOR':
             if user_type == 'COMPANY':
                 return 'G_COMPANY'
@@ -216,7 +205,7 @@ class P005(Generate):
                 return 'U_COMPANY'
             elif relation == 'MAIN':
                 return 'U_COMPANY'
-            elif relation == 'SHAREHOLDER' and float(fundratio) >= 0.50:
+            elif relation == 'SHAREHOLDER' and float(fund_ratio) >= 0.50:
                 return 'U_COMPANY'
             else:
                 return 'U_S_COMPANY'

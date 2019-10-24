@@ -1,5 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
+from logger.logger_util import LoggerUtil
+
+logger = LoggerUtil().logger(__name__)
+
 
 class Generate(object):
     __metaclass__ = ABCMeta
@@ -8,6 +12,7 @@ class Generate(object):
         super().__init__()
         self.request = {}
         self.response = {}
+        self.df_client = None
 
     def shake_hand(self, request=None):
         """
@@ -47,5 +52,4 @@ class Generate(object):
         :return:
         """
         pass
-
 

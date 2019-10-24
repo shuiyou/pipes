@@ -26,6 +26,7 @@ def shake_hand():
     handler.df_client = df_client
 
     resp = handler.shake_hand(json_data)
+    logger.info("shake_hand------end-------")
     return jsonify(resp)
 
 

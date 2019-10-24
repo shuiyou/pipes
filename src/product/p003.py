@@ -1,25 +1,25 @@
 import json
 import traceback
-from pydoc import describe
 
+import pandas as pd
 import requests
-from flask import request, jsonify
+from flask import request
 from jsonpath import jsonpath
 
 from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
-
 from mapping.t00000 import T00000
 from product.generate import Generate
-from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject, \
-    _get_thread_id
-from util.common_util import exception
+from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
-import pandas as pd
 
 logger = LoggerUtil().logger(__name__)
+
+
+def step_log(step, msg):
+    logger.info("%s～～～～～～～～～～%s", step, msg)
 
 
 class P003(Generate):
@@ -30,8 +30,8 @@ class P003(Generate):
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
-            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取bizTypes，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.debug("1-1 json_data》》》》"+str(json.dumps(json_data)))
+            step_log(1, "一级联合报告 defensor invoke pipes 获取bizTypes，流程开启")
+            step_log("1-1",json.dumps(json_data))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
@@ -45,8 +45,8 @@ class P003(Generate):
                 'queryData': response_array
             }
             self.response = resp
-            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("5-1 response》》》》" + str(self.response))
+            step_log(5, "流程结束 pipes 回调 defensor")
+            step_log("5-1",self.response)
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -55,8 +55,8 @@ class P003(Generate):
         # 获取请求参数
         try:
             json_data = request.get_json()
-            logger.info("1- 》》》》》》》》》》》》》》》》》》》一级联合报告 defensor invoke pipes 获取策略引擎结果，流程开启《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.debug("1-1 json_data》》》》》"+str(json.dumps(json_data)))
+            step_log(1, "一级联合报告 defensor invoke pipes 获取策略引擎结果，流程开启")
+            step_log("1-1", json.dumps(json_data))
             strategy_param = json_data.get('strategyParam')
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
@@ -71,17 +71,17 @@ class P003(Generate):
                 subject.append(resp)
                 cache_arry.append(array)
             # 封装第二次调用参数
-            logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》开始封装第二次调用策略引擎入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            step_log(5, "开始封装第二次调用策略引擎入参")
             variables = self._create_strategy_second_request(cache_arry)
             strategy_request = _build_request(req_no, product_code, variables=variables)
-            logger.info("5-1 strategy_request》》》》"+str(strategy_request))
-            logger.info("6 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》开始第二次调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+            step_log("5-1", strategy_request)
+            step_log(6, "开始第二次调用策略引擎")
             strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
             if strategy_response.status_code != 200:
                 raise Exception("strategyOne错误:" + strategy_response.text)
             strategy_resp = strategy_response.json()
-            logger.info("7- 》》》》》》》》》》》》》》》》》》》》》》》》》》》》》》第二次调用策略引擎成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("7-1 strategy_resp》》》》"+str(strategy_resp))
+            step_log(7, "第二次调用策略引擎成功")
+            step_log("7-1", strategy_resp)
             error = jsonpath(strategy_resp, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -90,12 +90,11 @@ class P003(Generate):
             resp_end = self._create_strategy_resp(product_code, req_no, step_req_no, strategy_resp, variables,
                                                   version_no, subject)
             self.response = resp_end
-            logger.info("8- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("8-1 response》》》》" + str(self.response))
+            step_log(8, "流程结束 pipes 回调 defensor")
+            step_log("8-1", self.response)
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
-
 
     def _create_strategy_resp(self, product_code, req_no, step_req_no, strategy_resp, variables, versionNo, subject):
         resp = {}
@@ -229,17 +228,17 @@ class P003(Generate):
         origin_input['out_strategyBranch'] = ','.join(codes)
         # 合并新的转换变量
         origin_input.update(variables)
-        logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        step_log(2, "开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
-        logger.info("2-1 strategy_request》》》》" + str(strategy_request))
-        logger.info("3 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        step_log("2-1", strategy_request)
+        step_log(3, "开始调用策略引擎")
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         logger.debug(strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
-        logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-        logger.info("4-1 strategy_resp》》》》》"+str(strategy_resp))
+        step_log(4, "策略引擎调用成功")
+        step_log("4-1", strategy_resp)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -322,24 +321,24 @@ class P003(Generate):
         phone = data.get('phone')
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
-        fundratio = data.get('fundratio')
+        fund_ratio = data.get('fundratio')
         relation = data.get('relation')
         # 获取base_type
-        base_type = self._get_base_type(fundratio, auth_status, phone, relation, user_type)
+        base_type = self._get_base_type(fund_ratio, auth_status, phone, relation, user_type)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
-        logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        step_log(2, "开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, variables=variables)
-        logger.info("2-1 strategy_request》》》》"+str(strategy_request))
+        step_log("2-1", strategy_request)
         # 调用决策引擎
-        logger.info("3- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始调用策略引擎《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
+        step_log(3, "开始调用策略引擎")
         response = requests.post(STRATEGY_URL, json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()
-        logger.info("4- 》》》》》》》》》》》》》》》》》》》》》》》》》》》策略引擎调用成功《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-        logger.info("4-1 resp_json》》》》"+str(resp_json))
+        step_log("4", "策略引擎调用成功")
+        step_log("4-1", resp_json)
         error = jsonpath(resp_json, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
@@ -350,7 +349,7 @@ class P003(Generate):
         resp['phone'] = phone
         resp['userType'] = user_type
         resp['authStatus'] = auth_status
-        resp['fundratio'] = fundratio
+        resp['fundratio'] = fund_ratio
         resp['baseType'] = base_type
         resp['relation'] = relation
         resp['bizType'] = biz_types
@@ -358,10 +357,10 @@ class P003(Generate):
         resp['categories'] = categories
         return resp
 
-    def _get_base_type(self, fundratio, auth_status, phone, relation, user_type):
+    def _get_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
         """
         封装base_type
-        :param fundratio:
+        :param fund_ratio:
         :param auth_status:
         :param phone:
         :param relation:
@@ -387,7 +386,7 @@ class P003(Generate):
                 return 'U_COMPANY'
             elif relation == 'MAIN':
                 return 'U_COMPANY'
-            elif relation == 'SHAREHOLDER' and float(fundratio) >= 0.50:
+            elif relation == 'SHAREHOLDER' and float(fund_ratio) >= 0.50:
                 return 'U_COMPANY'
             else:
                 return 'U_S_COMPANY'
