@@ -21,7 +21,7 @@ logger = LoggerUtil().logger(__name__)
 class P005(Generate):
     def __init__(self) -> None:
         super().__init__()
-        self.reponse: {}
+        self.response: {}
 
     def shake_hand_process(self):
         try:
@@ -45,8 +45,8 @@ class P005(Generate):
                 'reqNo': req_no,
                 'queryData': response_array
             }
-            self.reponse = resp
-            logger.info("灰名单移除决策SharkHand结束-02" + str(self.reponse))
+            self.response = resp
+            logger.info("灰名单移除决策SharkHand结束-02" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -70,8 +70,8 @@ class P005(Generate):
             # 封装最终返回json
             resp_end = self._create_strategy_resp(product_code, req_no, step_req_no,
                                                   version_no, subject)
-            self.reponse = resp_end
-            logger.info("灰名单移除决策 流程结束 pipes 回调 defensor:" + str(self.reponse))
+            self.response = resp_end
+            logger.info("灰名单移除决策 流程结束 pipes 回调 defensor:" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))

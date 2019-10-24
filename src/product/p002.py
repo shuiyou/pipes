@@ -18,13 +18,10 @@ from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 logger = LoggerUtil().logger(__name__)
 
 
-
-
-
 class P002(Generate):
 
-    def __init__(self)->None:
-        self.reponse:{}
+    def __init__(self) -> None:
+        self.response: {}
 
     def shake_hand_process(self):
         try:
@@ -33,12 +30,12 @@ class P002(Generate):
             logger.debug("1-1 json_data》》》》" + str(json.dumps(json_data)))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
-            query_data = json_data.get('queryData')
+            query_data = json_data.get('queryData')[0]
             user_name = query_data.get('name')
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
             user_type = query_data.get('userType')
-            variables = T00000().run(user_name, id_card_no, phone, user_type,'COMPANY')['variables']
+            variables = T00000().run(user_name, id_card_no, phone, user_type, 'COMPANY')['variables']
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
             logger.info("2- 》》》》》》》》》》》》》》》》》》》》》》》》》》开始策略引擎封装入参《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《《")
@@ -54,21 +51,29 @@ class P002(Generate):
             error = jsonpath(resp_json, '$..Error')
             if error:
                 raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
-            biz_types,categories = _get_biz_types(resp_json)
-            resp = {
-                'productCode': json_data.get('productCode'),
-                'reqNo': json_data.get('reqNo'),
+            biz_types, categories = _get_biz_types(resp_json)
+
+            query_data = {
+                'name': user_name,
+                'idno': id_card_no,
+                'phone': phone,
+                'userType': user_type,
                 'bizType': biz_types,
                 'rules': _append_rules(biz_types),
                 'categories': categories
             }
-            self.reponse = resp
+
+            resp = {
+                'productCode': json_data.get('productCode'),
+                'reqNo': json_data.get('reqNo'),
+                'queryData': query_data
+            }
+            self.response = resp
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("5-1 response》》》》" + str(self.reponse))
+            logger.info("5-1 response》》》》" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
-
 
     def strategy_process(self):
         try:
@@ -81,12 +86,12 @@ class P002(Generate):
                 origin_input = {}
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
-            query_data = strategy_param.get('queryData')
+            query_data = strategy_param.get('queryData')[0]
             user_name = query_data.get('name')
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
             user_type = query_data.get('userType')
-            codes = strategy_param.get('bizType')
+            codes = query_data.get('bizType')
             biz_types = codes.copy()
             biz_types.append('00000')
             variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
@@ -121,9 +126,9 @@ class P002(Generate):
             json_data['strategyResult'] = strategy_resp
             json_data['strategyInputVariables'] = variables
             json_data['rules'] = _append_rules(biz_types)
-            self.reponse = json_data
+            self.response = json_data
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("5-1 response》》》》" + str(self.reponse))
+            logger.info("5-1 response》》》》" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))

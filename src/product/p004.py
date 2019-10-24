@@ -15,7 +15,7 @@ logger = LoggerUtil().logger(__name__)
 class P004(P003):
     def __init__(self) -> None:
         super().__init__()
-        self.reponse: {}
+        self.response: {}
 
     def shake_hand_process(self):
         try:
@@ -40,8 +40,8 @@ class P004(P003):
                 'reqNo': req_no,
                 'queryData': response_array
             }
-            self.reponse = resp
-            logger.info("response data" + str(self.reponse))
+            self.response = resp
+            logger.info("response data" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))

@@ -25,7 +25,7 @@ logger = LoggerUtil().logger(__name__)
 class P003(Generate):
 
     def __init__(self) -> None:
-        self.reponse: {}
+        self.response: {}
 
     def shake_hand_process(self):
         try:
@@ -44,9 +44,9 @@ class P003(Generate):
                 'reqNo': req_no,
                 'queryData': response_array
             }
-            self.reponse = resp
+            self.response = resp
             logger.info("5- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("5-1 response》》》》"+ str(self.reponse))
+            logger.info("5-1 response》》》》" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -61,7 +61,7 @@ class P003(Generate):
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
             step_req_no = strategy_param.get('stepReqNo')
-            versionNo = strategy_param.get('versionNo')
+            version_no = strategy_param.get('versionNo')
             query_data_array = strategy_param.get('queryData')
             subject = []
             cache_arry = []
@@ -88,10 +88,10 @@ class P003(Generate):
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(product_code, req_no, step_req_no, strategy_resp, variables,
-                                                  versionNo, subject)
-            self.reponse = resp_end
+                                                  version_no, subject)
+            self.response = resp_end
             logger.info("8- 》》》》》》》》》》》》》》》》》》》》》》》》》流程结束 pipes 回调 defensor 《《《《《《《《《《《《《《《《《《《《《《《《《《《")
-            logger.info("8-1 response》》》》" + str(self.reponse))
+            logger.info("8-1 response》》》》" + str(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
