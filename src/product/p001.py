@@ -122,7 +122,8 @@ class P001(Generate):
             score_to_int(strategy_resp)
             biz_types, categories = _get_biz_types(strategy_resp)
             logger.info(biz_types)
-            strategy_param['bizType'] = biz_types
+            for subjectNode in strategy_param["queryData"]:
+                subjectNode['bizType'] = biz_types
             # 最后返回报告详情
             if STRATEGE_DONE in biz_types:
                 detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
