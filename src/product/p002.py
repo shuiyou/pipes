@@ -70,7 +70,7 @@ class P002(Generate):
             resp = {
                 'productCode': json_data.get('productCode'),
                 'reqNo': json_data.get('reqNo'),
-                'queryData': query_data
+                'queryData': [query_data]
             }
             self.response = resp
             step_log(5, "流程结束 pipes 回调 defensor")
