@@ -123,17 +123,23 @@ class P003(Generate):
         else:
             raise ServerException(code=500, description=str('没有借款主体'))
 
-        # 删除重复的数据
-        df.drop_duplicates(subset=["name", "idno"], inplace=True)
         # 取前10行数据
         df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],
                                                                                   ascending=False).sort_values(
-            by=["order"], ascending=True)[0:10]
+            by=["order"], ascending=True)
         df_company = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],
                                                                                  ascending=False).sort_values(
-            by=["order"], ascending=True)[0:10]
+            by=["order"], ascending=True)
+
+        # 删除重复的数据
+        df_person.drop_duplicates(subset=["name", "idno"], inplace=True)
+        df_company.drop_duplicates(subset=["name", "idno"], inplace=True)
+
+        logger.info("-------df_person\n%s", df_person)
+        logger.info("-------df_company\n%s", df_company)
+
         # 拼接入参variables
-        variables = self._strategy_second_request_variables(df_company, df_person)
+        variables = self._strategy_second_request_variables(df_company[0: 10], df_person[0: 10])
         return variables
 
     def _strategy_second_request_variables(self, df_compay, df_person):

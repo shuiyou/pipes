@@ -12,8 +12,8 @@
                 "fundratio": 0.0,
                 "baseType": "G_S_PERSONAL",
                 "relation": "GUARANTOR",
-                "id":4,
-                "parentId":0,
+                "id": 5,
+                "parentId": 0,
                 "bizType": [
                     "16001",
                     "23001",
@@ -49,8 +49,25 @@
                 "fundratio": 0.6,
                 "baseType": "U_COMPANY",
                 "relation": "SHAREHOLDER",
-                "id":3,
-                "parentId":0,
+                "id": 4,
+                "parentId": 1,
+                "bizType": [
+                    "16002",
+                    "24001"
+                ],
+                "rules": [
+
+                ]
+            },
+            {
+                "name": "上海怡顺建设发展有限公司",
+                "idno": "91310115798977004Q",
+                "userType": "COMPANY",
+                "fundratio": 0.6,
+                "baseType": "U_COMPANY",
+                "relation": "SHAREHOLDER",
+                "id": 3,
+                "parentId": 0,
                 "bizType": [
                     "16002",
                     "24001"
@@ -67,8 +84,8 @@
                 "fundratio": 0.0,
                 "baseType": "U_S_PERSONAL",
                 "relation": "MAIN",
-                "id":2,
-                "parentId":0,
+                "id": 2,
+                "parentId": 0,
                 "bizType": [
                     "16001",
                     "23001"
@@ -85,8 +102,8 @@
                 "fundratio": 0.0,
                 "baseType": "U_S_PERSONAL",
                 "relation": "SPOUSE",
-                "id":1,
-                "parentId":0,
+                "id": 1,
+                "parentId": 0,
                 "bizType": [
                     "16001",
                     "23001"

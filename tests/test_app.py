@@ -70,6 +70,11 @@ def test_strategy_p003(client):
     strategy_request(client, "003")
 
 
+# 一级联合决策
+def test_strategy_p003_1(client):
+    strategy_request(client, "003_1")
+
+
 # 灰名单移除握手
 def test_shake_hand_005(client):
     shake_hand_request(client, "005")
