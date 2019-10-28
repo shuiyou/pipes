@@ -3,15 +3,8 @@ import pandas as pd
 
 def test_df_distinct():
     print("test_df_distinct begin.")
-    df = pd.DataFrame({"A": [1, 2, 2, 3], "B": [11, 22, 221, 33]})
-    print(df)
-    df["order"] = 0
-
-    for index, row in df.iterrows():
-        if row["A"] == 1:
-            row["order"] = 1
-        else:
-            row["order"] = 100
+    df = pd.DataFrame({"A": [1, 1, 2, 3], "B": [1, 1, 221, 33], "C":["A", "B", "C", "D"]})
+    df.drop_duplicates(subset=["A", "B"], inplace=True)
 
     print(df)
 
@@ -24,6 +17,4 @@ def test_df_distinct1():
     for index, row in df.iterrows():
         if index == 0:
             df.loc[index, "order"] = 100
-
-
     print(df)

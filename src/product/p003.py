@@ -64,15 +64,15 @@ class P003(Generate):
             version_no = strategy_param.get('versionNo')
             query_data_array = strategy_param.get('queryData')
             subject = []
-            cache_arry = []
+            cache_array = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
                 array, resp = self._strategy_second_hand(data, product_code, req_no)
                 subject.append(resp)
-                cache_arry.append(array)
+                cache_array.append(array)
             # 封装第二次调用参数
             step_log(5, "开始封装第二次调用策略引擎入参")
-            variables = self._create_strategy_second_request(cache_arry)
+            variables = self._create_strategy_second_request(cache_array)
             strategy_request = _build_request(req_no, product_code, variables=variables)
             step_log("5-1", strategy_request)
             step_log(6, "开始第二次调用策略引擎")
@@ -107,13 +107,13 @@ class P003(Generate):
         resp['subject'] = subject
         return resp
 
-    def _create_strategy_second_request(self, cache_arry):
+    def _create_strategy_second_request(self, cache_array):
         """
         挑选最多10个个人主体和10个企业主体封装入参
-        :param cache_arry:
+        :param cache_array:
         :return:
         """
-        df = pd.DataFrame(cache_arry)
+        df = pd.DataFrame(cache_array)
         if df.query('relation == "MAIN" and userType == "PERSONAL"').shape[0] > 0:
             # 借款主体为个人-联合报告-排序
             self._sort_union_person_df(df)
@@ -122,15 +122,18 @@ class P003(Generate):
             self._sort_union_company_df(df)
         else:
             raise ServerException(code=500, description=str('没有借款主体'))
+
+        # 删除重复的数据
+        df.drop_duplicates(subset=["name", "idno"], inplace=True)
         # 取前10行数据
         df_person = df.query('userType=="PERSONAL"').sort_values(by=["fundratio"],
                                                                                   ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
-        df_compay = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],
+        df_company = df.query('userType=="COMPANY"').sort_values(by=["fundratio"],
                                                                                  ascending=False).sort_values(
             by=["order"], ascending=True)[0:10]
         # 拼接入参variables
-        variables = self._strategy_second_request_variables(df_compay, df_person)
+        variables = self._strategy_second_request_variables(df_company, df_person)
         return variables
 
     def _strategy_second_request_variables(self, df_compay, df_person):
@@ -167,6 +170,7 @@ class P003(Generate):
 
     def _sort_union_company_df(self, df):
         for index, row in df.iterrows():
+            child_node = row["parentId"] > 0
             if row['relation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
             elif row['relation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
@@ -178,14 +182,15 @@ class P003(Generate):
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 4
             elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 0
+                df.loc[index, 'order'] = 1 if child_node else 0
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
-                df.loc[index, 'order'] = 1
+                df.loc[index, 'order'] = 3 if child_node else 2
             else:
                 df.loc[index, 'order'] = 999
 
     def _sort_union_person_df(self, df):
         for index, row in df.iterrows():
+            child_node = row["parentId"] > 0
             if row['relation'] == 'MAIN' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
             elif row['relation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
@@ -197,13 +202,13 @@ class P003(Generate):
             elif row['relation'] == 'PARTNER' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 4
             elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 0
+                df.loc[index, 'order'] = 1 if child_node else 0
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
-                df.loc[index, 'order'] = 1
+                df.loc[index, 'order'] = 3 if child_node else 2
             elif row['relation'] == 'LEGAL' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 2
+                df.loc[index, 'order'] = 5 if child_node else 4
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
-                df.loc[index, 'order'] = 3
+                df.loc[index, 'order'] = 7 if child_node else 6
             else:
                 df.loc[index, 'order'] = 999
 
@@ -247,11 +252,12 @@ class P003(Generate):
         logger.info(biz_types)
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                         resp, strategy_resp, user_name, user_type, variables)
-        self._get_strategy_second_array(array, fundratio, relation, strategy_resp, user_name, user_type, variables)
+        self._get_strategy_second_array(array, data, fundratio, relation, strategy_resp, user_name, user_type, variables)
         return array, resp
 
-    def _get_strategy_second_array(self, array, fundratio, relation, strategy_resp, user_name, user_type, variables):
+    def _get_strategy_second_array(self, array, data, fundratio, relation, strategy_resp, user_name, user_type, variables):
         array['name'] = user_name
+        array['idno'] = data.get('idno')
         array['userType'] = user_type
         if fundratio is not None and fundratio != '':
             array['fundratio'] = float(fundratio)
@@ -268,6 +274,8 @@ class P003(Generate):
         array['score_fraud'] = self._get_json_path_value(strategy_resp, '$..score_fraud')
         array['score_business'] = self._get_json_path_value(strategy_resp, '$..score_business')
         array['score'] = self._get_json_path_value(strategy_resp, '$..score')
+        array["id"] = data.get("id")
+        array["parentId"] = data.get("parentId")
 
     def _get_json_path_value(self, strategy_resp, path):
         res = jsonpath(strategy_resp, path)
