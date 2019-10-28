@@ -323,6 +323,8 @@ class P003(Generate):
         auth_status = data.get('authorStatus')
         fund_ratio = data.get('fundratio')
         relation = data.get('relation')
+        self_id = data.get('id')
+        parent_id = data.get("parentId")
         # 获取base_type
         base_type = self._get_base_type(fund_ratio, auth_status, phone, relation, user_type)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
@@ -355,6 +357,9 @@ class P003(Generate):
         resp['bizType'] = biz_types
         resp['rules'] = rules
         resp['categories'] = categories
+        resp['id'] = self_id
+        resp['parentId'] = parent_id
+
         return resp
 
     def _get_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
