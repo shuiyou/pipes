@@ -25,6 +25,7 @@ def step_log(step, msg):
 class P003(Generate):
 
     def __init__(self) -> None:
+        super().__init__()
         self.response: {}
 
     def shake_hand_process(self):
@@ -96,12 +97,12 @@ class P003(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def _create_strategy_resp(self, product_code, req_no, step_req_no, strategy_resp, variables, versionNo, subject):
+    def _create_strategy_resp(self, product_code, req_no, step_req_no, strategy_resp, variables, version_no, subject):
         resp = {}
         resp['reqNo'] = req_no
         resp['product_code'] = product_code
         resp['stepReqNo'] = step_req_no
-        resp['versionNo'] = versionNo
+        resp['versionNo'] = version_no
         resp['strategyInputVariables'] = variables
         resp['strategyResult'] = strategy_resp
         resp['subject'] = subject

@@ -24,6 +24,7 @@ def step_log(step, msg):
 class P001(Generate):
 
     def __init__(self) -> None:
+        super().__init__()
         self.response: {}
 
     def shake_hand_process(self):
