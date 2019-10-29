@@ -178,26 +178,39 @@ class P003(Generate):
     def _sort_union_company_df(self, df):
         for index, row in df.iterrows():
             child_node = row["parentId"] > 0
-            if row['relation'] == 'CONTROLLER' and row['userType'] == 'PERSONAL':
-                df.loc[index, 'order'] = 0
-            elif row['relation'] == 'CONTROLLER_SPOUSE' and row['userType'] == 'PERSONAL':
-                df.loc[index, 'order'] = 1
-            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] >= 0.50:
-                df.loc[index, 'order'] = 2
-            elif row['relation'] == 'LEGAL' and row['userType'] == 'PERSONAL':
-                df.loc[index, 'order'] = 3
-            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'PERSONAL' and row['fundratio'] < 0.50:
-                df.loc[index, 'order'] = 4
-            elif row['relation'] == 'CONTROLLER' and row['userType'] == 'COMPANY':
-                df.loc[index, 'order'] = 1 if child_node else 0
-            elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] >= 0.50:
-                df.loc[index, 'order'] = 3 if child_node else 2
-            else:
-                df.loc[index, 'order'] = 999
+            order_val = 999
+            # 主体为个人
+            if row['userType'] == 'PERSONAL':
+                if row['relation'] == 'CONTROLLER':
+                    order_val = 0
+                elif row['relation'] == 'CONTROLLER_SPOUSE':
+                    order_val = 1
+                elif row['relation'] == 'SHAREHOLDER' and row['fundratio'] >= 0.50:
+                    order_val = 2
+                elif row['relation'] == 'LEGAL' and row['userType'] == 'PERSONAL':
+                    order_val = 3
+                elif row['relation'] == 'SHAREHOLDER' and row['fundratio'] < 0.50:
+                    order_val = 4
+            # 主体为企业
+            elif row['userType'] == 'COMPANY':
+                if row['relation'] == 'MAIN':
+                    order_val = 0
+                elif row['relation'] == 'SHAREHOLDER' and row['fundratio'] >= 0.50 and not child_node:
+                    order_val = 1
+                elif row['relation'] == 'CONTROLLER':
+                    order_val = 3 if child_node else 2
+                elif row['relation'] == 'SHAREHOLDER' and row['fundratio'] >= 0.50 and child_node:
+                    order_val = 4
+                elif row['relation'] == 'LEGAL':
+                    order_val = 6 if child_node else 5
+                elif row['relation'] == 'SHAREHOLDER' and row['fundratio'] < 0.50:
+                    order_val = 8 if child_node else 7
+            df.loc[index, 'order'] = order_val
 
     def _sort_union_person_df(self, df):
         for index, row in df.iterrows():
             child_node = row["parentId"] > 0
+            df.loc[index, 'order'] = 999
             if row['relation'] == 'MAIN' and row['userType'] == 'PERSONAL':
                 df.loc[index, 'order'] = 0
             elif row['relation'] == 'SPOUSE' and row['userType'] == 'PERSONAL':
@@ -216,8 +229,6 @@ class P003(Generate):
                 df.loc[index, 'order'] = 5 if child_node else 4
             elif row['relation'] == 'SHAREHOLDER' and row['userType'] == 'COMPANY' and row['fundratio'] < 0.50:
                 df.loc[index, 'order'] = 7 if child_node else 6
-            else:
-                df.loc[index, 'order'] = 999
 
     def _strategy_second_hand(self, data, product_code, req_no):
         resp = {}
