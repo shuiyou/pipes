@@ -30,11 +30,11 @@ class P005(Generate):
 
     def shake_hand_process(self):
         try:
-            resp_data = self.df_client.query_grey_list(name="小明", id_no="61242938382828347", id_type="ID_CARD_NO")
-            content_data = json.dumps(resp_data)
-            step_log("resp_data", content_data)
-            df = pd.read_json(content_data)
-            print(df)
+            # resp_data = self.df_client.query_grey_list(name="小明", id_no="61242938382828347", id_type="ID_CARD_NO")
+            # content_data = json.dumps(resp_data)
+            # step_log("resp_data", content_data)
+            # df = pd.read_json(content_data)
+            # print(df)
 
             json_data = request.get_json()
             step_log("灰名单移除决策SharkHand-01", json_data)
