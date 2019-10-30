@@ -34,3 +34,15 @@ def test_defensor_client():
     df_client = DefensorClient(None)
     resp = df_client.query_grey_list(None, None, None)
     print("resp:", resp)
+
+
+def test_defensor_client_01():
+    full_url = "http://192.168.1.36:3000/gateway/defensor/api/open/grey-list/hit"
+    param = {
+        "appId": "0000000000",
+        "name": "黎小波",
+        "idType": "ID_CARD_NO",
+        "idno": "61242938382828347"
+    }
+    resp = requests.post(full_url, data=param)
+    print("resp:", resp.content)
