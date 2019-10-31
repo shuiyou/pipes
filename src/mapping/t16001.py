@@ -410,6 +410,9 @@ class T16001(Transformer):
             df = df.dropna()
             if not df.empty:
                 self.variables[var_name] = str(df.hit_time.iloc[0])
+                return
+        # TODO
+        self.variables[var_name] = "20191031 10:06:00"
 
     def transform(self):
         """

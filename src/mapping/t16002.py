@@ -382,6 +382,9 @@ class T16002(Transformer):
             df = df.dropna()
             if not df.empty:
                 self.variables[var_name] = str(df.hit_time.iloc[0])
+                return
+        # TODO
+        self.variables[var_name] = "20191031 10:06:00"
 
     def transform(self, user_name=None, id_card_no=None, phone=None):
         self._ps_court_administrative_violation(df=self._court_administrative_violation_df())
