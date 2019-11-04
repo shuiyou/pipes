@@ -140,6 +140,8 @@ class P003(Generate):
         logger.info("-------df_company\n%s", df_company)
 
         # 拼接入参variables
+        logger.info("----拼接入参variables---df_person\n%s", df_person[0: 10])
+        logger.info("----拼接入参variables---df_company\n%s", df_company[0: 10])
         variables = self._strategy_second_request_variables(df_company[0: 10], df_person[0: 10])
         return variables
 
