@@ -1,7 +1,5 @@
-import json
 import traceback
 
-import pandas as pd
 import requests
 from flask import request
 from jsonpath import jsonpath
@@ -13,7 +11,6 @@ from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _append_rules, _relation_risk_subject
-from util.defensor_client import DefensorClient
 
 logger = LoggerUtil().logger(__name__)
 
@@ -30,12 +27,6 @@ class P005(Generate):
 
     def shake_hand_process(self):
         try:
-            # resp_data = self.df_client.query_grey_list(name="小明", id_no="61242938382828347", id_type="ID_CARD_NO")
-            # content_data = json.dumps(resp_data)
-            # step_log("resp_data", content_data)
-            # df = pd.read_json(content_data)
-            # print(df)
-
             json_data = request.get_json()
             step_log("灰名单移除决策SharkHand-01", json_data)
             req_no = json_data.get('reqNo')
