@@ -85,7 +85,7 @@ class T24001(Transformer):
             else:
                 self.variables['com_bus_status'] = 1
 
-    # 计算工商核查_营业期限自
+     # 计算工商核查_营业期限自
     def _com_bus_openfrom(self, df=None):
         if df is not None and len(df) > 0:
             df1 = df.dropna(subset=['open_from'], how='any')
