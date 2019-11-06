@@ -85,15 +85,21 @@ class T24001(Transformer):
             else:
                 self.variables['com_bus_status'] = 1
 
-    # 计算工商核查_营业期限自
+        # 计算工商核查_营业期限自
+
     def _com_bus_openfrom(self, df=None):
         if df is not None and len(df) > 0:
-            self.variables['com_bus_openfrom'] = str(df['open_from'].values[0])[0:10]
+            df1 = df.dropna(subset=['open_from'], how='any')
+            if df1 is not None and len(df1) > 0:
+                self.variables['com_bus_openfrom'] = str(df['open_from'].values[0])[0:10]
 
-    # 计算工商核查_营业期限至
+        # 计算工商核查_营业期限至
+
     def _com_bus_endtime(self, df=None):
         if df is not None and len(df) > 0:
-            self.variables['com_bus_endtime'] = str(df['open_to'].values[0])[0:10]
+            df1 = df.dropna(subset=['open_to'], how='any')
+            if df1 is not None and len(df1) > 0:
+                self.variables['com_bus_endtime'] = str(df['open_to'].values[0])[0:10]
 
     # 计算工商核查_注册资本（万元）
     def _com_bus_registered_capital(self, df=None):
