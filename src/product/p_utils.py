@@ -2,7 +2,6 @@ import threading
 
 import numpy
 
-
 from jsonpath import jsonpath
 
 from product.p_config import product_code_process_dict
@@ -37,6 +36,7 @@ def _build_request(req_no, product_code, variables=None):
     }
     return strategy_request
 
+
 def _get_process_code(product_code):
     """
     根据产品编码得到对应的process code： 决策引擎的流程编码
@@ -47,13 +47,16 @@ def _get_process_code(product_code):
         return product_code_process_dict.get(product_code)
     raise Exception("产品编码：{} 不能找到对应的决策流程".format(product_code))
 
+
 def _get_biz_types(input_json):
     res = jsonpath(input_json, '$..out_strategyBranch')
+    categories = jsonpath(input_json, '$..Categories')[0]
     if isinstance(res, list) and len(res) > 0:
         biz_types = res[0].split(',')
     else:
         biz_types = []
-    return biz_types
+    return biz_types, categories
+
 
 def _get_thread_id():
     return threading.currentThread().ident
@@ -86,6 +89,7 @@ def _append_rules(biz_types):
             result.append(r)
     return result
 
+
 def score_to_int(strategy_resp):
     resp_variables = jsonpath(strategy_resp, '$..Application.Variables')
     if resp_variables is not None:
@@ -93,6 +97,7 @@ def score_to_int(strategy_resp):
         for key, value in variables_.items():
             if key.startswith('score'):
                 variables_[key] = int(round(value))
+
 
 def _relation_risk_subject(strategy_resp, out_decision_code):
     branch_code = jsonpath(strategy_resp, '$.StrategyOneResponse.Body.Application.Categories..Variables')

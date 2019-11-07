@@ -1,16 +1,20 @@
 from abc import ABCMeta, abstractmethod
 
+from logger.logger_util import LoggerUtil
+
+logger = LoggerUtil().logger(__name__)
+
 
 class Generate(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self)->None:
+    def __init__(self) -> None:
         super().__init__()
         self.request = {}
-        self.reponse = {}
+        self.response = {}
+        self.df_client = None
 
-
-    def shake_hand(self,request=None):
+    def shake_hand(self, request=None):
         """
         第一次交互
         :param request:
@@ -18,9 +22,9 @@ class Generate(object):
         """
         self.input(request)
         self.shake_hand_process()
-        return self.reponse
+        return self.response
 
-    def call_strategy(self,request=None):
+    def call_strategy(self, request=None):
         """
         第二次交互
         :param request:
@@ -28,7 +32,7 @@ class Generate(object):
         """
         self.input(request)
         self.strategy_process()
-        return self.reponse
+        return self.response
 
     def input(self, request):
         self.request = request
@@ -48,6 +52,4 @@ class Generate(object):
         :return:
         """
         pass
-
-
 
