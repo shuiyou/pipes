@@ -6,7 +6,7 @@ from werkzeug.exceptions import HTTPException
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
-
+from util.defensor_client import DefensorClient
 
 logger = LoggerUtil().logger(__name__)
 
@@ -22,7 +22,11 @@ def shake_hand():
     json_data = request.get_json()
     product_code = json_data.get('productCode')
     handler = _get_product_handler(product_code)
+    df_client = DefensorClient(request.headers)
+    handler.df_client = df_client
+
     resp = handler.shake_hand(json_data)
+    logger.info("shake_hand------end-------")
     return jsonify(resp)
 
 
@@ -32,6 +36,9 @@ def strategy():
     strategy_param = json_data.get('strategyParam')
     product_code = strategy_param.get('productCode')
     handler = _get_product_handler(product_code)
+    df_client = DefensorClient(request.headers)
+    handler.df_client = df_client
+
     resp = handler.call_strategy(json_data)
     return jsonify(resp)
 

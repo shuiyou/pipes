@@ -122,6 +122,7 @@ class Transformer(object):
         self.base_type = None
         self.variables = {}
         self.out_decision_code = {}
+        self.df_client = None
 
     def run(self, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None) -> dict:
         self.input(id_card_no, phone, user_name, user_type,base_type)
