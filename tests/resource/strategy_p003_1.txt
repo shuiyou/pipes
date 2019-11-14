@@ -1,0 +1,118 @@
+{
+    "strategyParam": {
+        "reqNo": "Q367375243825807360",
+        "stepReqNo": "S367375243825807361",
+        "productCode": "003",
+        "queryData": [
+            {
+                "name": "马慧丽",
+                "idno": "310222197408170040",
+                "phone": "13916010806",
+                "userType": "PERSONAL",
+                "fundratio": 0.0,
+                "baseType": "G_S_PERSONAL",
+                "relation": "GUARANTOR",
+                "id": 5,
+                "parentId": 0,
+                "bizType": [
+                    "16001",
+                    "23001",
+                    "f0001",
+                    "f0002",
+                    "f0003"
+                ],
+                "rules": [
+                    {
+                        "code": "f0003",
+                        "data": [
+                            {
+                                "relatedType": "SHAREHOLDER",
+                                "rule": {
+                                    "entStatus": "OPENING",
+                                    "ratioOfInvestments": "0.2"
+                                }
+                            },
+                            {
+                                "relatedType": "LEGAL",
+                                "rule": {
+                                    "entStatus": "OPENING"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "上海怡顺建设发展有限公司",
+                "idno": "91310115798977004Q",
+                "userType": "COMPANY",
+                "fundratio": 0.6,
+                "baseType": "U_COMPANY",
+                "relation": "SHAREHOLDER",
+                "id": 4,
+                "parentId": 1,
+                "bizType": [
+                    "16002",
+                    "24001"
+                ],
+                "rules": [
+
+                ]
+            },
+            {
+                "name": "上海怡顺建设发展有限公司",
+                "idno": "91310115798977004Q",
+                "userType": "COMPANY",
+                "fundratio": 0.6,
+                "baseType": "U_COMPANY",
+                "relation": "SHAREHOLDER",
+                "id": 3,
+                "parentId": 0,
+                "bizType": [
+                    "16002",
+                    "24001"
+                ],
+                "rules": [
+
+                ]
+            },
+            {
+                "name": "施网明",
+                "idno": "310108196610024859",
+                "phone": "13301778997",
+                "userType": "PERSONAL",
+                "fundratio": 0.0,
+                "baseType": "U_S_PERSONAL",
+                "relation": "MAIN",
+                "id": 2,
+                "parentId": 0,
+                "bizType": [
+                    "16001",
+                    "23001"
+                ],
+                "rules": [
+
+                ]
+            },
+            {
+                "name": "王平平",
+                "idno": "362422198701220023",
+                "phone": "13970668820",
+                "userType": "PERSONAL",
+                "fundratio": 0.0,
+                "baseType": "U_S_PERSONAL",
+                "relation": "SPOUSE",
+                "id": 1,
+                "parentId": 0,
+                "bizType": [
+                    "16001",
+                    "23001"
+                ],
+                "rules": [
+
+                ]
+            }
+        ],
+        "versionNo": "1.0"
+    }
+}
