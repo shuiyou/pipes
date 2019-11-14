@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 Flask==1.0.3
-gunicorn
+gunicorn==19.7.1
 numpy==1.16.3
 pandas==0.24.2
 setuptools==33.1.1
