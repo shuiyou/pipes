@@ -412,7 +412,7 @@ class T16001(Transformer):
                 self.variables[var_name] = str(df.hit_time.iloc[0])
                 return
         # TODO
-        self.variables[var_name] = "2017-01-01 14:59:00"
+        # self.variables[var_name] = "2017-01-01 14:59:00"
 
     def transform(self):
         """
