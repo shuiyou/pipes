@@ -56,6 +56,7 @@ class T00001(Transformer):
 
         data_items = self.df_client.query_grey_list(self.user_name, self.id_card_no, id_type)
         if (data_items is None) or (len(data_items) <= 0):
+            logger.warn("_grey_register_df data_items is None or empty.")
             return None
 
         info = json.dumps(data_items)
@@ -73,5 +74,7 @@ class T00001(Transformer):
                 self.variables[self.variables_mapping.get(risk_detail)] = 0
 
     def transform(self):
+        logger.info("T00001 transform begin.....")
         df = self._grey_register_df()
         self._parse_to_strategy_variables(df)
+        logger.info("T00001 transform end, variables %s", self.variables)

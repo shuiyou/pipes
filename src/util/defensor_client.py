@@ -36,6 +36,7 @@ class DefensorClient(object):
         if hit is not None:
             param[hit] = hit
 
+        logger.info("query_grey_list param:%s", param)
         resp = requests.post(self.grey_list_query_url, data=param)
         logger.info("query_grey_list resp:%s", resp.content.decode())
         if resp.status_code != 200:
