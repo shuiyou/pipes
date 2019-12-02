@@ -25,7 +25,7 @@ class T00000(Transformer):
     def _base_black(self):
         sql = """
         SELECT count(1) as "base_black" FROM info_black_list
-            WHERE valid > 1 AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s;
+            WHERE valid > 0 AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s;
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
