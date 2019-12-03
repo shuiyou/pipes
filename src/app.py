@@ -92,8 +92,11 @@ def _init_eureka_client():
 
 
 if __name__ == '__main__':
+    logger.info("init eureka client...")
+    _init_eureka_client()
+    logger.info("eureka client started.")
+
     logger.info('starting pipes...')
     app.run(host='0.0.0.0')
     logger.info('pipes started.')
-    logger.info("init eureka client...")
-    _init_eureka_client()
+
