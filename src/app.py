@@ -1,8 +1,10 @@
 import importlib
 
 from flask import Flask, request, jsonify
+from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
+from config import EUREKA_SERVER
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
@@ -82,7 +84,15 @@ def flask_global_exception_handler(e):
     return ServerException()
 
 
+def _init_eureka_client():
+    eureka_client.init(eureka_server=EUREKA_SERVER,
+                       app_name="PIPES",
+                       instance_port=8010)
+
+
 if __name__ == '__main__':
+    logger.info("init eureka client...")
+    _init_eureka_client()
     logger.info('starting pipes...')
     app.run(host='0.0.0.0')
     logger.info('pipes started.')
