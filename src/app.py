@@ -14,6 +14,13 @@ logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
 
+logger.info("init eureka client...")
+logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
+eureka_client.init(eureka_server=EUREKA_SERVER,
+                       app_name="PIPES",
+                       instance_port=8010)
+logger.info("eureka client started.")
+
 
 @app.route("/biz-types", methods=['POST'])
 def shake_hand():
@@ -84,18 +91,7 @@ def flask_global_exception_handler(e):
     return ServerException()
 
 
-def _init_eureka_client():
-    logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
-    eureka_client.init(eureka_server=EUREKA_SERVER,
-                       app_name="PIPES",
-                       instance_port=8010)
-
-
 if __name__ == '__main__':
-    logger.info("init eureka client...")
-    _init_eureka_client()
-    logger.info("eureka client started.")
-
     logger.info('starting pipes...')
     app.run(host='0.0.0.0')
     logger.info('pipes started.')
