@@ -88,12 +88,12 @@ def _init_eureka_client():
     logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
     eureka_client.init(eureka_server=EUREKA_SERVER,
                        app_name="PIPES",
-                       instance_port=5000)
+                       instance_port=8010)
 
 
 if __name__ == '__main__':
-    logger.info("init eureka client...")
-    _init_eureka_client()
     logger.info('starting pipes...')
     app.run(host='0.0.0.0')
     logger.info('pipes started.')
+    logger.info("init eureka client...")
+    _init_eureka_client()
