@@ -50,8 +50,8 @@ class DefensorClient(object):
             raise ServerException(description="查询灰名单状态码不正确", response=error_info, code="500")
         return response_json.get("data")
 
-    def invoke_api(self, param):
-        res = eureka_client.walk_nodes("DEFENSOR", "/api/open/grey-list/hit", walker=self.do_invoke_api)
-
-    def do_invoke_api(self, url, param):
-        pass
+    def invoke_api(self, api, param):
+        logger.info("invoke api begin, param:%s", param)
+        res = eureka_client.do_service("DEFENSOR", api, data=param)
+        logger.info("invoke_api resp:%s", res)
+        return res
