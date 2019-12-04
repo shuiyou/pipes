@@ -6,6 +6,7 @@
 from abc import ABCMeta
 
 import requests
+from py_eureka_client import eureka_client
 
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
@@ -48,3 +49,9 @@ class DefensorClient(object):
             error_info = "查询灰名单出错，resCode:" + resCode + "message:" + response_json.get("message")
             raise ServerException(description="查询灰名单状态码不正确", response=error_info, code="500")
         return response_json.get("data")
+
+    def invoke_api(self, param):
+        res = eureka_client.walk_nodes("DEFENSOR", "/api/open/grey-list/hit", walker=self.do_invoke_api)
+
+    def do_invoke_api(self, url, param):
+        pass
