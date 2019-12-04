@@ -17,8 +17,8 @@ app = Flask(__name__)
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 eureka_client.init(eureka_server=EUREKA_SERVER,
-                       app_name="PIPES",
-                       instance_port=8010)
+                   app_name="PIPES",
+                   instance_port=8010)
 logger.info("eureka client started.")
 
 
@@ -100,4 +100,3 @@ if __name__ == '__main__':
     logger.info('starting pipes...')
     app.run(host='0.0.0.0')
     logger.info('pipes started.')
-
