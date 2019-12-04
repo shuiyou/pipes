@@ -12,5 +12,5 @@ def test_eureka_01():
                        app_name="PIPES",
                        instance_port=8010)
 
-    res = eureka_client.do_service("DEFENSOR", "/api/open/grey-list/hit")
+    res = eureka_client.do_service("DEFENSOR", "/api/open/grey-list/hit?appId=99999&name=111&idno=11111&idType=ID_CARD_NO")
     print("result of other service" + res)
