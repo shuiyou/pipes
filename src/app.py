@@ -72,6 +72,11 @@ def health_check():
     return 'pipes is running'
 
 
+@app.route("/info", methods=['GET'])
+def info():
+    return 'pipes is running'
+
+
 @app.errorhandler(Exception)
 def flask_global_exception_handler(e):
     # 判断异常是不是APIException
