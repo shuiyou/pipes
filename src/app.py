@@ -1,8 +1,10 @@
 import importlib
 
 from flask import Flask, request, jsonify
+from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
+from config import EUREKA_SERVER
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
@@ -11,6 +13,13 @@ from util.defensor_client import DefensorClient
 logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
+
+logger.info("init eureka client...")
+logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
+eureka_client.init(eureka_server=EUREKA_SERVER,
+                   app_name="PIPES",
+                   instance_port=8010)
+logger.info("eureka client started.")
 
 
 @app.route("/biz-types", methods=['POST'])
@@ -60,6 +69,11 @@ def health_check():
     检查当前应用的健康情况
     :return:
     """
+    return 'pipes is running'
+
+
+@app.route("/info", methods=['GET'])
+def info():
     return 'pipes is running'
 
 

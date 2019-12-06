@@ -1,6 +1,7 @@
 import json
 
 import requests
+from py_eureka_client import eureka_client
 
 from util.defensor_client import DefensorClient
 
@@ -46,3 +47,15 @@ def test_defensor_client_01():
     }
     resp = requests.post(full_url, data=param)
     print("resp:", resp.content)
+
+
+def test_defensor_client_02():
+    eureka_client.init(eureka_server="http://192.168.1.27:8030/eureka/",
+                       app_name="PIPES",
+                       instance_port=8010)
+    print("eureka_client init finished.")
+
+    df_client = DefensorClient(None)
+    df_client.app_id = "0000000000"
+    data = df_client.query_grey_list("小明", "61242938382828347", "ID_CARD_NO")
+    print("data:", data)

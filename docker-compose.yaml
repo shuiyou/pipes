@@ -11,6 +11,7 @@ services:
       - DB_HOST=192.168.1.9
       - DB_PORT=3360
       - DB_NAME=gears_test
+      - EUREKA_SERVER=http://192.168.1.27:8031/eureka/
   loadbalancer:
     image: 'dockercloud/haproxy:latest'
     links:
