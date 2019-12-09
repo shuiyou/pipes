@@ -129,7 +129,7 @@
         "id": 7979,
         "idno": "913101105964975982",
         "name": "上海众餐饮有限公司",
-        "parentId": 7975,
+        "parentId": 0,
         "relation": "SHARE_HOLDER",
         "rules": [],
         "userType": "COMPANY"
