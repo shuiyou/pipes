@@ -1,0 +1,143 @@
+{
+  "strategyParam": {
+    "productCode": "003",
+    "queryData": [
+      {
+        "baseType": "U_COMPANY",
+        "bizType": [
+          "00001",
+          "16002",
+          "24001",
+          "f0004",
+          "f0005"
+        ],
+        "fundratio": 0.55,
+        "id": 7975,
+        "idno": "913101105964975982",
+        "name": "上海鑫思众餐饮有限公司",
+        "parentId": 0,
+        "relation": "CONTROLLER",
+        "rules": [],
+        "userType": "COMPANY"
+      },
+      {
+        "baseType": "U_PERSONAL",
+        "bizType": [
+          "00001",
+          "01001",
+          "02001",
+          "05001",
+          "05002",
+          "06001",
+          "07001",
+          "09001",
+          "10001",
+          "11001",
+          "12001",
+          "13001",
+          "14001",
+          "16001",
+          "17001",
+          "18001"
+        ],
+        "fundratio": 0.0,
+        "id": 7976,
+        "idno": "350802198801123047",
+        "name": "陈晶珍",
+        "parentId": 0,
+        "phone": "15860756651",
+        "relation": "MAIN",
+        "rules": [],
+        "userType": "PERSONAL"
+      },
+      {
+        "baseType": "U_PERSONAL",
+        "bizType": [
+          "00001",
+          "01001",
+          "02001",
+          "05001",
+          "05002",
+          "06001",
+          "07001",
+          "09001",
+          "10001",
+          "11001",
+          "12001",
+          "13001",
+          "14001",
+          "16001",
+          "17001",
+          "18001"
+        ],
+        "fundratio": 0.0,
+        "id": 7977,
+        "idno": "350628198510040025",
+        "name": "蔡玉清",
+        "parentId": 0,
+        "phone": "18516315591",
+        "relation": "SPOUSE",
+        "rules": [],
+        "userType": "PERSONAL"
+      },
+      {
+        "baseType": "U_COMPANY",
+        "bizType": [
+          "00001",
+          "16002",
+          "24001",
+          "f0004",
+          "f0005"
+        ],
+        "fundratio": 0.2,
+        "id": 7978,
+        "idno": "91310101MA1FP1RK70",
+        "name": "上海简艾酒店管理有限公司",
+        "parentId": 7977,
+        "relation": "CONTROLLER",
+        "rules": [],
+        "userType": "COMPANY"
+      },
+      {
+        "baseType": "U_COMPANY",
+        "bizType": [
+          "00001",
+          "16002",
+          "24001",
+          "f0004",
+          "f0005"
+        ],
+        "fundratio": 0.55,
+        "id": 7979,
+        "idno": "913101105964975982",
+        "name": "上海鑫思众餐饮有限公司",
+        "parentId": 7977,
+        "relation": "CONTROLLER",
+        "rules": [],
+        "userType": "COMPANY"
+      },
+     {
+        "baseType": "U_COMPANY",
+        "bizType": [
+          "00001",
+          "16002",
+          "24001",
+          "f0004",
+          "f0005"
+        ],
+        "fundratio": 0.55,
+        "id": 7979,
+        "idno": "913101105964975982",
+        "name": "上海众餐饮有限公司",
+        "parentId": 0,
+        "relation": "SHARE_HOLDER",
+        "rules": [],
+        "userType": "COMPANY"
+      }
+    ],
+    "reqNo": "Q400288857624576000",
+    "stepReqNo": "S400288857674907648",
+    "versionNo": "1.0"
+  },
+  "strategyResult": null
+}
