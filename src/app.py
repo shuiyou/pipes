@@ -5,6 +5,7 @@ from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
 from config import EUREKA_SERVER
+from config_controller import base_type_api
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
@@ -13,6 +14,8 @@ from util.defensor_client import DefensorClient
 logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
+app.register_blueprint(base_type_api)
+
 
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
