@@ -11,7 +11,7 @@ def base_type_query_data():
     f = open("../resource/base_type_test_01.json")
     str_json = f.read()
     json_obj = json.loads(str_json)
-    query_data = jsonpath(json_obj, "$.strategyParam.queryData")[0]
+    query_data = jsonpath(json_obj, "$.queryData")[0]
     yield query_data
 
 

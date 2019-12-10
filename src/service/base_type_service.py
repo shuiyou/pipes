@@ -33,7 +33,16 @@ class BaseTypeService(object):
     def parse_base_type(self, subject):
         parents = []
         self.fetch_parents(subject, parents)
-        return BaseTypeService.base_type_mapping(subject, parents)
+        base_type = BaseTypeService.base_type_mapping(subject, parents)
+        if base_type is not None:
+            return base_type
+
+        phone = subject.get('phone')
+        user_type = subject.get('userType')
+        auth_status = subject.get('authorStatus')
+        fund_ratio = subject.get('fundratio')
+        relation = subject.get('relation')
+        return BaseTypeService.__get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type)
 
     def fetch_parents(self, subject, parents):
         parent_id = subject["parentId"]
@@ -70,6 +79,12 @@ class BaseTypeService(object):
     def base_type_mapping(subject, parents):
         s_type = subject["userType"]
         s_relation = subject["relation"]
+        if s_type == "PERSONAL":
+            if "authorStatus" not in subject:
+                return None
+            elif subject["authorStatus"] != "AUTHORIZED":
+                return None
+
         for type_to_relations in BaseTypeService.BASE_TYPE_MAPPING:
             if len(type_to_relations) != len(parents) + 2:
                 continue
@@ -94,3 +109,29 @@ class BaseTypeService(object):
             if all_match:
                 return type_to_relations[0]["baseType"]
         return None
+
+    @staticmethod
+    def __get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type):
+        if relation == 'GUARANTOR':
+            if user_type == 'COMPANY':
+                return 'G_COMPANY'
+            elif auth_status == 'AUTHORIZED':
+                return 'G_PERSONAL'
+            else:
+                return 'G_S_PERSONAL'
+        if user_type == 'PERSONAL':
+            if auth_status == 'AUTHORIZED' and phone is not None and phone != '':
+                return 'U_PERSONAL'
+            else:
+                return 'U_S_PERSONAL'
+        if user_type == 'COMPANY':
+            if relation == 'CONTROLLER':
+                return 'U_COMPANY'
+            elif relation == 'LEGAL':
+                return 'U_COMPANY'
+            elif relation == 'MAIN':
+                return 'U_COMPANY'
+            elif relation == 'SHAREHOLDER' and float(fund_ratio) >= 0.50:
+                return 'U_COMPANY'
+            else:
+                return 'U_S_COMPANY'
