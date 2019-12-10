@@ -13,6 +13,7 @@ from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject
+from service.base_type_service import BaseTypeService
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 
 logger = LoggerUtil().logger(__name__)
@@ -36,10 +37,12 @@ class P003(Generate):
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
+            base_type_service = BaseTypeService(query_data_array)
+
             response_array = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
-                response_array.append(self._shack_hander_response(data, product_code, req_no))
+                response_array.append(self._shake_hand_response(base_type_service, data, product_code, req_no))
             resp = {
                 'productCode': product_code,
                 'reqNo': req_no,
@@ -335,7 +338,7 @@ class P003(Generate):
         resp['rules'] = _append_rules(biz_types)
         resp['queryData'] = data
 
-    def _shack_hander_response(self, data, product_code, req_no):
+    def _shake_hand_response(self, base_type_service, data, product_code, req_no):
         """
         和决策交互，封装response
         :param data:
@@ -354,7 +357,7 @@ class P003(Generate):
         self_id = data.get('id')
         parent_id = data.get("parentId")
         # 获取base_type
-        base_type = self._get_base_type(fund_ratio, auth_status, phone, relation, user_type)
+        base_type = base_type_service.parse_base_type(data)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
@@ -389,37 +392,3 @@ class P003(Generate):
         resp['parentId'] = parent_id
 
         return resp
-
-    def _get_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
-        """
-        封装base_type
-        :param fund_ratio:
-        :param auth_status:
-        :param phone:
-        :param relation:
-        :param user_type:
-        :return: base_type
-        """
-        if relation == 'GUARANTOR':
-            if user_type == 'COMPANY':
-                return 'G_COMPANY'
-            elif auth_status == 'AUTHORIZED':
-                return 'G_PERSONAL'
-            else:
-                return 'G_S_PERSONAL'
-        if user_type == 'PERSONAL':
-            if auth_status == 'AUTHORIZED' and phone is not None and phone != '':
-                return 'U_PERSONAL'
-            else:
-                return 'U_S_PERSONAL'
-        if user_type == 'COMPANY':
-            if relation == 'CONTROLLER':
-                return 'U_COMPANY'
-            elif relation == 'LEGAL':
-                return 'U_COMPANY'
-            elif relation == 'MAIN':
-                return 'U_COMPANY'
-            elif relation == 'SHAREHOLDER' and float(fund_ratio) >= 0.50:
-                return 'U_COMPANY'
-            else:
-                return 'U_S_COMPANY'
