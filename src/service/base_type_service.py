@@ -45,7 +45,7 @@ class BaseTypeService(object):
         return BaseTypeService.__get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type)
 
     def fetch_parents(self, subject, parents):
-        parent_id = subject["parentId"]
+        parent_id = subject.get("parentId")
         if parent_id is None or parent_id == 0:
             return
 
