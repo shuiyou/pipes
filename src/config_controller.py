@@ -8,6 +8,7 @@ import json
 
 from flask import Blueprint
 
+from resources.resource_util import get_config_content
 from service.base_type_service import BaseTypeService
 
 base_type_api = Blueprint('account_api', __name__)
@@ -17,3 +18,9 @@ base_type_api = Blueprint('account_api', __name__)
 def base_type_mapping_info():
     base_type_service = BaseTypeService(None)
     return json.dumps(base_type_service.BASE_TYPE_MAPPING)
+
+
+@base_type_api.route("/base-type-mapping", methods=['GET'])
+def base_type_mapping_origin_data():
+    mapping_data = get_config_content("base_type_mapping.json")
+    return mapping_data

@@ -7,7 +7,7 @@
 import json
 import threading
 
-from resources.resource_util import read_content
+from resources.resource_util import get_config_content
 
 BASE_TYPE_MAPPING_INIT_LOCK = threading.Lock()
 
@@ -24,7 +24,7 @@ class BaseTypeService(object):
         try:
             BASE_TYPE_MAPPING_INIT_LOCK.acquire()
             if BaseTypeService.BASE_TYPE_MAPPING is None:
-                mapping_data = read_content("base_type_mapping.json")
+                mapping_data = get_config_content("base_type_mapping.json")
                 mapping_dicts = json.loads(mapping_data)
                 BaseTypeService.BASE_TYPE_MAPPING = BaseTypeService.arrow_dict_to_array(mapping_dicts)
         finally:
