@@ -46,3 +46,8 @@ class T00000(Transformer):
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+
+        if self.origin_data:
+            apply_amount = self.origin_data.get("applyAmo")
+            if apply_amount:
+                self.variables["applyAmo"] = apply_amount

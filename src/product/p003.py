@@ -252,7 +252,7 @@ class P003(Generate):
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone,
-                                                              user_type, base_type, self.df_client)
+                                                              user_type, base_type, self.df_client, data)
         origin_input['out_strategyBranch'] = ','.join(codes)
         # 合并新的转换变量
         origin_input.update(variables)
@@ -353,6 +353,7 @@ class P003(Generate):
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
         fund_ratio = data.get('fundratio')
+        apply_amount = data.get("applyAmo")
         relation = data.get('relation')
         self_id = data.get('id')
         parent_id = data.get("parentId")
@@ -383,6 +384,7 @@ class P003(Generate):
         resp['userType'] = user_type
         resp['authStatus'] = auth_status
         resp['fundratio'] = fund_ratio
+        resp["applyAmo"] = apply_amount
         resp['baseType'] = base_type
         resp['relation'] = relation
         resp['bizType'] = biz_types
