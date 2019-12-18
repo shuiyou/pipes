@@ -19,7 +19,7 @@ class T00000(Transformer):
             'base_age': 0,
             'base_black': 0,
             'base_type': 'PERSON',
-            'base_phone':''
+            'base_phone': ''
         }
 
     def _base_black(self):
@@ -50,4 +50,4 @@ class T00000(Transformer):
         if self.origin_data:
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
-                self.variables["applyAmo"] = apply_amount
+                self.variables["base_apply_amo"] = apply_amount
