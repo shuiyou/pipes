@@ -45,7 +45,7 @@ class DefensorClient(object):
 
         response_json = json.loads(resp)
         resCode = response_json.get("resCode")
-        if resCode != 0:
+        if resCode != "0":
             error_info = "查询灰名单出错，resCode:" + resCode + "message:" + response_json.get("message")
             raise ServerException(description="查询灰名单状态码不正确", response=error_info, code="500")
         return response_json.get("data")
