@@ -7,6 +7,7 @@ import pytest
 
 from app import app
 from logger.logger_util import LoggerUtil
+from file_utils.files import resource_content
 
 logger = LoggerUtil().logger(__name__)
 
@@ -15,13 +16,6 @@ logger = LoggerUtil().logger(__name__)
 def client():
     client = app.test_client()
     yield client
-
-
-def resource_content(file_name):
-    f = open('resource/' + file_name, 'r', encoding='UTF-8')
-    str_content = f.read()
-    f.close()
-    return str_content
 
 
 def shake_hand_request(client, product_code):
@@ -73,6 +67,16 @@ def test_strategy_p003(client):
 # 一级联合决策
 def test_strategy_p003_1(client):
     strategy_request(client, "003_1")
+
+
+# 风险拦截握手
+def test_shake_hand_p004(client):
+    shake_hand_request(client, "004")
+
+
+# 风险拦截决策
+def test_strategy_p004(client):
+    strategy_request(client, "004")
 
 
 # 灰名单移除握手

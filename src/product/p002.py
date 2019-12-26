@@ -100,7 +100,7 @@ class P002(Generate):
             biz_types = codes.copy()
             biz_types.append('00000')
             variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
-                                                                  'COMPANY')
+                                                                  'COMPANY', self.df_client)
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)

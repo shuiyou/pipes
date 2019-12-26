@@ -384,7 +384,7 @@ class T16002(Transformer):
                 self.variables[var_name] = str(df.hit_time.iloc[0])
                 return
         # TODO
-        self.variables[var_name] = "2019-10-31 10:06:00"
+        # self.variables[var_name] = "2017-01-01 14:59:00"
 
     def transform(self, user_name=None, id_card_no=None, phone=None):
         self._ps_court_administrative_violation(df=self._court_administrative_violation_df())

@@ -17,10 +17,10 @@ def test_json_2_df():
 
 def test_json_2_df1():
     df_client = DefensorClient(None)
-    df_client.app_id = "0000000000"
-    df_client.grey_list_query_url = "http://localhost:9781/api/open/grey-list/hit"
+    df_client.app_id = "9999999999"
+    df_client.grey_list_query_url = "http://192.168.1.15:100/gateway/defensor/api/open/grey-list/hit"
 
-    data = df_client.query_grey_list("小明", "61242938382828347", "ID_CARD_NO")
+    data = df_client.query_grey_list("孙洋洋", "340321198704272796", "ID_CARD_NO")
     info = json.dumps(data)
     df = pd.read_json(info)
     print(df)
