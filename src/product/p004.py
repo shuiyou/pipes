@@ -53,4 +53,10 @@ class P004(P003):
         if base_type is not None:
             return base_type
         else:
-            "OTHER"
+            user_type = subject.get('userType')
+            if user_type == "PERSONAL":
+                return "U_PER_OTHER"
+            elif user_type == "COMPANY":
+                return "U_COM_OTHER"
+            else:
+                return "U_IGNORE_TYPE_OTHER"
