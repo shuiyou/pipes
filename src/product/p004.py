@@ -47,3 +47,10 @@ class P004(P003):
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
+
+    def calc_base_type(self, base_type_service, subject):
+        base_type = base_type_service.find_base_type(subject)
+        if base_type is not None:
+            return base_type
+        else:
+            "OTHER"
