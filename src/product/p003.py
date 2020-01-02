@@ -358,7 +358,7 @@ class P003(Generate):
         self_id = data.get('id')
         parent_id = data.get("parentId")
         # 获取base_type
-        base_type = base_type_service.parse_base_type(data)
+        base_type = self.calc_base_type(base_type_service, data)
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
@@ -394,3 +394,9 @@ class P003(Generate):
         resp['parentId'] = parent_id
 
         return resp
+
+    def calc_base_type(self, base_type_service, subject):
+        return base_type_service.parse_base_type(subject)
+
+
+
