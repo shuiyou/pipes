@@ -30,10 +30,13 @@ class BaseTypeService(object):
         finally:
             BASE_TYPE_MAPPING_INIT_LOCK.release()
 
-    def parse_base_type(self, subject):
+    def find_base_type(self, subject):
         parents = []
         self.fetch_parents(subject, parents)
-        base_type = BaseTypeService.base_type_mapping(subject, parents)
+        return BaseTypeService.base_type_mapping(subject, parents)
+
+    def parse_base_type(self, subject):
+        base_type = self.find_base_type(subject)
         if base_type is not None:
             return base_type
 
@@ -92,7 +95,7 @@ class BaseTypeService(object):
                 continue
 
             if "ratioMin" in type_to_relations[1] and "ratioMax" in type_to_relations[1] and "fundratio" in subject:
-                fund_ratio = subject["fundratio"]
+                fund_ratio = float(subject["fundratio"])
                 ratioMin = float(type_to_relations[1]["ratioMin"])
                 ratioMax = float(type_to_relations[1]["ratioMax"])
                 if not (ratioMin <= fund_ratio < ratioMax):
