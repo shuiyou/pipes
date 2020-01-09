@@ -328,7 +328,7 @@ class P003(Generate):
         data['bizType'] = biz_types
         data['strategyInputVariables'] = variables
         # 最后返回报告详情
-        if STRATEGE_DONE in biz_types and base_type in ['U_PERSONAL', 'G_PERSONAL']:
+        if STRATEGE_DONE in biz_types and user_type == "PERSONAL":
             detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
                                                  base_type)
             resp['reportDetail'] = [detail]
