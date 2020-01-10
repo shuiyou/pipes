@@ -2,6 +2,7 @@ import os
 
 DEBUG = True
 
+version_info = "v1.0"
 app_env = os.getenv("ENV", 'dev').lower()
 
 # 配置使用的决策引擎
