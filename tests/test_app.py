@@ -1,21 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
-import time
 
-import pytest
-
-from app import app
-from logger.logger_util import LoggerUtil
 from file_utils.files import resource_content
 
+from logger.logger_util import LoggerUtil
+
 logger = LoggerUtil().logger(__name__)
-
-
-@pytest.fixture
-def client():
-    client = app.test_client()
-    yield client
 
 
 def shake_hand_request(client, product_code):

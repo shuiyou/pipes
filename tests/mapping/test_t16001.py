@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 
+from mapping.t06001 import T06001
 from mapping.t16001 import T16001
 
 
@@ -227,3 +228,9 @@ def test_court_loan():
     assert ps.variables['court_fin_loan_con'] == 1
     assert ps.variables['court_loan_con'] == 1
     assert ps.variables['court_pop_loan'] == 1
+
+
+def test_score():
+    ps = T06001()
+    ps.run(user_name='马慧丽', id_card_no='310222197408170040', phone='13277154945')
+    print(ps.variables['ps_score'])
