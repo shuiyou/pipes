@@ -42,6 +42,7 @@ class P002(Generate):
             user_type = query_data.get('userType')
             variables = T00000().run(user_name, id_card_no, phone, user_type, 'COMPANY')['variables']
             # 决策要求一直要加上00000，用户基础信息。
+            variables["product_code"] = "002"
             variables['out_strategyBranch'] = '00000'
             step_log(2, "开始策略引擎封装入参")
             strategy_request = _build_request(req_no, product_code, variables=variables)
@@ -99,7 +100,7 @@ class P002(Generate):
             codes = query_data.get('bizType')
             biz_types = codes.copy()
             biz_types.append('00000')
-            variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone, user_type,
+            variables, out_decision_code = translate_for_strategy("002", biz_types, user_name, id_card_no, phone, user_type,
                                                                   'COMPANY', self.df_client)
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
