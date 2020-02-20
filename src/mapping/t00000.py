@@ -19,7 +19,8 @@ class T00000(Transformer):
             'base_age': 0,
             'base_black': 0,
             'base_type': 'PERSON',
-            'base_phone': ''
+            'base_phone': '',
+            "product_code": ''
         }
 
     def _base_black(self):
@@ -35,6 +36,8 @@ class T00000(Transformer):
                 self.variables['base_black'] = 1
 
     def transform(self):
+        if hasattr(self, "product_code"):
+            self.variables["product_code"] = self.product_code
         self.variables['base_idno'] = self.id_card_no
         self.variables['base_phone'] = self.phone
         if self.base_type is not None:

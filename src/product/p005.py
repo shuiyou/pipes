@@ -98,7 +98,7 @@ class P005(Generate):
         fund_ratio = data.get('fundratio')
         biz_types = codes.copy()
         biz_types.append('00000')
-        variables, out_decision_code = translate_for_strategy(biz_types, user_name, id_card_no, phone,
+        variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, self.df_client)
         origin_input['out_strategyBranch'] = ','.join(codes)
         # 合并新的转换变量
@@ -147,6 +147,7 @@ class P005(Generate):
         variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
+        variables["product_code"] = product_code
         logger.info("productCode:005, 开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, variables=variables)
         step_log("2-1", strategy_request)

@@ -10,5 +10,5 @@ def test_type():
 
 def test_transform():
     codes = ['14001']
-    res = translate_for_strategy(codes, user_name='张虎', id_card_no='430122197512087812')
+    res = translate_for_strategy("", codes, user_name='张虎', id_card_no='430122197512087812')
     print(res)

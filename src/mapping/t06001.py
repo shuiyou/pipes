@@ -19,13 +19,14 @@ class T06001(Transformer):
             'ps_econ_crim': 0,
             'ps_amend_staff': 0,
             'ps_illeg_crim': 0,
-            'ps_illegal_record_time': 0
+            'ps_illegal_record_time': 0,
+            'ps_score': -1
         }
 
     @staticmethod
     def _crime_type_df(user_name, id_card_no):
         info_criminal_case = """
-            SELECT crime_type, case_period FROM info_criminal_case 
+            SELECT crime_type, case_period, score FROM info_criminal_case 
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
             AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s
             ORDER BY id  DESC LIMIT 1;
@@ -38,6 +39,7 @@ class T06001(Transformer):
     def _ps_crime_type(self, df=None):
         if df is not None and 'crime_type' in df.columns and len(df) == 1:
             value = df['crime_type'][0]
+            score = df["score"][0]
             if value is not None:
                 crime_type = [x.strip() for x in value.split(',')] if ',' in value else value
                 if 'AT_LARGE' in crime_type:
@@ -71,6 +73,8 @@ class T06001(Transformer):
                             self.variables['ps_illegal_record_time'] = 3
                         else:
                             self.variables['ps_illegal_record_time'] = 4
+            if score is not None:
+                self.variables['ps_score'] = score
 
     def transform(self):
         """
