@@ -80,6 +80,14 @@ def test_strategy_005(client):
     strategy_request(client, "005")
 
 
+# 贷后报告握手
+def test_shake_hand_06001(client):
+    shake_hand_request(client, "06001")
+
+
+# 贷后报告决策调用
+def test_strategy_06001(client):
+    strategy_request(client, "06001")
 
 
 
