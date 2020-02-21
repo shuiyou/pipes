@@ -6,7 +6,9 @@ product_code_process_dict = {
     "003": "Level1_m",   # 一级联合报告
     "004": "Level1_m",   # 风险拦截
     "005": "Grey_list",   # 灰名单移出
-    "06001": "post_loan"  # 贷后报告
+    # "06001": "post_loan"  # 贷后报告
+    # TODO 暂时使用Level1_m stub测试
+    "06001": "Level1_m"
 }
 
 # 在这个dict里针对不同的产品设置他的详情字段转换

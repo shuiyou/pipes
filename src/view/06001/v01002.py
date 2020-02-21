@@ -7,12 +7,12 @@
 from mapping.tranformer import Transformer
 
 
-class V17001(Transformer):
+class V01002(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'view_variable_test': 0,
+            'view_variable_test2': 0,
         }
 
     def transform(self):
-        self.variables["view_variable_test"] = 1
+        self.variables["view_variable_test2"] = 1

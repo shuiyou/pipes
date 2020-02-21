@@ -42,8 +42,8 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
                                      user_type=user_type,
                                      base_type=base_type,
                                      origin_data=origin_data)
-            variables.update(trans_result['variables'])
-            out_decision_code.update(trans_result['out_decision_code'])
+            variables.update(product_trans_result['variables'])
+            out_decision_code.update(product_trans_result['out_decision_code'])
 
     except Exception as err:
         logger.error(c + ">>> translate error: " + str(err))
@@ -53,7 +53,7 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
     return variables, out_decision_code
 
 
-def get_transformer(code, product_code="") -> Transformer:
+def get_transformer(code, product_code=None) -> Transformer:
     """
     根据code构建对应的转换对象
     :param product_code:
@@ -61,7 +61,11 @@ def get_transformer(code, product_code="") -> Transformer:
     :return:
     """
     try:
-        model = importlib.import_module("mapping." + product_code + ".t" + str(code))
+        model = None
+        if product_code:
+            model = importlib.import_module("mapping." + product_code + ".t" + str(code))
+        else:
+            model = importlib.import_module("mapping.t" + str(code))
         api_class = getattr(model, "T" + str(code))
         api_instance = api_class()
         return api_instance

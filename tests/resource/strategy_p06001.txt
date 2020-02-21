@@ -2,7 +2,7 @@
     "strategyParam":{
         "reqNo":"Q388676688483090432",
         "stepReqNo":"S388676688512450560",
-        "productCode":"003",
+        "productCode":"06001",
         "queryData":[
             {
                 "id":3081,

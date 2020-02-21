@@ -15,17 +15,13 @@ from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
-from mapping.t00000 import T00000
+from product.common.hand_shake_service import HandShakeService
 from product.generate import Generate
 from product.p_utils import _build_request, _get_biz_types, _append_rules, score_to_int, _relation_risk_subject
 from service.base_type_service import BaseTypeService
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 
 logger = LoggerUtil().logger(__name__)
-
-
-def step_log(step, msg):
-    logger.info("%s～～～～～～～～～～%s", step, msg)
 
 
 # 贷后处理
@@ -37,25 +33,26 @@ class P06001(Generate):
     def shake_hand_process(self):
         try:
             json_data = request.get_json()
-            step_log(1, "贷后报告决策握手处理开发...")
-            step_log("1-1", json.dumps(json_data))
+            logger.info("1. 贷后报告决策握手处理开始，入参为：%s", json.dumps(json_data))
             req_no = json_data.get('reqNo')
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
+
             base_type_service = BaseTypeService(query_data_array)
+            hand_shake_service = HandShakeService()
 
             response_array = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
-                response_array.append(self._shake_hand_response(base_type_service, data, product_code, req_no))
-            resp = {
+                resp = hand_shake_service.hand_shake(base_type_service, data, product_code, req_no)
+                response_array.append(resp)
+            final_resp = {
                 'productCode': product_code,
                 'reqNo': req_no,
                 'queryData': response_array
             }
-            self.response = resp
-            step_log(5, "流程结束 pipes 回调 defensor")
-            step_log("5-1贷后报告决策握应答", self.response)
+            self.response = final_resp
+            logger.info("2. 贷后报告决策握手流程结束 应答给defensor报文为：%s", json.dumps(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
@@ -64,8 +61,7 @@ class P06001(Generate):
         # 获取请求参数
         try:
             json_data = request.get_json()
-            step_log(1, "贷后策略：获取策略引擎结果，流程开启")
-            step_log("1-1", json.dumps(json_data))
+            logger.info("1. 贷后策略：获取策略引擎结果，流程开启, 入参为：%s", json.dumps(json_data))
             strategy_param = json_data.get('strategyParam')
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
@@ -81,68 +77,10 @@ class P06001(Generate):
 
             self.response = self._create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
 
-            step_log("贷后策略调用，应答结果为：", self.response)
+            logger.info("2. 贷后策略：贷后策略调用，应答：%s", json.dumps(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
-
-    def _shake_hand_response(self, base_type_service, data, product_code, req_no):
-        """
-        和决策交互，封装response
-        :param data:
-        :param product_code:
-        :param req_no:
-        :return:
-        """
-        resp = {}
-        user_name = data.get('name')
-        id_card_no = data.get('idno')
-        phone = data.get('phone')
-        user_type = data.get('userType')
-        auth_status = data.get('authorStatus')
-        fund_ratio = data.get('fundratio')
-        apply_amount = data.get("applyAmo")
-        relation = data.get('relation')
-        self_id = data.get('id')
-        parent_id = data.get("parentId")
-        # 获取base_type
-        base_type = self.calc_base_type(base_type_service, data)
-        variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
-        # 决策要求一直要加上00000，用户基础信息。
-        variables["product_code"] = product_code
-        variables['out_strategyBranch'] = '00000'
-        step_log(2, "开始策略引擎封装入参")
-        strategy_request = _build_request(req_no, product_code, variables=variables)
-        step_log("2-1", strategy_request)
-        # 调用决策引擎
-        step_log(3, "开始调用策略引擎")
-        response = requests.post(STRATEGY_URL, json=strategy_request)
-        if response.status_code != 200:
-            raise Exception("strategyOne错误:" + response.text)
-        resp_json = response.json()
-        step_log("4", "策略引擎调用成功")
-        step_log("4-1", resp_json)
-        error = jsonpath(resp_json, '$..Error')
-        if error:
-            raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
-        biz_types, categories = _get_biz_types(resp_json)
-        rules = _append_rules(biz_types)
-        resp['name'] = user_name
-        resp['idno'] = id_card_no
-        resp['phone'] = phone
-        resp['userType'] = user_type
-        resp['authStatus'] = auth_status
-        resp['fundratio'] = fund_ratio
-        resp["applyAmo"] = apply_amount
-        resp['baseType'] = base_type
-        resp['relation'] = relation
-        resp['bizType'] = biz_types
-        resp['rules'] = rules
-        resp['categories'] = categories
-        resp['id'] = self_id
-        resp['parentId'] = parent_id
-
-        return resp
 
     def _strategy_second_hand(self, data, product_code, req_no):
         origin_input = data.get('strategyInputVariables')
@@ -163,17 +101,15 @@ class P06001(Generate):
         origin_input['out_strategyBranch'] = ','.join(codes)
         # 合并新的转换变量
         origin_input.update(variables)
-        step_log(2, "开始策略引擎封装入参")
+        logger.info("1. 开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
-        step_log("2-1", strategy_request)
-        step_log(3, "开始调用策略引擎")
+        logger.info("2. 策略引擎封装入参:%s", strategy_request)
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-        logger.debug(strategy_response)
+        logger.info("3. 策略引擎返回结果：%s", strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
-        step_log(4, "策略引擎调用成功")
-        step_log("4-1", strategy_resp)
+        logger.info("4. 策略引擎调用成功 %s", strategy_resp)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
@@ -219,14 +155,12 @@ class P06001(Generate):
         resp['queryData'] = data
 
     @staticmethod
-    def _create_strategy_resp(product_code, req_no, step_req_no, strategy_resp, variables, version_no, subject):
+    def _create_strategy_resp(product_code, req_no, step_req_no, version_no, subject):
         resp = {}
         resp['reqNo'] = req_no
         resp['product_code'] = product_code
         resp['stepReqNo'] = step_req_no
         resp['versionNo'] = version_no
-        resp['strategyInputVariables'] = variables
-        resp['strategyResult'] = strategy_resp
         resp['subject'] = subject
         return resp
 
