@@ -18,6 +18,7 @@ logger = LoggerUtil().logger(__name__)
 # 握手服务管理
 class HandShakeService(object):
     def __init__(self):
+        self.base_type = None
         pass
 
     def hand_shake(self, base_type_service, data, product_code, req_no):
@@ -41,8 +42,8 @@ class HandShakeService(object):
         self_id = data.get('id')
         parent_id = data.get("parentId")
         # 获取base_type
-        base_type = self.calc_base_type(base_type_service, data)
-        variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
+        self.calc_base_type(base_type_service, data)
+        variables = T00000().run(user_name, id_card_no, phone, user_type, self.base_type)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables["product_code"] = product_code
         variables['out_strategyBranch'] = '00000'
@@ -68,7 +69,7 @@ class HandShakeService(object):
         resp['authStatus'] = auth_status
         resp['fundratio'] = fund_ratio
         resp["applyAmo"] = apply_amount
-        resp['baseType'] = base_type
+        resp['baseType'] = self.base_type
         resp['relation'] = relation
         resp['bizType'] = biz_types
         resp['rules'] = rules
@@ -78,10 +79,9 @@ class HandShakeService(object):
 
         return resp
 
-    @staticmethod
-    def calc_base_type(base_type_service, subject):
+    def calc_base_type(self, base_type_service, subject):
         """
         :param subject:
         :type base_type_service: object
         """
-        return base_type_service.parse_base_type(subject)
+        self.base_type = base_type_service.parse_base_type(subject)

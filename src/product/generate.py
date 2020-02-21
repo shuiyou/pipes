@@ -53,3 +53,12 @@ class Generate(object):
         """
         pass
 
+    @staticmethod
+    def create_strategy_resp(product_code, req_no, step_req_no, version_no, subject):
+        return {
+            'reqNo': req_no,
+            'product_code': product_code,
+            'stepReqNo': step_req_no,
+            'versionNo': version_no,
+            'subject': subject
+        }
