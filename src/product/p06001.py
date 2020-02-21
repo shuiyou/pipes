@@ -15,6 +15,7 @@ from product.common.hand_shake_service import HandShakeService
 from product.common.strategy_service import StrategyService
 from product.generate import Generate
 from service.base_type_service import BaseTypeService
+from service.base_type_service_v2 import BaseTypeServiceV2
 
 logger = LoggerUtil().logger(__name__)
 
@@ -33,7 +34,7 @@ class P06001(Generate):
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
 
-            base_type_service = BaseTypeService(query_data_array)
+            base_type_service = BaseTypeServiceV2(query_data_array)
             hand_shake_service = HandShakeService()
 
             response_array = []

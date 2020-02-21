@@ -17,7 +17,7 @@
             "idno": "32038119920718061X",
             "phone": null,
             "userType": "PERSONAL",
-            "authorStatus": "AUTHORIZED",
+            "authorStatus": "UNAUTHORIZED",
             "fundratio": null,
             "relation": "SPOUSE"
         },
