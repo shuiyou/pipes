@@ -4,6 +4,8 @@
 # @Site : 
 # @File : t16001.py
 # @Software: PyCharm
+import pandas as pd
+
 from mapping.tranformer import Transformer
 from mapping.utils.df_comparator_util import df_compare
 from util.mysql_reader import sql_to_df
@@ -33,15 +35,167 @@ class T16001(Transformer):
     def _court_owed_owe_laf(self, variable_name):
         old_sql = '''
         select contract_no from(
-            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s 
-            and create_time < %(pre_biz_date)s order by create_time desc limit 1
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
             ) tab left join info_court_arrearage arr on arr.court_id = tab.id where contract_no is not null;
         '''
         new_sql = '''
         select contract_no from(
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
-            ) tab left join info_court_arrearage arr on arr.court_id = tab.id where contract_no is not null;
+            ) tab left join info_court_arrearage t on t.court_id = tab.id where contract_no is not null;
         '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_dishonesty_laf(self, variable_name):
+        old_sql = '''
+        select execute_case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+            ) tab left join info_court_deadbeat t on t.court_id = tab.id where execute_case_no is not null;
+        '''
+        new_sql = '''
+        select execute_case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+            ) tab left join info_court_deadbeat t on t.court_id = tab.id where execute_case_no is not null;
+        '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_limit_entry_laf(self, variable_name):
+        old_sql = '''
+        select execute_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+            ) tab left join info_court_limited_entry_exit t on t.court_id = tab.id where execute_no is not null;
+        '''
+        new_sql = '''
+        select execute_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+            ) tab left join info_court_limited_entry_exit t on t.court_id = tab.id where execute_no is not null;
+        '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_high_cons_laf(self, variable_name):
+        old_sql = '''
+        select execute_case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+            ) tab left join info_court_limit_hignspending t on t.court_id = tab.id where execute_case_no is not null;
+        '''
+        new_sql = '''
+        select execute_case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+            ) tab left join info_court_limit_hignspending t on t.court_id = tab.id where execute_case_no is not null;
+        '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_cri_sus_laf(self, variable_name):
+        old_sql = '''
+        select case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+            ) tab left join info_court_criminal_suspect t on t.court_id = tab.id where case_no is not null;
+        '''
+        new_sql = '''
+        select case_no from(
+            select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+            ) tab left join info_court_criminal_suspect t on t.court_id = tab.id where case_no is not null;
+        '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_fin_loan_stats(self, variable_name, case_reason):
+        old_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                '''
+        old_sql2 = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                '''
+
+        new_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                '''
+        new_sq2 = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                '''
+        old_df = self.to_df([old_sql, old_sql2], {"case_reason": case_reason})
+        new_df = self.to_df([new_sql, new_sq2], {"case_reason": case_reason})
+        df_compare(self.variables, old_df, new_df, variable_name)
+
+    def _court_admi_vio_laf(self, variable_name):
+        old_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join  info_court_administrative_violation t on t.court_id = tab.id where case_no is not null;
+                '''
+        new_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+                    ) tab left join info_court_administrative_violation t on t.court_id = tab.id where case_no is not null;
+                '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_judge_laf(self, variable_name):
+        old_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join  info_court_judicative_pape t on t.court_id = tab.id where case_no is not null;
+                '''
+        new_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_no is not null;
+                '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_trial_proc_laf(self, variable_name):
+        old_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join  info_court_trial_process t on t.court_id = tab.id where case_no is not null;
+                '''
+        new_sql = '''
+                select case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_no is not null;
+                '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_tax_pay_laf(self, variable_name):
+        sql = '''
+                select confirm_date from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s
+                    ) tab left join info_court_taxable_abnormal_user t on t.court_id = tab.id where confirm_date > %(pre_biz_date)s;
+                '''
+        df = self.to_df([sql], {})
+        if df is not None and df.shape[0] > 0:
+            self.variables[variable_name] = 1
+
+    def _court_pub_info_laf(self, variable_name):
+        old_sql = '''
+                select execute_case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                    ) tab left join  info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
+                '''
+        new_sql = '''
+                select execute_case_no from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
+                    ) tab left join info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
+                '''
+        self.var_compare(new_sql, old_sql, variable_name)
+
+    def _court_tax_arrears_laf(self, variable_name):
+        sql = '''
+                select taxes_time from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s
+                    ) tab left join info_court_tax_arrears t on t.court_id = tab.id where taxes_time > %(pre_biz_date)s;
+            '''
+        df = self.to_df([sql], {})
+        if df is not None and df.shape[0] > 0:
+            self.variables[variable_name] = 1
+
+    def var_compare(self, new_sql, old_sql, variable_name):
         old_df = sql_to_df(sql=old_sql,
                            params={"user_name": self.user_name,
                                    "id_card_no": self.id_card_no,
@@ -49,8 +203,23 @@ class T16001(Transformer):
         new_df = sql_to_df(sql=new_sql,
                            params={"user_name": self.user_name,
                                    "id_card_no": self.id_card_no})
-
         df_compare(self.variables, old_df, new_df, variable_name)
+
+    def to_df(self, sql_arr, param):
+        params = {"user_name": self.user_name,
+                  "id_card_no": self.id_card_no,
+                  "pre_biz_date": self.pre_biz_date}
+        for key in param:
+            params[key] = param[key]
+        df = pd.DataFrame()
+        for sql in sql_arr:
+            v_df = sql_to_df(sql=sql,
+                             params=params)
+            if df.shape[0] == 0 and v_df.shape[0] > 0:
+                df = v_df
+            elif v_df.shape[0] > 0:
+                df.append(v_df)
+        return df
 
     def transform(self):
         # 前一个业务的创建时间
@@ -58,3 +227,32 @@ class T16001(Transformer):
 
         # 法院核查_个人_欠款欠费名单贷后新增
         self._court_owed_owe_laf("court_owed_owe_laf")
+        # 法院核查_个人_失信老赖名单_贷后新增
+        self._court_dishonesty_laf("court_dishonesty_laf")
+        # 法院核查_个人_限制出入境名单_贷后新增
+        self._court_limit_entry_laf("court_limit_entry_laf")
+        # 法院核查_个人_限制高消费名单命中次数_贷后新增
+        self._court_high_cons_laf("court_high_cons_laf")
+        # 法院核查_企业_罪犯及嫌疑人名单命中次数_贷后新增
+        self._court_cri_sus_laf("court_cri_sus_laf")
+
+        # 法院核查_个人_金融借款合同纠纷_贷后新增
+        self._court_fin_loan_stats("court_fin_loan_con_laf", "金融借款合同纠纷")
+        # 法院核查_个人_借款合同纠纷_贷后新增
+        self._court_fin_loan_stats("court_loan_con_laf", "借款合同纠纷")
+        # 法院核查_个人_民间借贷纠纷_贷后新增
+        self._court_fin_loan_stats("court_pop_loan_laf", "民间借贷纠纷")
+
+        # 法院核查_个人_行政违法记录命中次数_贷后新增
+        self._court_admi_vio_laf("court_admi_vio_laf")
+        # 法院核查_个人_民商事裁判文书命中次数_贷后新增
+        self._court_judge_laf("court_judge_laf")
+        # 法院核查_个人_民商事审判流程命中次数_贷后新增
+        self._court_trial_proc_laf("court_trial_proc_laf")
+
+        # 法院核查_个人_纳税非正常户命中次数_贷后新增
+        self._court_tax_pay_laf("court_tax_pay_laf")
+        # 法院核查_个人_执行公开信息命中次数_贷后新增
+        self._court_pub_info_laf("court_pub_info_laf")
+        # 法院核查_个人_欠税名单命中次数_贷后新增
+        self._court_tax_arrears_laf("court_tax_arrears_laf")
