@@ -188,7 +188,7 @@ def get_transformer(code) -> Transformer:
 def get_product_transformers(product_code):
     pkg = None
     try:
-        pkg = importlib.import_module("view." + product_code)
+        pkg = importlib.import_module("view.p" + product_code)
     except ModuleNotFoundError as err:
         logger.error("product_code:%s, view transformers is empty.", product_code)
         return []

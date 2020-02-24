@@ -11,8 +11,8 @@ class T01001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'variable_test': 'test'
+            'variable_product_code': '0'
         }
 
     def transform(self):
-        self.variables["variable_test"] = "test1"
+        self.variables["variable_product_code"] = "06001"

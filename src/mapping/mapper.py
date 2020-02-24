@@ -63,7 +63,7 @@ def get_transformer(code, product_code=None) -> Transformer:
     try:
         model = None
         if product_code:
-            model = importlib.import_module("mapping." + product_code + ".t" + str(code))
+            model = importlib.import_module("mapping.p" + product_code + ".t" + str(code))
         else:
             model = importlib.import_module("mapping.t" + str(code))
         api_class = getattr(model, "T" + str(code))
