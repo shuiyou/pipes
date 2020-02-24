@@ -26,6 +26,10 @@ class T16001(Transformer):
             'court_pub_info_laf': '0',  # 法院核查_个人_执行公开信息命中次数_贷后新增
             'court_tax_arrears_laf': '0',  # 法院核查_个人_欠税名单命中次数_贷后新增
         }
+        self.pre_biz_date = None
 
     def transform(self):
+        # 前一个业务的创建时间
+        self.pre_biz_date = self.origin_data.get('preBizDate')
+
         self.variables["variable_product_code"] = "06001"
