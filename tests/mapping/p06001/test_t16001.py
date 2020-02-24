@@ -9,5 +9,5 @@ from mapping.p06001.t16001 import T16001
 
 def test_16001():
     ps = T16001()
-    ps.run(user_name='马慧丽', id_card_no='310222197408170040', phone='13277154945')
+    ps.run(user_name='施网明', id_card_no='310108196610024859', phone='13277154945', origin_data={})
     print(ps.variables)
