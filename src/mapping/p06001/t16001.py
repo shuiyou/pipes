@@ -101,23 +101,23 @@ class T16001(Transformer):
         old_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
         old_sql2 = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
 
         new_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
         new_sq2 = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason = %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
         old_df = self.to_df([old_sql, old_sql2], {"case_reason": case_reason})
         new_df = self.to_df([new_sql, new_sq2], {"case_reason": case_reason})
@@ -239,7 +239,7 @@ class T16001(Transformer):
         # 法院核查_个人_金融借款合同纠纷_贷后新增
         self._court_fin_loan_stats("court_fin_loan_con_laf", "金融借款合同纠纷")
         # 法院核查_个人_借款合同纠纷_贷后新增
-        self._court_fin_loan_stats("court_loan_con_laf", "借款合同纠纷")
+        self._court_fin_loan_stats("court_loan_con_laf", "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷")
         # 法院核查_个人_民间借贷纠纷_贷后新增
         self._court_fin_loan_stats("court_pop_loan_laf", "民间借贷纠纷")
 
