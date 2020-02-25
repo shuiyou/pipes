@@ -101,9 +101,8 @@ class T16001(Transformer):
         old_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
-                '''
-        old_sql2 = '''
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                union
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
                     ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
@@ -112,15 +111,14 @@ class T16001(Transformer):
         new_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
-                '''
-        new_sq2 = '''
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                union
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
-        old_df = self.to_df([old_sql, old_sql2], {"case_reason": case_reason})
-        new_df = self.to_df([new_sql, new_sq2], {"case_reason": case_reason})
+        old_df = self.to_df([old_sql], {"case_reason": case_reason})
+        new_df = self.to_df([new_sql], {"case_reason": case_reason})
         df_compare(self.variables, old_df, new_df, variable_name)
 
     def _court_admi_vio_laf(self, variable_name):
