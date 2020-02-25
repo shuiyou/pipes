@@ -15,20 +15,20 @@ class V16001(Transformer):
         super().__init__()
         self.pre_biz_date = ""
         self.variables = {
-            'info_court_owed_owe': None,  # 法院核查_个人_欠款欠费名单_贷前+贷后
-            'info_court_dishonesty': None,  # 法院核查_个人_失信老赖名单_贷后+贷前
-            'info_court_limit_entry': None,  # 法院核查_个人_限制出入境名单_贷后+贷前
-            'info_court_high_cons': None,  # 法院核查_个人_限制高消费名单_贷后+贷前
-            'info_court_cri_sus': None,  # 法院核查_企业_罪犯及嫌疑人名单_贷后+贷前
-            'info_court_fin_loan_con': None,  # 法院核查_个人_金融借款合同纠纷_贷后+贷前
-            'info_court_loan_con': None,  # 法院核查_个人_借款合同纠纷_贷后+贷前
-            'info_court_pop_loan': None,  # 法院核查_个人_民间借贷纠纷_贷后+贷前
-            'info_court_admi_vio': None,  # 法院核查_个人_行政违法记录_贷后+贷前
-            'info_court_judge': None,  # 法院核查_个人_民商事裁判文书_贷后+贷前
-            'info_court_trial_proc': None,  # 法院核查_个人_民商事审判流程_贷后+贷前
-            'info_court_tax_pay': None,  # 法院核查_个人_纳税非正常户_贷后+贷前
-            'info_court_pub_info': None,  # 法院核查_个人_执行公开信息_贷后+贷前
-            'info_court_tax_arrears': None,  # 法院核查_个人_欠税名单_贷后+贷前
+            'info_court_owed_owe': '',  # 法院核查_个人_欠款欠费名单_贷前+贷后
+            'info_court_dishonesty': '',  # 法院核查_个人_失信老赖名单_贷后+贷前
+            'info_court_limit_entry': '',  # 法院核查_个人_限制出入境名单_贷后+贷前
+            'info_court_high_cons': '',  # 法院核查_个人_限制高消费名单_贷后+贷前
+            'info_court_cri_sus': '',  # 法院核查_企业_罪犯及嫌疑人名单_贷后+贷前
+            'info_court_fin_loan_con': '',  # 法院核查_个人_金融借款合同纠纷_贷后+贷前
+            'info_court_loan_con': '',  # 法院核查_个人_借款合同纠纷_贷后+贷前
+            'info_court_pop_loan': '',  # 法院核查_个人_民间借贷纠纷_贷后+贷前
+            'info_court_admi_vio': '',  # 法院核查_个人_行政违法记录_贷后+贷前
+            'info_court_judge': '',  # 法院核查_个人_民商事裁判文书_贷后+贷前
+            'info_court_trial_proc': '',  # 法院核查_个人_民商事审判流程_贷后+贷前
+            'info_court_tax_pay': '',  # 法院核查_个人_纳税非正常户_贷后+贷前
+            'info_court_pub_info': '',  # 法院核查_个人_执行公开信息_贷后+贷前
+            'info_court_tax_arrears': '',  # 法院核查_个人_欠税名单_贷后+贷前
         }
 
     def _info_court_owed_owe(self, variable_name):
@@ -147,6 +147,10 @@ class V16001(Transformer):
             "pre_biz_date": self.pre_biz_date,
             "case_reason": case_reason
         })
+        new_df1.fillna('', inplace=True)
+        new_df2.fillna('', inplace=True)
+        old_df1.fillna('', inplace=True)
+        old_df2.fillna('', inplace=True)
 
         old_json = json.loads(old_df1.to_json(orient="records"))
         old_json1 = json.loads(old_df2.to_json(orient="records"))
@@ -249,12 +253,14 @@ class V16001(Transformer):
             "id_card_no": self.id_card_no,
             "pre_biz_date": self.pre_biz_date
         })
+        before_df.fillna('', inplace=True)
 
         after_df = sql_to_df(sql=after_sql, params={
             "user_name": self.user_name,
             "id_card_no": self.id_card_no,
             "pre_biz_date": self.pre_biz_date
         })
+        after_df.fillna('', inplace=True)
 
         self.variables[variable_name] = {"type:": type_name, "before": json.loads(before_df.to_json(orient="records")),
                                          "after": json.loads(after_df.to_json(orient="records"))}
