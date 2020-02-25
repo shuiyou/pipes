@@ -3,6 +3,7 @@
         "reqNo":"Q388676688483090432",
         "stepReqNo":"S388676688512450560",
         "productCode":"06001",
+        "preBizDate":"2019-01-01 11:11:11",
         "queryData":[
             {
                 "id":3081,
