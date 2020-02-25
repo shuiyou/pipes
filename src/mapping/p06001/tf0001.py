@@ -4,12 +4,16 @@
 # @Site : 
 # @File : tf0001.py
 # @Software: PyCharm
+import pandas as pd
+
 from mapping.tranformer import Transformer
+from mapping.utils.df_comparator_util import sql_list_to_df, df_compare
 
 
 class Tf0001(Transformer):
     def __init__(self) -> None:
         super().__init__()
+        self.pre_biz_date = ""
         self.variables = {
             'relent_court_open_owed_owe_laf': '0',  # 联企法院_在营企业_欠款欠费名单命中次数_贷后新增
             'relent_court_open_court_dishonesty_laf': '0',  # 联企法院_在营企业_失信老赖名单命中次数_贷后新增
@@ -27,5 +31,73 @@ class Tf0001(Transformer):
             'relent_court_open_tax_pay_laf': '0',  # 联企法院_在营企业_纳税非正常户命中次数_贷后新增
         }
 
+    def _relent_court_open_owed_owe_laf(self, variable_name):
+        before_df = self._relent_court_open_owed_owe_laf_before()
+        after_df = self._relent_court_open_owed_owe_laf_after()
+
+        print("before_df", before_df)
+        print("after_df", after_df)
+        df_compare(self.variables, before_df, after_df, variable_name)
+
+    def _relent_court_open_owed_owe_laf_before(self):
+        ent_before_sql = '''
+                        select le.ent_name as ent_name from(
+                        select * from info_per_bus_basic where name=%(user_name)s and id_card_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                        )tab inner join info_per_bus_legal le on tab.id=le.basic_id where le.ent_status REGEXP '在营（开业）|存续（在营、开业、在册）'
+                        union
+                        select sh.ent_name as ent_name from(
+                        select * from info_per_bus_basic where name=%(user_name)s and id_card_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
+                        )tab inner join info_per_bus_shareholder sh on sh.basic_id = tab.id and sh.ent_status REGEXP '在营（开业）|存续（在营、开业、在册）' and sub_conam/reg_cap >= 0
+                        '''
+        ent_before_contract_sql = '''
+                        select contract_no from info_court_arrearage arr inner join(
+                        select * from info_court  where unique_name=%(ent_name)s and create_time < %(pre_biz_date)s order by create_time limit 1
+                        ) tab on arr.court_id = tab.id;
+                        '''
+        ent_list = self.__get_ent_list(ent_before_sql)
+        print("ent_list:", ent_list)
+        result_df = pd.DataFrame(columns=["contract_no"])
+        for ent in ent_list:
+            contract_df = sql_list_to_df(self, [ent_before_contract_sql], {"ent_name": ent})
+            print("contract_df:", contract_df)
+            if contract_df.shape[0] > 0:
+                result_df = result_df.append(contract_df)
+
+        return result_df
+
+    def _relent_court_open_owed_owe_laf_after(self):
+        after_sql = '''
+                        select le.ent_name as ent_name from(
+                            select * from info_per_bus_basic where `name`=%(user_name)s and id_card_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                            )tab inner join info_per_bus_legal le on tab.id = le.basic_id where le.ent_status REGEXP '在营（开业）|存续（在营、开业、在册）'
+                            union
+                            select sh.ent_name as ent_name from(
+                            select * from info_per_bus_basic where `name`=%(user_name)s and id_card_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                            )tab inner join info_per_bus_shareholder sh on sh.basic_id = tab.id and sh.ent_status REGEXP '在营（开业）|存续（在营、开业、在册）' and sub_conam/reg_cap >= 0
+                        '''
+        after_contract_sql = '''
+                        select contract_no from info_court_arrearage arr inner join(
+                        select * from info_court  where unique_name=%(ent_name)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by create_time limit 1
+                        ) tab on arr.court_id = tab.id;
+                        '''
+        ent_list = self.__get_ent_list(after_sql)
+        print("ent_list:", ent_list)
+        result_df = pd.DataFrame(columns=["contract_no"])
+        for ent in ent_list:
+            contract_df = sql_list_to_df(self, [after_contract_sql], {"ent_name": ent})
+            print("contract_df:", contract_df)
+            if contract_df.shape[0] > 0:
+                result_df = result_df.append(contract_df)
+
+        return result_df
+
+    def __get_ent_list(self, sql):
+        df = sql_list_to_df(self, [sql], {})
+        if df.shape[0] > 0:
+            return df["ent_name"].to_list()
+        return []
+
     def transform(self):
-        self.variables["variable_product_code"] = "06001"
+        # 前一个业务的创建时间
+        self.pre_biz_date = self.origin_data.get('preBizDate')
+        self._relent_court_open_owed_owe_laf("relent_court_open_owed_owe_laf")

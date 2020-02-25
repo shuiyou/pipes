@@ -4,11 +4,9 @@
 # @Site : 
 # @File : t16001.py
 # @Software: PyCharm
-import pandas as pd
 
 from mapping.tranformer import Transformer
-from mapping.utils.df_comparator_util import df_compare
-from util.mysql_reader import sql_to_df
+from mapping.utils.df_comparator_util import df_compare, sql_list_to_df, var_compare
 
 
 class T16001(Transformer):
@@ -43,7 +41,7 @@ class T16001(Transformer):
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
             ) tab left join info_court_arrearage t on t.court_id = tab.id where contract_no is not null;
         '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_dishonesty_laf(self, variable_name):
         old_sql = '''
@@ -56,7 +54,7 @@ class T16001(Transformer):
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
             ) tab left join info_court_deadbeat t on t.court_id = tab.id where execute_case_no is not null;
         '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_limit_entry_laf(self, variable_name):
         old_sql = '''
@@ -69,7 +67,7 @@ class T16001(Transformer):
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
             ) tab left join info_court_limited_entry_exit t on t.court_id = tab.id where execute_no is not null;
         '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_high_cons_laf(self, variable_name):
         old_sql = '''
@@ -82,7 +80,7 @@ class T16001(Transformer):
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
             ) tab left join info_court_limit_hignspending t on t.court_id = tab.id where execute_case_no is not null;
         '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_cri_sus_laf(self, variable_name):
         old_sql = '''
@@ -95,7 +93,7 @@ class T16001(Transformer):
             select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
             ) tab left join info_court_criminal_suspect t on t.court_id = tab.id where case_no is not null;
         '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_fin_loan_stats(self, variable_name, case_reason):
         old_sql = '''
@@ -117,8 +115,8 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
                 '''
-        old_df = self.to_df([old_sql], {"case_reason": case_reason})
-        new_df = self.to_df([new_sql], {"case_reason": case_reason})
+        old_df = sql_list_to_df(self, [old_sql], {"case_reason": case_reason})
+        new_df = sql_list_to_df(self, [new_sql], {"case_reason": case_reason})
         df_compare(self.variables, old_df, new_df, variable_name)
 
     def _court_admi_vio_laf(self, variable_name):
@@ -132,7 +130,7 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
                     ) tab left join info_court_administrative_violation t on t.court_id = tab.id where case_no is not null;
                 '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_judge_laf(self, variable_name):
         old_sql = '''
@@ -145,7 +143,7 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
                     ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_no is not null;
                 '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_trial_proc_laf(self, variable_name):
         old_sql = '''
@@ -158,7 +156,7 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
                     ) tab left join info_court_trial_process t on t.court_id = tab.id where case_no is not null;
                 '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_tax_pay_laf(self, variable_name):
         sql = '''
@@ -166,7 +164,7 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s
                     ) tab left join info_court_taxable_abnormal_user t on t.court_id = tab.id where confirm_date > %(pre_biz_date)s;
                 '''
-        df = self.to_df([sql], {})
+        df = sql_list_to_df(self, [sql], {})
         if df is not None and df.shape[0] > 0:
             self.variables[variable_name] = 1
 
@@ -181,7 +179,7 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) 
                     ) tab left join info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
                 '''
-        self.var_compare(new_sql, old_sql, variable_name)
+        var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_tax_arrears_laf(self, variable_name):
         sql = '''
@@ -189,35 +187,9 @@ class T16001(Transformer):
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s
                     ) tab left join info_court_tax_arrears t on t.court_id = tab.id where taxes_time > %(pre_biz_date)s;
             '''
-        df = self.to_df([sql], {})
+        df = sql_list_to_df(self, [sql], {})
         if df is not None and df.shape[0] > 0:
             self.variables[variable_name] = 1
-
-    def var_compare(self, new_sql, old_sql, variable_name):
-        old_df = sql_to_df(sql=old_sql,
-                           params={"user_name": self.user_name,
-                                   "id_card_no": self.id_card_no,
-                                   "pre_biz_date": self.pre_biz_date})
-        new_df = sql_to_df(sql=new_sql,
-                           params={"user_name": self.user_name,
-                                   "id_card_no": self.id_card_no})
-        df_compare(self.variables, old_df, new_df, variable_name)
-
-    def to_df(self, sql_arr, param):
-        params = {"user_name": self.user_name,
-                  "id_card_no": self.id_card_no,
-                  "pre_biz_date": self.pre_biz_date}
-        for key in param:
-            params[key] = param[key]
-        df = pd.DataFrame()
-        for sql in sql_arr:
-            v_df = sql_to_df(sql=sql,
-                             params=params)
-            if df.shape[0] == 0 and v_df.shape[0] > 0:
-                df = v_df
-            elif v_df.shape[0] > 0:
-                df.append(v_df)
-        return df
 
     def transform(self):
         # 前一个业务的创建时间
