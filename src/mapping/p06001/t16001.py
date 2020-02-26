@@ -6,7 +6,7 @@
 # @Software: PyCharm
 
 from mapping.tranformer import Transformer
-from mapping.utils.df_comparator_util import df_compare, sql_list_to_df, var_compare
+from mapping.utils.df_comparator_util import df_compare, var_compare, to_df
 
 
 class T16001(Transformer):
@@ -99,24 +99,24 @@ class T16001(Transformer):
         old_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null
                 union
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null;
                 '''
 
         new_sql = '''
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null
                 union
                 select case_no from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null;
                 '''
-        old_df = sql_list_to_df(self, [old_sql], {"case_reason": case_reason})
-        new_df = sql_list_to_df(self, [new_sql], {"case_reason": case_reason})
+        old_df = to_df(self, old_sql, {"case_reason": case_reason})
+        new_df = to_df(self, new_sql, {"case_reason": case_reason})
         df_compare(self.variables, old_df, new_df, variable_name)
 
     def _court_admi_vio_laf(self, variable_name):
@@ -159,20 +159,14 @@ class T16001(Transformer):
         var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_tax_pay_laf(self, variable_name):
-        old_sql = '''
-                    select count(t.id) from(
-                        select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                        ) tab inner join  info_court_taxable_abnormal_user t on t.court_id = tab.id;
-                    '''
         new_sql = '''
-                    select count(t.id) from(
+                    select confirm_date from(
                         select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                        ) tab inner join info_court_taxable_abnormal_user t on t.court_id = tab.id;
+                        ) tab inner join info_court_taxable_abnormal_user t on t.court_id = tab.id where confirm_date > %(pre_biz_date)s;
                     '''
 
-        old_df = sql_list_to_df(self, [new_sql], {})
-        new_df = sql_list_to_df(self, [old_sql], {})
-        if old_df.iloc[0][0] < new_df.iloc[0][0]:
+        new_df = to_df(self, new_sql, {})
+        if not new_df.empty:
             self.variables[variable_name] = 1
 
     def _court_pub_info_laf(self, variable_name):
@@ -189,20 +183,13 @@ class T16001(Transformer):
         var_compare(self, new_sql, old_sql, variable_name)
 
     def _court_tax_arrears_laf(self, variable_name):
-        old_sql = '''
-                select count(t.id) from(
-                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab inner join  info_court_tax_arrears t on t.court_id = tab.id;
-                    '''
-
         new_sql = '''
-                select count(t.id) from(
-                select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                ) tab inner join info_court_tax_arrears t on t.court_id = tab.id;
+                select taxes_time from(
+                    select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
+                ) tab inner join info_court_tax_arrears t on t.court_id = tab.id where t.taxes_time > %(pre_biz_date)s ;
                 '''
-        old_df = sql_list_to_df(self, [new_sql], {})
-        new_df = sql_list_to_df(self, [old_sql], {})
-        if old_df.iloc[0][0] < new_df.iloc[0][0]:
+        new_df = to_df(self, new_sql, {})
+        if not new_df.empty:
             self.variables[variable_name] = 1
 
     def transform(self):

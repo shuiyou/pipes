@@ -4,7 +4,6 @@
 # @Site : 
 # @File : test_t16001.py
 # @Software: PyCharm
-from mapping.p06001.t16001 import T16001
 from mapping.p06001.tf0001 import Tf0001
 
 

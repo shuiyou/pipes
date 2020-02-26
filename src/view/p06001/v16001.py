@@ -7,6 +7,7 @@
 import json
 
 from mapping.tranformer import Transformer
+from mapping.utils.df_comparator_util import to_df
 from util.mysql_reader import sql_to_df
 
 
@@ -103,53 +104,31 @@ class V16001(Transformer):
         old_sql1 = '''
                 select t.* from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null
                 '''
         old_sql2 = '''
                 select t.* from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null;
                 '''
 
         new_sql1 = '''
                 select t.* from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null
+                    ) tab left join info_court_judicative_pape t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null
                 '''
 
         new_sql2 = '''
                 select t.* from(
                     select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)  order by id desc limit 1
-                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "被告" and case_no is not null;
+                    ) tab left join info_court_trial_process t on t.court_id = tab.id where case_reason regexp %(case_reason)s and legal_status like "%%被告%%" and case_no is not null;
                 '''
 
-        old_df1 = sql_to_df(sql=old_sql1, params={
-            "user_name": self.user_name,
-            "id_card_no": self.id_card_no,
-            "pre_biz_date": self.pre_biz_date,
-            "case_reason": case_reason
-        })
+        old_df1 = to_df(self, old_sql1, {"case_reason": case_reason})
+        old_df2 = to_df(self, old_sql2, {"case_reason": case_reason})
+        new_df1 = to_df(self, new_sql1, {"case_reason": case_reason})
+        new_df2 = to_df(self, new_sql2, {"case_reason": case_reason})
 
-        old_df2 = sql_to_df(sql=old_sql2, params={
-            "user_name": self.user_name,
-            "id_card_no": self.id_card_no,
-            "pre_biz_date": self.pre_biz_date,
-            "case_reason": case_reason
-        })
-
-        new_df1 = sql_to_df(sql=new_sql1, params={
-            "user_name": self.user_name,
-            "id_card_no": self.id_card_no,
-            "pre_biz_date": self.pre_biz_date,
-            "case_reason": case_reason
-        })
-
-        new_df2 = sql_to_df(sql=new_sql2, params={
-            "user_name": self.user_name,
-            "id_card_no": self.id_card_no,
-            "pre_biz_date": self.pre_biz_date,
-            "case_reason": case_reason
-        })
         new_df1.fillna('', inplace=True)
         new_df2.fillna('', inplace=True)
         old_df1.fillna('', inplace=True)

@@ -7,7 +7,7 @@
 import pandas as pd
 
 from mapping.tranformer import Transformer
-from mapping.utils.df_comparator_util import sql_list_to_df, df_compare
+from mapping.utils.df_comparator_util import df_compare, to_df
 
 
 class Tf0001(Transformer):
@@ -79,14 +79,14 @@ class Tf0001(Transformer):
         print("ent_list:", ent_list)
         result_df = pd.DataFrame(columns=[biz_no_type])
         for ent in ent_list:
-            biz_no_df = sql_list_to_df(self, [biz_sql], {"ent_name": ent})
+            biz_no_df = to_df(self, biz_sql, {"ent_name": ent})
             print("biz_no_df:", biz_no_df)
             if biz_no_df.shape[0] > 0:
                 result_df = result_df.append(biz_no_df)
         return result_df
 
     def __get_ent_list(self, sql):
-        df = sql_list_to_df(self, [sql], {})
+        df = to_df(self, sql, {})
         if df.shape[0] > 0:
             return df["ent_name"].to_list()
         return []
