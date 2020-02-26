@@ -126,7 +126,7 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
     ))
 
 
-def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None):
+def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None, origin_data=None):
     """
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
@@ -142,7 +142,9 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                      id_card_no=id_card_no,
                                      phone=phone,
                                      user_type=user_type,
-                                     base_type=base_type)
+                                     base_type=base_type,
+                                     origin_data=origin_data
+                                     )
             variables.update(trans_result['variables'])
 
         # 特定的product_code会检测对应的view下的产品module.
@@ -153,7 +155,8 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                                      id_card_no=id_card_no,
                                                      phone=phone,
                                                      user_type=user_type,
-                                                     base_type=base_type)
+                                                     base_type=base_type,
+                                                     origin_data=origin_data)
                 variables.update(trans_result['variables'])
 
     except Exception as err:

@@ -84,7 +84,7 @@ class StrategyService(object):
         # 最后返回报告详情
         if STRATEGE_DONE in biz_types:
             detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
-                                                 base_type)
+                                                 base_type, data)
             resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
