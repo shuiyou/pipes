@@ -19,8 +19,6 @@ class T24001(Transformer):
             'com_bus_exception_laf': 0  # 工商核查_是否有经营异常信息_贷后新增
         }
         self.pre_biz_date = None
-        self.user_name = None
-        self.id_card_no = None
 
     # 判断股权冻结信息是否有新增
     def _com_bus_shares_frost_laf(self):
@@ -174,6 +172,10 @@ class T24001(Transformer):
     # 执行变量转换
     def transform(self):
         self.pre_biz_date = self.origin_data.get('preBizDate')
+        if self.user_name is None or len(self.user_name) == 0:
+            self.user_name = 'Na'
+        if self.id_card_no is None or len(self.id_card_no) == 0:
+            self.id_card_no = 'Na'
 
         self.variables["variable_product_code"] = "06001"
 

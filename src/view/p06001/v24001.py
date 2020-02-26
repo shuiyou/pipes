@@ -10,18 +10,17 @@ class V24001(Transformer):
 
     def __init__(self):
         super().__init__()
-        self.variables = {
-            'info_com_bus_shares_frost': None,  # 工商核查_现在是否有股权冻结信息_贷后+贷前
-            'info_com_bus_shares_impawn': None,  # 工商核查_现在是否有股权出质登记信息_贷后+贷前
-            'info_com_bus_mor_detail': None,  # 工商核查_现在是否有动产抵押登记信息_贷后+贷前
-            'info_com_bus_liquidation': None,  # 工商核查_是否有清算信息_贷后+贷前
-            'info_com_bus_illegal_list': None,  # 工商核查_现在是否有严重违法失信信息_贷后+贷前
-            'info_com_bus_case_info': None,  # 工商核查_是否有行政处罚信息_贷后+贷前
-            'info_com_bus_exception': None  # 工商核查_是否有经营异常信息_贷后+贷前
-        }
+        self.variables = {'info_com_bus': []}
+        # self.variables = {
+        #     'info_com_bus_shares_frost': None,  # 工商核查_现在是否有股权冻结信息_贷后+贷前
+        #     'info_com_bus_shares_impawn': None,  # 工商核查_现在是否有股权出质登记信息_贷后+贷前
+        #     'info_com_bus_mor_detail': None,  # 工商核查_现在是否有动产抵押登记信息_贷后+贷前
+        #     'info_com_bus_liquidation': None,  # 工商核查_是否有清算信息_贷后+贷前
+        #     'info_com_bus_illegal_list': None,  # 工商核查_现在是否有严重违法失信信息_贷后+贷前
+        #     'info_com_bus_case_info': None,  # 工商核查_是否有行政处罚信息_贷后+贷前
+        #     'info_com_bus_exception': None  # 工商核查_是否有经营异常信息_贷后+贷前
+        # }
         self.pre_biz_date = None
-        self.user_name = None
-        self.id_card_no = None
 
     # 工商核查各命中项详细信息展示
     def _hit_com_bus_info_details(self):
@@ -80,23 +79,32 @@ class V24001(Transformer):
             df_after_loan = sql_to_df(sql=sql_after_loan,
                                       params={'user_name': self.user_name,
                                               'id_card_no': self.id_card_no})
-            self.variables[var] = {'before': [], 'after': [], 'type': hit_list[var]['type']}
+            df_before_loan.fillna('', inplace=True)
+            df_after_loan.fillna('', inplace=True)
+            self.variables['info_com_bus'].append({'variable': var,
+                                                   'type': hit_list[var]['type'],
+                                                   'before': [],
+                                                   'after': []})
             if len(df_before_loan) > 0:
                 for row in df_before_loan.itertuples():
-                    self.variables[var]['before'].append({})
+                    self.variables['info_com_bus'][-1]['before'].append({})
                     for col in df_before_loan.columns:
-                        self.variables[var]['before'][-1][col] = getattr(row, col)
+                        self.variables['info_com_bus'][-1]['before'][-1][col] = str(getattr(row, col))
             if len(df_after_loan) > 0:
                 for row in df_after_loan.itertuples():
-                    self.variables[var]['after'].append({})
+                    self.variables['info_com_bus'][-1]['after'].append({})
                     for col in df_after_loan.columns:
-                        self.variables[var]['after'][-1][col] = getattr(row, col)
+                        self.variables['info_com_bus'][-1]['after'][-1][col] = str(getattr(row, col))
         return
 
     # 执行变量转换
     def transform(self):
         self.pre_biz_date = self.origin_data.get('preBizDate')
+        if self.user_name is None or len(self.user_name) == 0:
+            self.user_name = 'Na'
+        if self.id_card_no is None or len(self.id_card_no) == 0:
+            self.id_card_no = 'Na'
 
-        self.variables["variable_product_code"] = "06001"
+        # self.variables["variable_product_code"] = "06001"
 
         self._hit_com_bus_info_details()
