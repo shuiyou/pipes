@@ -14,22 +14,25 @@ class V16001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.pre_biz_date = ""
+        self.info_list = []
+        '''
         self.variables = {
-            'info_court_owed_owe': '',  # 法院核查_个人_欠款欠费名单_贷前+贷后
-            'info_court_dishonesty': '',  # 法院核查_个人_失信老赖名单_贷后+贷前
-            'info_court_limit_entry': '',  # 法院核查_个人_限制出入境名单_贷后+贷前
-            'info_court_high_cons': '',  # 法院核查_个人_限制高消费名单_贷后+贷前
-            'info_court_cri_sus': '',  # 法院核查_企业_罪犯及嫌疑人名单_贷后+贷前
-            'info_court_fin_loan_con': '',  # 法院核查_个人_金融借款合同纠纷_贷后+贷前
-            'info_court_loan_con': '',  # 法院核查_个人_借款合同纠纷_贷后+贷前
-            'info_court_pop_loan': '',  # 法院核查_个人_民间借贷纠纷_贷后+贷前
-            'info_court_admi_vio': '',  # 法院核查_个人_行政违法记录_贷后+贷前
-            'info_court_judge': '',  # 法院核查_个人_民商事裁判文书_贷后+贷前
-            'info_court_trial_proc': '',  # 法院核查_个人_民商事审判流程_贷后+贷前
-            'info_court_tax_pay': '',  # 法院核查_个人_纳税非正常户_贷后+贷前
-            'info_court_pub_info': '',  # 法院核查_个人_执行公开信息_贷后+贷前
-            'info_court_tax_arrears': '',  # 法院核查_个人_欠税名单_贷后+贷前
+            'info_court_owed_owe': {},  # 法院核查_个人_欠款欠费名单_贷前+贷后
+            'info_court_dishonesty': {},  # 法院核查_个人_失信老赖名单_贷后+贷前
+            'info_court_limit_entry': {},  # 法院核查_个人_限制出入境名单_贷后+贷前
+            'info_court_high_cons': {},  # 法院核查_个人_限制高消费名单_贷后+贷前
+            'info_court_cri_sus': {},  # 法院核查_企业_罪犯及嫌疑人名单_贷后+贷前
+            'info_court_fin_loan_con': {},  # 法院核查_个人_金融借款合同纠纷_贷后+贷前
+            'info_court_loan_con': {},  # 法院核查_个人_借款合同纠纷_贷后+贷前
+            'info_court_pop_loan': {},  # 法院核查_个人_民间借贷纠纷_贷后+贷前
+            'info_court_admi_vio': {},  # 法院核查_个人_行政违法记录_贷后+贷前
+            'info_court_judge': {},  # 法院核查_个人_民商事裁判文书_贷后+贷前
+            'info_court_trial_proc': {},  # 法院核查_个人_民商事审判流程_贷后+贷前
+            'info_court_tax_pay': {},  # 法院核查_个人_纳税非正常户_贷后+贷前
+            'info_court_pub_info': {},  # 法院核查_个人_执行公开信息_贷后+贷前
+            'info_court_tax_arrears': {},  # 法院核查_个人_欠税名单_贷后+贷前
         }
+        '''
 
     def _info_court_owed_owe(self, variable_name):
         old_sql = '''
@@ -163,8 +166,8 @@ class V16001(Transformer):
         print("new_json", new_json)
         print("old_json", old_json)
 
-        self.variables[variable_name] = {"type:": type_name, "before": new_json,
-                                         "after": old_json}
+        self.info_list.append({"variable": variable_name, "type:": type_name, "before": new_json,
+                               "after": old_json})
 
     def _info_court_admi_vio(self, variable_name):
         old_sql = '''
@@ -221,14 +224,14 @@ class V16001(Transformer):
 
     def _info_court_pub_info(self, variable_name):
         old_sql = '''
-                    select execute_case_no from(
+                    select t.* from(
                         select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and create_time < %(pre_biz_date)s order by create_time desc limit 1
-                        ) tab left join  info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
+                        ) tab inner join  info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
                     '''
         new_sql = '''
-                    select execute_case_no from(
+                    select t.* from(
                         select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
-                        ) tab left join info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
+                        ) tab inner join info_court_excute_public t on t.court_id = tab.id where execute_case_no is not null;
                     '''
         self._sql_result_to_var(variable_name, "法院核查_个人_执行公开信息", old_sql, new_sql)
 
@@ -262,8 +265,9 @@ class V16001(Transformer):
         })
         after_df.fillna('', inplace=True)
 
-        self.variables[variable_name] = {"type:": type_name, "before": json.loads(before_df.to_json(orient="records")),
-                                         "after": json.loads(after_df.to_json(orient="records"))}
+        self.info_list.append(
+            {"variable": variable_name, "type:": type_name, "before": json.loads(before_df.to_json(orient="records")),
+             "after": json.loads(after_df.to_json(orient="records"))})
 
     def transform(self):
         # 前一个业务的创建时间
@@ -275,7 +279,8 @@ class V16001(Transformer):
         self._info_court_cri_sus("info_court_cri_sus")
 
         self._court_fin_loan_stats("info_court_fin_loan_con", "金融借款合同纠纷", "金融借款合同纠纷")
-        self._court_fin_loan_stats("info_court_loan_con", "借款合同纠纷", "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷")
+        self._court_fin_loan_stats("info_court_loan_con", "借款合同纠纷",
+                                   "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷")
         self._court_fin_loan_stats("info_court_pop_loan", "民间借贷纠纷", "民间借贷纠纷")
 
         self._info_court_admi_vio("info_court_admi_vio")
@@ -285,3 +290,4 @@ class V16001(Transformer):
         self._info_court_pub_info("info_court_pub_info")
         self._info_court_tax_arrears("info_court_tax_arrears")
 
+        self.variables["info_court"] = self.info_list
