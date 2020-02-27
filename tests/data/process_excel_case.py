@@ -35,6 +35,7 @@ class Process(object):
         super().__init__()
         self.read_path = None
         self.write_path = None
+        self.method = None
         self.product_code = None
         self.origin_data = None
         self.table_to_ids = {}
@@ -43,12 +44,12 @@ class Process(object):
         write_file_name = read_file_name.split('.')[0] + '_result' + '.' + read_file_name.split('.')[1]
         read_path = os.path.join(os.path.abspath('.'), 'input', read_file_name)
         write_path = os.path.join(os.path.abspath('.'), 'output', write_file_name)
-        self.input(read_path, write_path,method)
+        self.input(read_path, write_path, method)
         result = self.do_process_case()
         self.tear_down()
         return result
 
-    def input(self, read_path, write_path,method):
+    def input(self, read_path, write_path, method):
         self.read_path = read_path
         self.write_path = write_path
         self.method = method
