@@ -1,5 +1,6 @@
 import os
 from abc import ABCMeta, abstractmethod
+from functools import reduce
 
 import numpy as np
 import pandas as pd
@@ -7,6 +8,7 @@ from pandas import DataFrame
 
 from data.test_mapper import translate_for_strategy
 from data.test_mapper_detail import translate_for_report_detail
+from util.mysql_reader import sql_insert
 
 
 def is_number(s):
@@ -35,13 +37,16 @@ class Process(object):
         self.write_path = None
         self.product_code = None
         self.origin_data = None
+        self.table_to_ids = {}
 
-    def run(self, read_file_name=None,method=None):
+    def run(self, read_file_name=None, method=None):
         write_file_name = read_file_name.split('.')[0] + '_result' + '.' + read_file_name.split('.')[1]
         read_path = os.path.join(os.path.abspath('.'), 'input', read_file_name)
         write_path = os.path.join(os.path.abspath('.'), 'output', write_file_name)
         self.input(read_path, write_path,method)
-        return self.do_process_case()
+        result = self.do_process_case()
+        self.tear_down()
+        return result
 
     def input(self, read_path, write_path,method):
         self.read_path = read_path
@@ -121,6 +126,25 @@ class Process(object):
         df.to_excel(path)
         return df
 
+    def tear_down(self):
+        print("table_ids", self.table_to_ids)
+        for tab_name in self.table_to_ids:
+            ids = self.table_to_ids[tab_name]
+            if len(ids) > 1:
+                str_ids = reduce(lambda e1, e2: str(e1) + "," + str(e2), ids)
+            else:
+                str_ids = str(ids[0])
+            sql = "delete from " + tab_name + " where id in(" + str_ids + ");"
+            print("tear down sql:", sql)
+            sql_insert(sql)
+
+    def record_tab(self, table_name, id):
+        ids = self.table_to_ids.get(table_name)
+        if not ids:
+            self.table_to_ids[table_name] = [id]
+        else:
+            self.table_to_ids[table_name].append(id)
+
     @abstractmethod
     def do_process_case(self) -> DataFrame:
         """
@@ -128,3 +152,4 @@ class Process(object):
 
         """
         pass
+
