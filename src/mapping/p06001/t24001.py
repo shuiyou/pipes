@@ -26,14 +26,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_shares_frost a
-            left join
+                info_com_bus_shares_frost a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                 a.judicial_froz_state like '%%冻结%%' and a.judicial_froz_state not regexp '解冻|解除|失效'
                 and a.froz_from between %(result_date)s and NOW()
         """
@@ -51,14 +49,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_shares_impawn a
-            left join
+                info_com_bus_shares_impawn a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                 a.imp_exe_state like '%%有效%%' 
                 and a.imp_equple_date between %(result_date)s and NOW()
         """
@@ -76,14 +72,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_mort_basic a
-            left join
+                info_com_bus_mort_basic a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                 a.mort_status like '%%有效%%' 
                 and a.reg_date between %(result_date)s and NOW()
         """
@@ -101,14 +95,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_illegal a
-            left join
+                info_com_bus_illegal a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                 (a.illegal_rresult_out is null or a.illegal_rresult_out = '')
                 and a.illegal_date_in between %(result_date)s and NOW()
         """
@@ -126,14 +118,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_case a
-            left join
+                info_com_bus_case a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                  a.pen_deciss_date between %(result_date)s and NOW()
         """
         df = sql_to_df(sql=sql,
@@ -150,14 +140,12 @@ class T24001(Transformer):
             select
                 count(*) as cnt
             from 
-                info_com_bus_exception a
-            left join
+                info_com_bus_exception a,
                 (select id FROM info_com_bus_basic where create_time < NOW()
                 and (ent_name=%(user_name)s or credit_code=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on
-                a.basic_id=b.id
+                order by id desc limit 1) b 
             where
+                a.basic_id=b.id and
                 (a.result_out is null or a.result_out = '')
                  and a.date_in between %(result_date)s and NOW()
         """

@@ -26,51 +26,49 @@ class V24001(Transformer):
     def _hit_com_bus_info_details(self):
         hit_list = {
             'info_com_bus_shares_frost': {'table_name': 'info_com_bus_shares_frost',
-                                          'criteria': "where a.judicial_froz_state like '%%冻结%%' and "
+                                          'criteria': "and a.judicial_froz_state like '%%冻结%%' and "
                                                       "a.judicial_froz_state not regexp '解冻|解除|失效'",
-                                          'type': '工商核查_股权冻结'},
+                                          'type': '工商核查企业股权冻结信息'},
             'info_com_bus_shares_impawn': {'table_name': 'info_com_bus_shares_impawn',
-                                           'criteria': "where a.imp_exe_state like '%%有效%%'",
-                                           'type': '工商核查_股权出质'},
+                                           'criteria': "and a.imp_exe_state like '%%有效%%'",
+                                           'type': '工商核查企业股权出质信息'},
             'info_com_bus_mor_detail': {'table_name': 'info_com_bus_mort_basic',
-                                        'criteria': "where a.mort_status like '%%有效%%'",
-                                        'type': '工商核查_动产抵押'},
+                                        'criteria': "and a.mort_status like '%%有效%%'",
+                                        'type': '工商核查企业动产抵押信息'},
             'info_com_bus_liquidation': {'table_name': 'info_com_bus_liquidation',
                                          'criteria': "",
-                                         'type': '工商核查_清算信息'},
+                                         'type': '工商核查企业清算信息'},
             'info_com_bus_illegal_list': {'table_name': 'info_com_bus_illegal',
-                                          'criteria': "where a.illegal_rresult_out is null "
-                                                      "or a.illegal_rresult_out=''",
-                                          'type': '工商核查_严重违法失信'},
+                                          'criteria': "and (a.illegal_rresult_out is null "
+                                                      "or a.illegal_rresult_out='')",
+                                          'type': '工商核查企业严重违法失信信息'},
             'info_com_bus_case_info': {'table_name': 'info_com_bus_case',
                                        'criteria': "",
-                                       'type': '行政处罚'},
+                                       'type': '工商核查企业行政处罚信息'},
             'info_com_bus_exception': {'table_name': 'info_com_bus_exception',
-                                       'criteria': "where a.result_out is null or a.result_out = ''",
-                                       'type': '工商核查_经营异常'}
+                                       'criteria': "and (a.result_out is null or a.result_out = '')",
+                                       'type': '工商核查企业经营异常信息'}
         }
         for var in hit_list.keys():
             sql_before_loan = """
                 select
                     a.*
                 from
-                    %s a""" % hit_list[var]['table_name'] + """ 
-                left join 
+                    %s a""" % hit_list[var]['table_name'] + """, 
                     (select id FROM info_com_bus_basic where %(result_date)s between create_time and expired_at
                     and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
-                    order by create_time desc limit 1) b
-                on
+                    order by id desc limit 1) b
+                where
                     a.basic_id=b.id """ + hit_list[var]['criteria']
             sql_after_loan = """
                 select
                     a.*
                 from
-                    %s a""" % hit_list[var]['table_name'] + """ 
-                left join 
+                    %s a""" % hit_list[var]['table_name'] + """, 
                     (select id FROM info_com_bus_basic where NOW() between create_time and expired_at
                     and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
-                    order by create_time desc limit 1) b
-                on
+                    order by id desc limit 1) b
+                where
                     a.basic_id=b.id """ + hit_list[var]['criteria']
             df_before_loan = sql_to_df(sql=sql_before_loan,
                                        params={'result_date': self.pre_biz_date,
