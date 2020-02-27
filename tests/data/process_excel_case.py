@@ -33,6 +33,8 @@ class Process(object):
         super().__init__()
         self.read_path = None
         self.write_path = None
+        self.product_code = None
+        self.origin_data = None
 
     def run(self, read_file_name=None,method=None):
         write_file_name = read_file_name.split('.')[0] + '_result' + '.' + read_file_name.split('.')[1]
@@ -85,7 +87,7 @@ class Process(object):
                 if key in ['phone']:
                     phone = value
             if 't' in method:
-                res = translate_for_strategy("", code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+                res = translate_for_strategy(self.product_code, code_array, user_name=user_name, id_card_no=id_card_no, phone=phone, origin_data=self.origin_data)
             elif 'v' in method:
                 res = translate_for_report_detail(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
             for key in res:
