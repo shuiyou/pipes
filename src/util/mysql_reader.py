@@ -19,4 +19,4 @@ def sql_to_df(sql, index_col=None, coerce_float=True, params=None,
 
 def sql_insert(sql, index_col=None, coerce_float=True, params=None,
                parse_dates=None, columns=None, chunksize=None):
-    __DB_ENGINE.execute(sql)
+    return __DB_ENGINE.execute(sql)

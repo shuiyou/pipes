@@ -59,7 +59,7 @@ class Process(object):
             df.to_excel(path)
         return path
 
-    def run_processor(self, path,method):
+    def run_processor(self, path, method):
         df = pd.read_excel(path)
         # 跑代码的实际结果
         actual_reslut_array = []
@@ -82,7 +82,7 @@ class Process(object):
             for key, value in params.items():
                 if key in ['user_name', 'unique_name', 'name','ent_name']:
                     user_name = value
-                if key in ['id_card_no', 'unique_id_no','credit_code']:
+                if key in ['id_card_no', 'unique_id_no', 'credit_code']:
                     id_card_no = value
                 if key in ['phone']:
                     phone = value

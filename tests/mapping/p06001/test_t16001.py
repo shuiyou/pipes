@@ -13,6 +13,11 @@ def test_16001():
     print(ps.variables)
 
 
+def test_16002():
+    ps = T16001()
+    ps.run(user_name='叶冬梅', id_card_no='433126198704090605', origin_data={"preBizDate": "2019-01-01 13:01:01"})
+    print(ps.variables)
+
 def test_map():
     info = {"a": "b"}
     for key in info:

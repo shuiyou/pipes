@@ -19,23 +19,23 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
     variables = {}
     c = None
     try:
-        if product_code is None:
-            for c in codes:
+        for c in codes:
+            if product_code is None:
                 trans = get_transformer(c)
                 trans_result = trans.run(user_name=user_name,
                                          id_card_no=id_card_no,
                                          phone=phone,
                                          user_type=user_type)
                 variables.update(trans_result['variables'])
-        else:
-            product_trans = get_transformer(c, product_code)
-            product_trans.product_code = product_code
-            product_trans_result = product_trans.run(user_name=user_name,
-                                                     id_card_no=id_card_no,
-                                                     phone=phone,
-                                                     user_type=user_type,
-                                                     origin_data=origin_data)
-            variables.update(product_trans_result['variables'])
+            else:
+                product_trans = get_transformer(c, product_code)
+                product_trans.product_code = product_code
+                product_trans_result = product_trans.run(user_name=user_name,
+                                                         id_card_no=id_card_no,
+                                                         phone=phone,
+                                                         user_type=user_type,
+                                                         origin_data=origin_data)
+                variables.update(product_trans_result['variables'])
     except Exception as err:
         logger.error(c + ">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))

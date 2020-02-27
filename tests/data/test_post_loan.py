@@ -1,7 +1,4 @@
-from data.data_deposit import deposit
-from data.data_single_three_structure import single_three_deposit
-from data.data_union_multi_to_multi_deposit import unit_multi_deposit
-from data.data_union_multi_to_one_deposit import unit_deposit
+from data.data_multi_to_multi_deposit_v2 import unit_multi_deposit_v2
 
 
 def test_t_f16001_case():
@@ -9,8 +6,8 @@ def test_t_f16001_case():
 
 
 def _assert_union_multi_to_multi_df(code):
-    ps = unit_multi_deposit()
-    ps.origin_data = {"preBizDate", "2019-01-01 13:01:01"}
+    ps = unit_multi_deposit_v2()
+    ps.origin_data = {"preBizDate": "2019-01-01 13:01:01"}
     ps.product_code = "06001"
     _assert_df(ps, code)
 
