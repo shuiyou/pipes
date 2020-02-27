@@ -179,6 +179,7 @@ class unit_multi_deposit_v2(Process):
             title_list = no_empty_df.columns.values.tolist()
             # 遍历no_empty_df逐条插入数据
             key_value_main_1 = []
+            key_list = []
             for index, row in no_empty_df.iterrows():
                 df_main_id = 0
                 df_main_1_key_array = []
@@ -191,12 +192,13 @@ class unit_multi_deposit_v2(Process):
                         title_value = str(row[title])
                         if title_value is not None and title_value != 'nan' and len(title_value) > 0:
                             df_main_1_key_array, key = _insert_main_1_table_data(title_value, key_main_1, channel_api_no)
+                            key_list.append(key)
                     if title.find('table_main_1_sub') >= 0:
                         # 插入第二张主表关联的子表数据
                         title_value = str(row[title])
                         if title_value is not None and title_value != 'nan' and len(title_value) > 0:
                             _insert_main_1_table_sub_data(title_value, df_main_1_key_array)
-            no_empty_df['key_value_main'] = key
+            no_empty_df['key_value_main'] = key_list
             return no_empty_df
 
     def do_process_case(self, read_path=None, write_path=None):
