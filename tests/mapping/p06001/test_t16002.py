@@ -9,6 +9,10 @@ import pandas as pd
 import numpy as np
 import json
 
+params = {'user_name': '上海乐豪混凝土有限公司',
+          'id_card_no': '',
+          'apply_date': '2019-10-01'}
+
 
 def test_df_compare():
     old_df = pd.DataFrame(np.random.randint(30, 100, 5000), columns=['id'])
@@ -29,38 +33,38 @@ def test_set_compare():
 
 def test_t16002():
     ps = T16002()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
     print(ps.variables)
 
 
 def test_t24001():
     ps = T24001()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
     print(ps.variables)
 
 
 def test_tf0004():
     ps = Tf0004()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
     print(ps.variables)
 
 
 def test_v16002():
     ps = V16002()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
-    with open('e.txt', 'w') as f:
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
+    with open('f.txt', 'w') as f:
         f.write(json.dumps(ps.variables))
     # print(ps.variables)
 
 
 def test_vf0004():
     ps = Vf0004()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
     with open('f.txt', 'w') as f:
         f.write(json.dumps(ps.variables))
     # print(ps.variables)
@@ -68,8 +72,8 @@ def test_vf0004():
 
 def test_v24001():
     ps = V24001()
-    ps.run(user_name='上海点牛信息科技集团有限公司', id_card_no='91310230MA1K05K83G',
-           origin_data={'preBizDate': '2019-10-01'})
+    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
+           origin_data={'preBizDate': params['apply_date']})
     with open('f.txt', 'w') as f:
         f.write(json.dumps(ps.variables))
     # print(ps.variables)

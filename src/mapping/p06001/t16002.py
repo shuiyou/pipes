@@ -56,24 +56,22 @@ class T16002(Transformer):
                 select 
                     a.%s""" % hit_list[var]["column_name"] + """ as key_no
                 from 
-                    %s a""" % hit_list[var]["table_name"] + """
-                left join 
+                    %s a""" % hit_list[var]["table_name"] + """,
                     (select id FROM info_court where create_time < %(result_date)s
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s) 
-                    order by create_time desc limit 1) b 
-                on 
+                    order by id desc limit 1) b 
+                where
                     a.court_id=b.id
                 """
             sql_after_loan = """
                 select 
                     a.%s""" % hit_list[var]["column_name"] + """ as key_no
                 from 
-                    %s a""" % hit_list[var]["table_name"] + """
-                left join 
+                    %s a""" % hit_list[var]["table_name"] + """,
                     (select id FROM info_court where create_time < NOW()
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s) 
-                    order by create_time desc limit 1) b 
-                on 
+                    order by id desc limit 1) b 
+                where
                     a.court_id=b.id
                 """
             df_before_loan = sql_to_df(sql=sql_before_loan,
@@ -97,56 +95,48 @@ class T16002(Transformer):
                 select 
                     a.case_no as key_no
                 from 
-                    info_court_judicative_pape a 
-                left join 
+                    info_court_judicative_pape a,
                     (select id FROM info_court where create_time < %(result_date)s
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s) 
-                    order by create_time desc limit 1) b 
-                on 
-                    a.court_id=b.id
+                    order by id desc limit 1) b 
                 where
+                    a.court_id=b.id and
                     a.case_reason like %(case_reason)s and a.legal_status like "%%被告%%"
                 """
             sql_after_loan1 = """
                 select 
                     a.case_no as key_no
                 from 
-                    info_court_judicative_pape a 
-                left join 
+                    info_court_judicative_pape a,
                     (select id FROM info_court where create_time < NOW()
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                    order by create_time desc limit 1) b 
-                on 
-                    a.court_id=b.id
+                    order by id desc limit 1) b 
                 where
+                    a.court_id=b.id and
                     a.case_reason like %(case_reason)s and a.legal_status like "%%被告%%"
                 """
             sql_before_loan2 = """
                 select 
                     a.case_no as key_no
                 from 
-                    info_court_trial_process a 
-                left join 
+                    info_court_trial_process a,
                     (select id FROM info_court where create_time < %(result_date)s
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                    order by create_time desc limit 1) b 
-                on 
-                    a.court_id=b.id
+                    order by id desc limit 1) b 
                 where
+                    a.court_id=b.id and
                     a.case_reason like %(case_reason)s and a.legal_status like "%%被告%%"
                 """
             sql_after_loan2 = """
                 select 
                     a.case_no as key_no
                 from 
-                    info_court_trial_process a 
-                left join 
+                    info_court_trial_process a,
                     (select id FROM info_court where create_time < NOW()
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                    order by create_time desc limit 1) b 
-                on 
-                    a.court_id=b.id
+                    order by id desc limit 1) b 
                 where
+                    a.court_id=b.id and
                     a.case_reason like %(case_reason)s and a.legal_status like "%%被告%%"
                 """
             df_before_loan1 = sql_to_df(sql=sql_before_loan1,
@@ -178,14 +168,12 @@ class T16002(Transformer):
             select 
                 a.case_no as key_no
             from 
-                info_court_judicative_pape a 
-            left join 
+                info_court_judicative_pape a,
                 (select id FROM info_court where create_time < %(result_date)s
                 and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on 
-                a.court_id=b.id
+                order by id desc limit 1) b 
             where
+                a.court_id=b.id and
                 a.case_reason regexp "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                                 金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷"
                 and a.legal_status like "%%被告%%"
@@ -194,14 +182,12 @@ class T16002(Transformer):
             select 
                 a.case_no as key_no
             from 
-                info_court_judicative_pape a 
-            left join 
+                info_court_judicative_pape a,
                 (select id FROM info_court where create_time < NOW()
                 and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on 
-                a.court_id=b.id
+                order by id desc limit 1) b 
             where
+                a.court_id=b.id and
                 a.case_reason regexp "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                                 金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷"
                 and a.legal_status like "%%被告%%"
@@ -210,14 +196,12 @@ class T16002(Transformer):
             select 
                 a.case_no as key_no
             from 
-                info_court_trial_process a 
-            left join 
+                info_court_trial_process a,
                 (select id FROM info_court where create_time < %(result_date)s
                 and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on 
-                a.court_id=b.id
+                order by id desc limit 1) b 
             where
+                a.court_id=b.id and
                 a.case_reason regexp "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                                 金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷"
                 and a.legal_status like "%%被告%%"
@@ -226,14 +210,12 @@ class T16002(Transformer):
             select 
                 a.case_no as key_no
             from 
-                info_court_trial_process a 
-            left join 
+                info_court_trial_process a,
                 (select id FROM info_court where create_time < NOW()
                 and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                order by create_time desc limit 1) b 
-            on 
-                a.court_id=b.id
+                order by id desc limit 1) b 
             where
+                a.court_id=b.id and
                 a.case_reason regexp "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                                 金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷"
                 and a.legal_status like "%%被告%%"
@@ -270,14 +252,13 @@ class T16002(Transformer):
                 select 
                     count(*) as cnt
                 from
-                    %s a""" % hit_list[var]["table_name"] + """
-                left join
+                    %s a""" % hit_list[var]["table_name"] + """,
                     (select id FROM info_court where create_time < NOW()
                     and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                    order by create_time desc limit 1) b 
-                on
+                    order by id desc limit 1) b 
+                where
                     a.court_id=b.id
-                where """ + "a.%s" % hit_list[var]["column_name"] + """ between %(result_date)s and NOW()
+                and """ + "a.%s" % hit_list[var]["column_name"] + """ between %(result_date)s and NOW()
             """
             df = sql_to_df(sql=sql,
                            params={"result_date": self.pre_biz_date,
