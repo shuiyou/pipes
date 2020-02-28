@@ -150,7 +150,7 @@
                 "idno":"91510108396414129E",
                 "userType":"COMPANY",
                 "fundratio":0.3,
-                "baseType":"U_S_COMPANY",
+                "baseType":"U_COMPANY",
                 "relation":"SHAREHOLDER",
                 "bizType":[
                     "16002",
