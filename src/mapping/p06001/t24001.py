@@ -154,7 +154,7 @@ class T24001(Transformer):
                                'user_name': self.user_name,
                                'id_card_no': self.id_card_no})
         if df.values[0][0] > 0:
-            self.variables['com_bus_case_info_laf'] = 1
+            self.variables['com_bus_exception_laf'] = 1
         return
 
     # 执行变量转换
