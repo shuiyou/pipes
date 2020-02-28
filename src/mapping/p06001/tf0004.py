@@ -90,8 +90,8 @@ class Tf0004(Transformer):
                                                   'column_name': 'case_no'},  # 工商法院_在营企业_民商事裁判文书命中次数_贷后新增
             'com_bus_court_open_judge_proc_laf': {'table_name': 'info_court_trial_process',
                                                   'column_name': 'case_no'},  # 工商法院_在营企业_民商事审判流程命中次数_贷后新增
-            'com_bus_court_open_pub_info_laf': {'table_name': 'info_court_excute_public',
-                                                'column_name': 'execute_case_no'}  # 工商法院_在营企业_执行公开信息命中次数_贷后新增
+            'com_bus_court_open_admi_violation_laf': {'table_name': 'info_court_administrative_violation',
+                                                      'column_name': 'case_no'}  # 工商法院_在营企业_执行公开信息命中次数_贷后新增
         }
         for var in hit_list.keys():
             sql_before_loan = """
@@ -316,9 +316,9 @@ class Tf0004(Transformer):
                 count(*) as cnt
             from
                 info_court_excute_public a,
-                (select id FROM info_court where create_time < NOW()
-                and (unique_name=%(user_name)s or unique_id_no=%(id_card_no)s)
-                order by id desc limit 1) b 
+                (select max(id) as id FROM info_court where create_time < NOW()
+                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
+                group by unique_name,unique_id_no) b 
             where
                 a.court_id=b.id
         """

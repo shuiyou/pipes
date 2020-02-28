@@ -9,8 +9,8 @@ import pandas as pd
 import numpy as np
 import json
 
-params = {'user_name': '上海乐豪混凝土有限公司',
-          'id_card_no': '',
+params = {'user_name': 'test1',
+          'id_card_no': '147258',
           'apply_date': '2019-10-01'}
 
 
