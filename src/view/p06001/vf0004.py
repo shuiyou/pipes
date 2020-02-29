@@ -1,6 +1,7 @@
 import pandas as pd
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
+import time
 
 
 class Vf0004(Transformer):
@@ -29,9 +30,11 @@ class Vf0004(Transformer):
         # }
         self.pre_biz_date = None
         self.ent_list = list()
+        self.id_list = list()
 
     # 获取企业对外投资企业中占股比例大于20%且在营的企业
     def _get_ent_list(self):
+        t1 = time.time()
         sql1 = """
             select 
                 distinct a.ent_name,a.credit_code
@@ -72,7 +75,48 @@ class Vf0004(Transformer):
             credit_str = '|'.join(list(df['credit_code']))
             self.ent_list.append(ent_str)
             self.ent_list.append(credit_str)
+        print("获取ent_list耗时:%.4f" % (time.time() - t1))
         return
+
+    # 根据ent_list获取需要info_court表中对应的记录id
+    def _get_info_court_id(self):
+        sql1 = """
+            select 
+                max(id) as id 
+            FROM 
+                info_court 
+            where 
+                %(result_date)s between create_time and expired_at
+                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
+                group by unique_name,unique_id_no
+        """
+        sql2 = """
+            select 
+                max(id) as id 
+            FROM 
+                info_court 
+            where 
+                NOW() between create_time and expired_at
+                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
+                group by unique_name,unique_id_no
+        """
+        df1 = sql_to_df(sql=sql1,
+                        params={'user_name': self.ent_list[0],
+                                'id_card_no': self.ent_list[1],
+                                'result_date': self.pre_biz_date})
+        df2 = sql_to_df(sql=sql2,
+                        params={'user_name': self.ent_list[0],
+                                'id_card_no': self.ent_list[1]})
+        if len(df1) > 0:
+            temp = [str(_) for _ in df1['id']]
+            self.id_list.append(','.join(temp))
+        else:
+            self.id_list.append('Na')
+        if len(df2) > 0:
+            temp = [str(_) for _ in df2['id']]
+            self.id_list.append(','.join(temp))
+        else:
+            self.id_list.append('Na')
 
     # 企业对外投资企业命中各类名单详细信息展示
     def _hit_list_details(self):
@@ -101,35 +145,27 @@ class Vf0004(Transformer):
                                                 'type': '工商法院在营企业纳税非正常户'}  # 工商法院_在营企业_纳税非正常户_贷后+贷前
         }
         for var in hit_list.keys():
+            t1 = time.time()
             sql_before_loan = """
                 select 
                     a.*
                 from 
-                   %s a""" % hit_list[var]['table_name'] + """,
-                    (select max(id) as id FROM info_court where %(result_date)s between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                   %s a""" % hit_list[var]['table_name'] + """
                 where
-                    a.court_id=b.id
+                    a.court_id in (%(id)s)
                 """
             sql_after_loan = """
                 select 
                     a.*
                 from 
-                    %s a""" % hit_list[var]['table_name'] + """,
-                    (select max(id) as id FROM info_court where NOW() between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                    %s a""" % hit_list[var]['table_name'] + """
                 where
-                    a.court_id=b.id
+                    a.court_id in (%(id)s)
                 """
             df_before_loan = sql_to_df(sql=sql_before_loan,
-                                       params={'result_date': self.pre_biz_date,
-                                               'user_name': self.ent_list[0],
-                                               'id_card_no': self.ent_list[1]})
+                                       params={'id': self.id_list[0]})
             df_after_loan = sql_to_df(sql=sql_after_loan,
-                                      params={'user_name': self.ent_list[0],
-                                              'id_card_no': self.ent_list[1]})
+                                      params={'id': self.id_list[1]})
 
             df_before_loan.fillna('', inplace=True)
             df_after_loan.fillna('', inplace=True)
@@ -147,6 +183,7 @@ class Vf0004(Transformer):
                     self.variables['info_com_bus_court'][-1]['after'].append({})
                     for col in df_after_loan.columns:
                         self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
+            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
         return
 
     # 企业对外投资企业金融借款合同纠纷和民间借贷纠纷详细信息展示
@@ -158,71 +195,54 @@ class Vf0004(Transformer):
                                                  'type': '工商法院在营企业民间借贷纠纷'}  # 工商法院_在营企业_民间借贷纠纷_贷后+贷前
         }
         for var in hit_list.keys():
+            t1 = time.time()
             sql_before_loan1 = """
                 select 
                     a.*
                 from 
-                    info_court_judicative_pape a,
-                    (select max(id) as id FROM info_court where %(result_date)s between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                    info_court_judicative_pape a
                 where
-                    a.court_id=b.id and
+                    a.court_id in (%(id)s) and
                     a.case_reason like %(case_reason)s and a.legal_status like '%%被告%%'
                 """
             sql_after_loan1 = """
                 select 
                     a.*
                 from 
-                    info_court_judicative_pape a,
-                    (select max(id) as id FROM info_court where NOW() between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                    info_court_judicative_pape a
                 where
-                    a.court_id=b.id and
+                    a.court_id in (%(id)s) and
                     a.case_reason like %(case_reason)s and a.legal_status like '%%被告%%'
                 """
             sql_before_loan2 = """
                 select 
                     a.*
                 from 
-                    info_court_trial_process a,
-                    (select max(id) as id FROM info_court where %(result_date)s between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                    info_court_trial_process a
                 where
-                    a.court_id=b.id and
+                    a.court_id in (%(id)s) and
                     a.case_reason like %(case_reason)s and a.legal_status like '%%被告%%'
                 """
             sql_after_loan2 = """
                 select 
                     a.*
                 from 
-                    info_court_trial_process a, 
-                    (select max(id) as id FROM info_court where NOW() between create_time and expired_at
-                    and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                    group by unique_name,unique_id_no) b 
+                    info_court_trial_process a
                 where
-                    a.court_id=b.id and
+                    a.court_id in (%(id)s) and
                     a.case_reason like %(case_reason)s and a.legal_status like '%%被告%%'
                 """
             df_before_loan1 = sql_to_df(sql=sql_before_loan1,
-                                        params={'result_date': self.pre_biz_date,
-                                                'user_name': self.ent_list[0],
-                                                'id_card_no': self.ent_list[1],
+                                        params={'id': self.id_list[0],
                                                 'case_reason': '%'+hit_list[var]['case_reason']+'%'})
             df_after_loan1 = sql_to_df(sql=sql_after_loan1,
-                                       params={'user_name': self.ent_list[0],
-                                               'id_card_no': self.ent_list[1],
+                                       params={'id': self.id_list[1],
                                                'case_reason': '%'+hit_list[var]['case_reason']+'%'})
             df_before_loan2 = sql_to_df(sql=sql_before_loan2,
-                                        params={'result_date': self.pre_biz_date,
-                                                'user_name': self.ent_list[0],
-                                                'id_card_no': self.ent_list[1],
+                                        params={'id': self.id_list[0],
                                                 'case_reason': '%'+hit_list[var]['case_reason']+'%'})
             df_after_loan2 = sql_to_df(sql=sql_after_loan2,
-                                       params={'user_name': self.ent_list[0],
-                                               'id_card_no': self.ent_list[1],
+                                       params={'id': self.id_list[1],
                                                'case_reason': '%'+hit_list[var]['case_reason']+'%'})
 
             df_before_loan1.fillna('', inplace=True)
@@ -253,20 +273,19 @@ class Vf0004(Transformer):
                     self.variables['info_com_bus_court'][-1]['after'].append({})
                     for col in df_after_loan2.columns:
                         self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
+            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
         return
 
     # 企业对外投资企业借款合同纠纷详细信息展示
     def _info_com_bus_court_open_loan_con(self):
+        t1 = time.time()
         sql_before_loan1 = """
             select 
                 a.*
             from 
-                info_court_judicative_pape a,
-                (select max(id) as id FROM info_court where %(result_date)s between create_time and expired_at
-                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                group by unique_name,unique_id_no) b 
+                info_court_judicative_pape a
             where
-                a.court_id=b.id and
+                a.court_id in (%(id)s) and
                 a.case_reason regexp '借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                             金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷'
                 and a.legal_status like '%%被告%%'
@@ -275,12 +294,9 @@ class Vf0004(Transformer):
             select 
                 a.*
             from 
-                info_court_judicative_pape a,
-                (select max(id) as id FROM info_court where NOW() between create_time and expired_at
-                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                group by unique_name,unique_id_no) b 
+                info_court_judicative_pape a
             where
-                a.court_id=b.id and
+                a.court_id in (%(id)s) and
                 a.case_reason regexp '借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                             金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷'
                 and a.legal_status like '%%被告%%'
@@ -289,12 +305,9 @@ class Vf0004(Transformer):
             select 
                 a.*
             from 
-                info_court_trial_process a,
-                (select max(id) as id FROM info_court where %(result_date)s between create_time and expired_at
-                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                group by unique_name,unique_id_no) b 
+                info_court_trial_process a
             where
-                a.court_id=b.id and
+                a.court_id in (%(id)s) and
                 a.case_reason regexp '借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                             金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷'
                 and a.legal_status like '%%被告%%'
@@ -303,30 +316,21 @@ class Vf0004(Transformer):
             select 
                 a.*
             from 
-                info_court_trial_process a,
-                (select max(id) as id FROM info_court where NOW() between create_time and expired_at
-                and (unique_name regexp %(user_name)s or unique_id_no regexp %(id_card_no)s) 
-                group by unique_name,unique_id_no) b 
+                info_court_trial_process a
             where
-                a.court_id=b.id and
+                a.court_id in (%(id)s) and
                 a.case_reason regexp '借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|
                             金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷'
                 and a.legal_status like '%%被告%%'
             """
         df_before_loan1 = sql_to_df(sql=sql_before_loan1,
-                                    params={'result_date': self.pre_biz_date,
-                                            'user_name': self.ent_list[0],
-                                            'id_card_no': self.ent_list[1]})
+                                    params={'id': self.id_list[0]})
         df_after_loan1 = sql_to_df(sql=sql_after_loan1,
-                                   params={'user_name': self.ent_list[0],
-                                           'id_card_no': self.ent_list[1]})
+                                   params={'id': self.id_list[1]})
         df_before_loan2 = sql_to_df(sql=sql_before_loan2,
-                                    params={'result_date': self.pre_biz_date,
-                                            'user_name': self.ent_list[0],
-                                            'id_card_no': self.ent_list[1]})
+                                    params={'id': self.id_list[0]})
         df_after_loan2 = sql_to_df(sql=sql_after_loan2,
-                                   params={'user_name': self.ent_list[0],
-                                           'id_card_no': self.ent_list[1]})
+                                   params={'id': self.id_list[1]})
 
         df_before_loan1.fillna('', inplace=True)
         df_after_loan1.fillna('', inplace=True)
@@ -356,10 +360,12 @@ class Vf0004(Transformer):
                 self.variables['info_com_bus_court'][-1]['after'].append({})
                 for col in df_after_loan2.columns:
                     self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
+        print("变量%s赋值耗时:%.4f" % ('info_com_bus_court_open_loan_con', time.time() - t1))
         return
 
     # 执行变量转换
     def transform(self):
+        t0 = time.time()
         self.pre_biz_date = self.origin_data.get('preBizDate')
         if self.user_name is None or len(self.user_name) == 0:
             self.user_name = 'Na'
@@ -369,7 +375,17 @@ class Vf0004(Transformer):
         # self.variables["variable_product_code"] = "06001"
 
         self._get_ent_list()
-        if len(self.ent_list) > 0:
-            self._hit_list_details()
-            self._hit_contract_dispute_details()
-            self._info_com_bus_court_open_loan_con()
+        t1 = time.time()
+        print("方法_get_ent_list耗时:%.4f" % (t1-t0))
+        self._get_info_court_id()
+        tx = time.time()
+        print("方法_get_info_court_id耗时:%.4f" % (tx - t1))
+        self._hit_list_details()
+        t2 = time.time()
+        print("方法_hit_list_details耗时:%.4f" % (t2 - tx))
+        self._hit_contract_dispute_details()
+        t3 = time.time()
+        print("方法_hit_contract_dispute_details耗时:%.4f" % (t3 - t2))
+        self._info_com_bus_court_open_loan_con()
+        t4 = time.time()
+        print("方法_info_com_bus_court_open_loan_con耗时:%.4f" % (t4 - t3))
