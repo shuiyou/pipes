@@ -21,6 +21,45 @@ class V24001(Transformer):
         #     'info_com_bus_exception': None  # 工商核查_是否有经营异常信息_贷后+贷前
         # }
         self.pre_biz_date = None
+        self.id_list = list()
+
+    # 获取企业名对应的info_com_bus_basic表格id
+    def _get_info_com_bus_basic_id(self):
+        sql1 = """
+            select 
+                id 
+            FROM 
+                info_com_bus_basic 
+            where 
+                %(result_date)s between create_time and expired_at
+                and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
+                order by id desc limit 1
+        """
+        sql2 = """
+            select 
+                id 
+            FROM 
+                info_com_bus_basic 
+            where 
+                NOW() between create_time and expired_at
+                and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
+                order by id desc limit 1
+        """
+        df1 = sql_to_df(sql=sql1,
+                        params={'user_name': self.user_name,
+                                'id_card_no': self.id_card_no,
+                                'result_date': self.pre_biz_date})
+        df2 = sql_to_df(sql=sql2,
+                        params={'user_name': self.user_name,
+                                'id_card_no': self.id_card_no})
+        if len(df1) > 0:
+            self.id_list.append(str(df1.values[0][0]))
+        else:
+            self.id_list.append('Na')
+        if len(df2) > 0:
+            self.id_list.append(str(df2.values[0][0]))
+        else:
+            self.id_list.append('Na')
 
     # 工商核查各命中项详细信息展示
     def _hit_com_bus_info_details(self):
@@ -54,29 +93,20 @@ class V24001(Transformer):
                 select
                     a.*
                 from
-                    %s a""" % hit_list[var]['table_name'] + """, 
-                    (select id FROM info_com_bus_basic where %(result_date)s between create_time and expired_at
-                    and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
-                    order by id desc limit 1) b
+                    %s a""" % hit_list[var]['table_name'] + """
                 where
-                    a.basic_id=b.id """ + hit_list[var]['criteria']
+                    a.basic_id=%(id)s """ + hit_list[var]['criteria']
             sql_after_loan = """
                 select
                     a.*
                 from
-                    %s a""" % hit_list[var]['table_name'] + """, 
-                    (select id FROM info_com_bus_basic where NOW() between create_time and expired_at
-                    and (ent_name=%(user_name)s or credit_code=%(id_card_no)s) 
-                    order by id desc limit 1) b
+                    %s a""" % hit_list[var]['table_name'] + """
                 where
-                    a.basic_id=b.id """ + hit_list[var]['criteria']
+                    a.basic_id=%(id)s """ + hit_list[var]['criteria']
             df_before_loan = sql_to_df(sql=sql_before_loan,
-                                       params={'result_date': self.pre_biz_date,
-                                               'user_name': self.user_name,
-                                               'id_card_no': self.id_card_no})
+                                       params={'id': self.id_list[0]})
             df_after_loan = sql_to_df(sql=sql_after_loan,
-                                      params={'user_name': self.user_name,
-                                              'id_card_no': self.id_card_no})
+                                      params={'id': self.id_list[1]})
             df_before_loan.fillna('', inplace=True)
             df_after_loan.fillna('', inplace=True)
             self.variables['info_com_bus'].append({'variable': var,
@@ -104,5 +134,5 @@ class V24001(Transformer):
             self.id_card_no = 'Na'
 
         # self.variables["variable_product_code"] = "06001"
-
+        self._get_info_com_bus_basic_id()
         self._hit_com_bus_info_details()
