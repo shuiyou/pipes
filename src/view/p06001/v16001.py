@@ -5,6 +5,7 @@
 # @File : v16001.py.py
 # @Software: PyCharm
 import json
+import time
 
 from mapping.tranformer import Transformer
 from mapping.utils.df_comparator_util import to_df
@@ -252,21 +253,48 @@ class V16001(Transformer):
         # 前一个业务的创建时间
         self.pre_biz_date = self.origin_data.get('preBizDate')
 
+        start = time.time()
         self._info_court_owed_owe("info_court_owed_owe")
+        print("_info_court_owed_owe耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_dishonesty("info_court_dishonesty")
+        print("_info_court_dishonesty耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_limit_entry("info_court_limit_entry")
+        print("_info_court_limit_entry耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_cri_sus("info_court_cri_sus")
+        print("_info_court_cri_sus耗时为：%.4f", (time.time() - start))
+        start = time.time()
 
         self._court_fin_loan_stats("info_court_fin_loan_con", "金融借款合同纠纷", "金融借款合同纠纷")
+        print("_court_fin_loan_stats耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._court_fin_loan_stats("info_court_loan_con", "借款合同纠纷",
                                    "借款合同纠纷|民间借贷纠纷|金融不良债权追偿纠纷|金融不良债权转让合同纠纷|企业借贷纠纷|同业拆借纠纷")
+        print("_court_fin_loan_stats耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._court_fin_loan_stats("info_court_pop_loan", "民间借贷纠纷", "民间借贷纠纷")
+        print("_court_fin_loan_stats耗时为：%.4f", (time.time() - start))
+        start = time.time()
 
         self._info_court_admi_vio("info_court_admi_vio")
+        print("_info_court_admi_vio耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_judge("info_court_judge")
+        print("_info_court_judge耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_trial_proc("info_court_trial_proc")
+        print("_info_court_trial_proc耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_tax_pay("info_court_tax_pay")
+        print("_info_court_tax_pay耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_pub_info("info_court_pub_info")
+        print("_info_court_pub_info耗时为：%.4f", (time.time() - start))
+        start = time.time()
         self._info_court_tax_arrears("info_court_tax_arrears")
+        print("_info_court_tax_arrears耗时为：%.4f", (time.time() - start))
+        start = time.time()
 
         self.variables["info_court"] = self.info_list
