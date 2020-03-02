@@ -75,6 +75,8 @@ class Vf0004(Transformer):
             credit_str = '|'.join(list(df['credit_code']))
             self.ent_list.append(ent_str)
             self.ent_list.append(credit_str)
+        else:
+            self.ent_list = ['Na', 'Na']
         print("获取ent_list耗时:%.4f" % (time.time() - t1))
         return
 
