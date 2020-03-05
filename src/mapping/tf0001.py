@@ -1,5 +1,6 @@
 import pandas as pd
 
+from mapping.biz_constants import CONTRACT_DISPUTES
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
 from util.common_util import exception
@@ -317,7 +318,8 @@ class Tf0001(Transformer):
                     lend_loan_array = get_out_decision_code(df=lend_loan_df, court_df=court_df)
                     self.out_decision_code['X006'] = lend_loan_array
                     self.out_decision_code['XM006'] = lend_loan_array
-                loan_df = df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason')
+
+                loan_df = df.query('legal_status_contain > 0 and case_reason in ' + str(CONTRACT_DISPUTES))
                 if loan_df.shape[0] > 0:
                     self.variables['relent_court_open_loan_con'] = 1
                     loan_array = get_out_decision_code(df=loan_df, court_df=court_df)
