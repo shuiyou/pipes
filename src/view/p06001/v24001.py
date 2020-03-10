@@ -89,23 +89,33 @@ class V24001(Transformer):
                                        'type': '工商核查企业经营异常信息'}
         }
         for var in hit_list.keys():
-            sql_before_loan = """
-                select
-                    a.*
-                from
-                    %s a""" % hit_list[var]['table_name'] + """
-                where
-                    a.basic_id=%(id)s """ + hit_list[var]['criteria']
-            sql_after_loan = """
-                select
-                    a.*
-                from
-                    %s a""" % hit_list[var]['table_name'] + """
-                where
-                    a.basic_id=%(id)s """ + hit_list[var]['criteria']
-            df_before_loan = sql_to_df(sql=sql_before_loan,
+            if var != 'info_com_bus_mor_detail':
+                sql = """
+                    select
+                        a.*
+                    from
+                        %s a""" % hit_list[var]['table_name'] + """
+                    where
+                        a.basic_id=%(id)s """ + hit_list[var]['criteria']
+            else:
+                sql = """
+                    select
+                        a.*,b.can_reason,b.can_date,c.ma_balt_details,c.ma_balt_date
+                    from
+                        info_com_bus_mort_basic a
+                    left join
+                        info_com_bus_mort_cancel b
+                    on
+                        a.id=b.mort_id
+                    left join
+                        info_com_bus_mort_change c
+                    on
+                        a.id=c.mort_id
+                    where
+                        a.basic_id=%(id)s """ + hit_list[var]['criteria']
+            df_before_loan = sql_to_df(sql=sql,
                                        params={'id': self.id_list[0]})
-            df_after_loan = sql_to_df(sql=sql_after_loan,
+            df_after_loan = sql_to_df(sql=sql,
                                       params={'id': self.id_list[1]})
             df_before_loan.fillna('', inplace=True)
             df_after_loan.fillna('', inplace=True)
