@@ -1,13 +1,10 @@
+import numpy as np
+import pandas as pd
+
 from mapping.p06001.t16002 import T16002
 from mapping.p06001.t24001 import T24001
 from mapping.p06001.tf0004 import Tf0004
-from view.p06001.v16002 import V16002
-from view.p06001.vf0004 import Vf0004
-from view.p06001.v24001 import V24001
 from mapping.utils.df_comparator_util import df_compare
-import pandas as pd
-import numpy as np
-import json
 
 params = {'user_name': '宿州市徽香源食品有限公司',
           'id_card_no': '91341302760810639A',
@@ -50,30 +47,3 @@ def test_tf0004():
     ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
            origin_data={'preBizDate': params['apply_date']})
     print(ps.variables)
-
-
-def test_v16002():
-    ps = V16002()
-    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
-           origin_data={'preBizDate': params['apply_date']})
-    with open('f.txt', 'w') as f:
-        f.write(json.dumps(ps.variables))
-    # print(ps.variables)
-
-
-def test_vf0004():
-    ps = Vf0004()
-    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
-           origin_data={'preBizDate': params['apply_date']})
-    with open('f.txt', 'w') as f:
-        f.write(json.dumps(ps.variables))
-    # print(ps.variables)
-
-
-def test_v24001():
-    ps = V24001()
-    ps.run(user_name=params['user_name'], id_card_no=params['id_card_no'],
-           origin_data={'preBizDate': params['apply_date']})
-    with open('f.txt', 'w') as f:
-        f.write(json.dumps(ps.variables))
-    # print(ps.variables)
