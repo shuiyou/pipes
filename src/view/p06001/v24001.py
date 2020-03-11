@@ -100,7 +100,7 @@ class V24001(Transformer):
             else:
                 sql = """
                     select
-                        a.*,b.can_reason,b.can_date,c.ma_balt_details,c.ma_balt_date
+                        a.*,b.can_reason,b.can_date,c.ma_balt_details,c.ma_balt_date, d.*
                     from
                         info_com_bus_mort_basic a
                     left join
@@ -111,6 +111,10 @@ class V24001(Transformer):
                         info_com_bus_mort_change c
                     on
                         a.id=c.mort_id
+                    left join
+                        info_com_bus_mort_creditor d
+                    on 
+                        a.id=d.mort_id
                     where
                         a.basic_id=%(id)s """ + hit_list[var]['criteria']
             df_before_loan = sql_to_df(sql=sql,
