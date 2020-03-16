@@ -57,4 +57,11 @@ class BaseTypeServiceV2(BaseTypeService):
                     all_match = False
             if all_match:
                 return type_to_relations[0]["baseType"]
-        return None
+
+        # 未匹配到baseType.
+        if s_type == "PERSONAL":
+            return "U_PER_OTHER"
+        elif s_type == "COMPANY":
+            return "U_COM_OTHER"
+        else:
+            return "U_IGNORE_TYPE_OTHER"
