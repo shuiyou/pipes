@@ -59,6 +59,14 @@ class BaseTypeServiceV2(BaseTypeService):
                 return type_to_relations[0]["baseType"]
 
     def get_normal_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
+
+        if relation == 'GUARANTOR':
+            if user_type == 'COMPANY':
+                return 'G_COMPANY'
+            elif auth_status == 'AUTHORIZED':
+                return 'G_PERSONAL'
+            else:
+                return 'G_S_PERSONAL'
         # 未匹配到baseType.
         if user_type == "PERSONAL":
             return "U_PER_OTHER"

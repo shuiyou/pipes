@@ -22,6 +22,15 @@
             "relation": "SPOUSE"
         },
         {
+            "name": "王果",
+            "idno": "32038119920718062X",
+            "phone": null,
+            "userType": "PERSONAL",
+            "authorStatus": "UNAUTHORIZED",
+            "fundratio": null,
+            "relation": "PARENT"
+        },
+        {
             "name": "刘志明",
             "idno": "142327198208273573",
             "phone": "15333015677",
