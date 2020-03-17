@@ -58,10 +58,11 @@ class BaseTypeServiceV2(BaseTypeService):
             if all_match:
                 return type_to_relations[0]["baseType"]
 
+    def get_normal_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
         # 未匹配到baseType.
-        if s_type == "PERSONAL":
+        if user_type == "PERSONAL":
             return "U_PER_OTHER"
-        elif s_type == "COMPANY":
+        elif user_type == "COMPANY":
             return "U_COM_OTHER"
         else:
             return "U_IGNORE_TYPE_OTHER"
