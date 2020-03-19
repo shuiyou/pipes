@@ -39,7 +39,7 @@ class V14001(Transformer):
         df = self._info_df()
         if df is not None and not df.empty:
             self.variables["phone_gray_score"] = df.iloc[0].phone_gray_score
-            self.variables["contacts_class_1_blacklist_cnt"] = round_max(df.iloc[0].contacts_class_1_blacklist_cnt)
+            self.variables["contacts_class_1_blacklist_cnt"] = df.iloc[0].contacts_class_1_blacklist_cnt
             self.variables["contacts_class_2_blacklist_cnt"] = df.iloc[0].contacts_class_2_blacklist_cnt
             self.variables["contacts_router_cnt"] = df.iloc[0].contacts_router_cnt
             self.variables["contacts_router_ratio"] = df.iloc[0].contacts_router_ratio
