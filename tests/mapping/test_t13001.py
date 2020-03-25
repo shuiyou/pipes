@@ -18,3 +18,15 @@ def test_t13001():
     ps2 = T13001()
     ps2.run('拓秀华', '23120119850605723X', '18170219039')
     print(ps2.variables)
+
+
+def test_t13001_sms_app_cnt_3m():
+    ps2 = T13001()
+    ps2.run('张三古', '360502198201154013', '17717547466')
+    print(ps2.variables)
+
+
+def test_t13001_sms_loan_cnt_3m():
+    ps2 = T13001()
+    ps2.run('张斌', '632121199110100019', '13816716288')
+    print(ps2.variables)
