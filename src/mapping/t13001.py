@@ -371,8 +371,8 @@ class T13001(Transformer):
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC 
                     LIMIT 1
-                    ) sms left join info_sms_loan_platform slp on slp.sms_id = sms.sms_id 
-                        where register_time >= DATE_ADD(sms.create_time, Interval -3 month)
+                    ) sms left join info_sms_loan_apply slp on slp.sms_id = sms.sms_id 
+                        where apply_time >= DATE_ADD(sms.create_time, Interval -3 month)
                 '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
@@ -393,8 +393,8 @@ class T13001(Transformer):
                         AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC 
                     LIMIT 1
-                    ) sms left join info_sms_loan_apply sla on sla.sms_id = sms.sms_id 
-                        where apply_time >= DATE_ADD(sms.create_time, Interval -3 month)
+                    ) sms left join info_sms_loan sla on sla.sms_id = sms.sms_id 
+                        where loan_time >= DATE_ADD(sms.create_time, Interval -3 month)
                 '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
