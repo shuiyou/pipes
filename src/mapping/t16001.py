@@ -115,7 +115,7 @@ class T16001(Transformer):
             self.year = subtract_datetime_col(df, 'create_time', 'closed_time', 'Y')
             self.variables['court_judge'] = df.shape[0]
             self.variables['court_judge_amt_3y'] = df[df[self.year] < 3].fillna(0)['case_amount'].sum()
-            self.variables['court_judge_max'] = round(df.fillna(0)['case_amount'].max(),2)
+            self.variables['court_judge_max'] = round(df.fillna(0)['case_amount'].max(), 2)
             df1 = df.dropna(subset=['legal_status'], how='any')
             defendant_df = df1[df1['legal_status'].str.contains('被告')]
             plaintiff_df = df1[df1['legal_status'].str.contains('原告')]
@@ -335,6 +335,85 @@ class T16001(Transformer):
             elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('民间借贷纠纷'))].shape[0] > 0:
                 self.variables['court_pop_loan'] = 1
 
+    # 以下为灰名单相关变量
+    # 法院核查_个人_失信老赖名单命中的最新时间
+    # court_dishonesty_time
+    # select max(execute_date) from info_court_deadbeat where court_id in(select id from info_court where
+    # unique_name="施网明" and unique_id_no="310108196610024859");
+    def _court_dishonesty_time_df(self):
+        str_sql = '''
+            select max(execute_date) as hit_time from info_court_deadbeat where court_id in(select id from 
+            info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s); 
+            '''
+        df = sql_to_df(sql=str_sql,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df
+
+    # 法院核查_个人_限制高消费名单命中的最新时间
+    # court_high_cons_time
+    # select max(specific_date) from info_court_limit_hignspending where court_id in(select id from info_court where
+    # unique_name='上海乾享机械设备有限公司' and unique_id_no='913101207747584215');
+    def _court_high_cons_time_df(self):
+        str_sql = '''
+                    select max(specific_date) as hit_time from info_court_limit_hignspending where court_id in(select id from 
+                    info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s) 
+                    '''
+        df = sql_to_df(sql=str_sql,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no})
+        return df
+
+    # 法院核查_个人_借款合同纠纷命中的最新时间
+    # court_loan_con_time
+    def _court_loan_con_time_df(self):
+        return self._loan_time_df("借款合同纠纷", "被告")
+
+    # 法院核查_个人_民间借贷纠纷命中的最新时间
+    # court_pop_loan_time
+    def _court_pop_loan_time_df(self):
+        return self._loan_time_df("民间借贷纠纷", "被告")
+
+    def _loan_time_df(self, case_reason, legal_status):
+        str_sql1 = '''
+                        select max(closed_time) as hit_time from info_court_judicative_pape where court_id in(select id 
+                        from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s) and
+                         case_reason like %(case_reason)s and legal_status like %(legal_status)s ; 
+                        '''
+
+        str_sql2 = '''
+                        select max(specific_date) as hit_time from info_court_trial_process where court_id in(select id 
+                        from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s) and 
+                        case_reason like %(case_reason)s and legal_status like %(legal_status)s
+                        '''
+
+        df1 = sql_to_df(sql=str_sql1,
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no,
+                                'case_reason': "%" + case_reason + "%",
+                                "legal_status": "%" + legal_status + "%"})
+
+        df2 = sql_to_df(sql=str_sql2,
+                        params={"user_name": self.user_name, "id_card_no": self.id_card_no,
+                                "case_reason": "%" + case_reason + "%",
+                                "legal_status": "%" + legal_status + "%"})
+
+        df1 = df1.dropna()
+        df2 = df2.dropna()
+        if not df1.empty and not df2.empty:
+            if df1.hit_time.iloc[0] > df2.hit_time.iloc[0]:
+                return df1
+            else:
+                return df2
+
+        return df1 if not df1.empty else df2
+
+    def _parse_time_df(self, var_name, df=None):
+        if df is not None:
+            df = df.dropna()
+            if not df.empty:
+                self.variables[var_name] = str(df.hit_time.iloc[0])
+                return
+        # TODO
+        # self.variables[var_name] = "2017-01-01 14:59:00"
+
     def transform(self):
         """
         执行变量转换
@@ -352,3 +431,9 @@ class T16001(Transformer):
         self._pub_info(self._info_pub_info_df())
         self._cri_sus(self._info_cri_sus_df())
         self._court_loan(self._info_court_loan_df())
+
+        # 灰名单变量
+        self._parse_time_df("court_dishonesty_time", self._court_dishonesty_time_df())
+        self._parse_time_df("court_high_cons_time", self._court_high_cons_time_df())
+        self._parse_time_df("court_loan_con_time", self._court_loan_con_time_df())
+        self._parse_time_df("court_pop_loan_time", self._court_pop_loan_time_df())

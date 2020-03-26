@@ -31,6 +31,8 @@ class T13001(Transformer):
             'sms_owe_cnt_6m': 0,  # 短信核查_近6个月内欠款次数
             'sms_owe_cnt_6_12m': 0,  # 短信核查_近6-12个月内欠款次数
             'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
+            'sms_app_cnt_3m': 0,  # 短信核查_近三个月内申请总次数
+            'sms_loan_cnt_3m': 0,  # 短信核查_近三个月内放款总次数
         }
 
     ## 获取目标数据集1
@@ -357,6 +359,50 @@ class T13001(Transformer):
                 df_3['debt_money'] = df_3['debt_money'].replace(to_replace="10W以上", value=7)
                 self.variables['sms_max_owe_6m'] = df_3['debt_money'].max()
 
+    def _sms_app_cnt_3m(self):
+        sql = '''
+                select count(*) total_count from(
+                    SELECT sms_id, create_time
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                    ) sms left join info_sms_loan_apply slp on slp.sms_id = sms.sms_id 
+                        where apply_time >= DATE_ADD(sms.create_time, Interval -3 month)
+                '''
+        df = sql_to_df(sql=sql,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        if df is None or df.empty:
+            return
+
+        self.variables["sms_app_cnt_3m"] = df.iloc[0].total_count
+
+    def _sms_loan_cnt_3m(self):
+        sql = '''
+                select count(*) total_count from(
+                    SELECT sms_id, create_time
+                    FROM info_sms 
+                    WHERE 
+                        user_name = %(user_name)s 
+                        AND id_card_no = %(id_card_no)s 
+                        AND phone = %(phone)s
+                        AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                    ORDER BY id DESC 
+                    LIMIT 1
+                    ) sms left join info_sms_loan sla on sla.sms_id = sms.sms_id 
+                        where loan_time >= DATE_ADD(sms.create_time, Interval -3 month)
+                '''
+        df = sql_to_df(sql=sql,
+                       params={"user_name": self.user_name, "id_card_no": self.id_card_no, "phone": self.phone})
+        if df is None or df.empty:
+            return
+
+        self.variables["sms_loan_cnt_3m"] = df.iloc[0].total_count
+
     ##  执行变量转换
     def transform(self):
         platform_df = self._info_sms_loan_platform()
@@ -379,3 +425,5 @@ class T13001(Transformer):
         self._sms_owe_cnt_6m(debt)
         self._sms_owe_cnt_6_12m(debt)
         self._sms_max_owe_6m(debt)
+        self._sms_app_cnt_3m()
+        self._sms_loan_cnt_3m()

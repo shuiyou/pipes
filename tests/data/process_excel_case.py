@@ -85,7 +85,7 @@ class Process(object):
                 if key in ['phone']:
                     phone = value
             if 't' in method:
-                res = translate_for_strategy(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
+                res = translate_for_strategy("", code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
             elif 'v' in method:
                 res = translate_for_report_detail(code_array, user_name=user_name, id_card_no=id_card_no, phone=phone)
             for key in res:

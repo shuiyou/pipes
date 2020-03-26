@@ -18,13 +18,15 @@ class T00000(Transformer):
             'base_gender': 0,
             'base_age': 0,
             'base_black': 0,
-            'base_type': 'PERSON'
+            'base_type': 'PERSON',
+            'base_phone': '',
+            "product_code": ''
         }
 
     def _base_black(self):
         sql = """
         SELECT count(1) as "base_black" FROM info_black_list
-            WHERE user_name = %(user_name)s AND id_card_no = %(id_card_no)s;
+            WHERE valid > 0 AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s;
         """
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
@@ -34,7 +36,10 @@ class T00000(Transformer):
                 self.variables['base_black'] = 1
 
     def transform(self):
+        if hasattr(self, "product_code"):
+            self.variables["product_code"] = self.product_code
         self.variables['base_idno'] = self.id_card_no
+        self.variables['base_phone'] = self.phone
         if self.base_type is not None:
             self.variables['base_type'] = self.base_type
         else:
@@ -44,3 +49,8 @@ class T00000(Transformer):
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+
+        if self.origin_data:
+            apply_amount = self.origin_data.get("applyAmo")
+            if apply_amount:
+                self.variables["base_apply_amo"] = apply_amount

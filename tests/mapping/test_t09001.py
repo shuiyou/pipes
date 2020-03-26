@@ -465,3 +465,9 @@ def test_read_excel():
             res = s['strategyResult']['StrategyOneResponse']['Body']['Application']['Categories']
             print("1111", type(s))
             print("222", type(res))
+
+
+def test_ps_loan_apro_cnt_12m():
+    ps = T09001()
+    ps.run(user_name='', id_card_no='310115198208146818', phone='')
+    print(ps.variables)

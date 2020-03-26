@@ -24,6 +24,7 @@ class T10001(Transformer):
             AND unix_timestamp(NOW()) < unix_timestamp(expired_at)  ORDER BY id  desc LIMIT 1) a
             WHERE b.risk_overdue_id = a.risk_overdue_id
             AND b.risk_score is not NULL
+            AND b.risk_score != ''
             ORDER BY b.risk_score desc
             ;
         """

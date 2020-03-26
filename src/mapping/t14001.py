@@ -22,7 +22,8 @@ class T14001(Transformer):
             'social_query_else_cnt': 0,
             'social_query_else_cnt_6m': 0,
             'social_query_else_cnt_24m': 0,
-            'social_query_mac_cnt':None
+            'social_query_mac_cnt': None,
+            'social_direct': 0
         }
 
     def _info_social_blacklist_df(self):
@@ -68,6 +69,7 @@ class T14001(Transformer):
     def _social_gray(self, df=None):
         if df is not None and len(df) > 0:
             df['contacts_class_1_cnt'] = df['contacts_class_1_cnt'].fillna(0)
+            self.variables['social_direct'] = df['contacts_class_1_cnt'].values[0]
             if df['phone_gray_score'].values[0] is not None:
                 self.variables['social_tel_gray_sco'] = df['phone_gray_score'].values[0]
             if df['contacts_class_1_cnt'][0] > 0 and df['contacts_class_1_blacklist_cnt'][0] is not None:

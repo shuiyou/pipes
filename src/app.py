@@ -1,16 +1,30 @@
 import importlib
+import time
 
 from flask import Flask, request, jsonify
+from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
+from config import EUREKA_SERVER, version_info
+from config_controller import base_type_api
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
-
+from util.defensor_client import DefensorClient
 
 logger = LoggerUtil().logger(__name__)
 
 app = Flask(__name__)
+app.register_blueprint(base_type_api)
+start_time = time.localtime()
+
+
+logger.info("init eureka client...")
+logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
+eureka_client.init(eureka_server=EUREKA_SERVER,
+                   app_name="PIPES",
+                   instance_port=8010)
+logger.info("eureka client started.")
 
 
 @app.route("/biz-types", methods=['POST'])
@@ -22,7 +36,11 @@ def shake_hand():
     json_data = request.get_json()
     product_code = json_data.get('productCode')
     handler = _get_product_handler(product_code)
+    df_client = DefensorClient(request.headers)
+    handler.df_client = df_client
+
     resp = handler.shake_hand(json_data)
+    logger.info("shake_hand------end-------")
     return jsonify(resp)
 
 
@@ -32,6 +50,9 @@ def strategy():
     strategy_param = json_data.get('strategyParam')
     product_code = strategy_param.get('productCode')
     handler = _get_product_handler(product_code)
+    df_client = DefensorClient(request.headers)
+    handler.df_client = df_client
+
     resp = handler.call_strategy(json_data)
     return jsonify(resp)
 
@@ -54,6 +75,21 @@ def health_check():
     :return:
     """
     return 'pipes is running'
+
+
+@app.route("/info", methods=['GET'])
+def info():
+    return 'pipes is running'
+
+
+# 获取系统基本参数信息，用于系统监控
+@app.route("/sys-basic-info", methods=['GET'])
+def sys_basic_info():
+    return jsonify({
+        "SysName": "Pipes",
+        "Version": version_info,
+        "StartTime": time.strftime("%Y-%m-%d %H:%M:%S", start_time)
+    })
 
 
 @app.errorhandler(Exception)

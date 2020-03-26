@@ -36,18 +36,18 @@ def extract_money(value):
         pattern3 = re.compile(r'(?<=罚款)\d+\.?\d*')
         pattern4 = re.compile(r'(?<=罚款人民币)\d+\.?\d*')
         pattern5 = re.compile(r'(?<=罚款金额\（万元）\:)\d+\.?\d*')
-        if pattern1.search(value) != None:
+        if pattern1.search(value) is not None:
             money_str = pattern1.search(value).group(0)
-        elif pattern2.search(value) != None:
+        elif pattern2.search(value) is not None:
             money_str = pattern2.search(value).group(0)
-        elif pattern3.search(value) != None:
+        elif pattern3.search(value) is not None:
             money_str = pattern3.search(value).group(0)
-        elif pattern4.search(value) != None:
+        elif pattern4.search(value) is not None:
             money_str = pattern4.search(value).group(0)
-        elif pattern5.search(value) != None:
+        elif pattern5.search(value) is not None:
             money_str = pattern5.search(value).group(0)
         money = float(money_str)
-        if ("万元" in value):
+        if "万元" in value:
             money = money * 10000
         money = float("%.2f" % money)
     return money
@@ -122,25 +122,24 @@ class Transformer(object):
         self.base_type = None
         self.variables = {}
         self.out_decision_code = {}
+        self.df_client = None
+        self.origin_data = None
 
-    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None) -> dict:
-        self.input(id_card_no, phone, user_name, user_type,base_type)
+    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, origin_data=None) -> dict:
+        self.input(id_card_no, phone, user_name, user_type, base_type, origin_data)
         self.transform()
         return {
             "variables": self.variables,
             "out_decision_code": self.out_decision_code
         }
 
-
-    def input(self, id_card_no, phone, user_name, user_type=None,base_type=None):
+    def input(self, id_card_no, phone, user_name, user_type=None, base_type=None, origin_data=None):
         self.id_card_no = id_card_no
         self.user_name = user_name
         self.phone = phone
         self.user_type = user_type
         self.base_type = base_type
-
-
-
+        self.origin_data = origin_data
 
     @abstractmethod
     def transform(self):
