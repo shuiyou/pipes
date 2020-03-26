@@ -13,27 +13,35 @@ BASE_TYPE_MAPPING_INIT_LOCK = threading.Lock()
 
 
 class BaseTypeService(object):
-    BASE_TYPE_MAPPING = None
+    BASE_TYPE_MAPPING = []
 
     def __init__(self, query_data):
         self.query_data = query_data
 
-        if BaseTypeService.BASE_TYPE_MAPPING is not None:
+        if len(BaseTypeService.BASE_TYPE_MAPPING) > 0:
             return
+        self.init_data(BaseTypeService.BASE_TYPE_MAPPING, "base_type_mapping.json")
 
+    def init_data(self, repository, mapping_file_path):
         try:
             BASE_TYPE_MAPPING_INIT_LOCK.acquire()
-            if BaseTypeService.BASE_TYPE_MAPPING is None:
-                mapping_data = get_config_content("base_type_mapping.json")
+            if len(repository) == 0:
+                mapping_data = get_config_content(mapping_file_path)
                 mapping_dicts = json.loads(mapping_data)
-                BaseTypeService.BASE_TYPE_MAPPING = BaseTypeService.arrow_dict_to_array(mapping_dicts)
+                result_list = BaseTypeService.arrow_dict_to_array(mapping_dicts)
+                if result_list:
+                    for v in result_list:
+                        repository.append(v)
         finally:
             BASE_TYPE_MAPPING_INIT_LOCK.release()
+
+    def data(self):
+        return BaseTypeService.BASE_TYPE_MAPPING
 
     def find_base_type(self, subject):
         parents = []
         self.fetch_parents(subject, parents)
-        return BaseTypeService.base_type_mapping(subject, parents)
+        return self.base_type_mapping(subject, parents)
 
     def parse_base_type(self, subject):
         base_type = self.find_base_type(subject)
@@ -45,7 +53,7 @@ class BaseTypeService(object):
         auth_status = subject.get('authorStatus')
         fund_ratio = subject.get('fundratio')
         relation = subject.get('relation')
-        return BaseTypeService.__get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type)
+        return self.get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type)
 
     def fetch_parents(self, subject, parents):
         parent_id = subject.get("parentId")
@@ -78,17 +86,11 @@ class BaseTypeService(object):
         print("base_type_relations=", base_type_relations)
         return base_type_relations
 
-    @staticmethod
-    def base_type_mapping(subject, parents):
+    def base_type_mapping(self, subject, parents):
         s_type = subject["userType"]
         s_relation = subject["relation"]
-        if s_type == "PERSONAL":
-            if "authorStatus" not in subject:
-                return None
-            elif subject["authorStatus"] != "AUTHORIZED":
-                return None
 
-        for type_to_relations in BaseTypeService.BASE_TYPE_MAPPING:
+        for type_to_relations in self.data():
             if len(type_to_relations) != len(parents) + 2:
                 continue
             if s_type != type_to_relations[1]["userType"] or s_relation != type_to_relations[1]["relation"]:
@@ -99,6 +101,12 @@ class BaseTypeService(object):
                 ratioMin = float(type_to_relations[1]["ratioMin"])
                 ratioMax = float(type_to_relations[1]["ratioMax"])
                 if not (ratioMin <= fund_ratio < ratioMax):
+                    continue
+
+            if "authorStatus" in type_to_relations[1]:
+                if "authorStatus" not in subject:
+                    continue
+                elif subject["authorStatus"] != type_to_relations[1]["authorStatus"]:
                     continue
 
             all_match = True
@@ -113,8 +121,7 @@ class BaseTypeService(object):
                 return type_to_relations[0]["baseType"]
         return None
 
-    @staticmethod
-    def __get_normal_base_type(fund_ratio, auth_status, phone, relation, user_type):
+    def get_normal_base_type(self, fund_ratio, auth_status, phone, relation, user_type):
         if relation == 'GUARANTOR':
             if user_type == 'COMPANY':
                 return 'G_COMPANY'

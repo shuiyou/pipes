@@ -1,3 +1,6 @@
+from functools import reduce
+
+from mapping.biz_constants import CONTRACT_DISPUTES
 from mapping.tranformer import Transformer, subtract_datetime_col, extract_money, extract_money_court_excute_public
 from util.common_util import exception
 from util.mysql_reader import sql_to_df
@@ -115,7 +118,8 @@ class T16002(Transformer):
                 df['legal_status_contain'] = df1.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
                 if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
                     self.variables['court_ent_fin_loan_con'] = 1
-                if df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason').shape[0] > 0:
+
+                if df.query('legal_status_contain > 0 and case_reason in ' + str(CONTRACT_DISPUTES)).shape[0] > 0:
                     self.variables['court_ent_loan_con'] = 1
                 if df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason').shape[0] > 0:
                     self.variables['court_ent_pop_loan'] = 1
@@ -153,7 +157,8 @@ class T16002(Transformer):
                 df['legal_status_contain'] = df1.apply(lambda x: check_is_contain(x['legal_status'], "被告"), axis=1)
                 if df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason').shape[0] > 0:
                     self.variables['court_ent_fin_loan_con'] = 1
-                if df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason').shape[0] > 0:
+
+                if df.query('legal_status_contain > 0 and case_reason in ' + str(CONTRACT_DISPUTES)).shape[0] > 0:
                     self.variables['court_ent_loan_con'] = 1
                 if df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason').shape[0] > 0:
                     self.variables['court_ent_pop_loan'] = 1

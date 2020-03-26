@@ -1,4 +1,5 @@
 from datetime import date
+from functools import reduce
 
 import pandas as pd
 
@@ -46,3 +47,19 @@ def test_df_fun1():
     for i, r in df.iterrows():
         print("i====", i, "r====", r)
         print("$$$$$", r.loc["A"])
+
+
+def test_df_contains():
+    df = pd.DataFrame([{"name": "tqt", "age": 21}, {"name": "lxb", "age": 30}])
+    print("df\n", df[df["name"].str.contains("tqt|lxb")])
+
+
+def test_df_query():
+    df = pd.DataFrame([{"name": "tqt", "age": 21}, {"name": "lxb", "age": 30}])
+
+    arr = ["tqt", "lxb", "ccc",]
+    info = reduce(lambda x, y: '"' + x + '"' + "," + '"' + y + '"', arr)
+    info = "[" + info + "]"
+    print("info:", info)
+    print("arr=:" + str(arr))
+    print("query df:\n", df.query('name in ' + str(arr)))

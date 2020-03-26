@@ -1,3 +1,6 @@
+from functools import reduce
+
+
 def test_base1():
     variables_mapping = {
         "法院失信名单": "mag_court_break_faith",
@@ -11,3 +14,16 @@ def test_base1():
 
     for k in variables_mapping:
         print(type(k), k, variables_mapping.get(k))
+
+
+def test_collect():
+    info = {"aaaa": [{"b": []}]}
+
+    info["aaaa"][-1]["b"].append(2)
+    print(info)
+
+
+def test_reduce():
+    a = [1, 2, 3, 4, 4]
+    s = reduce(lambda e1, e2: str(e1) + ","+ str(e2), a)
+    print(s)

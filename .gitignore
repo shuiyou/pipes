@@ -572,3 +572,4 @@ dmypy.json
 /.idea/misc.xml
 /.idea/
 /.idea/inspectionProfiles/
+**/logstash.db
