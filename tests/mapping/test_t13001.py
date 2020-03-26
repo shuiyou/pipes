@@ -28,5 +28,21 @@ def test_t13001_sms_app_cnt_3m():
 
 def test_t13001_sms_loan_cnt_3m():
     ps2 = T13001()
-    ps2.run('张斌', '632121199110100019', '13816716288')
+    ps2.run('钟伟生', '442528196710141532', '13789940389')
     print(ps2.variables)
+
+
+def test_test_t13001_sms_loan_cnt_3m_scan():
+    from util.mysql_reader import sql_to_df
+    sql = '''
+            select * from info_sms order by id desc limit 100;
+            '''
+    df = sql_to_df(sql=sql)
+    if df is not None and not df.empty:
+        for row in df.itertuples():
+            print("row:", row)
+            ps2 = T13001()
+            ps2.run(row.user_name, row.id_card_no, row.phone)
+            print(ps2.variables)
+
+
