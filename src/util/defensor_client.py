@@ -7,7 +7,6 @@ import json
 from abc import ABCMeta
 from urllib.parse import urlencode
 
-from eureka_client import eureka_client
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 
@@ -56,6 +55,13 @@ class DefensorClient(object):
         full_api_url = api_url + "?" + url_data
         logger.info("invoke api full api url:%s", full_api_url)
 
-        res = eureka_client.do_service("DEFENSOR", full_api_url)
-        logger.info("invoke_api resp:%s", res)
-        return res
+        # res = eureka_client.do_service("DEFENSOR", full_api_url)
+        # logger.info("invoke_api resp:%s", res)
+
+        return '''
+        {
+          "resCode" : "0",
+          "resMsg" : "成功",
+          "data" : [ ]
+        }
+        '''

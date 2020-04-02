@@ -1,4 +1,3 @@
-import _thread
 import importlib
 import time
 
@@ -7,7 +6,6 @@ from werkzeug.exceptions import HTTPException
 
 from config import EUREKA_SERVER, version_info
 from config_controller import base_type_api
-from eureka_client import eureka_client
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
@@ -21,12 +19,6 @@ start_time = time.localtime()
 
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
-
-
-eureka_client.init(eureka_server=EUREKA_SERVER,
-                   renewal_interval_in_secs=10,
-                   app_name="PIPES",
-                   instance_port=8010)
 
 
 @app.route("/biz-types", methods=['POST'])
