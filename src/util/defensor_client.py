@@ -7,8 +7,7 @@ import json
 from abc import ABCMeta
 from urllib.parse import urlencode
 
-from py_eureka_client import eureka_client
-
+from eureka_client import eureka_client
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 
