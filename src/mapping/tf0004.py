@@ -1,5 +1,6 @@
 import pandas as pd
 
+from mapping.biz_constants import CONTRACT_DISPUTES
 from mapping.tranformer import Transformer, extract_money, \
     extract_money_court_excute_public
 from util.mysql_reader import sql_to_df
@@ -311,7 +312,8 @@ class Tf0004(Transformer):
                 lend_loan_df = df.query('legal_status_contain > 0 and "金融借款合同纠纷" in case_reason')
                 if lend_loan_df.shape[0] > 0:
                     self.variables['com_bus_court_open_fin_loan_con'] = 1
-                loan_df = df.query('legal_status_contain > 0 and "借款合同纠纷" in case_reason')
+
+                loan_df = df.query('legal_status_contain > 0 and case_reason in ' + str(CONTRACT_DISPUTES))
                 if loan_df.shape[0] > 0:
                     self.variables['com_bus_court_open_loan_con'] = 1
                 private_lend_df = df.query('legal_status_contain > 0 and "民间借贷纠纷" in case_reason')

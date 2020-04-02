@@ -1,5 +1,7 @@
 import re
+from functools import reduce
 
+from mapping.biz_constants import CONTRACT_DISPUTES
 from mapping.tranformer import Transformer, subtract_datetime_col
 from util.common_util import exception
 from util.mysql_reader import sql_to_df
@@ -320,15 +322,16 @@ class T16001(Transformer):
         return df
 
     def _court_loan(self, df=None):
+        contract_disputes = reduce(lambda x, y: x + "|" + y, CONTRACT_DISPUTES)
         if df is not None and len(df) > 0:
             if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('金融借款合同纠纷'))].shape[0] > 0:
                 self.variables['court_fin_loan_con'] = 1
             elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('金融借款合同纠纷'))].shape[
                 0] > 0:
                 self.variables['court_fin_loan_con'] = 1
-            if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('借款合同纠纷'))].shape[0] > 0:
+            if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains(contract_disputes))].shape[0] > 0:
                 self.variables['court_loan_con'] = 1
-            elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains('借款合同纠纷'))].shape[0] > 0:
+            elif df[(df['trial_status'].str.contains('被告')) & (df['trial_reason'].str.contains(contract_disputes))].shape[0] > 0:
                 self.variables['court_loan_con'] = 1
             if df[(df['legal_status'].str.contains('被告')) & (df['case_reason'].str.contains('民间借贷纠纷'))].shape[0] > 0:
                 self.variables['court_pop_loan'] = 1

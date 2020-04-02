@@ -2,6 +2,9 @@
 import importlib
 
 # from app import logger
+import pkgutil
+from inspect import getmembers, isclass
+
 import numpy
 
 from exceptions import ServerException
@@ -123,7 +126,7 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
     ))
 
 
-def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None):
+def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None, origin_data=None):
     """
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
@@ -139,8 +142,23 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                      id_card_no=id_card_no,
                                      phone=phone,
                                      user_type=user_type,
-                                     base_type = base_type)
+                                     base_type=base_type,
+                                     origin_data=origin_data
+                                     )
             variables.update(trans_result['variables'])
+
+        # 特定的product_code会检测对应的view下的产品module.
+        product_view_trans = get_product_transformers(product_code)
+        if product_view_trans and len(product_view_trans) > 0:
+            for product_view_tran in product_view_trans:
+                trans_result = product_view_tran.run(user_name=user_name,
+                                                     id_card_no=id_card_no,
+                                                     phone=phone,
+                                                     user_type=user_type,
+                                                     base_type=base_type,
+                                                     origin_data=origin_data)
+                variables.update(trans_result['variables'])
+
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
@@ -167,3 +185,27 @@ def get_transformer(code) -> Transformer:
     except ModuleNotFoundError as err:
         logger.error(str(err))
         return Transformer()
+
+
+# 获取指定产品的view的transformers
+def get_product_transformers(product_code):
+    pkg = None
+    try:
+        pkg = importlib.import_module("view.p" + product_code)
+    except ModuleNotFoundError as err:
+        logger.error("product_code:%s, view transformers is empty.", product_code)
+        return []
+
+    try:
+        transformer_list = []
+        for importer, name, is_pkg in pkgutil.walk_packages(pkg.__path__, "%s." % pkg.__name__):
+            if is_pkg:
+                continue
+            module = importlib.import_module(name)
+            object_list = [value() for (_, value) in getmembers(module) if isclass(value) and value != Transformer]
+            transformer_list.extend(object_list)
+        return transformer_list
+    except Exception as e:
+        logger.error(str(e))
+    return []
+

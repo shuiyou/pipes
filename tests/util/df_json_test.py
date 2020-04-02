@@ -3,6 +3,7 @@ import json
 import pandas as pd
 
 from util.defensor_client import DefensorClient
+from util.mysql_reader import sql_to_df
 
 
 def test_json_2_df():
@@ -24,3 +25,13 @@ def test_json_2_df1():
     info = json.dumps(data)
     df = pd.read_json(info)
     print(df)
+
+
+def test_df_sql():
+    sql = '''
+            select * from risk_subject where name like "%%魏炳%%";
+            '''
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.max_rows', None)
+    df = sql_to_df(sql)
+    print("df:", df)

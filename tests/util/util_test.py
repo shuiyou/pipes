@@ -1,3 +1,6 @@
+from functools import reduce
+
+from mapping.biz_constants import CONTRACT_DISPUTES
 from view.mapper_detail import round_max
 
 
