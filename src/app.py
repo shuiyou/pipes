@@ -1,3 +1,4 @@
+import _thread
 import importlib
 import time
 
@@ -18,12 +19,22 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
-eureka_client.init(eureka_server=EUREKA_SERVER,
-                   app_name="PIPES",
-                   instance_port=8010)
+
+
+def start_eureka_client(thread_name):
+    eureka_client.init(eureka_server=EUREKA_SERVER,
+                       app_name="PIPES",
+                       instance_port=8010)
+    logger.info("eureka init finished:" + thread_name)
+
+
+try:
+    _thread.start_new_thread(start_eureka_client, ("eureka client thread", ))
+except Exception as e:
+    logger.info("Error: 无法启动线程" + str(e))
+
 logger.info("eureka client started.")
 
 
