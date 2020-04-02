@@ -17,8 +17,7 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-logger.info("init eureka client...")
-logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
+logger.info("Flask...")
 
 
 @app.route("/biz-types", methods=['POST'])
