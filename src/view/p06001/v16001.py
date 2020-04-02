@@ -146,7 +146,7 @@ class V16001(Transformer):
         print("new_json", new_json)
         print("old_json", old_json)
 
-        self.info_list.append({"variable": variable_name, "type:": type_name, "before": new_json,
+        self.info_list.append({"variable": variable_name, "type": type_name, "before": new_json,
                                "after": old_json})
 
     def _info_court_admi_vio(self, variable_name):
@@ -246,7 +246,7 @@ class V16001(Transformer):
         after_df.fillna('', inplace=True)
 
         self.info_list.append(
-            {"variable": variable_name, "type:": type_name, "before": json.loads(before_df.to_json(orient="records")),
+            {"variable": variable_name, "type": type_name, "before": json.loads(before_df.to_json(orient="records")),
              "after": json.loads(after_df.to_json(orient="records"))})
 
     def transform(self):
