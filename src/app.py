@@ -3,11 +3,11 @@ import importlib
 import time
 
 from flask import Flask, request, jsonify
-from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
 from config import EUREKA_SERVER, version_info
 from config_controller import base_type_api
+from eureka_client import eureka_client
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
@@ -22,9 +22,10 @@ start_time = time.localtime()
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 
-
+_DEFAULT_TIME_OUT = 30
 def start_eureka_client(thread_name):
     eureka_client.init(eureka_server=EUREKA_SERVER,
+                       renewal_interval_in_secs=10,
                        app_name="PIPES",
                        instance_port=8010)
     logger.info("eureka init finished:" + thread_name)
