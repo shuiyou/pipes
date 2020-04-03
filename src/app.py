@@ -2,7 +2,6 @@ import importlib
 import time
 
 from flask import Flask, request, jsonify
-from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
 from config import EUREKA_SERVER, version_info
@@ -18,13 +17,7 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-
-logger.info("init eureka client...")
-logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
-eureka_client.init(eureka_server=EUREKA_SERVER,
-                   app_name="PIPES",
-                   instance_port=8010)
-logger.info("eureka client started.")
+logger.info("Flask...")
 
 
 @app.route("/biz-types", methods=['POST'])

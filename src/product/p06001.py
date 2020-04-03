@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time : 2020/2/20 1:53 PM
 # @Author : lixiaobo
-# @Site : 
+# @Site :
 # @File : p06001.py
 # @Software: PyCharm
 import json
@@ -69,7 +69,11 @@ class P06001(Generate):
 
             strategy_service = StrategyService()
             # 遍历query_data_array调用strategy
+            index = 0
+            total = len(query_data_array)
             for data in query_data_array:
+                index = index + 1
+                logger.info("strategy_process------------" + str(index) + "/" + str(total))
                 resp = strategy_service.strategy(self.df_client, data, product_code, req_no)
                 subject.append(resp)
 

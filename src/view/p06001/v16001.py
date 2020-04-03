@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time : 2020/2/25 2:06 PM
 # @Author : lixiaobo
-# @Site : 
+# @Site :
 # @File : v16001.py.py
 # @Software: PyCharm
 import json
@@ -96,7 +96,7 @@ class V16001(Transformer):
                '''
         new_sql = '''
                select t.* from(
-                   select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 
+                   select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
                    ) tab left join info_court_criminal_suspect t on t.court_id = tab.id where case_no is not null;
                '''
         self._sql_result_to_var(variable_name, "法院核查企业罪犯及嫌疑人名单", old_sql, new_sql)
@@ -146,7 +146,7 @@ class V16001(Transformer):
         print("new_json", new_json)
         print("old_json", old_json)
 
-        self.info_list.append({"variable": variable_name, "type:": type_name, "before": new_json,
+        self.info_list.append({"variable": variable_name, "type": type_name, "before": new_json,
                                "after": old_json})
 
     def _info_court_admi_vio(self, variable_name):
@@ -157,7 +157,7 @@ class V16001(Transformer):
                     '''
         new_sql = '''
                     select t.* from(
-                        select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 
+                        select id from info_court where unique_name=%(user_name)s and unique_id_no=%(id_card_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1
                         ) tab left join info_court_administrative_violation t on t.court_id = tab.id where case_no is not null;
                     '''
 
@@ -246,7 +246,7 @@ class V16001(Transformer):
         after_df.fillna('', inplace=True)
 
         self.info_list.append(
-            {"variable": variable_name, "type:": type_name, "before": json.loads(before_df.to_json(orient="records")),
+            {"variable": variable_name, "type": type_name, "before": json.loads(before_df.to_json(orient="records")),
              "after": json.loads(after_df.to_json(orient="records"))})
 
     def transform(self):
@@ -297,4 +297,4 @@ class V16001(Transformer):
         print("_info_court_tax_arrears耗时为：%.4f", (time.time() - start))
         start = time.time()
 
-        self.variables["info_court"] = self.info_list
+        self.variables["info_per_court"] = self.info_list
