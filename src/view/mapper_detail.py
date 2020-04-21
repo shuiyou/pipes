@@ -133,7 +133,7 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
     """
 
     variables = {}
-
+    cached_data = {}
     try:
         codes = _get_codes_by_product_code(product_code)
         for c in codes:
@@ -143,7 +143,8 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                      phone=phone,
                                      user_type=user_type,
                                      base_type=base_type,
-                                     origin_data=origin_data
+                                     origin_data=origin_data,
+                                     cached_data=cached_data
                                      )
             variables.update(trans_result['variables'])
 
@@ -156,12 +157,16 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                                      phone=phone,
                                                      user_type=user_type,
                                                      base_type=base_type,
-                                                     origin_data=origin_data)
+                                                     origin_data=origin_data,
+                                                     cached_data=cached_data)
                 variables.update(trans_result['variables'])
 
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
+        cached_data.clear()
         raise ServerException(code=500, description=str(err))
+
+    cached_data.clear()
     if len(variables) > 0:
         extension_variables(variables)
         # 转换类型，这样解决tojson的问题
