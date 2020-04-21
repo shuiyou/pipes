@@ -95,4 +95,8 @@ def test_shake_hand_06001_1(client):
     shake_hand_request(client, "06001_1")
 
 
+# 征信报告请求
+def test_strategy_07001(client):
+    strategy_request(client, "07001")
+
 

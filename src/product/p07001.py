@@ -24,6 +24,9 @@ logger = LoggerUtil().logger(__name__)
 
 # 征信报告产品处理
 class P07001(Generate):
+    def shake_hand_process(self):
+        raise NotImplementedError()
+
     def __init__(self) -> None:
         super().__init__()
         self.response: {}
@@ -58,9 +61,6 @@ class P07001(Generate):
             raise ServerException(code=500, description=str(err))
 
     def strategy(self, df_client, data, product_code, req_no):
-        origin_input = data.get('strategyInputVariables')
-        if origin_input is None:
-            origin_input = {}
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
@@ -68,21 +68,20 @@ class P07001(Generate):
         codes = product_codes_dict[product_code]
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
-        biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, df_client, data)
-        origin_input['out_strategyBranch'] = ','.join(codes)
+        origin_input = {'out_strategyBranch': ','.join(codes)}
         # 合并新的转换变量
         origin_input.update(variables)
-        logger.info("1. 开始策略引擎封装入参")
+        logger.info("1. 征信-开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
-        logger.info("2. 策略引擎封装入参:%s", strategy_request)
+        logger.info("2. 征信-策略引擎封装入参:%s", strategy_request)
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-        logger.info("3. 策略引擎返回结果：%s", strategy_response)
+        logger.info("3. 征信-策略引擎返回结果：%s", strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
         strategy_resp = strategy_response.json()
-        logger.info("4. 策略引擎调用成功 %s", strategy_resp)
+        logger.info("4. 征信-策略引擎调用成功 %s", strategy_resp)
         error = jsonpath(strategy_resp, '$..Error')
         if error:
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
