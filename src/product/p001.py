@@ -38,6 +38,7 @@ class P001(Generate):
             user_name = query_data.get('name')
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
+            marry_state = query_data.get("marryState")
             user_type = query_data.get('userType')
             auth_status = query_data.get('authorStatus')
             base_type = self._get_base_type(auth_status)
@@ -64,6 +65,7 @@ class P001(Generate):
                 'name': user_name,
                 'idno': id_card_no,
                 'phone': phone,
+                'marryState': marry_state,
                 'userType': user_type,
                 'bizType': biz_types,
                 'baseType': base_type,
