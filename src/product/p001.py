@@ -42,7 +42,7 @@ class P001(Generate):
             user_type = query_data.get('userType')
             auth_status = query_data.get('authorStatus')
             base_type = self._get_base_type(auth_status)
-            variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
+            variables = T00000().run(user_name, id_card_no, phone, user_type, base_type, query_data)['variables']
             # 决策要求一直要加上00000，用户基础信息。
             variables['out_strategyBranch'] = '00000'
             variables["product_code"] = "001"
@@ -106,7 +106,7 @@ class P001(Generate):
             biz_types = codes.copy()
             biz_types.append('00000')
             variables, out_decision_code = translate_for_strategy("001", biz_types, user_name, id_card_no, phone, user_type,
-                                                                  base_type, self.df_client)
+                                                                  base_type, self.df_client, query_data)
             origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)

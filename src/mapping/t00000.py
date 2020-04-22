@@ -20,7 +20,8 @@ class T00000(Transformer):
             'base_black': 0,
             'base_type': 'PERSON',
             'base_phone': '',
-            "product_code": ''
+            'product_code': '',
+            'marry_state': 'UNKNOWN'
         }
 
     def _base_black(self):
@@ -54,3 +55,6 @@ class T00000(Transformer):
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 self.variables["base_apply_amo"] = apply_amount
+            marry_state = self.origin_data.get("marryState")
+            if marry_state:
+                self.variables["marry_state"] = marry_state
