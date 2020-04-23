@@ -4,6 +4,7 @@ from mapping.tranformer import Transformer
 from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
 
+
 # 婚姻状态取值如下：
 # 未婚 UNMARRIED
 # 已婚 MARRIED
