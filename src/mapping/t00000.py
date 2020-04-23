@@ -4,7 +4,15 @@ from mapping.tranformer import Transformer
 from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
 
-
+# 婚姻状态取值如下：
+# 未婚 UNMARRIED
+# 已婚 MARRIED
+# 初婚 CHUHUN
+# 再婚 ZAIHUN
+# 复婚 FUHUN
+# 离异 DIVORCE
+# 丧偶 WIDOWHOOD
+# 未说明 UNKNOWN
 class T00000(Transformer):
     """
     基本信息
