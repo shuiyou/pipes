@@ -38,8 +38,8 @@ class P001(Generate):
             user_name = query_data.get('name')
             id_card_no = query_data.get('idno')
             phone = query_data.get('phone')
-            marry_state = query_data.get("marryState")
             user_type = query_data.get('userType')
+            extra_param = query_data.get("extraParam")
             auth_status = query_data.get('authorStatus')
             base_type = self._get_base_type(auth_status)
             variables = T00000().run(user_name, id_card_no, phone, user_type, base_type, query_data)['variables']
@@ -65,7 +65,7 @@ class P001(Generate):
                 'name': user_name,
                 'idno': id_card_no,
                 'phone': phone,
-                'marryState': marry_state,
+                'extraParam': extra_param,
                 'userType': user_type,
                 'bizType': biz_types,
                 'baseType': base_type,

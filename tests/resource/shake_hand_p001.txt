@@ -8,7 +8,9 @@
             "phone":"18650135230",
             "userType":"PERSONAL",
             "authorStatus":"AUTHORIZED",
-            "marryState": "MARRIED"
+            "extraParam": {
+                "marryState": "MARRIED"
+            }
         }
     ],
     "versionNo":"1.0"

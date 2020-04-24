@@ -36,7 +36,7 @@ class HandShakeService(object):
         phone = data.get('phone')
         marry_state = data.get("marryState")
         user_type = data.get('userType')
-        auth_status = data.get('authorStatus')
+        extra_param = data.get('extraParam')
         fund_ratio = data.get('fundratio')
         apply_amount = data.get("applyAmo")
         relation = data.get('relation')
@@ -68,7 +68,7 @@ class HandShakeService(object):
         resp['phone'] = phone
         resp['marryState'] = marry_state
         resp['userType'] = user_type
-        resp['authStatus'] = auth_status
+        resp['extraParam'] = extra_param
         resp['fundratio'] = fund_ratio
         resp["applyAmo"] = apply_amount
         resp['baseType'] = self.base_type

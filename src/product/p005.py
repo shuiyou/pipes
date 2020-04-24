@@ -138,7 +138,7 @@ class P005(Generate):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
-        marry_state = data.get("marryState")
+        extra_param = data.get("extraParam")
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
         fund_ratio = data.get('fundratio')
@@ -168,7 +168,7 @@ class P005(Generate):
         resp['name'] = user_name
         resp['idno'] = id_card_no
         resp['phone'] = phone
-        resp['marryState'] = marry_state
+        resp['extraParam'] = extra_param
         resp['userType'] = user_type
         resp['authStatus'] = auth_status
         resp['fundratio'] = fund_ratio

@@ -64,6 +64,8 @@ class T00000(Transformer):
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 self.variables["base_apply_amo"] = apply_amount
-            marry_state = self.origin_data.get("marryState")
-            if marry_state:
-                self.variables["base_marry_state"] = marry_state
+            extra_param = self.origin_data.get("extraParam")
+            if extra_param:
+                marry_state = extra_param.get("marryState")
+                if marry_state:
+                    self.variables["base_marry_state"] = marry_state
