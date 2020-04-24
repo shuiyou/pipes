@@ -68,8 +68,9 @@ class P07001(Generate):
         codes = product_codes_dict[product_code]
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
+        data_repository = {}
         variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
-                                                              user_type, base_type, df_client, data)
+                                                              user_type, base_type, df_client, data, data_repository)
         origin_input = {'out_strategyBranch': ','.join(codes)}
         # 合并新的转换变量
         origin_input.update(variables)
@@ -91,12 +92,12 @@ class P07001(Generate):
 
         resp = {}
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                        resp, strategy_resp, user_name, user_type, variables)
+                                        resp, strategy_resp, user_name, user_type, variables, data_repository)
         return resp
 
     @staticmethod
     def _strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                   resp, strategy_resp, user_name, user_type, variables):
+                                   resp, strategy_resp, user_name, user_type, variables, data_repository):
         """
         每次循环后封装每个主体的resp信息
         :param base_type:
@@ -116,10 +117,10 @@ class P07001(Generate):
         data['bizType'] = biz_types
         data['strategyInputVariables'] = variables
         # 最后返回报告详情
-        if STRATEGE_DONE in biz_types:
-            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
-                                                 base_type, data)
-            resp['reportDetail'] = [detail]
+        # if STRATEGE_DONE in biz_types:
+        detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
+                                             base_type, data, data_repository)
+        resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp

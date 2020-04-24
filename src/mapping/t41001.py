@@ -4,6 +4,7 @@
 # @Software: PyCharm
 from mapping.p07001_m.basic_info_processor import BasicInfoProcessor
 from mapping.p07001_m.compare_data_processor import CompareDataProcessor
+from mapping.p07001_m.data_prepared_processor import DataPreparedProcessor
 from mapping.tranformer import Transformer
 
 
@@ -101,6 +102,7 @@ class T41001(Transformer):
 
     def transform(self):
         handle_list = [
+            DataPreparedProcessor(),
             BasicInfoProcessor(),
             CompareDataProcessor()
         ]

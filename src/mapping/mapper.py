@@ -8,7 +8,7 @@ from mapping.tranformer import Transformer, fix_cannot_to_json
 logger = LoggerUtil().logger(__name__)
 
 
-def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None):
+def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None, data_repository=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
@@ -18,7 +18,10 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
     out_decision_code = {}
     c = None
     product_trans = []
-    cached_data = {}
+    # 如果data_repository不为空，则由该函数的调用方释放
+    no_data_repository = data_repository is None
+    cached_data = {} if no_data_repository else data_repository
+
     try:
         for c in codes:
             trans = get_transformer(c)
@@ -43,11 +46,13 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
             out_decision_code.update(trans_result['out_decision_code'])
 
     except Exception as err:
-        cached_data.clear()
+        if not no_data_repository:
+            cached_data.clear()
         logger.error(c + ">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
     # 转换类型，这样解决tojson的问题
-    cached_data.clear()
+    if no_data_repository:
+        cached_data.clear()
     fix_cannot_to_json(variables)
     return variables, out_decision_code
 

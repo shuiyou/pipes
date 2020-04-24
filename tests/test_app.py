@@ -100,3 +100,6 @@ def test_strategy_07001(client):
     strategy_request(client, "07001")
 
 
+# 征信拦截请求
+def test_strategy_07002(client):
+    strategy_request(client, "07002")
