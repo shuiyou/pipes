@@ -95,6 +95,7 @@ class P07001(Generate):
         resp = {}
         self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
                                         resp, strategy_resp, user_name, user_type, variables, data_repository)
+        del data_repository
         return resp
 
     @staticmethod
