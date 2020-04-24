@@ -29,3 +29,25 @@ class ServerException(APIException):
         super().__init__(description, response)
         self.code = code
         self.description = description
+
+
+class DataPreparedException(APIException):
+    # 重写父类的属性
+    code = None
+    description = "data prepared error..."
+
+    def __init__(self, description=None, response=None, code=None):
+        super().__init__(description, response)
+        self.code = code
+        self.description = description
+
+
+class DataExtractException(APIException):
+    # 重写父类的属性
+    code = None
+    description = "data extract error..."
+
+    def __init__(self, description=None, response=None, code=None):
+        super().__init__(description, response)
+        self.code = code
+        self.description = description

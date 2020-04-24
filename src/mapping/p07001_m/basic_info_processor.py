@@ -11,3 +11,4 @@ class BasicInfoProcessor(ModuleProcessor):
 
     def process(self):
         print("BasicInfoProcessor process")
+        self.variables["report_id"] = self.cached_data["report_id"]

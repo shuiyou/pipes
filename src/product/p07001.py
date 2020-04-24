@@ -41,6 +41,7 @@ class P07001(Generate):
             product_code = strategy_param.get('productCode')
             step_req_no = strategy_param.get('stepReqNo')
             version_no = strategy_param.get('versionNo')
+            pre_report_req_no = strategy_param.get('preReportReqNo')
             query_data_array = strategy_param.get('queryData')
             subject = []
 
@@ -50,6 +51,7 @@ class P07001(Generate):
             for data in query_data_array:
                 index = index + 1
                 logger.info("P07001_process------------" + str(index) + "/" + str(total))
+                data["preReportReqNo"] = pre_report_req_no;
                 resp = self.strategy(self.df_client, data, product_code, req_no)
                 subject.append(resp)
 

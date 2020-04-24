@@ -4,10 +4,57 @@
 # @Software: PyCharm
 
 # 数据准备阶段， 避免同一数据多次IO交互
+from exceptions import DataPreparedException
 from mapping.module_processor import ModuleProcessor
+from util.mysql_reader import sql_to_df
 
 
 class DataPreparedProcessor(ModuleProcessor):
 
     def process(self):
         print("DataPreparedProcessor process")
+        report_id = self._credit_parse_request_extract()
+        self._basic_info_extract(report_id)
+        self._credit_base_info_extract(report_id)
+
+    # 基本入参
+    def _basic_info_extract(self, report_id):
+        extra_param = self.origin_data["extraParam"]
+        marry_state = extra_param.get("marryState")
+        postal_address = extra_param.get("postalAddress")
+        house_address = extra_param.get("houseAddress")
+        live_address = extra_param.get("liveAddress")
+
+        self.cached_data["basicMarryState"] = marry_state
+        self.cached_data["basicPostalAddress"] = postal_address
+        self.cached_data["basicHouseAddress"] = house_address
+        self.cached_data["basicLiveAddress"] = live_address
+
+    # credit_parse_request表信息提取
+    def _credit_parse_request_extract(self):
+        pre_report_req_no = self.origin_data["preReportReqNo"]
+        if pre_report_req_no is None:
+            raise DataPreparedException(description="入参数字段preReportReqNo为空")
+
+        sql = "select * from credit_parse_request where out_req_no = %(pre_report_req_no)s"
+
+        df = sql_to_df(sql=sql, params={"pre_report_req_no": pre_report_req_no})
+        if df.empty:
+            raise DataPreparedException(description="没有查得解析记录:" + pre_report_req_no)
+
+        record = df.iloc[0]
+        if "DONE" != record.process_status:
+            raise DataPreparedException(description="报告解析状态不正常，操作失败：" + pre_report_req_no + " Status:" + record.process_status)
+
+        self.cached_data["credit_parse_request"] = df.iloc[0]
+        report_id = df.iloc[0]["report_id"]
+        self.cached_data["report_id"] = df.iloc[0]["report_id"]
+        return report_id
+
+    # credit_base_info 表信息提取
+    def _credit_base_info_extract(self, report_id):
+        sql = "select * from credit_base_info where report_id = %(report_id)s"
+
+        df = sql_to_df(sql=sql, params={"report_id": report_id})
+        print("df:", df)
+        self.cached_data["credit_base_info"] = df

@@ -7,8 +7,8 @@ product_code_process_dict = {
     "004": "Level1_m",   # 风险拦截
     "005": "Grey_list",   # 灰名单移出
     "06001": "POST_LOAN",  # 贷后报告
-    "07001": "CREDIT_REPORT",    # 征信报告
-    "07002": "CREDIT_REPORT"     # 征信拦截
+    "07001": "CREDIT_REP",    # 征信报告
+    "07002": "CREDIT_REP"     # 征信拦截
 }
 
 # 在这个dict里针对不同的产品设置他的详情字段转换

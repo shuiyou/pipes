@@ -29,12 +29,22 @@ EUREKA_SERVER = os.getenv('EUREKA_SERVER', 'http://192.168.1.27:8032/eureka/')
 #     'db': os.getenv('DB_NAME', 'gears_test'),
 # }
 
+'''
 GEARS_DB = {
     'user': os.getenv('DB_USER', 'gears_external'),
     'pw': os.getenv('DB_PW', 'j83eckas'),
     'host': os.getenv('DB_HOST', '192.168.1.9'),
     'port': os.getenv('DB_PORT', 3360),
     'db': os.getenv('DB_NAME', 'gears_external'),
+}
+'''
+
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'gears_dev'),
+    'pw': os.getenv('DB_PW', 'x2cqpau4'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_dev'),
 }
 
 
