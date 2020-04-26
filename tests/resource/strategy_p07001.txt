@@ -16,7 +16,9 @@
                     "marryState": "DIVORCE",
                     "postalAddress": "上海市",
                     "houseAddress": "上海市",
-                    "liveAddress": "上海市"
+                    "liveAddress": "上海市",
+                    "spouseName": "配偶姓名",
+                    "spouseIdNo": "78572847328943"
                 }
             }
         ]
