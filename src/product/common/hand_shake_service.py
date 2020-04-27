@@ -34,8 +34,9 @@ class HandShakeService(object):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
+        marry_state = data.get("marryState")
         user_type = data.get('userType')
-        auth_status = data.get('authorStatus')
+        extra_param = data.get('extraParam')
         fund_ratio = data.get('fundratio')
         apply_amount = data.get("applyAmo")
         relation = data.get('relation')
@@ -43,7 +44,7 @@ class HandShakeService(object):
         parent_id = data.get("parentId")
         # 获取base_type
         self.calc_base_type(base_type_service, data)
-        variables = T00000().run(user_name, id_card_no, phone, user_type, self.base_type)['variables']
+        variables = T00000().run(user_name, id_card_no, phone, user_type, self.base_type, data)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables["product_code"] = product_code
         variables['out_strategyBranch'] = '00000'
@@ -65,8 +66,9 @@ class HandShakeService(object):
         resp['name'] = user_name
         resp['idno'] = id_card_no
         resp['phone'] = phone
+        resp['marryState'] = marry_state
         resp['userType'] = user_type
-        resp['authStatus'] = auth_status
+        resp['extraParam'] = extra_param
         resp['fundratio'] = fund_ratio
         resp["applyAmo"] = apply_amount
         resp['baseType'] = self.base_type

@@ -441,7 +441,7 @@ class T24001(Transformer):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_rresult_out is NULL
+            WHERE (illegal_rresult_out is NULL OR illegal_rresult_out = '')
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
@@ -470,7 +470,7 @@ class T24001(Transformer):
         sql = '''
             SELECT basic_id
             FROM info_com_bus_illegal
-            WHERE illegal_rresult_out is not NULL
+            WHERE illegal_rresult_out is not NULL and illegal_rresult_out != ''
             AND basic_id 
             IN (
                 SELECT cbb.basic_id 
