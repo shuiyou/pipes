@@ -4,7 +4,10 @@
 # @Software: PyCharm
 from mapping.p07001_m.basic_info_processor import BasicInfoProcessor
 from mapping.p07001_m.compare_data_processor import CompareDataProcessor
+from mapping.p07001_m.credit_info_processor import CreditInfoProcessor
 from mapping.p07001_m.data_prepared_processor import DataPreparedProcessor
+from mapping.p07001_m.loan_info_processor import LoanInfoProcessor
+from mapping.p07001_m.single_info_processor import SingleInfoProcessor
 from mapping.tranformer import Transformer
 
 
@@ -104,6 +107,9 @@ class T41001(Transformer):
         handle_list = [
             DataPreparedProcessor(),
             BasicInfoProcessor(),
+            CreditInfoProcessor(),
+            LoanInfoProcessor(),
+            SingleInfoProcessor(),
             CompareDataProcessor()
         ]
 

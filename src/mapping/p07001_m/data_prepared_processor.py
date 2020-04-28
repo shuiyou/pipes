@@ -13,9 +13,6 @@ class DataPreparedProcessor(ModuleProcessor):
 
     def process(self):
         print("DataPreparedProcessor process")
-        # 入参base_info的信息
-        self._basic_info_extract()
-
         # credit_parse_request表
         report_id = self._credit_parse_request_extract()
         # 表数据转换为DataFrame
@@ -23,6 +20,9 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_loan", report_id)
         self.table_record_to_df("pcredit_repayment", report_id)
         self.table_record_to_df("pcredit_default_info", report_id)
+
+        # 入参base_info的信息
+        self._basic_info_extract()
 
     # 基本入参
     def _basic_info_extract(self):
@@ -36,6 +36,9 @@ class DataPreparedProcessor(ModuleProcessor):
         self.cached_data["basicPostalAddress"] = postal_address
         self.cached_data["basicHouseAddress"] = house_address
         self.cached_data["basicLiveAddress"] = live_address
+
+        credit_base_df = self.cached_data["credit_base_info"]
+        self.cached_data["report_time"] = credit_base_df.iloc[0].report_time
 
     # credit_parse_request表信息提取
     def _credit_parse_request_extract(self):
