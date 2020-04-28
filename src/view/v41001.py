@@ -4,6 +4,7 @@
 # @Software: PyCharm
 from mapping.tranformer import Transformer
 from view.p07001_v.basic_info_view import BasicInfoView
+from view.p07001_v.pcredit_person_info_view import PcreditPersonInfoView
 
 
 class V41001(Transformer):
@@ -257,7 +258,8 @@ class V41001(Transformer):
 
     def transform(self):
         view_handle_list = [
-            BasicInfoView()
+            BasicInfoView(),
+            PcreditPersonInfoView()
         ]
 
         for view in view_handle_list:

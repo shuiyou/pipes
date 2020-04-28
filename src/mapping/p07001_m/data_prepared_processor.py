@@ -23,6 +23,13 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_loan", report_id)
         self.table_record_to_df("pcredit_repayment", report_id)
         self.table_record_to_df("pcredit_default_info", report_id)
+        self.table_record_to_df("pcredit_person_info", report_id)
+        self.table_record_to_df("pcredit_biz_info", report_id)
+        self.table_record_to_df("pcredit_default_info", report_id)
+        self.table_record_to_df("pcredit_live", report_id)
+        self.table_record_to_df("pcredit_phone_his", report_id)
+        self.table_record_to_df("pcredit_loan", report_id)
+        self.table_record_to_df("pcredit_repayment", report_id)
 
     # 基本入参
     def _basic_info_extract(self):

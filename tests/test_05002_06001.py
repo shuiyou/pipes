@@ -85,3 +85,12 @@ def test_ps_crime_type():
     }))
     assert ps.variables['ps_illeg_crim'] == 1
     assert ps.variables['ps_illegal_record_time'] == 4
+
+
+def test_df():
+    data={"a":[1,2,3,4,5],'c':['aa','bb','vv','dd','ee']}
+    df=pd.DataFrame(data)
+    data1={"b":[1,3,5,6,7,3,3,10],"d":['aaa','bbb','ccc','ddd','eee','fff','gggg','kkk']}
+    df1=pd.DataFrame(data1)
+    df2=pd.merge(df,df1,left_on='a',right_on='b')
+    print(df2)
