@@ -2,6 +2,8 @@
 # @Author : lixiaobo
 # @File : basic_info_handle.py.py 
 # @Software: PyCharm
+import pandas as pd
+
 from mapping.module_processor import ModuleProcessor
 
 
@@ -87,12 +89,11 @@ class BasicInfoProcessor(ModuleProcessor):
                                               '"99"] or (loan_type == "04" and principal_amount>200000))')
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
-
         report_time = self.cached_data["report_time"]
         if repayment_df is not None:
             status_list = []
             for index, row in repayment_df.iterrows():
                 if row["status"] and row["status"].isdigit():
-                    if after_ref_date(row.year, row.month, report_time.year-2, report_time.month):
+                    if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
