@@ -1,6 +1,4 @@
-from functools import reduce
-
-from mapping.biz_constants import CONTRACT_DISPUTES
+from product.date_time_util import after_ref_date
 from view.mapper_detail import round_max
 
 
@@ -11,7 +9,8 @@ def test_round_max():
     assert v == 4.0
 
 
-def test_dic():
-    a = {}
-    info = a.get("sss")
-    print(info)
+def test_a():
+    assert after_ref_date(2020, 3, 2018, 12)
+    assert after_ref_date(2020, 3, 2015, 12)
+    assert after_ref_date(2018, 3, 2018, 12) is False
+    assert after_ref_date(2018, 3, 2017, 12)

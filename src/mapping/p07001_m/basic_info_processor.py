@@ -2,10 +2,13 @@
 # @Author : lixiaobo
 # @File : basic_info_handle.py.py 
 # @Software: PyCharm
+import pandas as pd
+
 from mapping.module_processor import ModuleProcessor
 
 
 # 基本信息处理
+from product.date_time_util import after_ref_date
 
 
 class BasicInfoProcessor(ModuleProcessor):
@@ -16,9 +19,8 @@ class BasicInfoProcessor(ModuleProcessor):
 
         self._rhzx_business_loan_overdue_cnt()
         self._public_sum_count()
-        self._credit_fiveLevel_a_level_cnt()
-        self._loan_fiveLevel_a_level_cnt()
         self._business_loan_average_overdue_cnt()
+        self._large_loan_2year_overdue_cnt()
 
     # 经营性贷款逾期笔数
     def _rhzx_business_loan_overdue_cnt(self):
@@ -46,26 +48,6 @@ class BasicInfoProcessor(ModuleProcessor):
         if df is not None:
             self.variables["public_sum_count"] = df.shape[0]
 
-    # 贷记卡五级分类存在“可疑、损失”
-    def _credit_fiveLevel_a_level_cnt(self):
-        df = self.cached_data.get("pcredit_loan")
-        if df is None or df.empty:
-            return
-
-        df = df.query('account_type in ["04", "05"] and latest_category in ["4", "5"]')
-        if df is not None:
-            self.variables["credit_fiveLevel_a_level_cnt"] = df.shape[0]
-
-    # 贷款五级分类存在“次级、可疑、损失”
-    def _loan_fiveLevel_a_level_cnt(self):
-        df = self.cached_data.get("pcredit_loan")
-        if df is None or df.empty:
-            return
-
-        df = df.query('account_type in ["01", "02", "03"] and category in ["3", "4", "5"]')
-        if df is not None:
-            self.variables["credit_fiveLevel_a_level_cnt"] = df.shape[0]
-
     # 还款方式为等额本息分期偿还的经营性贷款最大连续逾期期数
     def _business_loan_average_overdue_cnt(self):
         '''
@@ -89,3 +71,29 @@ class BasicInfoProcessor(ModuleProcessor):
                 if row["status"] and row["status"].isdigit():
                     count = count + 1
             self.variables["business_loan_average_overdue_cnt"] = count
+
+    # 经营性贷款（经营性+个人消费大于20万+农户+其他）2年内最大连续逾期期数
+    def _large_loan_2year_overdue_cnt(self):
+        '''
+        "1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且principal_amount>200000))的id,
+        2.对于每一个id,max(pcredit_payment中所有record_id=id且status是数字且还款时间在report_time两年内的status),
+        3.从2中所有结果中选取最大的一个"
+        '''
+        credit_loan_df = self.cached_data.get("pcredit_loan")
+        repayment_df = self.cached_data.get("pcredit_repayment")
+
+        if credit_loan_df is None or credit_loan_df.empty or repayment_df is None or repayment_df.empty:
+            return
+
+        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
+                                              '"99"] or (loan_type == "04" and principal_amount>200000))')
+
+        repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        report_time = self.cached_data["report_time"]
+        if repayment_df is not None:
+            status_list = []
+            for index, row in repayment_df.iterrows():
+                if row["status"] and row["status"].isdigit():
+                    if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
+                        status_list.append(int(row["status"]))
+            self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
