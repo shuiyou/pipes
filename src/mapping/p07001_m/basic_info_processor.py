@@ -21,6 +21,8 @@ class BasicInfoProcessor(ModuleProcessor):
         self._public_sum_count()
         self._business_loan_average_overdue_cnt()
         self._large_loan_2year_overdue_cnt()
+        self._divorce_40_female()
+        self._extension_number()
 
     # 经营性贷款逾期笔数
     def _rhzx_business_loan_overdue_cnt(self):
@@ -97,3 +99,35 @@ class BasicInfoProcessor(ModuleProcessor):
                     if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
+
+    # 年龄>=40,离异或者丧偶，女
+    def _divorce_40_female(self):
+        # 1.count(pcredit_person_info中report_id=report_id且sex=2且marriage_status=3,4的记录)
+        # 2.count(ccs.cus_indiv中cus_name=name且indiv_sex=2且cert_code=certificate_no且marital_status=12,13的记录)
+        # 3.从credit_base_info中找到report_id对应的certificate_no,用身份证号第7到14位出生日期算出年龄
+        # 4.若(1中count+2中count)>0且3中年龄>=40则变量=1,否则=0
+        # TODO
+        pass
+
+    # 展期笔数
+    def _extension_number(self):
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03的id
+        # 2.对每一个id,若count(pcredit_special中record_id=id且special_type=1的记录)>0则变量+1
+
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        credit_special_df = self.cached_data["pcredit_special"]
+
+        if credit_loan_df.empty or credit_special_df.empty:
+            return
+
+        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"]')
+        if credit_loan_df.empty:
+            return
+
+        count = 0
+        for index, row in credit_loan_df.iterrows():
+            df = credit_special_df.query('record_id == ' + str(row.id) + ' and special_type == 1')
+            if not df.empty:
+                count = count + 1
+        self.variables["extension_number"] = count
+

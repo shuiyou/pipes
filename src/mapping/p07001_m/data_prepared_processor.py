@@ -28,6 +28,7 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_phone_his", report_id)
         self.table_record_to_df("pcredit_loan", report_id)
         self.table_record_to_df("pcredit_repayment", report_id)
+        self.table_record_to_df("pcredit_special", report_id)
 
         # 入参base_info的信息
         self._basic_info_extract()

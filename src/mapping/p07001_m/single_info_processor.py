@@ -75,7 +75,8 @@ class SingleInfoProcessor(ModuleProcessor):
         if credit_loan_df is None or credit_loan_df.empty or repayment_df is None or repayment_df.empty:
             return
 
-        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and loan_type == "04" and principal_amount <= 200000')
+        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and loan_type == "04" '
+                                              'and principal_amount <= 200000')
         if credit_loan_df.empty:
             return
 

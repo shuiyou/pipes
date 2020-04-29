@@ -16,6 +16,8 @@ class CreditInfoProcessor(ModuleProcessor):
         self._credit_overdue_max_month()
         self._credit_overdrawn_2card()
         self._credit_overdue_5year()
+        self._credit_max_overdue_2year()
+        self._credit_fiveLevel_b_level_cnt()
 
     # 贷记卡五级分类存在“可疑、损失”
     def _credit_fiveLevel_a_level_cnt(self):
@@ -94,4 +96,35 @@ class CreditInfoProcessor(ModuleProcessor):
                 if row["status"] and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         status_list.append(int(row["status"]))
-            self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
+            self.variables["credit_overdue_5year"] = 0 if len(status_list) == 0 else max(status_list)
+
+    # 单张贷记卡近2年内最大逾期次数
+    def _credit_max_overdue_2year(self):
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的id
+        # 2.对每一个id,count(pcredit_payment中record_id=id且status是数字且还款时间在report_time两年内的记录)
+        # 3.从2中所有结果中选取最大值
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+
+        credit_loan_df = credit_loan_df.query('account_type in ["04", "05"]')
+        if credit_loan_df.empty or repayment_df.empty:
+            return
+
+        repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        report_time = self.cached_data["report_time"]
+        if repayment_df is not None:
+            status_list = []
+            for index, row in repayment_df.iterrows():
+                if row["status"] and row["status"].isdigit():
+                    if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
+                        status_list.append(int(row["status"]))
+            self.variables["credit_max_overdue_2year"] = 0 if len(status_list) == 0 else max(status_list)
+
+    # 贷记卡五级分类存在“次级
+    def _credit_fiveLevel_b_level_cnt(self):
+        # count(pcredit_loan中所有report_id=report_id且account_type=04,05且latest_category=3的记录)
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        credit_loan_df = credit_loan_df.query('account_type == "04" and latest_category == "3"')
+        count = credit_loan_df.shape[0]
+
+        self.variables["credit_fiveLevel_b_level_cnt"] = count
