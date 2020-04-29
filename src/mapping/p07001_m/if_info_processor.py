@@ -129,7 +129,7 @@ class IfInfoProcessor(ModuleProcessor):
             return
         df = credit_profession_df.query('duty in ["3", "9"]')
 
-        self.variables["if_employee"] = 0 if not df.empty else 1
+        self.variables["if_employee"] = 1 if not df.empty else 0
 
     def _if_official(self, credit_base_df, credit_person_df):
         # 1.从pcredit_profession中选取report_id=report_id且no=1的work_type;
@@ -138,7 +138,7 @@ class IfInfoProcessor(ModuleProcessor):
         if credit_profession_df.empty:
             return
         df = credit_profession_df.query('no == 1 and work_type == "10"')
-        self.variables["if_official"] = 0 if not df.empty else 1
+        self.variables["if_official"] = 1 if not df.empty else 0
 
     def _if_spouse_name(self, credit_base_df, credit_person_df):
         # 1.从pcredit_person_info中选取report_id=report_id的spouse_name;
