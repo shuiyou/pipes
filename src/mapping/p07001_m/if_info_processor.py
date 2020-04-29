@@ -39,7 +39,7 @@ class IfInfoProcessor(ModuleProcessor):
         # 2.入参name=1中结果,则if_name=0,否则=1
         if credit_base_df.empty:
             return
-        self.variables["if_name"] = 1 if self.user_name == credit_base_df.iloc[0].name else 0
+        self.variables["if_name"] = 0 if self.user_name == credit_base_df.iloc[0].name else 1
 
     def _phone_alt(self, credit_base_df, credit_person_df):
         # 1.从pcredit_phone_his中选取report_id=report_id且no=1的phone;
@@ -129,7 +129,7 @@ class IfInfoProcessor(ModuleProcessor):
             return
         df = credit_profession_df.query('duty in ["3", "9"]')
 
-        self.variables["if_employee"] = 1 if not df.empty else 0
+        self.variables["if_employee"] = 0 if not df.empty else 1
 
     def _if_official(self, credit_base_df, credit_person_df):
         # 1.从pcredit_profession中选取report_id=report_id且no=1的work_type;
@@ -138,7 +138,7 @@ class IfInfoProcessor(ModuleProcessor):
         if credit_profession_df.empty:
             return
         df = credit_profession_df.query('no == 1 and work_type == "10"')
-        self.variables["if_official"] = 1 if not df.empty else 0
+        self.variables["if_official"] = 0 if not df.empty else 1
 
     def _if_spouse_name(self, credit_base_df, credit_person_df):
         # 1.从pcredit_person_info中选取report_id=report_id的spouse_name;
@@ -151,7 +151,7 @@ class IfInfoProcessor(ModuleProcessor):
 
         if credit_person_df.empty:
             return
-        result = 1 if spouse_name in list(credit_person_df["spouse_name"]) else 0
+        result = 0 if spouse_name in list(credit_person_df["spouse_name"]) else 1
         self.variables["if_spouse_name"] = result
 
     def _if_spouse_cert_no(self, credit_base_df, credit_person_df):
@@ -165,7 +165,7 @@ class IfInfoProcessor(ModuleProcessor):
 
         if credit_person_df.empty:
             return
-        result = 1 if spouse_id_no in list(credit_person_df["spouse_certificate_no"]) else 0
+        result = 0 if spouse_id_no in list(credit_person_df["spouse_certificate_no"]) else 1
         self.variables["if_spouse_name"] = result
 
 
