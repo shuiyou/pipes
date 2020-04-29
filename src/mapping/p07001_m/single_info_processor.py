@@ -83,7 +83,6 @@ class SingleInfoProcessor(ModuleProcessor):
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         if repayment_df is not None and not repayment_df.empty:
             report_time = self.cached_data["report_time"]
-            status_list = []
             for index, row in repayment_df.iterrows():
                 count = 0
                 if row["status"] and row["status"].isdigit():

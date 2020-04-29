@@ -2,9 +2,9 @@
 # @Author : lixiaobo
 # @File : credit_info_processor.py.py 
 # @Software: PyCharm
+import pandas as pd
 
 from mapping.module_processor import ModuleProcessor
-
 # credit开头的相关变量
 from product.date_time_util import after_ref_date
 
@@ -18,6 +18,10 @@ class CreditInfoProcessor(ModuleProcessor):
         self._credit_overdue_5year()
         self._credit_max_overdue_2year()
         self._credit_fiveLevel_b_level_cnt()
+        self._credit_financial_tension()
+        self._credit_activated_number()
+        self._credit_min_payed_number()
+        self._credit_fiveLevel_c_level_cnt()
 
     # 贷记卡五级分类存在“可疑、损失”
     def _credit_fiveLevel_a_level_cnt(self):
@@ -128,3 +132,38 @@ class CreditInfoProcessor(ModuleProcessor):
         count = credit_loan_df.shape[0]
 
         self.variables["credit_fiveLevel_b_level_cnt"] = count
+
+    # 贷记卡资金紧张程度
+    def _credit_financial_tension(self):
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的记录
+        # 2.计算max(sum(quota_used),sum(avg_overdraft_balance_6))/sum(principal_amount)
+        # 3.统计满足条件repay_amount*2>amount_replay_amount的记录
+        # 4.计算(3中结果+1)*min(2,2中结果)
+        pass
+
+    # 已激活贷记卡张数
+    def _credit_activated_number(self):
+        # count(pcredit_loan中report_id=report_id且account_type=04,05且loan_status不等于3,62的记录)
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        df = credit_loan_df.query('account_type in ["04", "05"] and loan_status not in ["3", "62"]')
+        self.variables["credit_activated_number"] = df.shape[0]
+
+    # 贷记卡最低还款张数
+    def _credit_min_payed_number(self):
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的记录
+        # 2.统计满足条件repay_amount*2>amount_replay_amount的记录
+        df = self.cached_data["pcredit_loan"]
+        df = df.query('account_type in ["04", "05"]')
+        count = 0
+        for row in df.itertuples():
+            if pd.notna(row.repay_amount) and pd.notna(row.amout_replay_amount):
+                if row.repay_amount * 2 > row.amout_replay_amount:
+                    count = count + 1
+        self.variables["credit_min_payed_number"] = count
+
+    # 贷记卡状态存在"关注"
+    def _credit_fiveLevel_c_level_cnt(self):
+        # count(pcredit_loan中所有report_id=report_id且account_type=04,05且latest_category=2的记录)
+        df = self.cached_data["pcredit_loan"]
+        df = df.query('account_type == "04" and latest_category == "2"')
+        self.variables["credit_fiveLevel_c_level_cnt"] = df.shape[0]

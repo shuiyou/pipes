@@ -29,10 +29,10 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_loan", report_id)
         self.table_record_to_df("pcredit_repayment", report_id)
         self.table_record_to_df("pcredit_special", report_id)
+        self.table_record_to_df("pcredit_force_execution_record", report_id)
 
         # 入参base_info的信息
         self._basic_info_extract()
-
 
     # 基本入参
     def _basic_info_extract(self):
@@ -49,6 +49,7 @@ class DataPreparedProcessor(ModuleProcessor):
 
         credit_base_df = self.cached_data["credit_base_info"]
         self.cached_data["report_time"] = credit_base_df.iloc[0].report_time
+        self.cached_data["id_card_no"] = credit_base_df.iloc[0].certificate_no
 
     # credit_parse_request表信息提取
     def _credit_parse_request_extract(self):

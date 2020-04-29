@@ -17,6 +17,7 @@ class LoanInfoProcessor(ModuleProcessor):
         self._loan_credit_small_loan_query_3month_cnt()
         self._loan_fiveLevel_b_level_cnt()
         self._loan_scured_five_a_level_abnormality_cnt()
+        self._loan_scured_five_b_level_abnormality_cnt()
 
     # 贷款五级分类存在“次级、可疑、损失”
     def _loan_fiveLevel_a_level_cnt(self):
@@ -107,6 +108,14 @@ class LoanInfoProcessor(ModuleProcessor):
 
         df = credit_loan_df.query('account_type == "06" and category in["3", "4", "5"]')
         self.variables["loan_scured_five_a_level_abnormality_cnt"] = df.shape[0]
+
+    # 对外担保五级分类存在"关注"
+    def _loan_scured_five_b_level_abnormality_cnt(self):
+        # count(pcredit_loan中所有report_id=report_id且account_type=06且category=2的记录)
+        df = self.cached_data["pcredit_loan"]
+        df = df.query('account_type == "06" and category == "2"')
+        self.variables["loan_scured_five_b_level_abnormality_cnt"] = df.shape[0]
+
 
 
 
