@@ -72,6 +72,7 @@ class CreditInfoProcessor(ModuleProcessor):
         # 1.从pcredit_loan中选取所有report_id=report_id的undestroy_limit,undestory_used_limit,undestory_semi_overdraft,undestory_avg_use,undestory_semi_avg_overdraft,undestory_semi_limit,计算max(undestory_used_limit+undestory_semi_overdraft,undestory_avg_use+undestory_semi_avg_overdraft)/(undestroy_limit+undestory_semi_limit)
         # 2.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的记录,统计其中满足条件repay_amount*2>amount_replay_amount的记录
         # 3.若1中结果>=0.8且2中结果>=2,则变量=1,否则=0"
+        # TODO
         pass
 
     # 总计贷记卡5年内逾期次数
@@ -79,7 +80,6 @@ class CreditInfoProcessor(ModuleProcessor):
         # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的id
         # 2.对每一个id,count(pcredit_payment中record_id=id且status是数字且还款时间在report_time五年内的记录)
         # 3.将2中所有结果加总"
-
         credit_loan_df = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data.get("pcredit_repayment")
 
