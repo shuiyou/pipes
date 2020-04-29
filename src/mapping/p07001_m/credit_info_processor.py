@@ -91,12 +91,12 @@ class CreditInfoProcessor(ModuleProcessor):
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         report_time = self.cached_data["report_time"]
         if repayment_df is not None:
-            status_list = []
+            count = 0
             for index, row in repayment_df.iterrows():
                 if row["status"] and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
-                        status_list.append(int(row["status"]))
-            self.variables["credit_overdue_5year"] = 0 if len(status_list) == 0 else max(status_list)
+                        count = count + 1
+            self.variables["credit_overdue_5year"] = count
 
     # 单张贷记卡近2年内最大逾期次数
     def _credit_max_overdue_2year(self):
