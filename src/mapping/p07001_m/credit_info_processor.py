@@ -73,11 +73,28 @@ class CreditInfoProcessor(ModuleProcessor):
 
     # 贷记卡总透支率达80%且存在2张贷记卡最低额还款
     def _credit_overdrawn_2card(self):
-        # 1.从pcredit_loan中选取所有report_id=report_id的undestroy_limit,undestory_used_limit,undestory_semi_overdraft,undestory_avg_use,undestory_semi_avg_overdraft,undestory_semi_limit,计算max(undestory_used_limit+undestory_semi_overdraft,undestory_avg_use+undestory_semi_avg_overdraft)/(undestroy_limit+undestory_semi_limit)
+        # 1.从pcredit_info中选取所有report_id=report_id的undestroy_limit,undestory_used_limit,undestory_semi_overdraft,undestory_avg_use,undestory_semi_avg_overdraft,undestory_semi_limit,计算max(undestory_used_limit+undestory_semi_overdraft,undestory_avg_use+undestory_semi_avg_overdraft)/(undestroy_limit+undestory_semi_limit)
         # 2.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的记录,统计其中满足条件repay_amount*2>amount_replay_amount的记录
         # 3.若1中结果>=0.8且2中结果>=2,则变量=1,否则=0"
-        # TODO
-        pass
+        credit_info_df = self.cached_data["pcredit_info"]
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        df = credit_info_df.fillna(0)
+        v1_satisfy = False
+        for row in df.itertuples():
+            v1 = max(row.undestory_used_limit + row.undestory_semi_overdraft, row.undestory_avg_use + row.undestory_semi_avg_overdraft)
+            v2 = row.undestroy_limit + row.undestory_semi_limit
+            if v2 > 0:
+                v1_satisfy |= (v1/v2) >= 0.8
+
+        df = credit_loan_df.query('account_type in ["04", "05"]')
+        df = df.fillna(0)
+        v2_count = 0
+        for row in df.itertuples():
+            if row.repay_amount*2 > row.amout_replay_amount:
+                v2_count = v2_count + 1
+
+        final_result = v1_satisfy and v2_count >= 2
+        self.variables["credit_overdrawn_2card"] = 1 if final_result else 0
 
     # 总计贷记卡5年内逾期次数
     def _credit_overdue_5year(self):
@@ -139,7 +156,25 @@ class CreditInfoProcessor(ModuleProcessor):
         # 2.计算max(sum(quota_used),sum(avg_overdraft_balance_6))/sum(principal_amount)
         # 3.统计满足条件repay_amount*2>amount_replay_amount的记录
         # 4.计算(3中结果+1)*min(2,2中结果)
-        pass
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        df = credit_loan_df.query('account_type in ["04", "05"]')
+        if df.empty:
+            return
+        stats = df.sum()
+        quota_used = stats.quota_used
+        avg_overdraft_balance_6 = stats.avg_overdraft_balance_6
+        principal_amount = stats.principal_amount
+        max_v = 0
+        if principal_amount > 0:
+            max_v = max(quota_used, avg_overdraft_balance_6) / principal_amount
+
+        count = 0
+        df = df.fillna(0)
+        for row in df.itertuples():
+            if row.repay_amount * 2 > row.amout_replay_amount:
+                count = count + 1
+
+        self.variables["credit_financial_tension"] = (max_v + 1) * min(2, count)
 
     # 已激活贷记卡张数
     def _credit_activated_number(self):

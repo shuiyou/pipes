@@ -30,6 +30,8 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_repayment", report_id)
         self.table_record_to_df("pcredit_special", report_id)
         self.table_record_to_df("pcredit_force_execution_record", report_id)
+        self.table_record_to_df("pcredit_info", report_id)
+        self.table_record_to_df("pcredit_profession", report_id)
 
         # 入参base_info的信息
         self._basic_info_extract()
@@ -41,11 +43,16 @@ class DataPreparedProcessor(ModuleProcessor):
         postal_address = extra_param.get("postalAddress")
         house_address = extra_param.get("houseAddress")
         live_address = extra_param.get("liveAddress")
+        spouse_name = extra_param.get("spouseName")
+        spouse_id_no = extra_param.get("spouseIdNo")
 
         self.cached_data["basicMarryState"] = marry_state
         self.cached_data["basicPostalAddress"] = postal_address
         self.cached_data["basicHouseAddress"] = house_address
         self.cached_data["basicLiveAddress"] = live_address
+
+        self.cached_data["spouseName"] = spouse_name
+        self.cached_data["spouseIdNo"] = spouse_id_no
 
         credit_base_df = self.cached_data["credit_base_info"]
         self.cached_data["report_time"] = credit_base_df.iloc[0].report_time
