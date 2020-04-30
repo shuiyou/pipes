@@ -12,6 +12,7 @@
                 "phone": "15921664870",
                 "userType": "PERSONAL",
                 "relation": "MAIN",
+                "applyAmount": 232,
                 "extraParam": {
                     "marryState": "20",
                     "postalAddress": "上海市",

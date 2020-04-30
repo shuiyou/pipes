@@ -8,6 +8,7 @@ from mapping.module_processor import ModuleProcessor
 
 
 # total开头的相关信息
+from mapping.p07001_m.calculator import sum_duration_max
 from product.date_time_util import after_ref_date
 
 
@@ -48,8 +49,19 @@ class TotalInfoProcessor(ModuleProcessor):
         # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=02,03,04,05,06的id;
         # 2.对每一个id,从pcredit_payment中选取所有record_id=id且status是数字的记录,将每段连续逾期的最后一笔repayment_amt加总;
         # 3.将2中所有结果加总
-        # TODO
-        pass
+        credit_loan = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+
+        if credit_loan.empty or repayment_df.empty:
+            return
+
+        val_lists = []
+        for loan in credit_loan.itertuples():
+            df = repayment_df.query('record_id == ' + str(loan.id))
+            df = df.sort_values("id")
+            sum_duration_max(df, val_lists)
+        final_result = sum(map(lambda x: max(x), val_lists))
+        self.variables["total_consume_loan_overdue_money_5y"] = final_result
 
     # 银行授信总额
     def _total_bank_credit_limit(self):
