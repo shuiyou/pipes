@@ -28,6 +28,8 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_phone_his", report_id)
         self.table_record_to_df("pcredit_loan", report_id)
         self.table_record_to_df("pcredit_repayment", report_id)
+        self.table_record_to_df("pcredit_info", report_id)
+        self.table_record_to_df("pcredit_query_record", report_id)
         self.table_record_to_df("pcredit_special", report_id)
         self.table_record_to_df("pcredit_force_execution_record", report_id)
         self.table_record_to_df("pcredit_info", report_id)

@@ -4,7 +4,7 @@ import pandas as pd
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
-from datetime import datetime
+import datetime
 
 
 def test_ps_name_id():
@@ -89,16 +89,16 @@ def test_ps_crime_type():
 
 
 def test_df():
-    data={"a":['1','2','3','4','5','n'],'c':['aa','bb','vv','dd','ee','ff']}
+    data={"a":['aa','aa','bb','cc'],'c':[1,2,3,4],'e':[1,2,3,4]}
     df=pd.DataFrame(data)
-    data1={"b":[1,3,5,6,7,3,3,10],"d":['aaa','bbb','ccc','ddd','eee','fff','gggg','kkk']}
-    df1=pd.DataFrame(data1)
+    # data1={"b":[1,3,5,6,7,3,3,10],"d":['aaa','bbb','ccc','ddd','eee','fff','gggg','kkk']}
+    # df1=pd.DataFrame(data1)
     # df2=pd.merge(df,df1,left_on='a',right_on='b')
-    df4=df[df['a'].str.isdigit()==True]
-    df4=df4.sort_values(by='a',ascending=False)
-    print(df4['a'].max())
+    print(df.loc[:,'c'].max())
+
 
 
 def test_datetime():
-    now =datetime.now()
-    print(type(now.year))
+    now =datetime.datetime.now()
+    print(now-datetime.timedelta(days=3))
+
