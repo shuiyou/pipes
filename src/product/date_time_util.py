@@ -3,6 +3,8 @@
 # @File : date_time_util.py 
 # @Software: PyCharm
 
+from  datetime import datetime
+
 
 def after_ref_date(year, month, ref_year, ref_month):
     if ref_month < 1:
@@ -14,3 +16,39 @@ def after_ref_date(year, month, ref_year, ref_month):
         return False
     else:
         return ref_month <= month
+
+#获取date前n个月的年份和月份
+def before_n_month(date,n):
+    year=date.year
+    month=date.month
+    if month-n>0:
+        return year,month-n
+    else:
+        return year-1,13-n
+
+#获取date前n年的年份和月份
+def before_n_year(date,n):
+    year = date.year
+    month = date.month
+    return year-n,month
+
+#获取date前n个月的日期
+def before_n_month_date(date,n):
+    year=date.year
+    month=date.month
+    day=date.day
+    if month-n>0:
+        target_year=year
+        target_month=month-n
+    else:
+        target_year=year-1
+        target_month=13-n
+    return date.replace(target_year,target_month,day)
+
+#获取date前n年的日期
+def before_n_year_date(date,n):
+    year=date.year
+    month=date.month
+    day=date.day
+    return date.replace(year-n,month,day)
+
