@@ -7,6 +7,8 @@ from  datetime import datetime
 
 
 def after_ref_date(year, month, ref_year, ref_month):
+    if ref_month < 1:
+        ref_month = 12 + ref_month
     if year > ref_year:
         return True
     elif year < ref_year:
