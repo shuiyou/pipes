@@ -1,5 +1,6 @@
 from mapping.module_processor import ModuleProcessor
 from product.date_time_util import before_n_year_date
+import numpy as np
 
 
 class PcreditLoanView(ModuleProcessor):
@@ -87,6 +88,33 @@ class PcreditLoanView(ModuleProcessor):
                 self.variables["loan_principal_200w_prop"] = '%.2f' % (oan_principal_200w_cnt / loan_principal_total_cnt)
 
             #信贷交易信息-贷款信息-贷款类型余额分布-贷款类型
+            loan_type_list=[]
+            #信贷交易信息-贷款信息-贷款类型余额分布-目前余额
+            loan_type_balance_list=[]
+            #信贷交易信息-贷款信息-贷款类型余额分布-目前笔数
+            loan_type_cnt_list=[]
+            # 信贷交易信息-贷款信息-贷款类型余额分布-余额占比
+            loan_type_balance_prop_list=[]
+            loan_busi_df=loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01','07','99'] ))
+                                              or ((loan_account_type_df['loan_type']=='04') and (loan_account_type_df['principal_amount']>200000))]
+            loan_con_df=loan_account_type_df[(loan_account_type_df['loan_type']=='04') and (loan_account_type_df['principal_amount']<=200000)]
+            loan_mor_df=loan_account_type_df[loan_account_type_df['loan_type'].isin(['03','05','06'])]
+            if not loan_busi_df.empty:
+                loan_type_list.append("经营性贷款")
+                loan_type_balance_list.append(loan_busi_df.loc[:,'loan_balance'].sum())
+                loan_type_cnt_list.append(loan_busi_df.shape[0])
+            if not loan_con_df.empty:
+                loan_type_list.append("消费性贷款")
+                loan_type_balance_list.append(loan_con_df.loc[:, 'loan_balance'].sum())
+                loan_type_cnt_list.append(loan_con_df.shape[0])
+            if not loan_mor_df.empty:
+                loan_type_list.append("按揭类贷款")
+                loan_type_balance_list.append(loan_mor_df.loc[:, 'loan_balance'].sum())
+                loan_type_cnt_list.append(loan_mor_df.shape[0])
+            self.variables["loan_type"]=loan_type_list
+            self.variables["loan_type_balance"]=loan_type_balance_list
+            self.variables["oan_type_cnt"]=loan_type_cnt_list
+
 
 
 
