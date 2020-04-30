@@ -22,6 +22,8 @@ class CreditInfoProcessor(ModuleProcessor):
         self._credit_activated_number()
         self._credit_min_payed_number()
         self._credit_fiveLevel_c_level_cnt()
+        self._credit_now_overdue_cnt()
+        self._credit_total_overdue_cnt()
 
     # 贷记卡五级分类存在“可疑、损失”
     def _credit_fiveLevel_a_level_cnt(self):
@@ -202,3 +204,42 @@ class CreditInfoProcessor(ModuleProcessor):
         df = self.cached_data["pcredit_loan"]
         df = df.query('account_type == "04" and latest_category == "2"')
         self.variables["credit_fiveLevel_c_level_cnt"] = df.shape[0]
+
+    # 贷记卡当前逾期次数
+    def _credit_now_overdue_cnt(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=04,05的id;
+        # 2.对每一个id,从pcredit_repayment中选取record_id=id且还款时间=report_time前一个月的status;
+        # 3.将2中所有status是数字的结果加总
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+
+        loan_df = loan_df.query('account_type in ["04", "05"]')
+        if loan_df.empty or repayment_df.empty:
+            return
+
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
+        report_time = self.cached_data["report_time"]
+        count = 0
+        for row in repayment_df.itertuples():
+            if pd.isna(row.status) or not row.status.isdigit():
+                continue
+            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
+                count = count + row.status
+
+        self.variables["credit_now_overdue_cnt"] = count
+
+    # 贷记卡历史总逾期次数
+    def _credit_total_overdue_cnt(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=04,05的id;
+        # 2.对每一个id,count(pcredit_repayment中record_id=id且repayment_amt>0的记录);
+        # 3.将2中所有结果加总
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+
+        loan_df = loan_df.query('account_type in ["04", "05"]')
+        if loan_df.empty or repayment_df.empty:
+            return
+
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and repayment_amt > 0')
+        count = repayment_df.shape[0]
+        self.variables["credit_total_overdue_cnt"] = count

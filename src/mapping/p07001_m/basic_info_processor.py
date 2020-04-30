@@ -26,6 +26,11 @@ class BasicInfoProcessor(ModuleProcessor):
         self._extension_number()
         self._enforce_record()
         self._marriage_status()
+        self._judgement_record()
+        self._guarantee_amont()
+        self._tax_record()
+        self._ad_penalty_record()
+        self._business_loan_overdue_money()
 
     # 经营性贷款逾期笔数
     def _rhzx_business_loan_overdue_cnt(self):
@@ -168,4 +173,44 @@ class BasicInfoProcessor(ModuleProcessor):
         count = credit_person_df.query('marriage_status == 3').shape[0]
 
         self.variables["marriage_status"] = 1 if count > 0 else 0
+
+    # 民事判决记录数
+    def _judgement_record(self):
+        # count(pcredit_civil_judgments_record中report_id=report_id的记录)
+        judgments_record_df = self.cached_data["pcredit_civil_judgments_record"]
+        if judgments_record_df.empty:
+            return
+
+        self.variables["judgement_record"] = judgments_record_df.shape[0]
+
+    # 对外担保金额
+    def _guarantee_amont(self):
+        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=06的principal_amount
+        # 2.将1中结果加总"
+        df = self.cached_data["pcredit_loan"]
+        df = df.query('account_type == "06"')
+        amt = df['principal_amount'].sum()
+        self.variables["guarantee_amont"] = amt
+
+    # 欠税记录数
+    def _tax_record(self):
+        # count(pcredit_credit_tax_record中report_id=report_id的记录)
+        df = self.cached_data["pcredit_credit_tax_record"]
+        self.variables["tax_record"] = df.shape[0]
+
+    # 行政处罚记录数
+    def _ad_penalty_record(self):
+        # count(pcredit_punishment_record中report_id=report_id的记录)
+        df = self.cached_data["pcredit_punishment_record"]
+        self.variables["ad_penalty_record"] = df.shape[0]
+
+    # 经营性贷款逾期金额
+    def _business_loan_overdue_money(self):
+        # 从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))的overdue_amount加总
+        credit_loan_df = self.cached_data["pcredit_loan"]
+        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
+                                              'and (loan_type in ["01", "07", "99"] '
+                                              'or (loan_type == "04" and loan_amount > 200000))')
+        amt = credit_loan_df['overdue_amount'].sum()
+        self.variables["business_loan_overdue_money"] = amt
 
