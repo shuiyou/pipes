@@ -1,6 +1,6 @@
-# @Time : 2020/4/30 8:54 AM 
+# @Time : 2020/4/30 8:54 AM
 # @Author : lixiaobo
-# @File : total_info_processor.py.py 
+# @File : total_info_processor.py.py
 # @Software: PyCharm
 import pandas as pd
 
@@ -8,7 +8,7 @@ from mapping.module_processor import ModuleProcessor
 
 
 # total开头的相关信息
-from mapping.p07001_m.calculator import sum_duration_max
+from mapping.p07001_m.calculator import split_by_duration_seq
 from product.date_time_util import after_ref_date
 
 
@@ -59,8 +59,8 @@ class TotalInfoProcessor(ModuleProcessor):
         for loan in credit_loan.itertuples():
             df = repayment_df.query('record_id == ' + str(loan.id))
             df = df.sort_values("id")
-            sum_duration_max(df, val_lists)
-        final_result = sum(map(lambda x: max(x), val_lists))
+            split_by_duration_seq(df, val_lists)
+        final_result = sum(map(lambda x: 0 if pd.isna(x[-1]) else x[-1], val_lists))
         self.variables["total_consume_loan_overdue_money_5y"] = final_result
 
     # 银行授信总额

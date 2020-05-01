@@ -1,11 +1,11 @@
-# @Time : 2020/4/30 5:24 PM 
+# @Time : 2020/4/30 5:24 PM
 # @Author : lixiaobo
-# @File : calculator.py.py 
+# @File : calculator.py.py
 # @Software: PyCharm
 import pandas as pd
 
 
-def sum_duration_max(df, val_lists):
+def split_by_duration_seq(df, val_lists):
     val = []
     pre_val = None
     for item_df in df.itertuples():
