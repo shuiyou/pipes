@@ -24,6 +24,9 @@ class CreditInfoProcessor(ModuleProcessor):
         self._credit_fiveLevel_c_level_cnt()
         self._credit_now_overdue_cnt()
         self._credit_total_overdue_cnt()
+        self._credit_status_bad_cnt()  # 贷记卡账户状态存在"呆账"
+        self._credit_status_legal_cnt()  # 贷记卡账户状态存在"司法追偿"
+        self._credit_status_b_level_cnt()  # 贷记卡账户状态存在"银行止付、冻结"
 
     # 贷记卡五级分类存在“可疑、损失”
     def _credit_fiveLevel_a_level_cnt(self):
@@ -243,3 +246,21 @@ class CreditInfoProcessor(ModuleProcessor):
         repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and repayment_amt > 0')
         count = repayment_df.shape[0]
         self.variables["credit_total_overdue_cnt"] = count
+
+    #  贷记卡账户状态存在"呆账"
+    def _credit_status_bad_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=41,42的记录)
+        # TODO
+        pass
+
+    #  贷记卡账户状态存在"司法追偿"
+    def _credit_status_legal_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=8的记录)
+        # TODO
+        pass
+
+    #  贷记卡账户状态存在"银行止付、冻结"
+    def _credit_status_b_level_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=5,"冻结"的记录)
+        # TODO
+        pass

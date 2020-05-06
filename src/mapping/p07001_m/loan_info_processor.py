@@ -25,6 +25,9 @@ class LoanInfoProcessor(ModuleProcessor):
         self._loan_now_overdue_cnt()
         self._loan_total_overdue_cnt()
         self._loan_max_overdue_month()
+        self._loan_status_bad_cnt()  # 贷款账户状态存在"呆账"
+        self._loan_status_legal_cnt()  # 贷款账户状态存在"司法追偿"
+        self._loan_status_b_level_cnt()  # 贷款账户状态存在"银行止付、冻结"
 
     # 贷款五级分类存在“次级、可疑、损失”
     def _loan_fiveLevel_a_level_cnt(self):
@@ -199,3 +202,21 @@ class LoanInfoProcessor(ModuleProcessor):
         count = status_series.max()
 
         self.variables["loan_max_overdue_month"] = count
+
+    #  贷款账户状态存在"呆账"
+    def _loan_status_bad_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=41,42的记录)
+        # TODO
+        pass
+
+    #  贷款账户状态存在"司法追偿"
+    def _loan_status_legal_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=8的记录)
+        # TODO
+        pass
+
+    #  贷款账户状态存在"银行止付、冻结"
+    def _loan_status_b_level_cnt(self):
+        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=5,"冻结"的记录)
+        # TODO
+        pass

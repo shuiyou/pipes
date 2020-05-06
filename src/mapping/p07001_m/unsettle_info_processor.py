@@ -12,6 +12,8 @@ class UnSettleInfoProcessor(ModuleProcessor):
         self._unsettled_busLoan_total_cnt()
         self._unsettled_loan_agency_number()
         self._unsettled_consume_total_amount()
+        self._unsettled_loan_number()  # 未结清贷款笔数
+        self._unsettled_house_loan_number()  # 未结清房贷笔数
 
     # 有经营性贷款在贷余额的合作机构数
     def _unsettled_busLoan_agency_number(self):
@@ -76,3 +78,15 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
         amt = credit_loan_df["principal_amount"].sum()
         self.variables["unsettled_consume_total_amount"] = amt
+
+    # 未结清贷款笔数
+    def _unsettled_loan_number(self):
+        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且loan_balance>0的记录)
+        # TODO
+        pass
+
+    # 未结清房贷笔数
+    def _unsettled_house_loan_number(self):
+        # count(pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=05,06且loan_balance>0的记录)
+        # TODO
+        pass
