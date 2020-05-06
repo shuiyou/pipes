@@ -43,7 +43,8 @@ class LoanInfoProcessor(ModuleProcessor):
     def _loan_now_overdue_money(self):
         # 从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03的overdue_amount加总
         credit_loan_df = self.cached_data["pcredit_loan"]
-        amt = credit_loan_df.query('account_type in["01", "02"]').dropna(subset=["overdue_amount"])["overdue_amount"].sum()
+        amt = credit_loan_df.query('account_type in["01", "02"]').dropna(subset=["overdue_amount"])[
+            "overdue_amount"].sum()
         self.variables["loan_now_overdue_money"] = amt
 
     # 近三个月征信查询（贷款审批及贷记卡审批）次数
@@ -136,7 +137,42 @@ class LoanInfoProcessor(ModuleProcessor):
                                 '(loan_type in ["01", "07", "99"] '
                                 'or (loan_type == "04" and loan_amount > 200000) '
                                 'or loan_guarantee_type == "3")')
-        # TODO
+
+        loan_df = loan_df.filter(items=["account_org", "loan_date", "loan_amount"])
+        loan_df = loan_df[pd.notna(loan_df["loan_date"])]
+        loan_df["year"] = loan_df["loan_date"].transform(lambda x: x.year)
+        loan_df["month"] = loan_df["loan_date"].transform(lambda x: x.month)
+        loan_df["account_org"] = loan_df["account_org"].transform(lambda x: x.replace('"', ""))
+
+        final_count = 0
+        report_time = self.cached_data["report_time"]
+        df = loan_df.groupby(["account_org", "year", "month"])["month"].count().reset_index(name="count")
+        ignore_org_list = df.query('count >= 3')["account_org"].unique()
+
+        all_org_list = loan_df.loc[:, "account_org"].unique()
+
+        for org_name in all_org_list:
+            if org_name in ignore_org_list:
+                continue
+            express = 'account_org == "' + org_name + \
+                      '" and (year > ' + str(report_time.year - 5) \
+                      + ' or (year == ' + str(report_time.year - 5) \
+                      + ' and month >= ' + str(report_time.month) + '))'
+
+            item_df = loan_df.query(express)
+            if item_df.shape[0] < 3:
+                continue
+
+            item_df = item_df.sort_values(by=["year", "month"], ascending=False)
+            first_amt = item_df.iloc[0].loan_amount
+            second_amt = item_df.iloc[1].loan_amount
+            if first_amt and second_amt:
+                ratio = item_df.iloc[0].loan_amount / item_df.iloc[1].loan_amount
+                print("item_df------ ", item_df, " ratio:", ratio)
+                if ratio < 0.8:
+                    final_count = final_count + 1
+
+        self.variables["loan_doubtful"] = final_count
 
     # 贷款连续逾期2期次数
     def _loan_overdue_2times_cnt(self):
