@@ -99,7 +99,7 @@ class P005(Generate):
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
-                                                              user_type, base_type, self.df_client)
+                                                              user_type, base_type, self.df_client, data)
         origin_input['out_strategyBranch'] = ','.join(codes)
         # 合并新的转换变量
         origin_input.update(variables)
@@ -138,13 +138,14 @@ class P005(Generate):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
+        extra_param = data.get("extraParam")
         user_type = data.get('userType')
         auth_status = data.get('authorStatus')
         fund_ratio = data.get('fundratio')
         relation = data.get('relation')
         # 获取base_type
         base_type = self._get_base_type(fund_ratio, auth_status, phone, relation, user_type)
-        variables = T00000().run(user_name, id_card_no, phone, user_type, base_type)['variables']
+        variables = T00000().run(user_name, id_card_no, phone, user_type, base_type, data)['variables']
         # 决策要求一直要加上00000，用户基础信息。
         variables['out_strategyBranch'] = '00000'
         variables["product_code"] = product_code
@@ -167,6 +168,7 @@ class P005(Generate):
         resp['name'] = user_name
         resp['idno'] = id_card_no
         resp['phone'] = phone
+        resp['extraParam'] = extra_param
         resp['userType'] = user_type
         resp['authStatus'] = auth_status
         resp['fundratio'] = fund_ratio
