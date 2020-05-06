@@ -2,6 +2,8 @@
 # @Author : lixiaobo
 # @File : loan_info_processor.py 
 # @Software: PyCharm
+import pandas as pd
+
 from mapping.module_processor import ModuleProcessor
 
 # loan开头相关的变量
@@ -18,6 +20,11 @@ class LoanInfoProcessor(ModuleProcessor):
         self._loan_fiveLevel_b_level_cnt()
         self._loan_scured_five_a_level_abnormality_cnt()
         self._loan_scured_five_b_level_abnormality_cnt()
+        self._loan_doubtful()
+        self._loan_overdue_2times_cnt()
+        self._loan_now_overdue_cnt()
+        self._loan_total_overdue_cnt()
+        self._loan_max_overdue_month()
 
     # 贷款五级分类存在“次级、可疑、损失”
     def _loan_fiveLevel_a_level_cnt(self):
@@ -116,10 +123,79 @@ class LoanInfoProcessor(ModuleProcessor):
         df = df.query('account_type == "06" and category == "2"')
         self.variables["loan_scured_five_b_level_abnormality_cnt"] = df.shape[0]
 
+    # 疑似压贷笔数
+    def _loan_doubtful(self):
+        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且((loan_type=01,07,99或者(loan_type=04且loan_amount>200000))或者guarantee_type=3)的记录
+        # 2.针对1中每一个不同account_org,统计该机构每个月放款笔数,若月最大放款笔数>=3,标记为随借随还机构,跳过
+        # 3.2不满足条件2的话,该机构5年内放款笔数>=3,计算最新一笔贷款总额和次新一笔贷款总额的比值,如果比值小于0.8,则变量+1"
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"] and '
+                                '(loan_type in ["01", "07", "99"] '
+                                'or (loan_type == "04" and loan_amount > 200000) '
+                                'or loan_guarantee_type == "3")')
+        # TODO
 
+    # 贷款连续逾期2期次数
+    def _loan_overdue_2times_cnt(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03的id;
+        # 2.对每一个id,count(pcredit_repayment中record_id=id且status=2的记录);
+        # 3.2中所有结果加总
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"]')
+        if loan_df.empty or repayment_df.empty:
+            return
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and status == "2"')
+        self.variables["loan_overdue_2times_cnt"] = repayment_df.shape[0]
 
+    # 贷款当前逾期次数
+    def _loan_now_overdue_cnt(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03的id;
+        # 2.对每一个id,从pcredit_repayment中选取record_id=id且还款时间=report_time前一个月的status;
+        # 3.将2中所有status是数字的结果加总
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"]')
+        if loan_df.empty or repayment_df.empty:
+            return
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
+        report_time = self.cached_data["report_time"]
+        count = 0
+        for row in repayment_df.itertuples():
+            if pd.isna(row.status) or not row.status.isdigit():
+                continue
+            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
+                count = count + 1
 
+        self.variables["loan_now_overdue_cnt"] = count
 
+    # 贷款历史总逾期次数
+    def _loan_total_overdue_cnt(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03的id;
+        # 2.对每一个id,count(pcredit_repayment中record_id=id且repayment_amt>0的记录);
+        # 3.将2中所有结果加总
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"]')
+        if loan_df.empty or repayment_df.empty:
+            return
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and repayment_amt > 0')
+        self.variables["loan_total_overdue_cnt"] = repayment_df.shape[0]
 
+    # 贷款最大连续逾期
+    def _loan_max_overdue_month(self):
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03的id;
+        # 2.对每一个id,max(pcredit_repayment中record_id=id且status是数字的记录);
+        # 3.2中所有结果取最大值
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"]')
+        if loan_df.empty or repayment_df.empty:
+            return
 
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
+        status_series = repayment_df["status"]
+        status_series = status_series.transform(lambda x: 0 if pd.isna(x) or not x.isdigit() else int(x))
+        count = status_series.max()
 
+        self.variables["loan_max_overdue_month"] = count
