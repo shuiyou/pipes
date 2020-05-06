@@ -49,13 +49,17 @@ class BasicInfoProcessor(ModuleProcessor):
         if loan_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and status == 1')
-        self.variables["rhzx_business_loan_overdue_cnt"] = len(repayment_df)
+        count = 0
+        for item_df in loan_df.itertuples():
+            df = repayment_df.query('record_id == ' + str(item_df.id) + ' and status == 1')
+            if not df.empty:
+                count = count + 1
+        self.variables["rhzx_business_loan_overdue_cnt"] = count
 
     # 呆账、资产处置、保证人代偿笔数
     def _public_sum_count(self):
         default_info_df = self.cached_data.get("pcredit_default_info")
-        if default_info_df is None or default_info_df.empty:
+        if default_info_df.empty:
             return
 
         df = default_info_df.query('(default_type == "01" and default_subtype == "0103") or default_type == "02"')
@@ -71,7 +75,7 @@ class BasicInfoProcessor(ModuleProcessor):
         credit_loan_df = self.cached_data.get("pcredit_loan")
         repayment_df = self.cached_data.get("pcredit_repayment")
 
-        if credit_loan_df is None or credit_loan_df.empty or repayment_df is None or repayment_df.empty:
+        if credit_loan_df.empty or repayment_df.empty:
             return
 
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
@@ -79,12 +83,12 @@ class BasicInfoProcessor(ModuleProcessor):
                                               'loan_repay_type.str.contains("等额本息")')
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
-        if repayment_df is not None:
-            count = 0
-            for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
-                    count = count + 1
-            self.variables["business_loan_average_overdue_cnt"] = count
+
+        digit_status_list = [0]
+        for row in repayment_df.itertuples():
+            if pd.notna(row.status) and row.status.isdigit():
+                digit_status_list.append(int(row.status))
+        self.variables["business_loan_average_overdue_cnt"] = max(digit_status_list)
 
     # 经营性贷款（经营性+个人消费大于20万+农户+其他）2年内最大连续逾期期数
     def _large_loan_2year_overdue_cnt(self):
@@ -96,7 +100,7 @@ class BasicInfoProcessor(ModuleProcessor):
         credit_loan_df = self.cached_data.get("pcredit_loan")
         repayment_df = self.cached_data.get("pcredit_repayment")
 
-        if credit_loan_df is None or credit_loan_df.empty or repayment_df is None or repayment_df.empty:
+        if credit_loan_df.empty or repayment_df.empty:
             return
 
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
@@ -104,10 +108,10 @@ class BasicInfoProcessor(ModuleProcessor):
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         report_time = self.cached_data["report_time"]
-        if repayment_df is not None:
+        if not repayment_df.empty:
             status_list = []
             for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if pd.notna(row["status"]) and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
@@ -182,9 +186,6 @@ class BasicInfoProcessor(ModuleProcessor):
     def _judgement_record(self):
         # count(pcredit_civil_judgments_record中report_id=report_id的记录)
         judgments_record_df = self.cached_data["pcredit_civil_judgments_record"]
-        if judgments_record_df.empty:
-            return
-
         self.variables["judgement_record"] = judgments_record_df.shape[0]
 
     # 对外担保金额
@@ -223,7 +224,7 @@ class BasicInfoProcessor(ModuleProcessor):
         # count(pcredit_loan中report_id=report_id且account_type=01,02,03,04,05的记录),若结果=0,则变量=1,否则=0s
         credit_loan_df = self.cached_data["pcredit_loan"]
         df = credit_loan_df.query('account_type in ["01", "02", "03", "04", "05"]')
-        self.variables["no_loan"] = 1 if not df.empty else 0
+        self.variables["no_loan"] = 1 if df.empty else 0
 
     # 存在房贷提前结清
     def _house_loan_pre_settle(self):

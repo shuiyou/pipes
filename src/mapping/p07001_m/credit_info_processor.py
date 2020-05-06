@@ -52,6 +52,7 @@ class CreditInfoProcessor(ModuleProcessor):
             df = repayment_df.query('record_id == ' + str(loan_id))
             df = df.dropna(subset=["repayment_amt"])
             if not df.empty:
+                df = df.sort_values(by=['jhi_year', 'month'], ascending=False)
                 overdue_amt = overdue_amt + df.iloc[0].repayment_amt
 
         self.variables["credit_now_overdue_money"] = overdue_amt
@@ -109,17 +110,17 @@ class CreditInfoProcessor(ModuleProcessor):
         credit_loan_df = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data.get("pcredit_repayment")
 
-        if credit_loan_df is None or credit_loan_df.empty or repayment_df is None or repayment_df.empty:
+        if credit_loan_df.empty or repayment_df.empty:
             return
 
         credit_loan_df = credit_loan_df.query('account_type in ["04", "05"]')
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         report_time = self.cached_data["report_time"]
-        if repayment_df is not None:
+        if not repayment_df.empty:
             count = 0
             for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if pd.notna(row["status"]) and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["credit_overdue_5year"] = count
@@ -136,24 +137,27 @@ class CreditInfoProcessor(ModuleProcessor):
         if credit_loan_df.empty or repayment_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         report_time = self.cached_data["report_time"]
-        if repayment_df is not None:
-            status_list = []
-            for index, row in repayment_df.iterrows():
+        status_list = [0]
+        for row in credit_loan_df.itertuples():
+            df = repayment_df.query('record_id == ' + str(row.id))
+            if df.empty:
+                continue
+            count = 0
+            for index, row in df.iterrows():
                 if row["status"] and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
-                        status_list.append(int(row["status"]))
-            self.variables["credit_max_overdue_2year"] = 0 if len(status_list) == 0 else max(status_list)
+                        count = count + 1
+            status_list.append(count)
+            self.variables["credit_max_overdue_2year"] = max(status_list)
 
     # 贷记卡五级分类存在“次级
     def _credit_fiveLevel_b_level_cnt(self):
         # count(pcredit_loan中所有report_id=report_id且account_type=04,05且latest_category=3的记录)
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type == "04" and latest_category == "3"')
-        count = credit_loan_df.shape[0]
 
-        self.variables["credit_fiveLevel_b_level_cnt"] = count
+        self.variables["credit_fiveLevel_b_level_cnt"] = credit_loan_df.shape[0]
 
     # 贷记卡资金紧张程度
     def _credit_financial_tension(self):
@@ -227,7 +231,7 @@ class CreditInfoProcessor(ModuleProcessor):
             if pd.isna(row.status) or not row.status.isdigit():
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
-                count = count + row.status
+                count = count + int(row.status)
 
         self.variables["credit_now_overdue_cnt"] = count
 
@@ -265,5 +269,6 @@ class CreditInfoProcessor(ModuleProcessor):
     def _credit_status_b_level_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=5,"冻结"的记录)
         loan_df = self.cached_data["pcredit_loan"]
-        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status == "5"')
+        loan_df = loan_df.query('account_type in ["04", "05"] '
+                                'and (loan_status == "5" or loan_status.str.contains("冻结"))')
         self.variables["credit_status_b_level_cnt"] = loan_df.shape[0]

@@ -132,7 +132,7 @@ class SingleInfoProcessor(ModuleProcessor):
         loan_df = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data.get("pcredit_repayment")
 
-        if loan_df is None or loan_df.empty or repayment_df is None or repayment_df.empty:
+        if loan_df.empty or repayment_df.empty:
             return
 
         if account_type and loan_type:
@@ -146,7 +146,7 @@ class SingleInfoProcessor(ModuleProcessor):
             return
 
         repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
-        if repayment_df is not None and not repayment_df.empty:
+        if not repayment_df.empty:
             report_time = self.cached_data["report_time"]
             status_list = []
             for index, row in repayment_df.iterrows():

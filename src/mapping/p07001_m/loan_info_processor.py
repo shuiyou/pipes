@@ -58,7 +58,7 @@ class LoanInfoProcessor(ModuleProcessor):
         count = 0
         if not df.empty:
             for index, row in df.iterrows():
-                if after_ref_date(row.jhi_year, row.month, report_time.year - 3, report_time.month):
+                if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 3):
                     count = count + 1
         self.variables["loan_credit_query_3month_cnt"] = count
 
@@ -91,7 +91,7 @@ class LoanInfoProcessor(ModuleProcessor):
         # count(pcredit_query_record中report_id=report_id且记录时间在report_time三个月内且reason=01且operator包含"小额贷款机构"的记录)
         query_record_df = self.cached_data["pcredit_query_record"]
         if not query_record_df.empty:
-            query_record_df = query_record_df[query_record_df["operator"].str.contains("小额贷款机构")]
+            query_record_df = query_record_df[query_record_df["operator"].str.contains("小额贷款")]
             query_record_df = query_record_df.query('reason == "01"')
             report_time = self.cached_data["report_time"]
             count = 0
@@ -235,7 +235,7 @@ class LoanInfoProcessor(ModuleProcessor):
         repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
         status_series = repayment_df["status"]
         status_series = status_series.transform(lambda x: 0 if pd.isna(x) or not x.isdigit() else int(x))
-        count = status_series.max()
+        count = 0 if len(status_series) == 0 else status_series.max()
 
         self.variables["loan_max_overdue_month"] = count
 
@@ -252,7 +252,10 @@ class LoanInfoProcessor(ModuleProcessor):
     #  贷款账户状态存在"银行止付、冻结"
     def _loan_status_b_level_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=5,"冻结"的记录)
-        self._loan_count(["01", "02", "03"], ["5"], "loan_status_b_level_cnt")
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"] '
+                                'and (loan_status == "5" or loan_status.str.contains("冻结"))')
+        self.variables["loan_status_b_level_cnt"] = loan_df.shape[0]
 
     def _loan_count(self, account_types, loan_status, var_name):
         loan_df = self.cached_data["pcredit_loan"]
