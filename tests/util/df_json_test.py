@@ -98,17 +98,17 @@ def test_df8():
 def test_df9():
     df = pd.DataFrame([
         [1, 2, 3],
-        [11, 22, 33],
-        [12, 23, 34]
+        [2, 3, 4],
+        [3, 4, 5],
+        [3, 4, 5]
     ], columns=list("ABC"))
+    df = df.query('A >= 2')
     print("df:\n ", df)
 
-    series = df.loc[:, "A"]
-    print("serial\n", series, type(series))
-
-    result = filter(lambda x: x > 10, series)
-    print("result:\n", len(list(result)))
-
+    df = df.reset_index()
+    print("------------\n", df)
+    v = df.at[0, "C"]
+    print(v)
 
 
 

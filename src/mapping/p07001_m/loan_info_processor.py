@@ -167,7 +167,7 @@ class LoanInfoProcessor(ModuleProcessor):
             first_amt = item_df.iloc[0].loan_amount
             second_amt = item_df.iloc[1].loan_amount
             if first_amt and second_amt:
-                ratio = item_df.iloc[0].loan_amount / item_df.iloc[1].loan_amount
+                ratio = first_amt / second_amt
                 print("item_df------ ", item_df, " ratio:", ratio)
                 if ratio < 0.8:
                     final_count = final_count + 1
