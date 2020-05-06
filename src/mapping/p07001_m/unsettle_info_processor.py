@@ -82,11 +82,13 @@ class UnSettleInfoProcessor(ModuleProcessor):
     # 未结清贷款笔数
     def _unsettled_loan_number(self):
         # count(pcredit_loan中report_id=report_id且account_type=01,02,03且loan_balance>0的记录)
-        # TODO
-        pass
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"] and loan_balance > 0')
+        self.variables["unsettled_loan_number"] = loan_df.shape[0]
 
     # 未结清房贷笔数
     def _unsettled_house_loan_number(self):
         # count(pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=05,06且loan_balance>0的记录)
-        # TODO
-        pass
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"] and loan_type in ["05", "06"] and loan_balance > 0')
+        self.variables["unsettled_house_loan_number"] = loan_df.shape[0]

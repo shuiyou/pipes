@@ -250,17 +250,20 @@ class CreditInfoProcessor(ModuleProcessor):
     #  贷记卡账户状态存在"呆账"
     def _credit_status_bad_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=41,42的记录)
-        # TODO
-        pass
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status in ["41", "42"]')
+        self.variables["credit_status_bad_cnt"] = loan_df.shape[0]
 
     #  贷记卡账户状态存在"司法追偿"
     def _credit_status_legal_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=8的记录)
-        # TODO
-        pass
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status == "8"')
+        self.variables["credit_status_legal_cnt"] = loan_df.shape[0]
 
     #  贷记卡账户状态存在"银行止付、冻结"
     def _credit_status_b_level_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=5,"冻结"的记录)
-        # TODO
-        pass
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status == "5"')
+        self.variables["credit_status_b_level_cnt"] = loan_df.shape[0]
