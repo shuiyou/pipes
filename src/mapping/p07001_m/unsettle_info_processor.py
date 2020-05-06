@@ -24,7 +24,6 @@ class UnSettleInfoProcessor(ModuleProcessor):
                                               '(loan_type in ["01", "07", "99"] '
                                               'or (account_type == "04" and principal_amount>200000))'
                                               'and loan_balance > 0')
-        # TODO 是否需要 loan_balance > 0
         if credit_loan_df.empty:
             return
         count = credit_loan_df.dropna(subset=["account_org"])["account_org"].unique().size
