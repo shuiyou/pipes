@@ -17,12 +17,12 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
     # 有经营性贷款在贷余额的合作机构数
     def _unsettled_busLoan_agency_number(self):
-        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(account_type=04且principal_amount>200000))的account_org
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(account_type=04且loan_amount>200000))的account_org
         # 2.统计1中不同的account_org数目
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type in["01", "02", "03"] and '
                                               '(loan_type in ["01", "07", "99"] '
-                                              'or (account_type == "04" and principal_amount>200000))'
+                                              'or (account_type == "04" and loan_amount>200000))'
                                               'and loan_balance > 0')
         if credit_loan_df.empty:
             return
@@ -31,11 +31,11 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
     # 未结清消费性贷款机构数
     def _unsettled_consume_agency_cnt(self):
-        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且loan_type=04且principal_amount<=200000且loan_balance>0的account_org
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且loan_type=04且loan_amount<=200000且loan_balance>0的account_org
         # 2.统计1中不同的account_org数目
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type in["01", "02", "03"] and loan_type == "04" '
-                                              'and principal_amount > 200000 and loan_balance > 0')
+                                              'and loan_amount > 200000 and loan_balance > 0')
 
         if credit_loan_df.empty:
             return
@@ -52,10 +52,10 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
     # 未结清经营性贷款笔笔数
     def _unsettled_busLoan_total_cnt(self):
-        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且principal_amount>200000))且loan_balance>0的记录)
+        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))且loan_balance>0的记录)
         df = self.cached_data["pcredit_loan"]
         df = df.query('account_type in ["01", "02", "03"] '
-                      'and (loan_type in ["01", "07"] or (loan_type == "04" and principal_amount > 200000))'
+                      'and (loan_type in ["01", "07"] or (loan_type == "04" and loan_amount > 200000))'
                       ' and loan_balance > 0')
         self.variables[""] = df.shape[0]
 
@@ -70,13 +70,13 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
     # 未结清消费性贷款总额
     def _unsettled_consume_total_amount(self):
-        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=04且principal_amount<=200000且loan_balance>0的principal_amount
-        # 2.将1中所有principal_amount加总"
+        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=04且loan_amount<=200000且loan_balance>0的loan_amount
+        # 2.将1中所有loan_amount加总"
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
-                                              'and loan_type == "04" and principal_amount<=200000 and loan_balance>0')
+                                              'and loan_type == "04" and loan_amount<=200000 and loan_balance>0')
 
-        amt = credit_loan_df["principal_amount"].sum()
+        amt = credit_loan_df["loan_amount"].sum()
         self.variables["unsettled_consume_total_amount"] = amt
 
     # 未结清贷款笔数

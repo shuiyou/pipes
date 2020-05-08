@@ -70,7 +70,7 @@ class SingleInfoProcessor(ModuleProcessor):
 
     # 单笔消费性贷款近2年内最大逾期次数
     def _single_consume_overdue_2year_cnt(self):
-        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=04且principal_amount<=200000的id
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=04且loan_amount<=200000的id
         # 2.对每一个id,count(pcredit_payment中record_id=id且status是数字且还款时间在report_time两年内的记录)
         # 3.从2中所有结果中选取最大值
         credit_loan_df = self.cached_data["pcredit_loan"]
@@ -80,7 +80,7 @@ class SingleInfoProcessor(ModuleProcessor):
             return
 
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and loan_type == "04" '
-                                              'and principal_amount <= 200000')
+                                              'and loan_amount <= 200000')
         if credit_loan_df.empty:
             return
 

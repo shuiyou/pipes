@@ -162,7 +162,7 @@ class CreditInfoProcessor(ModuleProcessor):
     # 贷记卡资金紧张程度
     def _credit_financial_tension(self):
         # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05的记录
-        # 2.计算max(sum(quota_used),sum(avg_overdraft_balance_6))/sum(principal_amount)
+        # 2.计算max(sum(quota_used),sum(avg_overdraft_balance_6))/sum(loan_amount)
         # 3.统计满足条件repay_amount*2>amount_replay_amount的记录
         # 4.计算(3中结果+1)*min(2,2中结果)
         credit_loan_df = self.cached_data["pcredit_loan"]
@@ -172,10 +172,10 @@ class CreditInfoProcessor(ModuleProcessor):
         stats = df.sum()
         quota_used = stats.quota_used
         avg_overdraft_balance_6 = stats.avg_overdraft_balance_6
-        principal_amount = stats.principal_amount
+        loan_amount = stats.loan_amount
         max_v = 0
-        if principal_amount > 0:
-            max_v = max(quota_used, avg_overdraft_balance_6) / principal_amount
+        if loan_amount > 0:
+            max_v = max(quota_used, avg_overdraft_balance_6) / loan_amount
 
         count = 0
         df = df.fillna(0)
