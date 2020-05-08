@@ -1,196 +1,407 @@
 from mapping.module_processor import ModuleProcessor
-from product.date_time_util import before_n_year_date
+from product.date_time_util import before_n_year_date, before_n_month_date
 import numpy as np
+
+
+def get_credit_min_repay(df,repay_amount, amount_replay_amount):
+    return ["否", "是"][df[repay_amount] * 2 > df[amount_replay_amount]]
+
+
+def get_credit_usage_rate(df,quota_used, avg_overdraft_balance_6, principal_amount):
+    if principal_amount > 0:
+        temp = [df[avg_overdraft_balance_6], df[quota_used]][df[quota_used] > df[avg_overdraft_balance_6]]
+        return '%.2f' % temp / df[principal_amount]
+    else:
+        return 0
 
 
 class PcreditLoanView(ModuleProcessor):
 
     def process(self):
-        pass
+        self._get_loan_msg()
 
 
     def _get_loan_msg(self):
         loan_df=self.cached_data.get("pcredit_loan")
         credit_base_info_df = self.cached_data.get("credit_base_info")
         report_time = credit_base_info_df.loc[0, 'report_time']
+        report_time_before_3_year = before_n_year_date(report_time, 3)
         report_time_before_2_year = before_n_year_date(report_time, 2)
+        report_time_before_1_year = before_n_year_date(report_time, 1)
+        report_time_before_3_month= before_n_month_date(report_time,3)
+        report_time_before_6_month = before_n_month_date(report_time, 6)
+        report_time_before_12_month = before_n_month_date(report_time, 12)
         if loan_df.empty:
             return
         #经营、消费、按揭类贷款
         loan_account_type_df=loan_df[loan_df['account_type'].isin(['01','02','03'])]
         if not loan_account_type_df.empty:
-            #个人信息-固定资产-按揭已归还
-            self.variables["mort_settle_loan_date"]=loan_account_type_df[(loan_account_type_df['loan_type'].isin(['03','05','06']))
-                                                                         and (loan_account_type_df['loan_status']=='3')].loc[:,'loan_date'].tolist()
-            #个人信息-固定资产-按揭未结清
-            self.variables["mort_no_settle_loan_date"] = loan_account_type_df[(loan_account_type_df['loan_type'].isin(
-                ['03', '05', '06'])) and (loan_account_type_df['loan_status'] != '3')].loc[:, 'loan_date'].tolist()
+            # 个人信息-固定资产
+            self._loan_mort(loan_account_type_df)
 
             report_time_before_2_year_df=loan_account_type_df[(loan_account_type_df['loan_type'].isin(
                 ['01', '04', '07', '99'])) and (loan_account_type_df['loan_date'] > report_time_before_2_year)]
             if not report_time_before_2_year_df.empty:
-                #信贷交易信息-贷款信息-贷款趋势变化图-发放时间
-                self.variables["each_loan_date"]=report_time_before_2_year_df.loc[:, 'loan_date'].tolist()
-                #信贷交易信息-贷款信息-贷款趋势变化图-贷款发放额
-                self.variables["each_principal_amount"]=report_time_before_2_year_df.loc[:, 'principal_amount'].tolist()
-                #信贷交易信息-贷款信息-贷款趋势变化图-贷款类型
-                each_loan_type_list=[]
-                for index,row in report_time_before_2_year_df:
-                    loan_type=row['loan_type']
-                    principal_amount=row['principal_amount']
-                    if loan_type in ['01','07','99'] or (loan_type=='04' and principal_amount>200000):
-                        each_loan_type_list.append('营性贷款')
-                    else:
-                        each_loan_type_list.append('消费性贷款')
-                self.variables["each_loan_type"]=each_loan_type_list
-                #信贷交易信息-贷款信息-贷款趋势变化图-账号状态
-                self.variables["each_loan_status"]=report_time_before_2_year_df.loc[:,'loan_status'].tolist()
-                #信贷交易信息-贷款信息-贷款趋势变化图最大贷款金额
-                max_principal_amount=report_time_before_2_year_df.loc[:,'principal_amount;'].max()
-                self.variables["max_principal_amount"]=max_principal_amount
-                #信贷交易信息-贷款信息-贷款趋势变化图最小贷款金额
-                min_principal_amount= report_time_before_2_year_df.loc[:, 'principal_amount;'].min()
-                self.variables["min_principal_amount"]=min_principal_amount
-                #信贷交易信息-贷款信息-贷款趋势变化图贷款金额极差
-                self.variables["rng_principal_amount"]=max_principal_amount-min_principal_amount
-                #信贷交易信息-贷款信息-贷款趋势变化图贷款金额比值
-                self.variables["multiple_principal_amount"]='%.2f' % (max_principal_amount/min_principal_amount)
-                #信贷交易信息-贷款信息-贷款额度区间分布-0-20万笔数
-                loan_principal_0_20w_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 0)
-                                                                                        and (report_time_before_2_year_df['principal_amount'] <= 200000)].shape[0]
-                self.variables["loan_principal_0_20w_cnt"]=loan_principal_0_20w_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-20-50万笔数
-                loan_principal_20_50w_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 200000)
-                                             and (report_time_before_2_year_df['principal_amount'] <= 500000)].shape[0]
-                self.variables["loan_principal_20_50w_cnt"] = loan_principal_20_50w_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-50-100万笔数
-                loan_principal_50_100w_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 500000)
-                                             and (report_time_before_2_year_df['principal_amount'] <= 1000000)].shape[0]
-                self.variables["loan_principal_50_100w_cnt"] = loan_principal_50_100w_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-100-200万笔数
-                loan_principal_100_200w_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 1000000)
-                                             and (report_time_before_2_year_df['principal_amount'] <= 2000000)].shape[0]
-                self.variables["loan_principal_100_200w_cnt"] = loan_principal_100_200w_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-大于200万笔数
-                oan_principal_200w_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 2000000)].shape[0]
-                self.variables["oan_principal_200w_cnt"] = oan_principal_200w_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-总数
-                loan_principal_total_cnt=report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 0)].shape[0]
-                self.variables["loan_principal_total_cnt"] = loan_principal_total_cnt
-                #信贷交易信息-贷款信息-贷款额度区间分布-0-20万占比
-                self.variables["loan_principal_0_20w_prop"]='%.2f' % (loan_principal_0_20w_cnt/loan_principal_total_cnt)
-                #信贷交易信息-贷款信息-贷款额度区间分布-20-50万占比
-                self.variables["loan_principal_20_50w_prop"] = '%.2f' % (loan_principal_20_50w_cnt / loan_principal_total_cnt)
-                #信贷交易信息-贷款信息-贷款额度区间分布-50-100万占比
-                self.variables["loan_principal_50_100w_prop"] = '%.2f' % (loan_principal_50_100w_cnt / loan_principal_total_cnt)
-                #信贷交易信息-贷款信息-贷款额度区间分布-100-200万占比
-                self.variables["loan_principal_100_200w_prop"] = '%.2f' % (loan_principal_100_200w_cnt / loan_principal_total_cnt)
-                #信贷交易信息-贷款信息-贷款额度区间分布-大于200万占比
-                self.variables["loan_principal_200w_prop"] = '%.2f' % (oan_principal_200w_cnt / loan_principal_total_cnt)
+                self._report_time_after_2_year(report_time_before_2_year_df)
 
-            #信贷交易信息-贷款信息-贷款类型余额分布-贷款类型
-            loan_type_list=[]
-            #信贷交易信息-贷款信息-贷款类型余额分布-目前余额
-            loan_type_balance_list=[]
-            #信贷交易信息-贷款信息-贷款类型余额分布-目前笔数
-            loan_type_cnt_list=[]
-            # 信贷交易信息-贷款信息-贷款类型余额分布-余额占比
-            loan_type_balance_prop_list=[]
-            loan_busi_df=loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01','07','99'] ))
-                                              or ((loan_account_type_df['loan_type']=='04') and (loan_account_type_df['principal_amount']>200000))]
-            loan_con_df=loan_account_type_df[(loan_account_type_df['loan_type']=='04') and (loan_account_type_df['principal_amount']<=200000)]
-            loan_mor_df=loan_account_type_df[loan_account_type_df['loan_type'].isin(['03','05','06'])]
-            loan_busi_balance=0
-            loan_con_balance=0
-            loan_mor_balance=0
-            if not loan_busi_df.empty:
-                loan_type_list.append("经营性贷款")
-                loan_busi_balance=loan_busi_df.loc[:,'loan_balance'].sum()
-                loan_type_balance_list.append(loan_busi_balance)
-                loan_type_cnt_list.append(loan_busi_df.shape[0])
-            if not loan_con_df.empty:
-                loan_type_list.append("消费性贷款")
-                loan_con_balance=loan_con_df.loc[:, 'loan_balance'].sum()
-                loan_type_balance_list.append(loan_con_balance)
-                loan_type_cnt_list.append(loan_con_df.shape[0])
-            if not loan_mor_df.empty:
-                loan_type_list.append("按揭类贷款")
-                loan_mor_balance=loan_mor_df.loc[:, 'loan_balance'].sum()
-                loan_type_balance_list.append(loan_mor_balance)
-                loan_type_cnt_list.append(loan_mor_df.shape[0])
-            loan_total_balance=loan_busi_balance+loan_con_balance+loan_mor_balance
-            loan_type_balance_prop_list.append( '%.2f' %(loan_busi_balance/loan_total_balance))
-            loan_type_balance_prop_list.append('%.2f' % (loan_con_balance / loan_total_balance))
-            loan_type_balance_prop_list.append('%.2f' % (loan_mor_balance / loan_total_balance))
+            # 信贷交易信息-贷款信息-贷款类型余额分布
+            self._loan_balance_distribution(loan_account_type_df)
 
-            self.variables["loan_type"]=loan_type_list
-            self.variables["loan_type_balance"]=loan_type_balance_list
-            self.variables["oan_type_cnt"]=loan_type_cnt_list
-            self.variables["loan_type_balance_prop"]=loan_type_balance_prop_list
+            # 信贷交易信息-贷款信息-贷款申请新增机构
+            self._variable_loan_account_org(loan_account_type_df, report_time_before_12_month,
+                                            report_time_before_2_year, report_time_before_3_month,
+                                            report_time_before_6_month)
+
+            loan_type_df=loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01','07','99'])) and
+                                              ((loan_account_type_df['loan_type']=='04') and (loan_account_type_df['04且principal_amount'] > 200000))]
+            if not loan_type_df.empty:
+                #信贷交易信息-贷款信息-近三年机构申请总变化
+                self._org_change_recent_3_year(loan_type_df, report_time, report_time_before_1_year,
+                                               report_time_before_2_year, report_time_before_3_year)
 
         #担保类贷款
         loan_gua_df=loan_df[loan_df['account_type']=='06']
         if not loan_gua_df.empty:
-            gua_mort_df=loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['1','2'])]
-            gua_credit_df=loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['3','4','7'])]
-            gua_com_df=loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['5','6'])]
-            # 信贷交易信息-贷款信息-担保方式余额分布-担保类型
-            guar_type_list = []
-            #信贷交易信息-贷款信息-担保方式余额分布-目前余额
-            mort_balance=0
-            credit_balance=0
-            com_balance=0
-            guar_type_balance_list=[]
-            #信贷交易信息-贷款信息-担保方式余额分布-目前笔数
-            guar_type_cnt_list=[]
-            #信贷交易信息-贷款信息-担保方式余额分布-余额占比
-            guar_type_balance_prop_list=[]
-            if not gua_mort_df.empty:
-                guar_type_list.append("抵质押类")
-                mort_balance=gua_mort_df.loc[:,'loan_balance'].sum()
-                guar_type_balance_list.append(mort_balance)
-                guar_type_cnt_list.append(gua_mort_df.shape[0])
-            if not gua_credit_df.empty:
-                guar_type_list.append("担保信用类")
-                credit_balance=gua_credit_df.loc[:,'loan_balance'].sum()
-                guar_type_balance_list.append(credit_balance)
-                guar_type_cnt_list.append(gua_credit_df.shape[0])
-            if not gua_com_df.empty:
-                guar_type_list.append("组合类")
-                com_balance=gua_com_df.loc[:,'loan_balance'].sum()
-                guar_type_balance_list.append(com_balance)
-                guar_type_cnt_list.append(gua_com_df.shape[0])
-            total_balance=mort_balance+credit_balance+com_balance
-            if total_balance!=0:
-                guar_type_balance_prop_list.append( '%.2f' %(mort_balance/total_balance))
-                guar_type_balance_prop_list.append('%.2f' %(credit_balance/total_balance))
-                guar_type_balance_prop_list.append('%.2f' % (com_balance / total_balance))
-            self.variables["guar_type"]=guar_type_list
-            self.variables["guar_type_balance"]=guar_type_balance_list
-            self.variables["guar_type_cnt"]=guar_type_cnt_list
-            self.variables["guar_type_balance_prop"]=guar_type_balance_prop_list
-            #信贷交易信息-贷款信息-担保方式余额分布保证类最大金额
-            ensure_max_principal=self._get_one_query_condition_max(loan_gua_df,'loan_guarantee_type',['3','4','7'],'loan_balance','max')
-            self.variables["ensure_max_principal"]=ensure_max_principal
-            #信贷交易信息-贷款信息-担保方式余额分布抵押类最大金额
-            mort_max_principal=self._get_one_query_condition_max(loan_gua_df,'loan_guarantee_type',['1','2'], 'loan_balance','max')
-            self.variables["mort_max_principal"] = mort_max_principal
+            self._gua_loan(loan_gua_df)
 
-            apply_amount=self.origin_data.get("applyAmount")
-            if apply_amount:
-                # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额是我司申请金额倍数
-                self.variables["ensure_principal_multi_apply"]='%.2f' %(ensure_max_principal/apply_amount)
-                #信贷交易信息-贷款信息-担保方式余额分布抵押类最大金额
-                self.variables["mort_principal_multi_apply"] = '%.2f' % (mort_max_principal / apply_amount)
-
-
-
+        # 贷记卡
+        loan_credit_df = loan_df[loan_df['account_type'].isin(['04','05'])]
+        if not loan_credit_df.empty:
+            self._get_credit_loan_variables(loan_credit_df, report_time_before_1_year, report_time_before_2_year,
+                                            report_time_before_3_year)
 
         #征信不良信息-严重预警信息-五级分类状态
         self.variables["category"]=loan_df[(loan_df['account_type'].isin(['01','02','03','04','05']))
                                       and (loan_df['category']!='01')].loc[:,'latest_category'].unique().tolist()
 
 
+
+
+    def _get_credit_loan_variables(self, loan_credit_df, report_time_before_1_year, report_time_before_2_year,
+                                   report_time_before_3_year):
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构
+        self.variables["credit_org"] = loan_credit_df.loc[:, 'account_org'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总-开户时间
+        self.variables["credit_loan_date"] = loan_credit_df.loc[:, 'loan_date'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总-账户状态
+        self.variables["credit_loan_status"] = loan_credit_df.loc[:, 'loan_status'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总-授信额度
+        self.variables["credit_principal_amount"] = loan_credit_df.loc[:, 'principal_amount'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总-已使用额度
+        self.variables["credit_quota_used"] = loan_credit_df.loc[:, 'quota_used'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总最近6个月平均使用额度
+        self.variables["credit_avg_used_6m"] = loan_credit_df.loc[:, 'avg_overdraft_balance_6'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总贷记卡使用率
+        loan_credit_df['credit_usage_rate'] = loan_credit_df.apply(get_credit_usage_rate, axis=1, args=(
+        'quota_used', 'avg_overdraft_balance_6', 'principal_amount'))
+        self.variables["credit_usage_rate"] = loan_credit_df.loc[:, 'credit_usage_rate'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总是否为最低还款
+        loan_credit_df['credit_min_repay'] = loan_credit_df.apply(get_credit_min_repay, axis=1,
+                                                                  args=('repay_amount', 'amount_replay_amount'))
+        self.variables['credit_min_repay'] = loan_credit_df.loc[:, 'credit_min_repay'].tolist()
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构个数
+        self.variables['credit_org_cnt'] = loan_credit_df.shape[0]
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总授信额度
+        total_credit_card_limit = loan_credit_df.loc[:, 'credit_principal_amount'].sum()
+        self.variables["total_credit_card_limit"] = total_credit_card_limit
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总已使用额度
+        total_credit_quota_used = loan_credit_df.loc[:, 'credit_quota_used'].sum()
+        self.variables["total_credit_quota_used"] = total_credit_quota_used
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总最近6个月平均使用额度
+        total_credit_avg_used_6m = loan_credit_df.loc[:, 'credit_avg_used_6m'].sum()
+        self.variables["total_credit_avg_used_6m"] = total_credit_avg_used_6m
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总贷记卡使用率
+        self.variables["total_credit_usage_rate"] = [total_credit_avg_used_6m, total_credit_quota_used][
+                                                        total_credit_quota_used > total_credit_avg_used_6m] \
+                                                    / total_credit_card_limit
+        # 信贷交易信息-贷记卡信息-贷记卡信息汇总最低还款张数
+        self.variables["credit_min_repay_cnt"] = loan_credit_df[loan_credit_df['credit_min_repay'] == "是"].shape[0]
+        credit_limit_3, credit_cnt_3 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_3_year)
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化3年前总额度
+        self.variables["total_credit_limit_3y_ago"] = credit_limit_3
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化3年前总张数
+        self.variables["total_credit_cnt_3y_ago"] = credit_cnt_3
+        credit_limit_2, credit_cnt_2 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_2_year)
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化2年前总额度
+        self.variables["total_credit_limit_2y_ago"] = credit_limit_2
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化2年前总张数
+        self.variables["total_credit_cnt_2y_ago"] = credit_cnt_2
+        credit_limit_1, credit_cnt_1 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_1_year)
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化1年前总额度
+        self.variables["total_credit_limit_1y_ago"] = credit_limit_1
+        # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化1年前总张数
+        self.variables["total_credit_cnt_1y_ago"] = credit_cnt_1
+
+    def _get_total_credit_limit_ny_ago(self,loan_credit_df,date):
+        credit_limit, credit_cnt=0,0
+        df = loan_credit_df[loan_credit_df['loan_date'] < date]
+        if not df.empty:
+            credit_limit=df.loc[:,'principal_amount'].sum()
+            credit_cnt=df.shape[0]
+        return credit_limit,credit_cnt
+
+    def _org_change_recent_3_year(self, loan_type_df, report_time, report_time_before_1_year, report_time_before_2_year,
+                                  report_time_before_3_year):
+        account_org_list = []
+        df = loan_type_df[loan_type_df['loan_date'] >= report_time_before_3_year]
+        if not df.empty:
+            account_org_list = df.loc[:, 'account_org'].drop_duplicates().values.tolist()
+            self.variables["account_org"] = account_org_list
+            total_principal_list_3, max_terms_list_3 = self._total_principal(account_org_list, loan_type_df,
+                                                                             report_time_before_2_year,
+                                                                             report_time_before_3_year)
+            self.variables["total_principal_3y_ago"] = total_principal_list_3
+            self.variables["max_terms_3y_ago"] = max_terms_list_3
+
+            total_principal_list_2, max_terms_list_2 = self._total_principal(account_org_list, loan_type_df,
+                                                                             report_time_before_1_year,
+                                                                             report_time_before_2_year)
+            self.variables["total_principal_2y_ago"] = total_principal_list_2
+            self.variables["max_terms_2y_ago"] = max_terms_list_2
+
+            total_principal_list_1, max_terms_list_1 = self._total_principal(account_org_list, loan_type_df,
+                                                                             report_time,
+                                                                             report_time_before_1_year)
+            self.variables["total_principal_1y_ago"] = total_principal_list_1
+            self.variables["max_terms_1y_ago"] = max_terms_list_1
+
+    def _total_principal(self, account_org_list, loan_type_df, date1,date2):
+        total_principal_list = []
+        max_terms_list = []
+        df = loan_type_df[(loan_type_df['loan_date'] <= date1)
+                           and (loan_type_df['loan_date'] > date2)].sort_values(by='loan_date', ascending=False)
+        for org in account_org_list:
+            df_temp = df[df['account_org'] == org]
+            if not df_temp.empty:
+                principal_amount = df_temp.loc[0, 'principal_amount']
+                repay_period = df_temp.loc[0, 'repay_period']
+                total_principal_list.append(principal_amount)
+                max_terms_list.append(repay_period)
+            else:
+                total_principal_list.append(0)
+                max_terms_list.append(0)
+        return  total_principal_list,max_terms_list
+
+    def _variable_loan_account_org(self, loan_account_type_df, report_time_before_12_month, report_time_before_2_year,
+                                   report_time_before_3_month, report_time_before_6_month):
+        # 信贷交易信息-贷款信息-贷款申请新增机构-前3个月
+        account_org_list_3, loan_type_list_3, principal_amount_list_3 = self._util_loan_account_org(
+            loan_account_type_df,
+            report_time_before_2_year,
+            report_time_before_3_month)
+        self.variables["new_org_3m_ago"] = account_org_list_3
+        self.variables["loan_type_3m_ago"] = loan_type_list_3
+        self.variables["principal_amount_3m_ago"] = principal_amount_list_3
+        # 信贷交易信息-贷款信息-贷款申请新增机构-前6个月
+        account_org_list_6, loan_type_list_6, principal_amount_list_6 = self._util_loan_account_org(
+            loan_account_type_df,
+            report_time_before_2_year,
+            report_time_before_6_month)
+        self.variables["new_org_6m_ago"] = account_org_list_6
+        self.variables["loan_type_6m_ago"] = loan_type_list_6
+        self.variables["principal_amount_6m_ago"] = principal_amount_list_6
+        # 信贷交易信息-贷款信息-贷款申请新增机构-前12个月
+        account_org_list_12, loan_type_list_12, principal_amount_list_12 = self._util_loan_account_org(
+            loan_account_type_df,
+            report_time_before_2_year,
+            report_time_before_12_month)
+        self.variables["new_org_12m_ago"] = account_org_list_12
+        self.variables["loan_type_12m_ago"] = loan_type_list_12
+        self.variables["principal_amount_12m_ago"] = principal_amount_list_12
+
+    def _gua_loan(self, loan_gua_df):
+        gua_mort_df = loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['1', '2'])]
+        gua_credit_df = loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['3', '4', '7'])]
+        gua_com_df = loan_gua_df[loan_gua_df['loan_guarantee_type'].isin(['5', '6'])]
+        # 信贷交易信息-贷款信息-担保方式余额分布-担保类型
+        guar_type_list = []
+        # 信贷交易信息-贷款信息-担保方式余额分布-目前余额
+        mort_balance = 0
+        credit_balance = 0
+        com_balance = 0
+        guar_type_balance_list = []
+        # 信贷交易信息-贷款信息-担保方式余额分布-目前笔数
+        guar_type_cnt_list = []
+        # 信贷交易信息-贷款信息-担保方式余额分布-余额占比
+        guar_type_balance_prop_list = []
+        if not gua_mort_df.empty:
+            guar_type_list.append("抵质押类")
+            mort_balance = gua_mort_df.loc[:, 'loan_balance'].sum()
+            guar_type_balance_list.append(mort_balance)
+            guar_type_cnt_list.append(gua_mort_df.shape[0])
+        if not gua_credit_df.empty:
+            guar_type_list.append("担保信用类")
+            credit_balance = gua_credit_df.loc[:, 'loan_balance'].sum()
+            guar_type_balance_list.append(credit_balance)
+            guar_type_cnt_list.append(gua_credit_df.shape[0])
+        if not gua_com_df.empty:
+            guar_type_list.append("组合类")
+            com_balance = gua_com_df.loc[:, 'loan_balance'].sum()
+            guar_type_balance_list.append(com_balance)
+            guar_type_cnt_list.append(gua_com_df.shape[0])
+        total_balance = mort_balance + credit_balance + com_balance
+        if total_balance != 0:
+            guar_type_balance_prop_list.append('%.2f' % (mort_balance / total_balance))
+            guar_type_balance_prop_list.append('%.2f' % (credit_balance / total_balance))
+            guar_type_balance_prop_list.append('%.2f' % (com_balance / total_balance))
+        self.variables["guar_type"] = guar_type_list
+        self.variables["guar_type_balance"] = guar_type_balance_list
+        self.variables["guar_type_cnt"] = guar_type_cnt_list
+        self.variables["guar_type_balance_prop"] = guar_type_balance_prop_list
+        # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额
+        ensure_max_principal = self._get_one_query_condition_max(loan_gua_df, 'loan_guarantee_type', ['3', '4', '7'],
+                                                                 'loan_balance', 'max')
+        self.variables["ensure_max_principal"] = ensure_max_principal
+        # 信贷交易信息-贷款信息-担保方式余额分布抵押类最大金额
+        mort_max_principal = self._get_one_query_condition_max(loan_gua_df, 'loan_guarantee_type', ['1', '2'],
+                                                               'loan_balance', 'max')
+        self.variables["mort_max_principal"] = mort_max_principal
+        apply_amount = self.origin_data.get("applyAmount")
+        if apply_amount:
+            # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额是我司申请金额倍数
+            self.variables["ensure_principal_multi_apply"] = '%.2f' % (ensure_max_principal / apply_amount)
+            # 信贷交易信息-贷款信息-担保方式余额分布抵押类最大金额
+            self.variables["mort_principal_multi_apply"] = '%.2f' % (mort_max_principal / apply_amount)
+
+        #担保信息-担保信息明细-管理机构
+        self.variables["guar_acc_org"]=loan_gua_df.loc[:,'account_org'].tolist()
+        #担保信息-担保信息明细-业务种类
+        self.variables["guar_loan_type"]=loan_gua_df.loc[:,'loan_type'].tolist()
+        #担保信息-担保信息明细-到期日期
+        self.variables["guar_end_date"]=loan_gua_df.loc[:,'end_date'].tolist()
+        #担保信息-担保信息明细-担保金额
+        self.variables["guar_principal_amount"]=loan_gua_df.loc[:,'principal_amount'].tolist()
+        #担保信息-担保信息明细-担保余额
+        self.variables["guar_loan_balance"]=loan_gua_df.loc[:,'loan_balance'].tolist()
+        #担保信息-担保信息明细-五级分类
+        self.variables["guar_latest_category"]=loan_gua_df.loc[:,'latest_category'].tolist()
+        #担保信息-担保信息明细-管理机构个数
+        self.variables["guar_latest_category"]=loan_gua_df.loc[:,'account_org'].drop_duplicates().size
+        #担保信息-担保信息明细-担保金额总额
+        self.variables["total_guar_principal_amount"]=loan_gua_df.loc[:,'principal_amount'].sum()
+        #担保信息-担保信息明细-担保余额总额
+        self.variables["total_guar_loan_balance"]=loan_gua_df.loc[:,'loan_balance'].sum()
+
+
+
+    def _report_time_after_2_year(self, report_time_before_2_year_df):
+        # 信贷交易信息-贷款信息-贷款趋势变化图-发放时间
+        self.variables["each_loan_date"] = report_time_before_2_year_df.loc[:, 'loan_date'].tolist()
+        # 信贷交易信息-贷款信息-贷款趋势变化图-贷款发放额
+        self.variables["each_principal_amount"] = report_time_before_2_year_df.loc[:, 'principal_amount'].tolist()
+        # 信贷交易信息-贷款信息-贷款趋势变化图-贷款类型
+        each_loan_type_list = []
+        for index, row in report_time_before_2_year_df.iterrows():
+            loan_type = row['loan_type']
+            principal_amount = row['principal_amount']
+            if loan_type in ['01', '07', '99'] or (loan_type == '04' and principal_amount > 200000):
+                each_loan_type_list.append('经营性贷款')
+            else:
+                each_loan_type_list.append('消费性贷款')
+        self.variables["each_loan_type"] = each_loan_type_list
+        # 信贷交易信息-贷款信息-贷款趋势变化图-账号状态
+        self.variables["each_loan_status"] = report_time_before_2_year_df.loc[:, 'loan_status'].tolist()
+        # 信贷交易信息-贷款信息-贷款趋势变化图最大贷款金额
+        max_principal_amount = report_time_before_2_year_df.loc[:, 'principal_amount;'].max()
+        self.variables["max_principal_amount"] = max_principal_amount
+        # 信贷交易信息-贷款信息-贷款趋势变化图最小贷款金额
+        min_principal_amount = report_time_before_2_year_df.loc[:, 'principal_amount;'].min()
+        self.variables["min_principal_amount"] = min_principal_amount
+        # 信贷交易信息-贷款信息-贷款趋势变化图贷款金额极差
+        self.variables["rng_principal_amount"] = max_principal_amount - min_principal_amount
+        # 信贷交易信息-贷款信息-贷款趋势变化图贷款金额比值
+        self.variables["multiple_principal_amount"] = '%.2f' % (max_principal_amount / min_principal_amount)
+        # 信贷交易信息-贷款信息-贷款额度区间分布-0-20万笔数
+        loan_principal_0_20w_cnt = report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 0)
+                                                                and (report_time_before_2_year_df[
+                                                                         'principal_amount'] <= 200000)].shape[0]
+        self.variables["loan_principal_0_20w_cnt"] = loan_principal_0_20w_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-20-50万笔数
+        loan_principal_20_50w_cnt = \
+        report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 200000)
+                                     and (report_time_before_2_year_df['principal_amount'] <= 500000)].shape[0]
+        self.variables["loan_principal_20_50w_cnt"] = loan_principal_20_50w_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-50-100万笔数
+        loan_principal_50_100w_cnt = \
+        report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 500000)
+                                     and (report_time_before_2_year_df['principal_amount'] <= 1000000)].shape[0]
+        self.variables["loan_principal_50_100w_cnt"] = loan_principal_50_100w_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-100-200万笔数
+        loan_principal_100_200w_cnt = \
+        report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 1000000)
+                                     and (report_time_before_2_year_df['principal_amount'] <= 2000000)].shape[0]
+        self.variables["loan_principal_100_200w_cnt"] = loan_principal_100_200w_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-大于200万笔数
+        oan_principal_200w_cnt = \
+        report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 2000000)].shape[0]
+        self.variables["oan_principal_200w_cnt"] = oan_principal_200w_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-总数
+        loan_principal_total_cnt = \
+        report_time_before_2_year_df[(report_time_before_2_year_df['principal_amount'] > 0)].shape[0]
+        self.variables["loan_principal_total_cnt"] = loan_principal_total_cnt
+        # 信贷交易信息-贷款信息-贷款额度区间分布-0-20万占比
+        self.variables["loan_principal_0_20w_prop"] = '%.2f' % (loan_principal_0_20w_cnt / loan_principal_total_cnt)
+        # 信贷交易信息-贷款信息-贷款额度区间分布-20-50万占比
+        self.variables["loan_principal_20_50w_prop"] = '%.2f' % (loan_principal_20_50w_cnt / loan_principal_total_cnt)
+        # 信贷交易信息-贷款信息-贷款额度区间分布-50-100万占比
+        self.variables["loan_principal_50_100w_prop"] = '%.2f' % (loan_principal_50_100w_cnt / loan_principal_total_cnt)
+        # 信贷交易信息-贷款信息-贷款额度区间分布-100-200万占比
+        self.variables["loan_principal_100_200w_prop"] = '%.2f' % (
+                    loan_principal_100_200w_cnt / loan_principal_total_cnt)
+        # 信贷交易信息-贷款信息-贷款额度区间分布-大于200万占比
+        self.variables["loan_principal_200w_prop"] = '%.2f' % (oan_principal_200w_cnt / loan_principal_total_cnt)
+
+    def _loan_mort(self, loan_account_type_df):
+        # 个人信息-固定资产-按揭已归还
+        self.variables["mort_settle_loan_date"] = loan_account_type_df[
+                                                      (loan_account_type_df['loan_type'].isin(['03', '05', '06']))
+                                                      and (loan_account_type_df['loan_status'] == '3')].loc[:,
+                                                  'loan_date'].tolist()
+        # 个人信息-固定资产-按揭未结清
+        self.variables["mort_no_settle_loan_date"] = loan_account_type_df[(loan_account_type_df['loan_type'].isin(
+            ['03', '05', '06'])) and (loan_account_type_df['loan_status'] != '3')].loc[:, 'loan_date'].tolist()
+
+    def _loan_balance_distribution(self, loan_account_type_df):
+        # 信贷交易信息-贷款信息-贷款类型余额分布-贷款类型
+        loan_type_list = []
+        # 信贷交易信息-贷款信息-贷款类型余额分布-目前余额
+        loan_type_balance_list = []
+        # 信贷交易信息-贷款信息-贷款类型余额分布-目前笔数
+        loan_type_cnt_list = []
+        # 信贷交易信息-贷款信息-贷款类型余额分布-余额占比
+        loan_type_balance_prop_list = []
+        loan_busi_df = loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01', '07', '99']))
+                                            or ((loan_account_type_df['loan_type'] == '04') and (
+                    loan_account_type_df['principal_amount'] > 200000))]
+        loan_con_df = loan_account_type_df[
+            (loan_account_type_df['loan_type'] == '04') and (loan_account_type_df['principal_amount'] <= 200000)]
+        loan_mor_df = loan_account_type_df[loan_account_type_df['loan_type'].isin(['03', '05', '06'])]
+        loan_busi_balance = 0
+        loan_con_balance = 0
+        loan_mor_balance = 0
+        if not loan_busi_df.empty:
+            loan_type_list.append("经营性贷款")
+            loan_busi_balance = loan_busi_df.loc[:, 'loan_balance'].sum()
+            loan_type_balance_list.append(loan_busi_balance)
+            loan_type_cnt_list.append(loan_busi_df.shape[0])
+        if not loan_con_df.empty:
+            loan_type_list.append("消费性贷款")
+            loan_con_balance = loan_con_df.loc[:, 'loan_balance'].sum()
+            loan_type_balance_list.append(loan_con_balance)
+            loan_type_cnt_list.append(loan_con_df.shape[0])
+        if not loan_mor_df.empty:
+            loan_type_list.append("按揭类贷款")
+            loan_mor_balance = loan_mor_df.loc[:, 'loan_balance'].sum()
+            loan_type_balance_list.append(loan_mor_balance)
+            loan_type_cnt_list.append(loan_mor_df.shape[0])
+        loan_total_balance = loan_busi_balance + loan_con_balance + loan_mor_balance
+        loan_type_balance_prop_list.append('%.2f' % (loan_busi_balance / loan_total_balance))
+        loan_type_balance_prop_list.append('%.2f' % (loan_con_balance / loan_total_balance))
+        loan_type_balance_prop_list.append('%.2f' % (loan_mor_balance / loan_total_balance))
+        self.variables["loan_type"] = loan_type_list
+        self.variables["loan_type_balance"] = loan_type_balance_list
+        self.variables["oan_type_cnt"] = loan_type_cnt_list
+        self.variables["loan_type_balance_prop"] = loan_type_balance_prop_list
 
     #单查询条件，获取对应的结果
     def _get_one_query_condition_max(self,df,query_field,query_list,filter_field,method):
@@ -203,3 +414,19 @@ class PcreditLoanView(ModuleProcessor):
             elif method=='sum':
                 return df_temp.loc[:, filter_field].sum()
         return 0
+
+    def _util_loan_account_org(self,loan_account_type_df,date1,date2):
+        account_org_list=[]
+        loan_type_list=[]
+        principal_amount_list=[]
+        df1=loan_account_type_df[(loan_account_type_df['loan_date']<date1) and (loan_account_type_df['loan_date']>=date2)]
+        df2=loan_account_type_df[loan_account_type_df['loan_date']>=date1]
+        account_org_list=list(set(df2.loc[:,'account_org'].tolist()).difference(set(df1.loc[:,'account_org'].tolist())))
+        if len(account_org_list)>0:
+            for org in account_org_list:
+                df_temp=df2[df2['account_org']==org].sort_values(by='loan_date',ascending=False)
+                loan_type=df_temp.loc[0,'loan_type']
+                principal_amount=df_temp.loc[0,'principal_amount']
+                loan_type_list.append(loan_type)
+                principal_amount_list.append(principal_amount)
+        return account_org_list,loan_type_list,principal_amount_list

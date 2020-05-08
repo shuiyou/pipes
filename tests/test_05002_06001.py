@@ -91,19 +91,26 @@ def test_ps_crime_type():
 
 
 def test_df():
-    data={"a":[],'c':[],'e':[]}
+    data={'a':[3,3],'c':[2,3],'e':[1,2]}
     df=pd.DataFrame(data)
     # data1={"b":[1,3,5,6,7,3,3,10],"d":['aaa','bbb','ccc','ddd','eee','fff','gggg','kkk']}
     # df1=pd.DataFrame(data1)
     # df2=pd.merge(df,df1,left_on='a',right_on='b')
-    print(df.loc[:,'c'].max())
+    # df['d']=df.apply(get_credit_min_repay,axis=1,args=('a','c'))
+    print(df['a'].drop_duplicates().size)
 
 
 
 def test_datetime():
     # now =datetime.datetime.now()
     # print(now-datetime.timedelta(days=3))
-    list=[1,np.nan,2,3]
-    print(json.dumps(list))
+    # list=[1,np.nan,2,3]
+    # print(json.dumps(list))
+    a,b=3,2
+    print(['否','是'][a>b])
+
+
+def get_credit_min_repay(df,repay_amount,amount_replay_amount):
+    return ['否','是'][df[repay_amount]*2>df[amount_replay_amount]]
 
 

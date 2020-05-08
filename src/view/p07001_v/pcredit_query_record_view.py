@@ -2,6 +2,7 @@ from mapping.module_processor import ModuleProcessor
 from product.date_time_util import before_n_month_date, before_n_year_date
 
 
+
 class PcreditQueryRecordView(ModuleProcessor):
 
     def process(self):
@@ -10,6 +11,7 @@ class PcreditQueryRecordView(ModuleProcessor):
 
     def _get_query_record_msg(self):
         df=self.cached_data.get("pcredit_query_record")
+        loan_df = self.cached_data.get("pcredit_loan")
         credit_base_info_df = self.cached_data.get("credit_base_info")
         report_time = credit_base_info_df.loc[0, 'report_time']
         report_time_before_3_month=before_n_month_date(report_time,3)
@@ -35,9 +37,26 @@ class PcreditQueryRecordView(ModuleProcessor):
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询日期
                 self.variables["jhi_time_1y"]=df_1_year_reason.loc[:,'jhi_time'].tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询机构
-                self.variables["jhi_time_1y"]=df_1_year_reason.loc[:,'operator'].tolist()
+                self.variables["operator_1y"]=df_1_year_reason.loc[:,'operator'].tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询原因
                 self.variables["reason_1y"] = df_1_year_reason.loc[:, 'reason'].tolist()
+                #查询信息-近一年贷款审批和贷记卡审批的查询记录是否放款
+                for index,row in df_1_year_reason.iterrows():
+                    jhi_time=row['jhi_time']
+                    df_temp=loan_df[(loan_df['account_type'].isin(['04','05'])) and (loan_df['loan_date'] >jhi_time)]
+                    if not df_temp.empty:
+                        df_1_year_reason.loc[index,'if_loan']="是"
+                    else:
+                        df_1_year_reason.loc[index, 'if_loan'] = "否"
+                self.variables["if_loan"]=df_1_year_reason.loc[:,'if_loan'].tolist()
+                #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询未放款笔数
+                self.variables["bank_query_loan_cnt"]=df_1_year_reason[(df_1_year_reason['reason']=="贷款审批")
+                                                                       and (df_1_year_reason['if_loan']=="否").shape[0]]
+                #查询信息-近一年贷款审批和贷记卡审批的查询记录贷记卡查询未放款笔数
+                self.variables["credit_query_loan_cnt"] = df_1_year_reason[(df_1_year_reason['reason'] == "信用卡审批")
+                                                                         and (df_1_year_reason['if_loan'] == "否").shape[
+                                                                             0]]
+
             #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询笔数
             self.variables["bank_query_cnt"]=df_1_year[df_1_year['reason']=='01'].shape[0]
             #查询信息-近一年贷款审批和贷记卡审批的查询记录贷记卡查询笔数
