@@ -211,11 +211,11 @@ class BasicInfoProcessor(ModuleProcessor):
 
     # 经营性贷款逾期金额
     def _business_loan_overdue_money(self):
-        # 从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))的overdue_amount加总
+        # 从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且principal_amount>200000))的overdue_amount加总
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
                                               'and (loan_type in ["01", "07", "99"] '
-                                              'or (loan_type == "04" and loan_amount > 200000))')
+                                              'or (loan_type == "04" and principal_amount > 200000))')
         amt = credit_loan_df['overdue_amount'].sum()
         self.variables["business_loan_overdue_money"] = amt
 

@@ -58,7 +58,7 @@ class LoanInfoProcessor(ModuleProcessor):
         count = 0
         if not df.empty:
             for index, row in df.iterrows():
-                if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 3):
+                if after_ref_date(row.jhi_time.year, row.jhi_time.month, report_time.year, report_time.month - 3):
                     count = count + 1
         self.variables["loan_credit_query_3month_cnt"] = count
 
@@ -96,7 +96,7 @@ class LoanInfoProcessor(ModuleProcessor):
             report_time = self.cached_data["report_time"]
             count = 0
             for index, row in query_record_df.iterrows():
-                if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 3):
+                if after_ref_date(row.jhi_time.year, row.jhi_time.month, report_time.year, report_time.month - 3):
                     count = count + 1
             self.variables["loan_credit_small_loan_query_3month_cnt"] = count
 
@@ -129,16 +129,16 @@ class LoanInfoProcessor(ModuleProcessor):
 
     # 疑似压贷笔数
     def _loan_doubtful(self):
-        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且((loan_type=01,07,99或者(loan_type=04且loan_amount>200000))或者guarantee_type=3)的记录
+        # "1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且((loan_type=01,07,99或者(loan_type=04且principal_amount>200000))或者guarantee_type=3)的记录
         # 2.针对1中每一个不同account_org,统计该机构每个月放款笔数,若月最大放款笔数>=3,标记为随借随还机构,跳过
         # 3.2不满足条件2的话,该机构5年内放款笔数>=3,计算最新一笔贷款总额和次新一笔贷款总额的比值,如果比值小于0.8,则变量+1"
         loan_df = self.cached_data["pcredit_loan"]
         loan_df = loan_df.query('account_type in ["01", "02", "03"] and '
                                 '(loan_type in ["01", "07", "99"] '
-                                'or (loan_type == "04" and loan_amount > 200000) '
+                                'or (loan_type == "04" and principal_amount > 200000) '
                                 'or loan_guarantee_type == "3")')
 
-        loan_df = loan_df.filter(items=["account_org", "loan_date", "loan_amount"])
+        loan_df = loan_df.filter(items=["account_org", "loan_date", "principal_amount"])
         loan_df = loan_df[pd.notna(loan_df["loan_date"])]
         loan_df["year"] = loan_df["loan_date"].transform(lambda x: x.year)
         loan_df["month"] = loan_df["loan_date"].transform(lambda x: x.month)
@@ -164,8 +164,8 @@ class LoanInfoProcessor(ModuleProcessor):
                 continue
 
             item_df = item_df.sort_values(by=["year", "month"], ascending=False)
-            first_amt = item_df.iloc[0].loan_amount
-            second_amt = item_df.iloc[1].loan_amount
+            first_amt = item_df.iloc[0].principal_amount
+            second_amt = item_df.iloc[1].principal_amount
             if first_amt and second_amt:
                 ratio = first_amt / second_amt
                 print("item_df------ ", item_df, " ratio:", ratio)
