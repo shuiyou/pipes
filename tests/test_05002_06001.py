@@ -4,6 +4,7 @@ import pandas as pd
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
+import time
 import datetime
 import json
 import numpy as np
@@ -91,13 +92,13 @@ def test_ps_crime_type():
 
 
 def test_df():
-    data={'a':[3,3],'c':[2,3],'e':[1,2]}
+    data={'a':[1,2,3,4],'c':[1,2,3,4],'e':[1,2,3,4]}
     df=pd.DataFrame(data)
-    # data1={"b":[1,3,5,6,7,3,3,10],"d":['aaa','bbb','ccc','ddd','eee','fff','gggg','kkk']}
-    # df1=pd.DataFrame(data1)
-    # df2=pd.merge(df,df1,left_on='a',right_on='b')
+    data1={"d":[1,3],"h":['aaa','bbb']}
+    df1=pd.DataFrame(data1)
+    df2=pd.merge(df,df1,left_on='a',right_on='d')
     # df['d']=df.apply(get_credit_min_repay,axis=1,args=('a','c'))
-    print(df['a'].drop_duplicates().size)
+    print(df[~df['a'].isin([1,2])])
 
 
 
@@ -106,8 +107,9 @@ def test_datetime():
     # print(now-datetime.timedelta(days=3))
     # list=[1,np.nan,2,3]
     # print(json.dumps(list))
-    a,b=3,2
-    print(['否','是'][a>b])
+    # a,b=3,2
+    # print(['否','是'][a>b])
+    pass
 
 
 def get_credit_min_repay(df,repay_amount,amount_replay_amount):

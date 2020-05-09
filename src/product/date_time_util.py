@@ -45,6 +45,18 @@ def before_n_month_date(date,n):
         target_month=13-n
     return date.replace(target_year,target_month,day)
 
+def after_n_month_date(date,n):
+    year = date.year
+    month = date.month
+    day = date.day
+    if month+n < 13:
+        target_year = year
+        target_month = month - n
+    else:
+        target_year = year+1
+        target_month = month + n - 12
+    return date.replace(target_year, target_month, day)
+
 #获取date前n年的日期
 def before_n_year_date(date,n):
     year=date.year
