@@ -104,7 +104,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         #征信不良信息-逾期信息-贷款最大连续逾期
         max_overdue_month_df=merge_df[merge_df['status'].str.isdigit()==True]
         if not max_overdue_month_df.empty:
-            self.variables["loan_max_overdue_month"]=max_overdue_month_df['status'].max()
+            self.variables["loan_max_overdue_month"]=max_overdue_month_df['status'].apply(int).max()
 
     def _get_creidt_overdue_money(self,df):
         if df.empty:
@@ -171,7 +171,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
                 status = row['status']
                 repayment_amt = row['repayment_amt']
                 if status == '1' and len(list_status) > 1:
-                    total_money_list.append(list_repayment_amt[len(list_repayment_amt) - 1])
+                    total_money_list.append(list_repayment_amt[-1])
                 if status == '1':
                     list_repayment_amt.clear()
                     list_status.clear()

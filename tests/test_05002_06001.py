@@ -98,7 +98,7 @@ def test_df():
     df1=pd.DataFrame(data1)
     df2=pd.merge(df,df1,left_on='a',right_on='d')
     # df['d']=df.apply(get_credit_min_repay,axis=1,args=('a','c'))
-    print(df[~df['a'].isin([1,2])])
+    print(df2)
 
 
 
