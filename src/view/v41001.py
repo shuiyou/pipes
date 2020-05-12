@@ -2,6 +2,7 @@
 # @Author : lixiaobo
 # @File : v41001.py.py 
 # @Software: PyCharm
+from mapping.p07001_m.data_prepared_processor import DataPreparedProcessor
 from mapping.tranformer import Transformer
 from view.p07001_v.basic_info_view import BasicInfoView
 from view.p07001_v.pcredit_person_info_view import PcreditPersonInfoView
