@@ -92,13 +92,13 @@ def test_ps_crime_type():
 
 
 def test_df():
-    data={'a':[1,2,3,4],'c':[1,2,3,4],'e':[1,2,3,4]}
+    data={'a':['2020-09','2020-05','2020-06','2020-07'],'c':['10','2','3','4'],'e':[2,2,3,4]}
     df=pd.DataFrame(data)
-    data1={"d":[1,3],"h":['aaa','bbb']}
-    df1=pd.DataFrame(data1)
-    df2=pd.merge(df,df1,left_on='a',right_on='d')
+    # data1={"d":[1,3],"h":['aaa','bbb']}
+    # df1=pd.DataFrame(data1)
+    # df2=pd.merge(df,df1,left_on='a',right_on='d')
     # df['d']=df.apply(get_credit_min_repay,axis=1,args=('a','c'))
-    print(df2)
+    print(df.groupby('e').size().max())
 
 
 
@@ -107,9 +107,9 @@ def test_datetime():
     # print(now-datetime.timedelta(days=3))
     # list=[1,np.nan,2,3]
     # print(json.dumps(list))
-    # a,b=3,2
-    # print(['否','是'][a>b])
-    pass
+    a,b=1,2
+    print([1,2][a>b]/2)
+    # pass
 
 
 def get_credit_min_repay(df,repay_amount,amount_replay_amount):

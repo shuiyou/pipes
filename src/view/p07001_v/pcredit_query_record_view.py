@@ -43,7 +43,8 @@ class PcreditQueryRecordView(ModuleProcessor):
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录是否放款
                 for index,row in df_1_year_reason.iterrows():
                     jhi_time=row['jhi_time']
-                    df_temp=loan_df[(loan_df['account_type'].isin(['04','05'])) and (loan_df['loan_date'] >jhi_time)]
+                    operator=row['operator']
+                    df_temp=loan_df[(loan_df['account_type'].isin(['01','02','03','04','05'])) and (loan_df['loan_date'] >jhi_time) and (loan_df['account_org']==operator)]
                     if not df_temp.empty:
                         df_1_year_reason.loc[index,'if_loan']="是"
                     else:

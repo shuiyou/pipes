@@ -42,7 +42,7 @@ def before_n_month_date(date,n):
         target_month=month-n
     else:
         target_year=year-1
-        target_month=13-n
+        target_month=12+month-n
     return date.replace(target_year,target_month,day)
 
 def after_n_month_date(date,n):
