@@ -12,6 +12,7 @@
                 "phone": "15921664870",
                 "userType": "PERSONAL",
                 "relation": "MAIN",
+                "applyAmo": 222,
                 "extraParam": {
                     "marryState": "DIVORCE",
                     "postalAddress": "上海市",

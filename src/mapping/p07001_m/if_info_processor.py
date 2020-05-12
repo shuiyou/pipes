@@ -4,6 +4,7 @@ from mapping.module_processor import ModuleProcessor
 
 
 # 和CCS数据比较相关的变量清洗
+from mapping.p07001_m.calculator import marry_code_to_enum
 
 
 class IfInfoProcessor(ModuleProcessor):
@@ -73,8 +74,8 @@ class IfInfoProcessor(ModuleProcessor):
         param_marry_state = self.cached_data["basicMarryState"]
         if not param_marry_state:
             return
-
-        result = 0 if param_marry_state in list(credit_person_df["marriage_status"]) else 1
+        marry_history = list(map(lambda x: marry_code_to_enum(x), list(credit_person_df["marriage_status"])))
+        result = 0 if param_marry_state in marry_history else 1
         self.variables["if_marriage"] = result
 
     def _if_postal_addr(self, credit_base_df, credit_person_df):
@@ -89,7 +90,7 @@ class IfInfoProcessor(ModuleProcessor):
         if not postal_address:
             return
 
-        result = 0 if postal_address in list(person_info_df["communication_address"]) else 1
+        result = 0 if postal_address.strip() in list(person_info_df["communication_address"]) else 1
         self.variables["if_postal_addr"] = result
 
     def _if_residence_addr(self, credit_base_df, credit_person_df):
@@ -99,11 +100,10 @@ class IfInfoProcessor(ModuleProcessor):
         house_address = self.cached_data["basicHouseAddress"]
         if not house_address:
             return
-
         person_info_df = self.cached_data["pcredit_person_info"]
         if person_info_df.empty:
             return
-        result = 0 if house_address in list(person_info_df["residence_address"]) else 1
+        result = 0 if house_address.strip() in list(person_info_df["residence_address"]) else 1
         self.variables["if_residence_addr"] = result
 
     def _if_live_addr(self, credit_base_df, credit_person_df):
@@ -113,12 +113,11 @@ class IfInfoProcessor(ModuleProcessor):
         live_address = self.cached_data["basicLiveAddress"]
         if not live_address:
             return
-
         credit_live_df = self.cached_data["pcredit_live"]
         if credit_live_df.empty:
             return
 
-        result = 0 if live_address in list(credit_live_df["live_address"]) else 1
+        result = 0 if live_address.strip() in list(credit_live_df["live_address"]) else 1
         self.variables["if_live_addr"] = result
 
     def _if_employee(self, credit_base_df, credit_person_df):

@@ -30,3 +30,22 @@ def split_by_duration_seq(df, val_lists):
     if len(val) > 0:
         val_lists.append(val)
         val = []
+
+
+def marry_code_to_enum(code):
+    if code == "1":
+        return "UNMARRIED"
+    elif code == "2":
+        return "MARRIED"
+    elif code == "21":
+        return "CHUHUN"
+    elif code == "22":
+        return "ZAIHUN"
+    elif code == "23":
+        return "FUHUN"
+    elif code == "4":
+        return "DIVORCE"
+    elif code == "---":
+        return "WIDOWHOOD"
+    else:
+        return "UNKNOWN"
