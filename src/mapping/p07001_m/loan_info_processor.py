@@ -81,7 +81,7 @@ class LoanInfoProcessor(ModuleProcessor):
             count = 0
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if row["repayment_amt"] and row["repayment_amt"].isdigit():
+                if pd.notna(row["repayment_amt"]):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["loan_consume_overdue_5year"] = count
