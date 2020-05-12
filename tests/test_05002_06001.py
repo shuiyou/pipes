@@ -4,6 +4,7 @@ import pandas as pd
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
+import math
 import time
 import datetime
 import json
@@ -110,6 +111,8 @@ def test_datetime():
     a,b=1,2
     print([1,2][a>b]/2)
     # pass
+
+
 
 
 def get_credit_min_repay(df,repay_amount,amount_replay_amount):

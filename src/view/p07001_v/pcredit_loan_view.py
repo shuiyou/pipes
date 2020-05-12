@@ -80,7 +80,7 @@ class PcreditLoanView(ModuleProcessor):
 
         #信贷交易信息-资金压力解析-提示
         record_id_list = pcredit_acc_speculate_df.loc[:, 'record_id'].drop_duplicates().values.tolist()
-        loan_pressure_df=loan_df[(loan_df['account_type'].isin(['01','02','03','04','05'])) and (~loan_df['id'].isin(record_id_list))]
+        loan_pressure_df=loan_df[(loan_df['account_type'].isin(['01','02','03'])) and (~loan_df['id'].isin(record_id_list))]
         #信贷交易信息-资金压力解析-提示-机构名
         self.variables["hint_account_org"]=loan_pressure_df.loc[:,'account_org'].tolist()
         #信贷交易信息-资金压力解析-提示-发放时间
