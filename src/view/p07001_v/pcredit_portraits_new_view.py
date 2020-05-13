@@ -34,7 +34,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         if df.empty:
             return
         self.variables["loan_now_overdue_money"]='%.2f' %(df.loc[:,'overdue_amount'].sum())
-        df1=df[(df['loan_type'].isin(['01','07','99'])) or (df['loan_type']=='04' and df['loan_amount']>20000)]
+        df1=df[(df['loan_type'].isin(['01','07','99'])) | ((df['loan_type']=='04') & (df['loan_amount']>20000))]
         if not df1.empty:
             self.variables["business_loan_overdue_money"]='%.2f' %(df1.loc[:,'overdue_amount'].sum())
 
@@ -42,7 +42,8 @@ class PcreditPortraitsNewView(ModuleProcessor):
         if df.empty:
             return
         repayment_df=self.cached_data.get("pcredit_repayment")
-        df_temp=df[(df['loan_type'].isin(['01','07','99'])) or (df['loan_type']=='04' and df['loan_amount']>20000)]
+        repayment_df=repayment_df.drop(['id'],axis=1)
+        df_temp=df[(df['loan_type'].isin(['01','07','99'])) | ((df['loan_type']=='04') & (df['loan_amount']>20000))]
         if not df_temp.empty:
             overdue_cnt_df=pd.merge(df_temp,repayment_df,left_on='id',right_on='record_id')
             overdue_cnt_df=overdue_cnt_df[overdue_cnt_df['status']=='1']
@@ -58,7 +59,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         if report_time is not None:
             # 征信不良信息-逾期信息-贷款当前逾期次数
             year,month=before_n_month(report_time,1)
-            now_overdue_cnt_df=merge_df[(merge_df['jhi_year']==year) and (merge_df['month']==month) and (merge_df['status'].str.isdigit()==True)]
+            now_overdue_cnt_df=merge_df[(merge_df['jhi_year']==year) & (merge_df['month']==month) & (merge_df['status'].str.isdigit()==True)]
             if not now_overdue_cnt_df.empty:
                 self.variables["loan_now_overdue_cnt"]=now_overdue_cnt_df.shape[0]
 
@@ -66,19 +67,19 @@ class PcreditPortraitsNewView(ModuleProcessor):
             merge_df_overdue_cnt_2y=self._util_filter_and_merge_df(df,repayment_df,['03','05','06'])
             overdue_cnt_2y_df=self._util_filter_n_year_df(merge_df_overdue_cnt_2y,report_time,2)
             if not overdue_cnt_2y_df.empty:
-                self.variables["single_house_loan_overdue_cnt_2y"] = overdue_cnt_2y_df.groupby('id').size().max()
+                self.variables["single_house_loan_overdue_cnt_2y"] = str(overdue_cnt_2y_df.groupby('id').size().max())
 
             #征信不良信息-逾期信息-单笔车贷2年内逾期次数
             car_loan_overdue_cnt_2y_merge=self._util_filter_and_merge_df(df,repayment_df,['02'])
             car_loan_overdue_cnt_2y_df=self._util_filter_n_year_df(car_loan_overdue_cnt_2y_merge,report_time,2)
             if not car_loan_overdue_cnt_2y_df.empty:
-                self.variables["single_car_loan_overdue_cnt_2y"]=car_loan_overdue_cnt_2y_df.groupby('id').size().max()
+                self.variables["single_car_loan_overdue_cnt_2y"]=str(car_loan_overdue_cnt_2y_df.groupby('id').size().max())
 
             #征信不良信息-逾期信息-单笔消费贷2年内逾期次数
             consume_loan_overdue_cnt_2y_merge=self._util_filter_and_merge_df(df,repayment_df,['04'])
             consume_loan_overdue_cnt_2y_df=self._util_filter_n_year_df(consume_loan_overdue_cnt_2y_merge,report_time,2)
             if not consume_loan_overdue_cnt_2y_df.empty:
-                self.variables["single_consume_loan_overdue_cnt_2y"]=consume_loan_overdue_cnt_2y_df.groupby('id').size().max()
+                self.variables["single_consume_loan_overdue_cnt_2y"]=str(consume_loan_overdue_cnt_2y_df.groupby('id').size().max())
 
             #征信不良信息-逾期信息-消费贷5年内总逾期次数
             consume_loan_overdue_cnt_5y_merge = self._util_filter_and_merge_df(df, repayment_df, ['02','03','04','05','06'])
@@ -90,21 +91,15 @@ class PcreditPortraitsNewView(ModuleProcessor):
                 self.variables["total_consume_loan_overdue_money_5y"] = self._util_get_total_consume_loan_overdue_money_5y(
                     consume_loan_overdue_cnt_5y_df)
 
-
-
-
-
-
-
         #征信不良信息-逾期信息-贷款历史总逾期次数
         total_overdue_cnt_df = merge_df[merge_df['repayment_amt']>0]
         if not total_overdue_cnt_df.empty:
-            self.variables["loan_total_overdue_cnt"]=total_overdue_cnt_df.shap[0]
+            self.variables["loan_total_overdue_cnt"]=total_overdue_cnt_df.shape[0]
 
         #征信不良信息-逾期信息-贷款最大连续逾期
         max_overdue_month_df=merge_df[merge_df['status'].str.isdigit()==True]
         if not max_overdue_month_df.empty:
-            self.variables["loan_max_overdue_month"]=max_overdue_month_df['status'].apply(int).max()
+            self.variables["loan_max_overdue_month"]=str(max_overdue_month_df['status'].apply(int).max())
 
     def _get_creidt_overdue_money(self,df):
         if df.empty:
@@ -120,7 +115,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         #征信不良信息-逾期信息-贷记卡当前逾期次数
         if report_time is not None:
             year,month=before_n_month(report_time,1)
-            now_overdue_cnt_df=merge_df[(merge_df['jhi_year']==year) and (merge_df['month']==month) and (merge_df['status'].str.isdigit()==True)]
+            now_overdue_cnt_df=merge_df[(merge_df['jhi_year']==year) & (merge_df['month']==month) & (merge_df['status'].str.isdigit()==True)]
             if not now_overdue_cnt_df.empty:
                 self.variables["credit_now_overdue_cnt"]=now_overdue_cnt_df.shape[0]
         #征信不良信息-逾期信息-贷记卡历史总逾期次数
@@ -130,12 +125,12 @@ class PcreditPortraitsNewView(ModuleProcessor):
         #征信不良信息-逾期信息-贷记卡最大连续逾期
         max_overdue_month_df = merge_df[merge_df['status'].str.isdigit() == True]
         if not max_overdue_month_df.empty:
-            self.variables["credit_overdue_max_month"] = max_overdue_month_df['status'].apply(int).max()
+            self.variables["credit_overdue_max_month"] = str(max_overdue_month_df['status'].apply(int).max())
         #征信不良信息-逾期信息-单张贷记卡2年内逾期次数
         if report_time is not None:
             overdue_cnt_2y_df=self._util_filter_n_year_df(merge_df,report_time,2)
             if not overdue_cnt_2y_df.empty:
-                self.variables["single_credit_overdue_cnt_2y"]=overdue_cnt_2y_df.groupby('id').size().max()
+                self.variables["single_credit_overdue_cnt_2y"]=str(overdue_cnt_2y_df.groupby('id').size().max())
 
     def _get_pcredit_info_money(self,df):
         #信贷交易信息-资金压力解析-银行授信总额
@@ -149,7 +144,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
     def _util_filter_n_year_df(self,df,report_time,n):
         year_2, month_2 = before_n_year(report_time, n)
         resp_df = df[
-            ((df['jhi_year'] > year_2) or (df['jhi_year'] == year_2 and df['month'] <= month_2)) and (
+            ((df['jhi_year'] > year_2) | ((df['jhi_year'] == year_2) & (df['month'] <= month_2))) & (
                     df['status'].str.isdigit() == True)]
         return resp_df
 

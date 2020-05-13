@@ -37,6 +37,8 @@ class DataPreparedProcessor(ModuleProcessor):
         self.table_record_to_df("pcredit_civil_judgments_record", report_id)
         self.table_record_to_df("pcredit_credit_tax_record", report_id)
         self.table_record_to_df("pcredit_punishment_record", report_id)
+        self.table_record_to_df("pcredit_acc_speculate", report_id)
+
 
         # 入参base_info的信息
         self._basic_info_extract()

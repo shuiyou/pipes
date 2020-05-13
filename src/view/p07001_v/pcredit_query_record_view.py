@@ -1,6 +1,6 @@
 from mapping.module_processor import ModuleProcessor
-from product.date_time_util import before_n_month_date, before_n_year_date
-
+from product.date_time_util import before_n_month_date, before_n_year_date, date_to_timestamp
+from util.common_util import format_timestamp
 
 
 class PcreditQueryRecordView(ModuleProcessor):
@@ -11,14 +11,16 @@ class PcreditQueryRecordView(ModuleProcessor):
 
     def _get_query_record_msg(self):
         df=self.cached_data.get("pcredit_query_record")
+        df['jhi_time']=df['jhi_time'].apply(lambda x:date_to_timestamp(x))
         loan_df = self.cached_data.get("pcredit_loan")
+        loan_df['loan_date']=loan_df['loan_date'].apply(lambda x:date_to_timestamp(x))
         credit_base_info_df = self.cached_data.get("credit_base_info")
         report_time = credit_base_info_df.loc[0, 'report_time']
         report_time_before_3_month=before_n_month_date(report_time,3)
         df_3_month=df[df['jhi_time']>report_time_before_3_month]
         if not df_3_month.empty:
             #查询信息-近三个月查询记录-查询日期
-            self.variables["jhi_time_3m"]=df_3_month.loc[:,'jhi_time'].tolist()
+            self.variables["jhi_time_3m"]=df_3_month.loc[:,'jhi_time'].apply(lambda x:format_timestamp(x)).tolist()
             #查询信息-近三个月查询记录-查询机构
             self.variables["operator_3m"]=df_3_month.loc[:,'operator'].tolist()
             #查询信息-近三个月查询记录-查询原因
@@ -35,7 +37,7 @@ class PcreditQueryRecordView(ModuleProcessor):
             df_1_year_reason=df_1_year[df_1_year['reason'].isin(['01','02'])]
             if not df_1_year_reason.empty:
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询日期
-                self.variables["jhi_time_1y"]=df_1_year_reason.loc[:,'jhi_time'].tolist()
+                self.variables["jhi_time_1y"]=df_1_year_reason.loc[:,'jhi_time'].apply(lambda x:format_timestamp(x)).tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询机构
                 self.variables["operator_1y"]=df_1_year_reason.loc[:,'operator'].tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录查询原因
@@ -44,7 +46,7 @@ class PcreditQueryRecordView(ModuleProcessor):
                 for index,row in df_1_year_reason.iterrows():
                     jhi_time=row['jhi_time']
                     operator=row['operator']
-                    df_temp=loan_df[(loan_df['account_type'].isin(['01','02','03','04','05'])) and (loan_df['loan_date'] >jhi_time) and (loan_df['account_org']==operator)]
+                    df_temp=loan_df[(loan_df['account_type'].isin(['01','02','03','04','05'])) & (loan_df['loan_date'] >jhi_time) & (loan_df['account_org']==operator)]
                     if not df_temp.empty:
                         df_1_year_reason.loc[index,'if_loan']="是"
                     else:
@@ -52,11 +54,10 @@ class PcreditQueryRecordView(ModuleProcessor):
                 self.variables["if_loan"]=df_1_year_reason.loc[:,'if_loan'].tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询未放款笔数
                 self.variables["bank_query_loan_cnt"]=df_1_year_reason[(df_1_year_reason['reason']=="贷款审批")
-                                                                       and (df_1_year_reason['if_loan']=="否").shape[0]]
+                                                                       & (df_1_year_reason['if_loan']=="否")].shape[0]
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录贷记卡查询未放款笔数
                 self.variables["credit_query_loan_cnt"] = df_1_year_reason[(df_1_year_reason['reason'] == "信用卡审批")
-                                                                         and (df_1_year_reason['if_loan'] == "否").shape[
-                                                                             0]]
+                                                                         & (df_1_year_reason['if_loan'] == "否")].shape[0]
 
             #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询笔数
             self.variables["bank_query_cnt"]=df_1_year[df_1_year['reason']=='01'].shape[0]

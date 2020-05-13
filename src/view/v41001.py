@@ -5,7 +5,15 @@
 from mapping.p07001_m.data_prepared_processor import DataPreparedProcessor
 from mapping.tranformer import Transformer
 from view.p07001_v.basic_info_view import BasicInfoView
+from view.p07001_v.pcredit_biz_info_view import PcreditBizInfoView
+from view.p07001_v.pcredit_default_info_view import PcreditDefaultInfoView
+from view.p07001_v.pcredit_live_view import PcreditLiveView
+from view.p07001_v.pcredit_loan_view import PcreditLoanView
 from view.p07001_v.pcredit_person_info_view import PcreditPersonInfoView
+from view.p07001_v.pcredit_phone_his_view import PcreditPhoneHisView
+from view.p07001_v.pcredit_portraits_new_view import PcreditPortraitsNewView
+from view.p07001_v.pcredit_query_record_view import PcreditQueryRecordView
+from view.p07001_v.pcredit_special_view import PcreditSpecialView
 
 
 class V41001(Transformer):
@@ -260,7 +268,15 @@ class V41001(Transformer):
     def transform(self):
         view_handle_list = [
             BasicInfoView(),
-            PcreditPersonInfoView()
+            PcreditPersonInfoView(),
+            PcreditBizInfoView(),
+            PcreditDefaultInfoView(),
+            PcreditLiveView(),
+            PcreditLoanView(),
+            PcreditPhoneHisView(),
+            PcreditPortraitsNewView(),
+            PcreditQueryRecordView(),
+            PcreditSpecialView()
         ]
 
         for view in view_handle_list:

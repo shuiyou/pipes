@@ -9,7 +9,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         pass
 
     def _get_pcredit_acc_speculate(self):
-        pcredit_loan_df=self.cached_data.get["pcredit_loan"]
+        pcredit_loan_df=self.cached_data.get("pcredit_loan")
         pcredit_acc_speculate_df=self.cached_data.get["pcredit_acc_speculate"]
         pcredit_acc_speculate_df=self.acc_speculate_df_time_format(pcredit_acc_speculate_df)
         credit_base_info_df = self.cached_data.get("credit_base_info")
