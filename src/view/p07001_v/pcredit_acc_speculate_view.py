@@ -42,7 +42,6 @@ class PcreditAccSpeculateView(ModuleProcessor):
 
         loan_df_account_type_01_05=pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01','02','03','04','05'])]
         loan_df_account_type_01_03=pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01','02','03'])]
-        loan_df_account_type_04_05 = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['04','05'])]
 
         if not loan_df_account_type_01_05.empty:
             loan_df_account_type_01_05=pd.merge(loan_df_account_type_01_05,pcredit_acc_speculate_df,left_on='id',right_on='record_id')
@@ -353,8 +352,8 @@ class PcreditAccSpeculateView(ModuleProcessor):
                                report_time_before_1_year, report_time_before_0_year]
         self.variables["busi_loan_date"] = busi_loan_date_list
         # 信贷交易信息-贷款信息-近五年经营性贷款余额变化-贷款余额
-        pcredit_loan_type_df=pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01','02','03'])) and
-                                             ((pcredit_loan_df['loan_type'].isin(['01','07','99'])) or ((pcredit_loan_df['loan_type']=='04') and (pcredit_loan_df['loan_amount'])))]
+        pcredit_loan_type_df=pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01','02','03'])) &
+                                             ((pcredit_loan_df['loan_type'].isin(['01','07','99'])) | ((pcredit_loan_df['loan_type']=='04') & (pcredit_loan_df['loan_amount'])))]
         busi_loan_balance_list=[]
         if not pcredit_loan_type_df.empty:
             pcredit_loan_type_temp_df = pd.merge(pcredit_loan_type_df,pcredit_acc_speculate_df,left_on='id',right_on='record_id')
@@ -383,20 +382,26 @@ class PcreditAccSpeculateView(ModuleProcessor):
 
 
     def util_get_repay_n_month_before(self,df,date,param=None,param_value_list=None):
-        year=date.year
-        month=date.month
-        df=df[(df['year']==year) and (df['month']==month)]
-        if param is not None:
-            df=df[df[param].isin(param_value_list)]
-        return df.loc[:,'repay_amount'].sum()
+        if not df.empty:
+            year=date.year
+            month=date.month
+            df=df[(df['year']==year) & (df['month']==month)]
+            if param is not None:
+                df=df[df[param].isin(param_value_list)]
+            return df.loc[:,'repay_amount'].sum()
+        else:
+            return 0
 
     def util_get_repay_n_month_before_loan_balance(self,df,date,param,param_value_list):
-        year=date.year
-        month=date.month
-        df=df[(df['year']==year) and (df['month']==month)]
-        if param is not None:
-            df=df[df[param].isin(param_value_list)]
-        return df.loc[:,'loan_balance'].sum()
+        if not df.empty:
+            year=date.year
+            month=date.month
+            df=df[(df['year']==year) & (df['month']==month)]
+            if param is not None:
+                df=df[df[param].isin(param_value_list)]
+            return df.loc[:,'loan_balance'].sum()
+        else:
+            return 0
 
 
 

@@ -5,6 +5,7 @@
 from mapping.p07001_m.data_prepared_processor import DataPreparedProcessor
 from mapping.tranformer import Transformer
 from view.p07001_v.basic_info_view import BasicInfoView
+from view.p07001_v.pcredit_acc_speculate_view import PcreditAccSpeculateView
 from view.p07001_v.pcredit_biz_info_view import PcreditBizInfoView
 from view.p07001_v.pcredit_default_info_view import PcreditDefaultInfoView
 from view.p07001_v.pcredit_live_view import PcreditLiveView
@@ -276,7 +277,8 @@ class V41001(Transformer):
             PcreditPhoneHisView(),
             PcreditPortraitsNewView(),
             PcreditQueryRecordView(),
-            PcreditSpecialView()
+            PcreditSpecialView(),
+            PcreditAccSpeculateView()
         ]
 
         for view in view_handle_list:

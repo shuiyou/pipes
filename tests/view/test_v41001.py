@@ -37,4 +37,4 @@ def test_v41001():
 
     ps.run(user_name=user_name, id_card_no=id_card_no, phone=phone, origin_data=origin_data, cached_data=cached_data)
     print(json.dumps(ps.variables))
-    # print(ps.variables)
+
