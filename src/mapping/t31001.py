@@ -28,7 +28,6 @@ class T31001(Transformer):
             'oth_loan_inc_3_12m': 0,  # 近3个月相对近6个月新增机构数
             'oth_loan_inc_12_24m': 0,  # 近12个月相对近24个月新增机构数
             'oth_loan_nonbank_9m': 0,  # 9个月内非银机构查询次数
-            'oth_loan_dec_6_12m': 0,  # 近6个月相对12个月内减少机构数
             'oth_loan_scale3_12m': 0,  # 12个月内中型机构查询次数
             'oth_loan_org_cnt_12m': 0,  # 12个月内查询不同机构个数
             'oth_loan_month_1sigma_12m': 0,  # 12个月内查询次数偏离平均值的月份数
@@ -117,10 +116,6 @@ class T31001(Transformer):
                                                     difference(set(df.loc[(df['month_from_now'] >= 12) &
                                                                           (df['month_from_now'] <= 23)]['org_code'].
                                                                    to_list())))
-        self.variables['oth_loan_dec_6_12m'] = len(set(df.loc[(df['month_from_now'] >= 6) &
-                                                              (df['month_from_now'] <= 11)]['org_code'].to_list()).
-                                                   difference(set(df.loc[df['month_from_now'] <= 5]['org_code'].
-                                                                  to_list())))
         return
 
     # 统计型数据统计
