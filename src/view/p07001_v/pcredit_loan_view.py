@@ -26,6 +26,7 @@ class PcreditLoanView(ModuleProcessor):
 
     def _get_loan_msg(self):
         loan_df=self.cached_data.get("pcredit_loan")
+        loan_df=loan_df[pd.notnull(loan_df['loan_date'])]
         loan_df['loan_date'] = loan_df['loan_date'].apply(lambda x: date_to_timestamp(x))
         credit_base_info_df = self.cached_data.get("credit_base_info")
         pcredit_acc_speculate_df=self.cached_data.get("pcredit_acc_speculate")

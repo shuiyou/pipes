@@ -1,6 +1,7 @@
 from mapping.module_processor import ModuleProcessor
 from product.date_time_util import before_n_month_date, before_n_year_date, date_to_timestamp
 from util.common_util import format_timestamp
+import pandas as pd
 
 
 class PcreditQueryRecordView(ModuleProcessor):
@@ -11,9 +12,11 @@ class PcreditQueryRecordView(ModuleProcessor):
 
     def _get_query_record_msg(self):
         df=self.cached_data.get("pcredit_query_record")
+        df=df[pd.notnull(df['jhi_time'])]
         df['jhi_time']=df['jhi_time'].apply(lambda x:date_to_timestamp(x))
         loan_df = self.cached_data.get("pcredit_loan")
-        loan_df['loan_date']=loan_df['loan_date'].apply(lambda x:date_to_timestamp(x))
+        loan_df = loan_df[pd.notnull(loan_df['loan_date'])]
+        loan_df['loan_date']=loan_df['loan_date'].apply(lambda x:date_to_timestamp(x) )
         credit_base_info_df = self.cached_data.get("credit_base_info")
         report_time = credit_base_info_df.loc[0, 'report_time']
         report_time_before_3_month=before_n_month_date(report_time,3)

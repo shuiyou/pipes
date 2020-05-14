@@ -16,7 +16,7 @@ class PcreditDefaultInfoView(ModuleProcessor):
             type_list=df_type_01.loc[:,'default_subtype'].tolist()
         df_type_02=df[df['default_type']=='02']
         if not df_type_02.empty:
-            type_list=type_list.append("呆账")
+            type_list.append("呆账")
         if type_list is None:
             return
-        self.variables["default_type"]=','.join(set(type_list))
+        self.variables["default_type"]=set(type_list)
