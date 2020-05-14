@@ -51,7 +51,6 @@ class LoanInfoProcessor(ModuleProcessor):
     def _loan_credit_query_3month_cnt(self):
         # count(pcredit_query_record中report_id=report_id且记录时间在report_time三个月内且=01,02的记录)
         query_record_df = self.cached_data["pcredit_query_record"]
-        print("query_record_df\n", query_record_df)
 
         report_time = self.cached_data["report_time"]
         df = query_record_df.query('reason in["01", "02"]').dropna(subset=["jhi_time"])
@@ -168,7 +167,6 @@ class LoanInfoProcessor(ModuleProcessor):
             second_amt = item_df.iloc[1].loan_amount
             if first_amt and second_amt:
                 ratio = first_amt / second_amt
-                print("item_df------ ", item_df, " ratio:", ratio)
                 if ratio < 0.8:
                     final_count = final_count + 1
 
