@@ -6,6 +6,7 @@ from mapping.module_processor import ModuleProcessor
 
 class UnSettleInfoProcessor(ModuleProcessor):
     def process(self):
+        self._unsettled_consume_total_cnt()
         self._unsettled_busLoan_agency_number()
         self._unsettled_consume_agency_cnt()
         self._uncancelled_credit_organization_number()
@@ -57,7 +58,7 @@ class UnSettleInfoProcessor(ModuleProcessor):
         df = df.query('account_type in ["01", "02", "03"] '
                       'and (loan_type in ["01", "07"] or (loan_type == "04" and loan_amount > 200000))'
                       ' and loan_balance > 0')
-        self.variables[""] = df.shape[0]
+        self.variables["unsettled_busLoan_total_cnt"] = df.shape[0]
 
     # 未结清贷款机构数
     def _unsettled_loan_agency_number(self):
@@ -92,3 +93,11 @@ class UnSettleInfoProcessor(ModuleProcessor):
         loan_df = self.cached_data["pcredit_loan"]
         loan_df = loan_df.query('account_type in ["01", "02", "03"] and loan_type in ["05", "06"] and loan_balance > 0')
         self.variables["unsettled_house_loan_number"] = loan_df.shape[0]
+
+    # 未结清消费性贷款笔数
+    def _unsettled_consume_total_cnt(self):
+        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且loan_type=04且principal_amount<=200000且loan_balance>0的记录)
+        loan_df = self.cached_data["pcredit_loan"]
+        loan_df = loan_df.query('account_type in ["01", "02", "03"] and loan_type == "04" '
+                                'and loan_amount <= 200000 and loan_balance > 0')
+        self.variables["unsettled_consume_total_cnt"] = loan_df.shape[0]

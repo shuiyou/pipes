@@ -34,9 +34,8 @@ class CreditInfoProcessor(ModuleProcessor):
         if df is None or df.empty:
             return
 
-        df = df.query('account_type in ["04", "05"] and latest_category in ["4", "5"]')
-        if df is not None:
-            self.variables["credit_fiveLevel_a_level_cnt"] = df.shape[0]
+        df = df.query('account_type in ["04", "05"] and category in ["4", "5"]')
+        self.variables["credit_fiveLevel_a_level_cnt"] = df.shape[0]
 
     # 贷记卡当前逾期金额
     def _credit_now_overdue_money(self):
@@ -155,7 +154,7 @@ class CreditInfoProcessor(ModuleProcessor):
     def _credit_fiveLevel_b_level_cnt(self):
         # count(pcredit_loan中所有report_id=report_id且account_type=04,05且latest_category=3的记录)
         credit_loan_df = self.cached_data["pcredit_loan"]
-        credit_loan_df = credit_loan_df.query('account_type == "04" and latest_category == "3"')
+        credit_loan_df = credit_loan_df.query('account_type == "04" and category == "3"')
 
         self.variables["credit_fiveLevel_b_level_cnt"] = credit_loan_df.shape[0]
 
@@ -209,7 +208,7 @@ class CreditInfoProcessor(ModuleProcessor):
     def _credit_fiveLevel_c_level_cnt(self):
         # count(pcredit_loan中所有report_id=report_id且account_type=04,05且latest_category=2的记录)
         df = self.cached_data["pcredit_loan"]
-        df = df.query('account_type == "04" and latest_category == "2"')
+        df = df.query('account_type == "04" and category == "2"')
         self.variables["credit_fiveLevel_c_level_cnt"] = df.shape[0]
 
     # 贷记卡当前逾期次数

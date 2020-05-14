@@ -28,6 +28,7 @@ class LoanInfoProcessor(ModuleProcessor):
         self._loan_status_bad_cnt()  # 贷款账户状态存在"呆账"
         self._loan_status_legal_cnt()  # 贷款账户状态存在"司法追偿"
         self._loan_status_b_level_cnt()  # 贷款账户状态存在"银行止付、冻结"
+        self._loan_approval_year1()
 
     # 贷款五级分类存在“次级、可疑、损失”
     def _loan_fiveLevel_a_level_cnt(self):
@@ -36,8 +37,7 @@ class LoanInfoProcessor(ModuleProcessor):
             return
 
         df = df.query('account_type in ["01", "02", "03"] and category in ["3", "4", "5"]')
-        if df is not None:
-            self.variables["loan_fiveLevel_a_level_cnt"] = df.shape[0]
+        self.variables["loan_fiveLevel_a_level_cnt"] = df.shape[0]
 
     # 贷款当前逾期金额
     def _loan_now_overdue_money(self):
@@ -259,3 +259,17 @@ class LoanInfoProcessor(ModuleProcessor):
         loan_df = self.cached_data["pcredit_loan"]
         loan_df = loan_df.query('account_type in ' + str(account_types) + ' and loan_status in ' + str(loan_status))
         self.variables[var_name] = loan_df.shape[0]
+
+    # 贷款审批最近一年内查询次数
+    def _loan_approval_year1(self):
+        # count(从pcredit_query_record中report_id=report_id且reason=01且jhi_time>report_time前一年的记录)
+        report_time = self.cached_data["report_time"]
+        query_record_df = self.cached_data["pcredit_query_record"]
+        query_record_df = query_record_df.query('reason == "01"')
+
+        count = 0
+        for row in query_record_df.itertuples():
+            if pd.notna(row.jhi_time):
+                if after_ref_date(row.jhi_time.year, row.jhi_time.month, report_time.year - 1, report_time.month):
+                    count = count + 1
+        self.variables["loan_approval_year1"] = count

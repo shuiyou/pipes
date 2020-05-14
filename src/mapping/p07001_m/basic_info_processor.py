@@ -44,14 +44,14 @@ class BasicInfoProcessor(ModuleProcessor):
             return
 
         loan_df = loan_df.query('account_type in ["01", "02", "03"] and ((loan_type in '
-                                '["01", "07", "99"]) or (loan_type == "04") and loan_amount > 200000)')
+                                '["01", "07", "99"]) or (loan_type == "04" and loan_amount > 200000))')
 
         if loan_df.empty:
             return
 
         count = 0
         for item_df in loan_df.itertuples():
-            df = repayment_df.query('record_id == ' + str(item_df.id) + ' and status == 1')
+            df = repayment_df.query('record_id == ' + str(item_df.id) + ' and status == "1"')
             if not df.empty:
                 count = count + 1
         self.variables["rhzx_business_loan_overdue_cnt"] = count
@@ -77,7 +77,7 @@ class BasicInfoProcessor(ModuleProcessor):
 
         if credit_loan_df.empty or repayment_df.empty:
             return
-
+        # TODO 等额本息需要从pcredit_acc_speculate中获取
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
                                               '"99"] or (loan_type == "04" and loan_amount>200000)) and '
                                               'loan_repay_type.str.contains("等额本息")')
@@ -114,7 +114,7 @@ class BasicInfoProcessor(ModuleProcessor):
                 if pd.notna(row["status"]) and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
-            self.variables["business_loan_average_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
+            self.variables["large_loan_2year_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
 
     # 年龄>=40,离异或者丧偶，女
     def _divorce_40_female(self):
@@ -195,7 +195,7 @@ class BasicInfoProcessor(ModuleProcessor):
         df = self.cached_data["pcredit_loan"]
         df = df.query('account_type == "06"')
         amt = df['loan_amount'].sum()
-        self.variables["guarantee_amont"] = amt
+        self.variables["principal_amount"] = amt
 
     # 欠税记录数
     def _tax_record(self):
