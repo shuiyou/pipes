@@ -104,14 +104,7 @@ def test_df():
 
 
 def test_datetime():
-    # now =datetime.datetime.now()
-    # print(now-datetime.timedelta(days=3))
-    # list=[1,np.nan,2,3]
-    # print(json.dumps(list))
-    a,b=1,2
-    print([1,2][a>b]/2)
-    # pass
-
+    pass
 
 
 

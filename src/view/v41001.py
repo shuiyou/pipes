@@ -278,7 +278,7 @@ class V41001(Transformer):
             PcreditPortraitsNewView(),
             PcreditQueryRecordView(),
             PcreditSpecialView(),
-            PcreditAccSpeculateView()
+            # PcreditAccSpeculateView()
         ]
 
         for view in view_handle_list:

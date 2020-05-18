@@ -43,6 +43,8 @@ def before_n_month_date(source_date,n):
     else:
         target_year=year-1
         target_month=12+month-n
+    if target_month==2 and day>28:
+        day=28
     target_date=source_date.replace(target_year,target_month,day)
     return target_date
 
@@ -63,6 +65,8 @@ def before_n_year_date(date,n):
     year=date.year
     month=date.month
     day=date.day
+    if month==2 and day>28:
+        day=28
     return date.replace(year-n,month,day)
 
 def date_to_timestamp(source_date):

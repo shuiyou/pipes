@@ -19,4 +19,4 @@ class PcreditDefaultInfoView(ModuleProcessor):
             type_list.append("呆账")
         if type_list is None:
             return
-        self.variables["default_type"]=set(type_list)
+        self.variables["default_type"]=list(set(type_list))

@@ -56,10 +56,10 @@ class PcreditQueryRecordView(ModuleProcessor):
                         df_1_year_reason.loc[index, 'if_loan'] = "否"
                 self.variables["if_loan"]=df_1_year_reason.loc[:,'if_loan'].tolist()
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询未放款笔数
-                self.variables["bank_query_loan_cnt"]=df_1_year_reason[(df_1_year_reason['reason']=="贷款审批")
+                self.variables["bank_query_loan_cnt"]=df_1_year_reason[(df_1_year_reason['reason']=="01")
                                                                        & (df_1_year_reason['if_loan']=="否")].shape[0]
                 #查询信息-近一年贷款审批和贷记卡审批的查询记录贷记卡查询未放款笔数
-                self.variables["credit_query_loan_cnt"] = df_1_year_reason[(df_1_year_reason['reason'] == "信用卡审批")
+                self.variables["credit_query_loan_cnt"] = df_1_year_reason[(df_1_year_reason['reason'] == "02")
                                                                          & (df_1_year_reason['if_loan'] == "否")].shape[0]
 
             #查询信息-近一年贷款审批和贷记卡审批的查询记录银行查询笔数

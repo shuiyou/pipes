@@ -33,10 +33,10 @@ class PcreditPortraitsNewView(ModuleProcessor):
     def _get_loan_overdue_money(self,df):
         if df.empty:
             return
-        self.variables["loan_now_overdue_money"]='%.2f' %(df.loc[:,'overdue_amount'].sum())
+        self.variables["loan_now_overdue_money"]=round(df.loc[:,'overdue_amount'].sum(),2)
         df1=df[(df['loan_type'].isin(['01','07','99'])) | ((df['loan_type']=='04') & (df['loan_amount']>20000))]
         if not df1.empty:
-            self.variables["business_loan_overdue_money"]='%.2f' %(df1.loc[:,'overdue_amount'].sum())
+            self.variables["business_loan_overdue_money"]=round(df1.loc[:,'overdue_amount'].sum(),2)
 
     def _get_loan_overdue__cnt(self,df,report_time):
         if df.empty:
@@ -105,12 +105,13 @@ class PcreditPortraitsNewView(ModuleProcessor):
         if df.empty:
             return
         #征信不良信息-逾期信息-贷记卡当前逾期金额
-        self.variables["credit_now_overdue_money"]='%.2f' %(df.loc[:,'overdue_amount'].sum())
+        self.variables["credit_now_overdue_money"]=round(df.loc[:,'overdue_amount'].sum(),2)
 
     def _get_creidt_overdue_cnt(self,df,report_time):
         if df.empty:
             return
         repayment_df=self.cached_data.get("pcredit_repayment")
+        repayment_df=repayment_df.drop(['id'],axis=1)
         merge_df = pd.merge(df, repayment_df, left_on='id', right_on='record_id')
         #征信不良信息-逾期信息-贷记卡当前逾期次数
         if report_time is not None:
@@ -137,7 +138,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         self.variables["total_bank_credit_limit"]='%.2f' % df.loc[0,['nonRevolloan_totalcredit','revolcredit_totalcredit','revolloan_totalcredit','undestroy_limit','undestory_semi_limit']].sum()
 
         #信贷交易信息-资金压力解析-银行总余额
-        self.variables["total_bank_loan_balance"]='%.2f' % df.loc[0,['nonRevolloan_balance','revolcredit_balance','revolloan_balance','undestroy_used_limit','undestory_semi_overdraft']].sum()
+        self.variables["total_bank_loan_balance"]=df.loc[0,['nonRevolloan_balance','revolcredit_balance','revolloan_balance','undestroy_used_limit','undestory_semi_overdraft']].sum()
 
 
 
