@@ -127,18 +127,18 @@ class PcreditLoanView(ModuleProcessor):
                                                                      2) if apply_amount > 0 else 0
 
             loan_account_type_df_status03=loan_account_type_df[(pd.notnull(loan_account_type_df['loan_status_time'])) &
-                                                                (loan_account_type_df['loan_status']=='03') &
+                                                                (loan_account_type_df['loan_status']=='04') &
                                                                (loan_account_type_df['loan_status_time']>report_time_before_6_month)]
             if not loan_account_type_df_status03.empty:
                 # 信贷交易信息-资金压力解析-提示-已结清贷款机构名
                 self.variables["settle_account_org"]=loan_account_type_df_status03.loc[:,'account_org'].tolist()
                 #信贷交易信息-资金压力解析-提示-结清时间
-                self.variables["settle_date"]=loan_account_type_df_status03.loc[:,'loan_status_time'].tolist()
+                self.variables["settle_date"]=loan_account_type_df_status03.loc[:,'loan_status_time'].apply(lambda x:format_timestamp(x)).tolist()
                 #信贷交易信息-资金压力解析-提示-结清贷款金额
                 self.variables["settle_loan_amount"]=loan_account_type_df_status03.loc[:,'loan_amount'].fillna(0).tolist()
 
         #担保类贷款
-        loan_gua_df=loan_df[loan_df['account_type']=='06']
+        loan_gua_df=loan_df[loan_df['account_type']=='06'].sort_values(by='loan_date')
         if not loan_gua_df.empty:
             self._gua_loan(loan_gua_df)
 
@@ -233,7 +233,7 @@ class PcreditLoanView(ModuleProcessor):
         account_org_list = []
         df = loan_type_df[loan_type_df['loan_date'] >= report_time_before_3_year]
         if not df.empty:
-            account_org_list = df.loc[:, 'account_org'].drop_duplicates().values.tolist()
+            account_org_list = df.sort_values(by='loan_date').loc[:, 'account_org'].drop_duplicates().values.tolist()
             #信贷交易信息-贷款信息-近三年机构申请总变化机构名称
             self.variables["account_org"] = account_org_list
             total_principal_list_3, max_terms_list_3,max_interest_rate_3y_ago_list = self._total_principal(account_org_list, loan_type_df,
@@ -409,7 +409,7 @@ class PcreditLoanView(ModuleProcessor):
         # 信贷交易信息-贷款信息-贷款趋势变化图贷款金额极差
         self.variables["rng_principal_amount"] = max_principal_amount - min_principal_amount
         # 信贷交易信息-贷款信息-贷款趋势变化图贷款金额比值
-        self.variables["multiple_principal_amount"] = '%.2f' % (max_principal_amount / min_principal_amount) if min_principal_amount>0 else 0
+        self.variables["multiple_principal_amount"] = round((max_principal_amount / min_principal_amount),2) if min_principal_amount>0 else 0
         # 信贷交易信息-贷款信息-贷款额度区间分布-0-20万笔数
         loan_principal_0_20w_cnt = report_time_before_2_year_df[(report_time_before_2_year_df['loan_amount'] > 0)
                                                                 & (report_time_before_2_year_df[
@@ -448,7 +448,7 @@ class PcreditLoanView(ModuleProcessor):
         self.variables["loan_principal_100_200w_prop"] =round (
                     loan_principal_100_200w_cnt / loan_principal_total_cnt,2) if loan_principal_total_cnt>0 else 0
         # 信贷交易信息-贷款信息-贷款额度区间分布-大于200万占比
-        self.variables["loan_principal_200w_prop"] = '%.2f' % (oan_principal_200w_cnt / loan_principal_total_cnt) if loan_principal_total_cnt>0 else 0
+        self.variables["loan_principal_200w_prop"] = round((oan_principal_200w_cnt / loan_principal_total_cnt),2)  if loan_principal_total_cnt>0 else 0
 
 
 
@@ -521,12 +521,13 @@ class PcreditLoanView(ModuleProcessor):
         account_org_list=[]
         loan_type_list=[]
         principal_amount_list=[]
+        loan_account_type_df=loan_account_type_df.sort_values(by='loan_date',ascending=False)
         df1=loan_account_type_df[(loan_account_type_df['loan_date']<date1) & (loan_account_type_df['loan_date']>=date2)]
         df2=loan_account_type_df[loan_account_type_df['loan_date']>=date1]
         account_org_list=list(set(df2.loc[:,'account_org'].tolist()).difference(set(df1.loc[:,'account_org'].tolist())))
         if len(account_org_list)>0:
             for org in account_org_list:
-                df_temp=df2[df2['account_org']==org].sort_values(by='loan_date',ascending=False)
+                df_temp=df2[df2['account_org']==org]
                 loan_type=df_temp.loc[:,'loan_type'].tolist()[0]
                 loan_amount=df_temp.loc[:,'loan_amount'].tolist()[0]
                 loan_type_list.append(loan_type)

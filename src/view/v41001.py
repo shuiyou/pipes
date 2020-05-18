@@ -264,6 +264,19 @@ class V41001(Transformer):
             "busi_org_balance_3y_ago": "",
             "busi_org_cnt_now": "",
             "busi_org_balance_now": "",
+            "settle_account_org":"",
+            "settle_date":"",
+            "settle_loan_amount":"",
+            "busi_loan_balance_max": "",
+            "busi_loan_balance_min": "",
+            "busi_org_balance_3y_ago_max": "",
+            "busi_org_balance_3y_ago_min": "",
+            "busi_org_balance_2y_ago_max": "",
+            "busi_org_balance_2y_ago_min": "",
+            "busi_org_balance_1y_ago_max": "",
+            "busi_org_balance_1y_ago_min": "",
+            "busi_org_balance_now_max": "",
+            "busi_org_balance_now_min": ""
         }
 
     def transform(self):

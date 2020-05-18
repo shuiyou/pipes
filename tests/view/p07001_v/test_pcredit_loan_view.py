@@ -78,7 +78,7 @@ def test_06():
     assert ps.variables["total_credit_cnt_2y_ago"] == 10
     assert ps.variables["total_credit_limit_1y_ago"] == 325000.0
     assert ps.variables["total_credit_cnt_1y_ago"] == 12
-    assert ps.variables["account_org"] == ['商业银行"FJ"', '商业银行"NY"']
+    assert ps.variables["account_org"] ==['商业银行"FJ"', '商业银行"NY"']
     assert ps.variables["total_principal_3y_ago"] == [50000.0, 60000.0]
     assert ps.variables["max_terms_3y_ago"] == [0.0, 11.0]
     assert ps.variables["max_interest_rate_3y_ago"] == [0, 0]
@@ -88,15 +88,15 @@ def test_06():
     assert ps.variables["total_principal_1y_ago"] == [50000.0, 10000.0]
     assert ps.variables["max_terms_1y_ago"] == [0.0, 29.0]
     assert ps.variables["max_interest_rate_1y_ago"] == [0, 0]
-    assert ps.variables["new_org_3m_ago"] == ['商业银行"FJ"','商业银行"NY"']
-    assert ps.variables["loan_type_3m_ago"] == ['07', '01']
-    assert ps.variables["principal_amount_3m_ago"] == [50000.0, 10000.0]
-    assert ps.variables["new_org_6m_ago"] == ['商业银行"FJ"', '商业银行"NY"']
-    assert ps.variables["loan_type_6m_ago"] == ['07', '01']
-    assert ps.variables["principal_amount_6m_ago"] == [50000.0, 10000.0]
-    assert ps.variables["new_org_12m_ago"] == ['商业银行"FJ"', '商业银行"NY"']
-    assert ps.variables["loan_type_12m_ago"] == ['07', '01']
-    assert ps.variables["principal_amount_12m_ago"] == [50000.0, 10000.0]
+    assert ps.variables["new_org_3m_ago"] == ['商业银行"NY"', '商业银行"FJ"']
+    assert ps.variables["loan_type_3m_ago"] == ['01', '07']
+    assert ps.variables["principal_amount_3m_ago"] == [10000.0, 50000.0]
+    assert ps.variables["new_org_6m_ago"] == ['商业银行"NY"', '商业银行"FJ"']
+    assert ps.variables["loan_type_6m_ago"] == ['01', '07']
+    assert ps.variables["principal_amount_6m_ago"] ==[10000.0, 50000.0]
+    assert ps.variables["new_org_12m_ago"] == ['商业银行"NY"', '商业银行"FJ"']
+    assert ps.variables["loan_type_12m_ago"] == ['01', '07']
+    assert ps.variables["principal_amount_12m_ago"] == [10000.0, 50000.0]
     assert ps.variables["each_loan_date"] == ['2019-04-23', '2019-08-25', '2019-09-22', '2019-11-19', '2019-11-20', '2019-11-24', '2019-12-29', '2020-01-03', '2020-01-05', '2020-01-21', '2020-02-04', '2020-02-05', '2020-02-23', '2020-02-25', '2018-04-02', '2018-05-24', '2018-06-29', '2018-07-02', '2018-07-02', '2018-07-08', '2018-07-08', '2018-07-15', '2018-07-22', '2018-07-22', '2018-08-10', '2018-09-02', '2018-09-28', '2018-10-15', '2018-10-24', '2018-11-09', '2018-11-23', '2018-11-24', '2018-11-26', '2018-11-28', '2018-12-31', '2019-01-07', '2019-01-09', '2019-01-11', '2019-01-17', '2019-02-09', '2019-02-10', '2019-04-26', '2019-04-28', '2019-04-29', '2019-04-30', '2019-05-31', '2019-06-01', '2019-06-02', '2019-06-03', '2019-06-06', '2019-06-06', '2019-06-20', '2019-06-29', '2019-06-29', '2019-07-06', '2019-07-08', '2019-07-10', '2019-07-15', '2019-07-22', '2019-08-05', '2019-08-15', '2019-08-17', '2019-08-19', '2019-08-19', '2019-10-18', '2019-10-19', '2019-10-24', '2019-10-25', '2019-10-27', '2019-10-29', '2019-11-06', '2019-11-06', '2019-11-11', '2019-11-12', '2019-11-17', '2019-11-20',
                                               '2019-11-22', '2019-12-18', '2019-12-27', '2020-01-03', '2020-01-13', '2020-01-19', '2020-01-19']
     assert ps.variables["each_principal_amount"] == [50000.0, 40000.0, 15000.0, 5000.0, 10000.0, 69000.0, 15000.0, 35000.0, 30000.0, 60000.0, 13000.0, 18000.0, 10000.0, 10000.0, 40000.0, 50000.0, 55000.0, 55000.0, 30000.0, 15000.0, 5000.0, 40000.0, 5000.0, 5000.0, 43000.0, 13000.0, 10000.0, 60000.0, 55000.0, 70000.0, 20000.0, 3000.0, 35000.0, 12000.0, 5000.0, 30000.0, 15000.0, 10000.0, 40000.0, 10000.0, 84000.0, 15000.0, 10000.0, 6000.0, 19000.0, 35000.0, 7000.0, 5000.0, 15000.0, 20000.0, 21000.0, 31000.0, 150000.0, 150000.0, 40000.0, 20000.0, 40000.0, 15000.0, 15000.0, 20000.0, 30000.0, 30000.0, 30000.0, 10000.0, 35000.0, 20000.0, 4000.0, 50000.0, 5000.0, 15000.0, 13000.0, 33000.0,
@@ -130,11 +130,22 @@ def test_06():
     assert ps.variables["loan_type_cnt"] == [136]
     assert ps.variables["loan_type_balance_prop"] == ['1.00', '0.00', '0.00']
 
+def test_06():
+    ps = V41001()
+    run(ps, "350583197301156659")
+    assert ps.variables["settle_account_org"] == ['商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"', '商业银行"NY"',
+                                                  '商业银行"NY"', '商业银行"NY"', '商业银行"NY"']
+    assert ps.variables["settle_date"] == ['2019-12-23', '2019-11-10', '2019-10-13', '2019-10-21', '2019-10-13', '2019-10-30', '2019-10-13', '2019-11-03', '2019-10-21', '2019-11-10', '2019-11-06', '2019-11-10', '2019-12-25', '2019-11-03', '2019-10-31', '2019-11-10', '2019-11-10', '2019-11-21', '2019-12-25', '2019-12-25', '2019-11-21', '2019-12-23', '2019-12-25', '2020-01-04',
+                                                      '2020-01-04', '2020-01-31', '2020-01-31', '2020-02-22']
+    assert ps.variables["settle_loan_amount"] == [150000.0, 40000.0, 40000.0, 15000.0, 20000.0, 30000.0, 30000.0, 30000.0, 10000.0, 35000.0, 20000.0, 4000.0, 50000.0, 5000.0, 15000.0, 13000.0, 33000.0, 20000.0,
+                                                  120000.0, 9000.0, 5000.0, 20000.0, 10000.0, 81000.0, 50000.0, 86000.0, 16000.0, 10000.0]
+
+
 
 
 def test_null():
     ps = V41001()
-    run(ps, "吴金龙", "350583197301156659", "458010530368589824")
+    run(ps, "350583197301156659")
     #因为pcredit_acc_speculate没数据所以为空
     assert ps.variables["busi_org_cnt_2y_ago"] == ''
     assert ps.variables["busi_org_balance_2y_ago"] == ''
@@ -144,5 +155,16 @@ def test_null():
     assert ps.variables["busi_org_balance_3y_ago"] == ''
     assert ps.variables["busi_org_cnt_now"] == ''
     assert ps.variables["busi_org_balance_now"] == ''
+    assert ps.variables["busi_loan_balance_max"] == ''
+    assert ps.variables["busi_loan_balance_min"] == ''
+    assert ps.variables["busi_org_balance_3y_ago_max"] == ''
+    assert ps.variables["busi_org_balance_3y_ago_min"] == ''
+    assert ps.variables["busi_org_balance_2y_ago_max"] == ''
+    assert ps.variables["busi_org_balance_2y_ago_min"] == ''
+    assert ps.variables["busi_org_balance_1y_ago_max"] == ''
+    assert ps.variables["busi_org_balance_1y_ago_min"] == ''
+    assert ps.variables["busi_org_balance_now_max"] == ''
+    assert ps.variables["busi_org_balance_now_min"] == ''
+
 
 
