@@ -165,7 +165,7 @@ class IfInfoProcessor(ModuleProcessor):
         if credit_person_df.empty:
             return
         result = 0 if spouse_id_no in list(credit_person_df["spouse_certificate_no"]) else 1
-        self.variables["if_spouse_name"] = result
+        self.variables["if_spouse_cert_no"] = result
 
 
 

@@ -43,4 +43,3 @@ def test_duration_end_sum():
 
     final_result = sum(map(lambda x: 0 if pd.isna(x[-1]) else x[-1], val_lists))
     print("final_result:", final_result)
-

@@ -85,14 +85,14 @@ class SingleInfoProcessor(ModuleProcessor):
             return
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        count = 0
         if repayment_df is not None and not repayment_df.empty:
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                count = 0
                 if row["status"] and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
                         count = count + 1
-            self.variables["single_consume_overdue_2year_cnt"] = count
+        self.variables["single_consume_overdue_2year_cnt"] = count
 
     # 单张贷记卡2年内逾期次数
     def _single_credit_overdue_cnt_2y(self):
