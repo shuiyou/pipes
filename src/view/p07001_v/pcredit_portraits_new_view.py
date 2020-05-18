@@ -135,7 +135,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
 
     def _get_pcredit_info_money(self,df):
         #信贷交易信息-资金压力解析-银行授信总额
-        self.variables["total_bank_credit_limit"]='%.2f' % df.loc[0,['nonRevolloan_totalcredit','revolcredit_totalcredit','revolloan_totalcredit','undestroy_limit','undestory_semi_limit']].sum()
+        self.variables["total_bank_credit_limit"]=round(df.loc[0,['nonRevolloan_totalcredit','revolcredit_totalcredit','revolloan_totalcredit','undestroy_limit','undestory_semi_limit']].sum(),2)
 
         #信贷交易信息-资金压力解析-银行总余额
         self.variables["total_bank_loan_balance"]=df.loc[0,['nonRevolloan_balance','revolcredit_balance','revolloan_balance','undestroy_used_limit','undestory_semi_overdraft']].sum()

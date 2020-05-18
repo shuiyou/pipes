@@ -22,7 +22,7 @@ def run(ps,id_card_no):
                '''
     df = sql_to_df(sql=sql1,params={"report_id":report_id})
     out_req_no=df.loc[0,'out_req_no']
-    user_name = ''
+    user_name = credit_base_info_df.loc[0,'name']
     id_card_no = id_card_no
     cached_data = {}
     origin_data = {

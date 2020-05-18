@@ -7,7 +7,7 @@ def test01():
     run(ps, "350583197301156659")
     assert ps.variables["name"]=="吴金龙"
     assert ps.variables["certificate_no"]=="350583197301156659"
-    assert ps.variables["report_no"]=="458010469446324224"
+    assert ps.variables["report_no"]=="458747406905905152"
     assert ps.variables["report_time"]=="2020-02-27"
 
 
