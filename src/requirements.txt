@@ -1,7 +1,7 @@
 -i https://pypi.org/simple
 Flask==1.0.3
 gunicorn==19.7.1
-numpy==1.18.4
+numpy==1.16.3
 pandas==0.24.2
 python-dateutil==2.8.0
 python-logstash-async==1.6.4
@@ -16,5 +16,4 @@ openpyxl==3.0.3
 Faker==0.7.11
 fake2db==0.5.4
 py_eureka_client==0.7.4
-scipy==1.4.1
 aurora-common-utils

@@ -4,9 +4,6 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-RUN cd whl
-RUN pip3 install scipy-1.4.1-cp36-cp36m-manylinux1_x86_64
-RUN cd ..
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
