@@ -1,4 +1,4 @@
-FROM amancevice/pandas:alpine
+FROM programize/python3.6.8-dlib
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
