@@ -15,7 +15,6 @@ RUN apk add --no-cache --virtual .build-deps \
     gfortran \
     musl-dev \
     g++
-RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
 RUN pip3 install seaborn
 
 RUN pip3 install --no-cache-dir -r requirements.txt
