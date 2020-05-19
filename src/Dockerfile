@@ -4,18 +4,19 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
+RUN echo "http://dl-4.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 RUN apk --update add --no-cache \
-        gcc \
-        build-essential \
-        zlib1g-dev \
-        wget \
-        unzip \
-        cmake \
-        python3-dev \
-        gfortran \
-        libblas-dev \
-        liblapack-dev \
-        libatlas-base-dev
+    lapack-dev \
+    gcc \
+    freetype-dev
+RUN apk add python3 py-pip python-dev
+# Install dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    gfortran \
+    musl-dev \
+    g++
+RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+RUN pip3 install seaborn
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
