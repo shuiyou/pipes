@@ -16,5 +16,4 @@ openpyxl==3.0.3
 Faker==0.7.11
 fake2db==0.5.4
 py_eureka_client==0.7.4
-scipy==1.4.1
 aurora-common-utils

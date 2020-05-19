@@ -1,9 +1,8 @@
 import datetime
 import json
-import pandas as pd
-import scipy
-from scipy.stats import ttest_rel
 
+import numpy
+import pandas as pd
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
@@ -151,10 +150,10 @@ class T31001(Transformer):
             cnt = df.loc[df['month_from_now'] == i].shape[0]
             month_list.append(cnt)
         avg = sum(month_list) / len(month_list)
-        std = scipy.std(month_list)
-        ttest, pval = ttest_rel(month_list, total_avg_list)
+        std = numpy.std(month_list)
+        # ttest, pval = ttest_rel(month_list, total_avg_list)
         self.variables['oth_loan_month_1sigma_12m'] = len([x > avg + std for x in month_list])
-        self.variables['oth_loan_month_ttest_12m'] = round(ttest + pval - pval, 4)
+        # self.variables['oth_loan_month_ttest_12m'] = round(ttest + pval - pval, 4)
         return
 
     # 模型公式概率计算
@@ -279,8 +278,8 @@ class T31001(Transformer):
                  0.337653 * model_df.loc[0, 'r_woe_reason_else_6m'] + \
                  0.532143 * model_df.loc[0, 'r_woe_dec_1_12m'] + \
                  0.47668 * model_df.loc[0, 'r_woe_nonbank_3m']
-        score1 = 1 / (1 + scipy.exp(-logit1))
-        score2 = 1 / (1 + scipy.exp(-logit2))
+        score1 = 1 / (1 + numpy.exp(-logit1))
+        score2 = 1 / (1 + numpy.exp(-logit2))
         self.variables['oth_loan_model_score'] = round(score1 + score2, 4)
         return
 
