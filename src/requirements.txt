@@ -1,7 +1,7 @@
 -i https://pypi.org/simple
 Flask==1.0.3
 gunicorn==19.7.1
-numpy==1.16.3
+numpy==1.18.4
 pandas==0.24.2
 python-dateutil==2.8.0
 python-logstash-async==1.6.4
