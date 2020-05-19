@@ -4,7 +4,10 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-
+RUN apk --update add --no-cache \
+    lapack-dev \
+    gcc \
+    freetype-dev
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
 EXPOSE 5000
