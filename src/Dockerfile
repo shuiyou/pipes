@@ -8,6 +8,17 @@ RUN apk --update add --no-cache \
     lapack-dev \
     gcc \
     freetype-dev
+RUN apk add python py-pip python-dev
+# Install dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    gfortran \
+    musl-dev \
+    g++
+RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
+RUN pip install seaborn
+# removing dependencies
+RUN apk del .build-deps
+
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
 EXPOSE 5000
