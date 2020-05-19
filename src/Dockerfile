@@ -4,10 +4,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-RUN apt update \
-    && apt-get upgrade -y \
-    && apt-get autoremove -y \
-    && apt-get install -y \
+RUN apk --update add --no-cache \
         gcc \
         build-essential \
         zlib1g-dev \
@@ -18,8 +15,7 @@ RUN apt update \
         gfortran \
         libblas-dev \
         liblapack-dev \
-        libatlas-base-dev \
-    && apt-get clean
+        libatlas-base-dev
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
