@@ -4,7 +4,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-RUN apt-get update \
+RUN apt update \
     && apt-get upgrade -y \
     && apt-get autoremove -y \
     && apt-get install -y \
