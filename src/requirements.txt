@@ -1,5 +1,4 @@
 -i https://pypi.org/simple
-pybind11==2.5.0
 Flask==1.0.3
 gunicorn==19.7.1
 numpy==1.16.3
