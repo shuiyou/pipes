@@ -126,14 +126,16 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
     ))
 
 
-def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None, origin_data=None):
+def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None, origin_data=None, data_repository=None):
     """
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
     """
 
     variables = {}
-
+    # 如果data_repository不为空，则由该函数的调用方释放
+    no_data_repository = data_repository is None
+    cached_data = {} if no_data_repository else data_repository
     try:
         codes = _get_codes_by_product_code(product_code)
         for c in codes:
@@ -143,7 +145,8 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                      phone=phone,
                                      user_type=user_type,
                                      base_type=base_type,
-                                     origin_data=origin_data
+                                     origin_data=origin_data,
+                                     cached_data=cached_data
                                      )
             variables.update(trans_result['variables'])
 
@@ -156,12 +159,18 @@ def translate_for_report_detail(product_code, user_name=None, id_card_no=None, p
                                                      phone=phone,
                                                      user_type=user_type,
                                                      base_type=base_type,
-                                                     origin_data=origin_data)
+                                                     origin_data=origin_data,
+                                                     cached_data=cached_data)
                 variables.update(trans_result['variables'])
 
     except Exception as err:
         logger.error(">>> translate error: " + str(err))
+        if no_data_repository:
+            cached_data.clear()
         raise ServerException(code=500, description=str(err))
+
+    if no_data_repository:
+        cached_data.clear()
     if len(variables) > 0:
         extension_variables(variables)
         # 转换类型，这样解决tojson的问题

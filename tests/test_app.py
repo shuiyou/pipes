@@ -2,11 +2,15 @@
 # -*- coding: utf-8 -*-
 import json
 
+import pandas as pd
 from file_utils.files import resource_content
 
 from logger.logger_util import LoggerUtil
 
 logger = LoggerUtil().logger(__name__)
+
+pd.set_option('display.max_rows', 500)
+pd.set_option('display.max_columns', 500)
 
 
 def shake_hand_request(client, product_code):
@@ -95,4 +99,11 @@ def test_shake_hand_06001_1(client):
     shake_hand_request(client, "06001_1")
 
 
+# 征信报告请求
+def test_strategy_07001(client):
+    strategy_request(client, "07001")
 
+
+# 征信拦截请求
+def test_strategy_07002(client):
+    strategy_request(client, "07002")

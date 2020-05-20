@@ -35,3 +35,80 @@ def test_df_sql():
     pd.set_option('display.max_rows', None)
     df = sql_to_df(sql)
     print("df:", df)
+
+
+def test_df1():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 1]})
+    print("\n", df, "\n")
+    df = df["B"].unique()
+    print(df.size)
+
+
+def test_df2():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, 1]})
+    print("\n", df, "\n")
+    for row in df.itertuples():
+        print(row.A)
+
+
+def test_df3():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, pd.np.NaN]})
+    print("\n", df, "\n")
+    for row in df.itertuples():
+        if row.B and pd.notna(row.B):
+            print("B=", row.B)
+
+
+def test_df4():
+    df = pd.DataFrame({'A': [1, 2, 3], 'B': [1, 2, pd.np.NaN], 'C': [pd.np.NaN, pd.np.NaN, pd.np.NaN]})
+    print("\n", df, "\n")
+    v = df.sum()
+    print(type(v.A), "\n", v, "\n")
+
+
+def test_df5():
+    df = pd.DataFrame({'A': [2, 2, 5], 'B': [1, 2, pd.np.NaN], 'C': [pd.np.NaN, pd.np.NaN, pd.np.NaN]})
+    df = df["A"]
+    print(4 in list(df))
+
+
+def test_df6():
+    df = pd.DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=("A", "B", "C"))
+    print(df)
+    for _, row in df.iterrows():
+        print(type(row.A))
+        print(_)
+
+
+def test_df7():
+    df = pd.DataFrame([["1", "2", "3"], ["4", "5", "6"], ["7", "8", pd.np.NaN]], columns=("A", "B", "C"))
+    print("\n", df)
+
+    v = ["1", "4"]
+    df = df.query('A in ' + str(v))
+    print("\n", df)
+
+
+def test_df8():
+    df = pd.DataFrame([[1, 2, 3], [41, 5, 6], [9, 8, ]], columns=("A", "B", "C"))
+    df = df.sort_values("A")
+    print(df)
+
+
+def test_df9():
+    df = pd.DataFrame([
+        [1, 2, 3],
+        [2, 3, 4],
+        [3, 4, 5],
+        [3, 4, 5]
+    ], columns=list("ABC"))
+    df = df.query('A >= 2')
+    print("df:\n ", df)
+
+    df = df.reset_index()
+    print("------------\n", df)
+    v = df.at[0, "C"]
+    print(v)
+
+
+

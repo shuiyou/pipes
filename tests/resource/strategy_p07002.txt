@@ -1,0 +1,27 @@
+{
+    "strategyParam": {
+        "reqNo": "Q388676688483090432",
+        "stepReqNo": "S388676688512450560",
+        "preReportReqNo": "47832748273423435",
+        "productCode": "07002",
+        "versionNo": "1.0",
+        "queryData": [
+            {
+                "name": "施网明",
+                "idno": "310108196610024859",
+                "phone": "15921664870",
+                "userType": "PERSONAL",
+                "relation": "MAIN",
+                "applyAmount": 232,
+                "extraParam": {
+                    "marryState": "20",
+                    "postalAddress": "上海市",
+                    "houseAddress": "上海市",
+                    "liveAddress": "上海市",
+                    "spouseName": "配偶姓名",
+                    "spouseIdNo": "78572847328943"
+                }
+            }
+        ]
+    }
+}

@@ -7,6 +7,8 @@ import json
 from abc import ABCMeta
 from urllib.parse import urlencode
 
+from py_eureka_client import eureka_client
+
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 
@@ -42,9 +44,9 @@ class DefensorClient(object):
         logger.info("query_grey_list end")
 
         response_json = json.loads(resp)
-        resCode = response_json.get("resCode")
-        if resCode != "0":
-            error_info = "查询灰名单出错，resCode:" + resCode + "message:" + response_json.get("message")
+        res_code = response_json.get("resCode")
+        if res_code != "0":
+            error_info = "查询灰名单出错，resCode:" + res_code + "message:" + response_json.get("message")
             raise ServerException(description="查询灰名单状态码不正确", response=error_info, code="500")
         return response_json.get("data")
 
@@ -55,13 +57,7 @@ class DefensorClient(object):
         full_api_url = api_url + "?" + url_data
         logger.info("invoke api full api url:%s", full_api_url)
 
-        # res = eureka_client.do_service("DEFENSOR", full_api_url)
-        # logger.info("invoke_api resp:%s", res)
+        res = eureka_client.do_service("DEFENSOR", full_api_url)
+        logger.info("invoke_api resp:%s", res)
 
-        return '''
-        {
-          "resCode" : "0",
-          "resMsg" : "成功",
-          "data" : [ ]
-        }
-        '''
+        return res

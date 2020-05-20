@@ -5,12 +5,10 @@ from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer, fix_cannot_to_json
 
-# from app import logger
-
 logger = LoggerUtil().logger(__name__)
 
 
-def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None):
+def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None, data_repository=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
@@ -19,9 +17,22 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
     variables = {}
     out_decision_code = {}
     c = None
+    product_trans = []
+    # 如果data_repository不为空，则由该函数的调用方释放
+    no_data_repository = data_repository is None
+    cached_data = {} if no_data_repository else data_repository
+
     try:
         for c in codes:
             trans = get_transformer(c)
+            if trans:
+                product_trans.append(trans)
+
+            agg_trans = get_transformer(c, product_code)
+            if agg_trans:
+                product_trans.append(agg_trans)
+
+        for trans in product_trans:
             trans.df_client = df_client
             trans.product_code = product_code
             trans_result = trans.run(user_name=user_name,
@@ -29,26 +40,19 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
                                      phone=phone,
                                      user_type=user_type,
                                      base_type=base_type,
-                                     origin_data=origin_data)
+                                     origin_data=origin_data,
+                                     cached_data=cached_data)
             variables.update(trans_result['variables'])
             out_decision_code.update(trans_result['out_decision_code'])
 
-            product_trans = get_transformer(c, product_code)
-            product_trans.df_client = df_client
-            product_trans.product_code = product_code
-            product_trans_result = product_trans.run(user_name=user_name,
-                                     id_card_no=id_card_no,
-                                     phone=phone,
-                                     user_type=user_type,
-                                     base_type=base_type,
-                                     origin_data=origin_data)
-            variables.update(product_trans_result['variables'])
-            out_decision_code.update(product_trans_result['out_decision_code'])
-
     except Exception as err:
+        if not no_data_repository:
+            cached_data.clear()
         logger.error(c + ">>> translate error: " + str(err))
         raise ServerException(code=500, description=str(err))
     # 转换类型，这样解决tojson的问题
+    if no_data_repository:
+        cached_data.clear()
     fix_cannot_to_json(variables)
     return variables, out_decision_code
 
