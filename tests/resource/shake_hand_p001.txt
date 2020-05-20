@@ -7,7 +7,10 @@
             "idno":"352228198705243025",
             "phone":"18650135230",
             "userType":"PERSONAL",
-            "authorStatus":"AUTHORIZED"
+            "authorStatus":"AUTHORIZED",
+            "extraParam": {
+                "marryState": "MARRIED"
+            }
         }
     ],
     "versionNo":"1.0"

@@ -8,6 +8,7 @@
                 "name": "沈荣林",
                 "idno": "310110195801046273",
                 "phone": "13370221339",
+                "marryState": "DIVORCE",
                 "userType": "PERSONAL",
                 "authorStatus": "AUTHORIZED",
                 "baseType": "PERSONAL",

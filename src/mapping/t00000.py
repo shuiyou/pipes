@@ -5,6 +5,15 @@ from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
 
 
+# 婚姻状态取值如下：
+# 未婚 UNMARRIED
+# 已婚 MARRIED
+# 初婚 CHUHUN
+# 再婚 ZAIHUN
+# 复婚 FUHUN
+# 离异 DIVORCE
+# 丧偶 WIDOWHOOD
+# 未说明 UNKNOWN
 class T00000(Transformer):
     """
     基本信息
@@ -20,7 +29,8 @@ class T00000(Transformer):
             'base_black': 0,
             'base_type': 'PERSON',
             'base_phone': '',
-            "product_code": ''
+            'product_code': '',
+            'base_marry_state': 'UNKNOWN'
         }
 
     def _base_black(self):
@@ -54,3 +64,8 @@ class T00000(Transformer):
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 self.variables["base_apply_amo"] = apply_amount
+            extra_param = self.origin_data.get("extraParam")
+            if extra_param:
+                marry_state = extra_param.get("marryState")
+                if marry_state:
+                    self.variables["base_marry_state"] = marry_state
