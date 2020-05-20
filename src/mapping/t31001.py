@@ -3,14 +3,19 @@ import json
 import pandas as pd
 import scipy
 from scipy.stats import ttest_rel
+
+from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
+
+logger = LoggerUtil().logger(__name__)
 
 
 class T31001(Transformer):
     """
     逾期核查
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
@@ -64,12 +69,13 @@ class T31001(Transformer):
                 other_loan_df['date'] = pd.to_datetime(other_loan_df['date'])
                 other_loan_df.sort_values(by='date', inplace=True)
                 now = datetime.datetime.now()
-                before_2y = datetime.datetime(now.year-2, now.month, now.day)
+                before_2y = datetime.datetime(now.year - 2, now.month, now.day)
                 other_loan_df = other_loan_df[(~other_loan_df['org_code'].str.contains('806460')) &
                                               (other_loan_df['date'] >= before_2y)]
                 other_loan_df['month_from_now'] = other_loan_df['date'].apply(lambda x:
-                                                                              (now.year-x.year)*12+now.month-x.month +
-                                                                              (now.day-x.day)//100)
+                                                                              (
+                                                                                          now.year - x.year) * 12 + now.month - x.month +
+                                                                              (now.day - x.day) // 100)
         return other_loan_df
 
     # 基本数据统计
@@ -124,8 +130,9 @@ class T31001(Transformer):
             return
         self.variables['oth_loan_apply_months_24m'] = len(set(df.loc[df['month_from_now'] <= 23]['month_from_now'].
                                                               to_list()))
-        self.variables['oth_loan_month_avg_24m'] = df.loc[df['month_from_now'] <= 23].shape[0] /\
-            self.variables['oth_loan_apply_months_24m'] if self.variables['oth_loan_apply_months_24m'] > 0 else 0
+        self.variables['oth_loan_month_avg_24m'] = round(df.loc[df['month_from_now'] <= 23].shape[0] / \
+                                                   self.variables['oth_loan_apply_months_24m'], 2) if self.variables[
+                                                                                                      'oth_loan_apply_months_24m'] > 0 else 0
         month_list = list()
         # total_avg_list为所有已放款主体的近12月月均查询次数总体平均值
         total_avg_list = [0.3334148130041555,
@@ -143,11 +150,11 @@ class T31001(Transformer):
         for i in range(12):
             cnt = df.loc[df['month_from_now'] == i].shape[0]
             month_list.append(cnt)
-        avg = sum(month_list)/len(month_list)
+        avg = sum(month_list) / len(month_list)
         std = scipy.std(month_list)
         ttest, pval = ttest_rel(month_list, total_avg_list)
-        self.variables['oth_loan_month_1sigma_12m'] = len([x > avg+std for x in month_list])
-        self.variables['oth_loan_month_ttest_12m'] = ttest+pval-pval
+        self.variables['oth_loan_month_1sigma_12m'] = len([x > avg + std for x in month_list])
+        self.variables['oth_loan_month_ttest_12m'] = round(ttest + pval - pval, 4)
         return
 
     # 模型公式概率计算
@@ -223,13 +230,13 @@ class T31001(Transformer):
         model_df.loc[model_df['r_reason_else_6m'] < -3.0, 'r_reason_else_6m'] = -3.0
         model_df.loc[:, 'r_woe_reason_else_6m'] = 0
         model_df.loc[(-3.001 <= model_df['r_reason_else_6m']) & (
-                    model_df['r_reason_else_6m'] <= -1.5), 'r_woe_reason_else_6m'] = -1.1648465748979033
+                model_df['r_reason_else_6m'] <= -1.5), 'r_woe_reason_else_6m'] = -1.1648465748979033
         model_df.loc[(-1.5 < model_df['r_reason_else_6m']) & (
-                    model_df['r_reason_else_6m'] <= 0.5), 'r_woe_reason_else_6m'] = -0.50547489891745
+                model_df['r_reason_else_6m'] <= 0.5), 'r_woe_reason_else_6m'] = -0.50547489891745
         model_df.loc[(0.5 < model_df['r_reason_else_6m']) & (
-                    model_df['r_reason_else_6m'] <= 2.5), 'r_woe_reason_else_6m'] = 0.11176036196345397
+                model_df['r_reason_else_6m'] <= 2.5), 'r_woe_reason_else_6m'] = 0.11176036196345397
         model_df.loc[(2.5 < model_df['r_reason_else_6m']) & (
-                    model_df['r_reason_else_6m'] <= 23.0), 'r_woe_reason_else_6m'] = 1.5184678459723926
+                model_df['r_reason_else_6m'] <= 23.0), 'r_woe_reason_else_6m'] = 1.5184678459723926
         model_df.loc[pd.isnull(model_df['reason_else_6m']), 'r_woe_reason_else_6m'] = 0
         # Continuous Recoding: dec_1_12m ###
         model_df.loc[:, 'r_dec_1_12m'] = model_df['dec_1_12m'].fillna(1.0)
@@ -265,20 +272,21 @@ class T31001(Transformer):
         model_df.loc[pd.isnull(model_df['NONBANK_3m']), 'r_woe_nonbank_3m'] = 0
         # 模型公式计算
         logit1 = -2.593758 * model_df.loc[0, 'intercept'] + \
-            0.622697 * model_df.loc[0, 'r_woe_org_cnt_12m'] + \
-            0.459437 * model_df.loc[0, 'r_woe_p2p_3m'] + \
-            0.406185 * model_df.loc[0, 'r_woe_htl_9m']
+                 0.622697 * model_df.loc[0, 'r_woe_org_cnt_12m'] + \
+                 0.459437 * model_df.loc[0, 'r_woe_p2p_3m'] + \
+                 0.406185 * model_df.loc[0, 'r_woe_htl_9m']
         logit2 = -2.603892 * model_df.loc[0, 'intercept'] + \
-            0.337653 * model_df.loc[0, 'r_woe_reason_else_6m'] + \
-            0.532143 * model_df.loc[0, 'r_woe_dec_1_12m'] + \
-            0.47668 * model_df.loc[0, 'r_woe_nonbank_3m']
-        score1 = 1/(1+scipy.exp(-logit1))
-        score2 = 1/(1+scipy.exp(-logit2))
-        self.variables['oth_loan_model_score'] = score1+score2
+                 0.337653 * model_df.loc[0, 'r_woe_reason_else_6m'] + \
+                 0.532143 * model_df.loc[0, 'r_woe_dec_1_12m'] + \
+                 0.47668 * model_df.loc[0, 'r_woe_nonbank_3m']
+        score1 = 1 / (1 + scipy.exp(-logit1))
+        score2 = 1 / (1 + scipy.exp(-logit2))
+        self.variables['oth_loan_model_score'] = round(score1 + score2, 4)
         return
 
     # 执行变量转换
     def transform(self):
+        logger.info("t31001 transform.")
         other_loan_df = self._loan_other_df()
         self._basic_query_data(other_loan_df)
         self._duplicate_org_data(other_loan_df)
