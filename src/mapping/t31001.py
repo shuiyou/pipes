@@ -153,7 +153,7 @@ class T31001(Transformer):
         avg = sum(month_list) / len(month_list)
         std = scipy.std(month_list)
         ttest, pval = ttest_rel(month_list, total_avg_list)
-        self.variables['oth_loan_month_1sigma_12m'] = len([x > avg + std for x in month_list])
+        self.variables['oth_loan_month_1sigma_12m'] = len([x for x in month_list if x > avg + std])
         self.variables['oth_loan_month_ttest_12m'] = round(ttest + pval - pval, 4)
         return
 
