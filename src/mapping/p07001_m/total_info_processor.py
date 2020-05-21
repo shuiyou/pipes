@@ -82,9 +82,7 @@ class TotalInfoProcessor(ModuleProcessor):
         # 1.从pcredit_info中选取所有report_id=report_id的所有nonRevolloan_balance,revolcredit_balance,revolloan_balance,undestroy_used_limit,undestory_semi_overdraft;
         # 2.将1中所有字段值相加
         credit_info_df = self.cached_data["pcredit_info"]
-        df = credit_info_df.loc[:,
-             ["non_revolloan_balance", "revolcredit_balance", "revolloan_balance", "undestroy_used_limit",
-              "undestory_semi_overdraft"]]
+        df = credit_info_df.loc[:, ["non_revolloan_balance", "revolcredit_balance", "revolloan_balance", "undestroy_used_limit", "undestory_semi_overdraft"]]
         if df.empty:
             return
         value = df.sum().sum()
