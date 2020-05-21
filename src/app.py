@@ -46,7 +46,9 @@ def shake_hand():
 
 @app.route("/strategy", methods=['POST'])
 def strategy():
+    logger.info("strategy begin...")
     json_data = request.get_json()
+    logger.info("strategy param:%s", json_data)
     strategy_param = json_data.get('strategyParam')
     product_code = strategy_param.get('productCode')
     handler = _get_product_handler(product_code)
