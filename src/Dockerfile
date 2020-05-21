@@ -1,14 +1,9 @@
-FROM amancevice/pandas:alpine
+FROM programize/python3.6.8-dlib
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
-
-RUN apk add gcc\
-            g++
-RUN apk add py3-scipy
-
 
 RUN pip3 install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED 1
