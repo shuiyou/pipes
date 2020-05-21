@@ -1,8 +1,8 @@
 -i https://mirrors.aliyun.com/pypi/simple
 Flask==1.0.3
 gunicorn==19.7.1
-numpy
-pandas
+numpy==1.16.3
+pandas==0.24.2
 python-dateutil==2.8.0
 python-logstash-async==1.6.4
 pytz==2019.1
