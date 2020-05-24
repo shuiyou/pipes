@@ -3,6 +3,12 @@ from product.date_time_util import before_n_month_date, after_n_month_date, befo
 import pandas as pd
 
 
+#     XB_MONTH("先息后本(按月)"),
+#     XB_QUARTER("先息后本(按季)"),
+#     XB_FIXED("先息后本(每x月定期还本y)"),
+#     D_INTEREST("等额本息"),
+#     D_PRINCIPAL("等额本金"),
+#     D_INTEREST_PRINCIPAL("等本等息"),
 class PcreditAccSpeculateView(ModuleProcessor):
 
     def process(self):
@@ -362,12 +368,12 @@ class PcreditAccSpeculateView(ModuleProcessor):
                                                                   ((pcredit_acc_speculate_df[
                                                                         'account_status'] != '1') & (
                                                                        pcredit_acc_speculate_df[
-                                                                           'loan_repay_type'].str.contains('先息后本')))]
+                                                                           'loan_repay_type'].str.contains('XB_')))]
         pcredit_acc_speculate_df_temp2 = pcredit_acc_speculate_df[(pcredit_acc_speculate_df['account_status'] == '1') |
                                                                   ((pcredit_acc_speculate_df[
                                                                         'account_status'] != '1') & (
                                                                        pcredit_acc_speculate_df[
-                                                                           'loan_repay_type'].str.contains('等额本息')))]
+                                                                           'loan_repay_type'].str.contains('D_INTEREST')))]
 
         max_temp_df = pd.merge(pcredit_loan_type_df, pcredit_acc_speculate_df_temp1, left_on='id',
                                right_on='record_id')
