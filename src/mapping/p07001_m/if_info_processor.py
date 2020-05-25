@@ -47,13 +47,8 @@ class IfInfoProcessor(ModuleProcessor):
         # 2.从ccs.cus_indiv中选择cus_name=name且cert_code=certificate_no的mobile,phone,fphone;
         # 3.若1中phone=2中任意结果,则phone_alt=0,否则1
         phone_his_df = self.cached_data["pcredit_phone_his"]
-        if phone_his_df.empty:
-            return
-        for row in phone_his_df.itertuples():
-            if pd.notna(row.phone) and row.phone == self.origin_data.get("phone"):
-                self.variables["phone_alt"] = 0
-                return
-        self.variables["phone_alt"] = 1
+        # 变更为手机总条数2020-05-25
+        self.variables["phone_alt"] = phone_his_df.shape[0]
 
     def _if_cert_no(self, credit_base_df, credit_person_df):
         # 1.从ccs.cus_indiv中选择所有cus_name=name的cert_code;
