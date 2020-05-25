@@ -54,7 +54,7 @@ def after_n_month_date(date,n):
     day = date.day
     if month+n < 13:
         target_year = year
-        target_month = month - n
+        target_month = month + n
     else:
         target_year = year+1
         target_month = month + n - 12

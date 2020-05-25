@@ -255,7 +255,7 @@ class PcreditLoanView(ModuleProcessor):
                 report_time_before_3_year, pcredit_acc_speculate_df)
             self.variables["total_principal_3y_ago"] = total_principal_list_3
             self.variables["max_terms_3y_ago"] = max_terms_list_3
-            self.variables["max_interest_rate_3y_ago"] = max_interest_rate_3y_ago_list
+            self.variables["max_interest_rate_3y_ago"] = [x if pd.notna(x) else 0 for x in max_interest_rate_3y_ago_list]
 
             total_principal_list_2, max_terms_list_2, max_interest_rate_2y_ago_list = self._total_principal(
                 account_org_list, loan_type_df,

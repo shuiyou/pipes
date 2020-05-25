@@ -1,3 +1,5 @@
+import datetime
+
 from mapping.module_processor import ModuleProcessor
 from product.date_time_util import before_n_month_date, after_n_month_date, before_n_year_date
 import pandas as pd
@@ -12,11 +14,11 @@ import pandas as pd
 class PcreditAccSpeculateView(ModuleProcessor):
 
     def process(self):
-        pass
+        self._get_pcredit_acc_speculate()
 
     def _get_pcredit_acc_speculate(self):
         pcredit_loan_df = self.cached_data.get("pcredit_loan")
-        pcredit_acc_speculate_df = self.cached_data.get["pcredit_acc_speculate"]
+        pcredit_acc_speculate_df = self.cached_data.get("pcredit_acc_speculate")
         pcredit_acc_speculate_df = self.acc_speculate_df_time_format(pcredit_acc_speculate_df)
         pcredit_acc_speculate_df_temp = pcredit_acc_speculate_df[pcredit_acc_speculate_df['account_status'] == '1']
         credit_base_info_df = self.cached_data.get("credit_base_info")
@@ -51,6 +53,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         loan_df_account_type_01_03 = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01', '02', '03'])]
 
         if not loan_df_account_type_01_05.empty:
+            loan_df_account_type_01_05 = loan_df_account_type_01_05.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
             loan_df_account_type_01_05 = pd.merge(loan_df_account_type_01_05, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
             # 信贷交易信息-资金压力解析-应还总额6个月前
@@ -126,14 +129,15 @@ class PcreditAccSpeculateView(ModuleProcessor):
                                                                        report_time_after_11_month)
             self.variables["total_repay_12m_after"] = total_repay_12m_after
             # 信贷交易信息-资金压力解析-过去6个月平均应还款
-            self.variables["average_repay_6m_before"] = '%.2f' % (
-                        total_repay_6m_before + total_repay_5m_before + total_repay_4m_before + total_repay_3m_before + total_repay_2m_before + total_repay_1m_before) / 6
+            self.variables["average_repay_6m_before"] = '%.2f' % ((
+                        total_repay_6m_before + total_repay_5m_before + total_repay_4m_before + total_repay_3m_before + total_repay_2m_before + total_repay_1m_before) / 6)
             # 信贷交易信息-资金压力解析-未来12个月平均应还款
-            self.variables["average_repay_12m_after"] = '%.2f' % (
+            self.variables["average_repay_12m_after"] = '%.2f' % ((
                         total_repay_1m_after + total_repay_2m_after + total_repay_3m_after + total_repay_4m_after + total_repay_5m_after + total_repay_6m_after + total_repay_7m_after +
-                        total_repay_8m_after + total_repay_9m_after + total_repay_10m_after + total_repay_11m_after + total_repay_12m_after) / 12
+                        total_repay_8m_after + total_repay_9m_after + total_repay_10m_after + total_repay_11m_after + total_repay_12m_after) / 12)
 
         if not loan_df_account_type_01_03.empty:
+            loan_df_account_type_01_03 = loan_df_account_type_01_03.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
             loan_df_account_type_01_03 = pd.merge(loan_df_account_type_01_03, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
             # 信贷交易信息-资金压力解析-应还贷款总额6个月前
@@ -359,7 +363,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         # 信贷交易信息-贷款信息-近五年经营性贷款余额变化-时间节点
         busi_loan_date_list = [report_time_before_4_year, report_time_before_3_year, report_time_before_2_year,
                                report_time_before_1_year, report_time_before_0_year]
-        self.variables["busi_loan_date"] = busi_loan_date_list
+        self.variables["busi_loan_date"] = list(map(lambda x: datetime.datetime.strftime(x, "%Y-%m-%d %H:%M:%S"), busi_loan_date_list))
         pcredit_loan_type_df = pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01', '02', '03'])) &
                                                ((pcredit_loan_df['loan_type'].isin(['01', '07', '99'])) | (
                                                            (pcredit_loan_df['loan_type'] == '04') & (
@@ -375,9 +379,10 @@ class PcreditAccSpeculateView(ModuleProcessor):
                                                                        pcredit_acc_speculate_df[
                                                                            'loan_repay_type'].str.contains('D_INTEREST')))]
 
-        max_temp_df = pd.merge(pcredit_loan_type_df, pcredit_acc_speculate_df_temp1, left_on='id',
+        pcredit_loan_type_df_temp = pcredit_loan_type_df.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
+        max_temp_df = pd.merge(pcredit_loan_type_df_temp, pcredit_acc_speculate_df_temp1, left_on='id',
                                right_on='record_id')
-        min_temp_df = pd.merge(pcredit_loan_type_df, pcredit_acc_speculate_df_temp2, left_on='id',
+        min_temp_df = pd.merge(pcredit_loan_type_df_temp, pcredit_acc_speculate_df_temp2, left_on='id',
                                right_on='record_id')
         busi_loan_balance_max_before_4_year = self.util_get_repay_n_month_before_loan_balance(max_temp_df,
                                                                                               report_time_before_4_year)
@@ -439,7 +444,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         else:
             return 0
 
-    def util_get_repay_n_month_before_loan_balance(self, df, date, param, param_value_list):
+    def util_get_repay_n_month_before_loan_balance(self, df, date, param=None, param_value_list=None):
         if not df.empty:
             year = date.year
             month = date.month

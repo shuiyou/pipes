@@ -2,13 +2,13 @@
     "strategyParam": {
         "reqNo": "Q388676688483090432",
         "stepReqNo": "S388676688512450560",
-        "preReportReqNo": "8378274324326",
+        "preReportReqNo": "8378274324329",
         "productCode": "07001",
         "versionNo": "1.0",
         "queryData": [
             {
-                "name": "施网明",
-                "idno": "310108196610024859",
+                "name": "徐秀花",
+                "idno": "462302388745801728",
                 "phone": "15921664870",
                 "userType": "PERSONAL",
                 "relation": "MAIN",
