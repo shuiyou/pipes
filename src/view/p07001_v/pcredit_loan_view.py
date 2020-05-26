@@ -3,7 +3,7 @@ from product.date_time_util import before_n_year_date, before_n_month_date, date
 import numpy as np
 import pandas as pd
 
-from util.common_util import format_timestamp
+from util.common_util import format_timestamp, replace_nan
 
 
 def get_credit_min_repay(df, repay_amount, amout_replay_amount):
@@ -108,9 +108,9 @@ class PcreditLoanView(ModuleProcessor):
                     '%.2f' % (credit_balance / total_balance) if total_balance > 0 else 0)
                 guar_type_balance_prop_list.append('%.2f' % (com_balance / total_balance) if total_balance > 0 else 0)
             self.variables["guar_type"] = guar_type_list
-            self.variables["guar_type_balance"] = guar_type_balance_list
-            self.variables["guar_type_cnt"] = guar_type_cnt_list
-            self.variables["guar_type_balance_prop"] = guar_type_balance_prop_list
+            self.variables["guar_type_balance"] = replace_nan(guar_type_balance_list)
+            self.variables["guar_type_cnt"] = replace_nan(guar_type_cnt_list)
+            self.variables["guar_type_balance_prop"] = replace_nan(guar_type_balance_prop_list)
             # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额
             ensure_max_principal = self._get_one_query_condition_max(loan_account_type_df, 'loan_guarantee_type',
                                                                      ['03', '04', '07'],
@@ -253,26 +253,25 @@ class PcreditLoanView(ModuleProcessor):
                 account_org_list, loan_type_df,
                 report_time_before_2_year,
                 report_time_before_3_year, pcredit_acc_speculate_df)
-            self.variables["total_principal_3y_ago"] = total_principal_list_3
-            self.variables["max_terms_3y_ago"] = max_terms_list_3
-            self.variables["max_interest_rate_3y_ago"] = [x if pd.notna(x) else 0 for x in
-                                                          max_interest_rate_3y_ago_list]
+            self.variables["total_principal_3y_ago"] = replace_nan(total_principal_list_3)
+            self.variables["max_terms_3y_ago"] = replace_nan(max_terms_list_3)
+            self.variables["max_interest_rate_3y_ago"] = replace_nan(max_interest_rate_3y_ago_list)
 
             total_principal_list_2, max_terms_list_2, max_interest_rate_2y_ago_list = self._total_principal(
                 account_org_list, loan_type_df,
                 report_time_before_1_year,
                 report_time_before_2_year, pcredit_acc_speculate_df)
-            self.variables["total_principal_2y_ago"] = total_principal_list_2
-            self.variables["max_terms_2y_ago"] = max_terms_list_2
-            self.variables["max_interest_rate_2y_ago"] = max_interest_rate_2y_ago_list
+            self.variables["total_principal_2y_ago"] = replace_nan(total_principal_list_2)
+            self.variables["max_terms_2y_ago"] = replace_nan(max_terms_list_2)
+            self.variables["max_interest_rate_2y_ago"] = replace_nan(max_interest_rate_2y_ago_list)
 
             total_principal_list_1, max_terms_list_1, max_interest_rate_1y_ago_list = self._total_principal(
                 account_org_list, loan_type_df,
                 report_time,
                 report_time_before_1_year, pcredit_acc_speculate_df)
-            self.variables["total_principal_1y_ago"] = total_principal_list_1
-            self.variables["max_terms_1y_ago"] = max_terms_list_1
-            self.variables["max_interest_rate_1y_ago"] = max_interest_rate_1y_ago_list
+            self.variables["total_principal_1y_ago"] = replace_nan(total_principal_list_1)
+            self.variables["max_terms_1y_ago"] = replace_nan(max_terms_list_1)
+            self.variables["max_interest_rate_1y_ago"] = replace_nan(max_interest_rate_1y_ago_list)
 
             df_temp = pd.merge(loan_type_df, pcredit_acc_speculate_df, left_on='id', right_on='record_id')
             df_temp_2_year = self.util_get_acc_speculate_n_year_before(df_temp, report_time_before_2_year, None, None)
@@ -344,25 +343,25 @@ class PcreditLoanView(ModuleProcessor):
             loan_account_type_df,
             report_time_before_2_year,
             report_time_before_3_month)
-        self.variables["new_org_3m_ago"] = account_org_list_3
-        self.variables["loan_type_3m_ago"] = loan_type_list_3
-        self.variables["principal_amount_3m_ago"] = principal_amount_list_3
+        self.variables["new_org_3m_ago"] = replace_nan(account_org_list_3)
+        self.variables["loan_type_3m_ago"] = replace_nan(loan_type_list_3)
+        self.variables["principal_amount_3m_ago"] = replace_nan(principal_amount_list_3)
         # 信贷交易信息-贷款信息-贷款申请新增机构-前6个月
         account_org_list_6, loan_type_list_6, principal_amount_list_6 = self._util_loan_account_org(
             loan_account_type_df,
             report_time_before_2_year,
             report_time_before_6_month)
-        self.variables["new_org_6m_ago"] = account_org_list_6
-        self.variables["loan_type_6m_ago"] = loan_type_list_6
-        self.variables["principal_amount_6m_ago"] = principal_amount_list_6
+        self.variables["new_org_6m_ago"] = replace_nan(account_org_list_6)
+        self.variables["loan_type_6m_ago"] = replace_nan(loan_type_list_6)
+        self.variables["principal_amount_6m_ago"] = replace_nan(principal_amount_list_6)
         # 信贷交易信息-贷款信息-贷款申请新增机构-前12个月
         account_org_list_12, loan_type_list_12, principal_amount_list_12 = self._util_loan_account_org(
             loan_account_type_df,
             report_time_before_2_year,
             report_time_before_12_month)
-        self.variables["new_org_12m_ago"] = account_org_list_12
-        self.variables["loan_type_12m_ago"] = loan_type_list_12
-        self.variables["principal_amount_12m_ago"] = principal_amount_list_12
+        self.variables["new_org_12m_ago"] = replace_nan(account_org_list_12)
+        self.variables["loan_type_12m_ago"] = replace_nan(loan_type_list_12)
+        self.variables["principal_amount_12m_ago"] = replace_nan(principal_amount_list_12)
 
     def _gua_loan(self, loan_gua_df):
         # 担保信息-担保信息明细-管理机构
@@ -372,9 +371,9 @@ class PcreditLoanView(ModuleProcessor):
         # 担保信息-担保信息明细-到期日期
         self.variables["guar_end_date"] = loan_gua_df.loc[:, 'end_date'].apply(lambda x: format_timestamp(x)).tolist()
         # 担保信息-担保信息明细-担保金额
-        self.variables["guar_principal_amount"] = loan_gua_df.loc[:, 'loan_amount'].tolist()
+        self.variables["guar_principal_amount"] = loan_gua_df.loc[:, 'loan_amount'].fillna(0).tolist()
         # 担保信息-担保信息明细-担保余额
-        self.variables["guar_loan_balance"] = loan_gua_df.loc[:, 'loan_balance'].tolist()
+        self.variables["guar_loan_balance"] = loan_gua_df.loc[:, 'loan_balance'].fillna(0).tolist()
         # 担保信息-担保信息明细-五级分类
         self.variables["guar_latest_category"] = loan_gua_df.loc[:, 'category'].tolist()
         # 担保信息-担保信息明细-管理机构个数
@@ -389,7 +388,7 @@ class PcreditLoanView(ModuleProcessor):
         self.variables["each_loan_date"] = report_time_before_2_year_df.loc[:, 'loan_date'].apply(
             lambda x: format_timestamp(x)).tolist()
         # 信贷交易信息-贷款信息-贷款趋势变化图-贷款发放额
-        self.variables["each_principal_amount"] = report_time_before_2_year_df.loc[:, 'loan_amount'].tolist()
+        self.variables["each_principal_amount"] = report_time_before_2_year_df.loc[:, 'loan_amount'].fillna(0).tolist()
         # 信贷交易信息-贷款信息-贷款趋势变化图-贷款利率
         each_interest_rate_list = []
         # 信贷交易信息-贷款信息-贷款趋势变化图-贷款类型
@@ -521,9 +520,9 @@ class PcreditLoanView(ModuleProcessor):
         loan_type_balance_prop_list.append(
             '%.2f' % (loan_mor_balance / loan_total_balance) if loan_total_balance > 0 else 0)
         self.variables["loan_type"] = loan_type_list
-        self.variables["loan_type_balance"] = loan_type_balance_list
-        self.variables["loan_type_cnt"] = loan_type_cnt_list
-        self.variables["loan_type_balance_prop"] = loan_type_balance_prop_list
+        self.variables["loan_type_balance"] = replace_nan(loan_type_balance_list)
+        self.variables["loan_type_cnt"] = replace_nan(loan_type_cnt_list)
+        self.variables["loan_type_balance_prop"] = replace_nan(loan_type_balance_prop_list)
 
     # 单查询条件，获取对应的结果
     def _get_one_query_condition_max(self, df, query_field, query_list, filter_field, method):
