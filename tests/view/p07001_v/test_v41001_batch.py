@@ -7,7 +7,7 @@ from util.mysql_reader import sql_to_df
 from view.v41001 import V41001
 
 
-def test_t41001_batch():
+def test_v41001_batch():
     sql = '''
         select * from credit_parse_request
         '''
@@ -26,13 +26,13 @@ def test_t41001_batch():
         # print("out_req_no:", out_req_no, " out_apply_no", out_apply_no, " report_id", report_id)
         processed_count = processed_count + 1
         t41001 = V41001()
-        cached_data={}
+        cached_data = {}
         origin_data = {
             "reqNo": "Q388676688483090432",
             "stepReqNo": "S388676688512450560",
             "preReportReqNo": out_req_no,
             "productCode": "07001",
-            "applyAmount":100000,
+            "applyAmount": 100000,
             "versionNo": "1.0",
             "extraParam": {
                 "marryState": "DIVORCE",
@@ -53,15 +53,15 @@ def test_t41001_batch():
     # Analyze
     titled_variables = variables_list[0]
     not_matched_var = []
-    matched_dict={}
-    matched_var=[]
+    matched_dict = {}
+    matched_var = []
     for key in titled_variables:
         find = False
         for variables in variables_list:
-            value=variables.get(key)
-            report_no=variables.get("report_no")
+            value = variables.get(key)
+            report_no = variables.get("report_no")
             if isinstance(value, int) and value > 0 and not matched_dict.__contains__(key):
-                matched_dict[key]=value
+                matched_dict[key] = value
                 matched_var.append(key)
                 print(key)
                 print(value)
@@ -73,7 +73,7 @@ def test_t41001_batch():
                 print(value)
                 print(report_no)
             elif isinstance(value, float) and value > 0 and not matched_dict.__contains__(key):
-                matched_dict[key] =value
+                matched_dict[key] = value
                 matched_var.append(key)
                 print(key)
                 print(value)
@@ -90,13 +90,9 @@ def test_t41001_batch():
         # if not find:
         #     not_matched_var.append(key)
 
-    not_matched_var=list(set(titled_variables).difference(set(matched_var)))
+    not_matched_var = list(set(titled_variables).difference(set(matched_var)))
 
     print("_________________________________RESULT_________________________________")
     print("总报告数：", processed_count, ", 总共变量为：", len(titled_variables), ", 未匹配到的变量个数：", len(not_matched_var))
     for v in not_matched_var:
         print("---- ", v)
-
-
-
-

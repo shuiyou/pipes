@@ -23,4 +23,4 @@ class BasicInfoView(ModuleProcessor):
         # 报告编号
         self.variables["report_no"] = basic_info_df.loc[0, 'report_no']
         # 报告时间
-        self.variables["report_time"] = format_timestamp(basic_info_df.loc[0, 'report_time'])
+        self.variables["report_time"] = basic_info_df.loc[0, 'report_time'].strftime('%Y-%m-%d %H:%M:%S')
