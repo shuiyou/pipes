@@ -62,7 +62,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
             self.variables["total_repay_6m_before"] = total_repay_6m_before
             # 信贷交易信息-资金压力解析-应还总额5个月前
             total_repay_5m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
-                                                                       report_time_before_6_month)
+                                                                       report_time_before_5_month)
             self.variables["total_repay_5m_before"] = total_repay_5m_before
             # 信贷交易信息-资金压力解析-应还总额4个月前
             total_repay_4m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
