@@ -37,7 +37,7 @@ GEARS_DB = {
     'port': os.getenv('DB_PORT', 3360),
     'db': os.getenv('DB_NAME', 'gears_external'),
 }
-'''
+
 
 GEARS_DB = {
     'user': os.getenv('DB_USER', 'gears_dev'),
@@ -46,6 +46,12 @@ GEARS_DB = {
     'port': os.getenv('DB_PORT', 3360),
     'db': os.getenv('DB_NAME', 'gears_dev'),
 }
+'''
 
-
-
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'gears_test'),
+    'pw': os.getenv('DB_PW', 'bd3by68u'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_test'),
+}

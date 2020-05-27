@@ -14,7 +14,7 @@ class PcreditPersonInfoView(ModuleProcessor):
         # 性别
         self.variables["sex"] = person_info_df.loc[0, 'sex']
         # 婚姻状态
-        self.variables["marriage_status"] = person_info_df.loc[0, 'marriage_status']
+        self.variables["info_marriage_status"] = person_info_df.loc[0, 'marriage_status']
         # 就业状态
         self.variables["employment"] = person_info_df.loc[0, 'employment']
         # 通讯地址

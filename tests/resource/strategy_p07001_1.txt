@@ -1,0 +1,29 @@
+{
+    "strategyParam":{
+        "reqNo":"Q462702153891479552",
+        "stepReqNo":"S462702154432544768",
+        "productCode":"07001",
+        "queryData":[
+            {
+                "id":13043,
+                "parentId":0,
+                "name":"李洁琼",
+                "idno":"360302197411071026",
+                "phone":"13661645777",
+                "userType":"PERSONAL",
+                "relation":"MAIN",
+                "extraParam":{
+                    "houseAddress":"户籍地址",
+                    "liveAddress":"居住地址",
+                    "marryState":"MARRIED",
+                    "postalAddress":"通讯地址",
+                    "spouseIdNo":"36252419901105652",
+                    "spouseName":"花木兰"
+                }
+            }
+        ],
+        "preReportReqNo":"4783274827342343602",
+        "versionNo":"1.0"
+    },
+    "strategyResult":null
+}
