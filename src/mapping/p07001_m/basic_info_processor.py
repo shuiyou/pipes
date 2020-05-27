@@ -74,15 +74,18 @@ class BasicInfoProcessor(ModuleProcessor):
         '''
         credit_loan_df = self.cached_data.get("pcredit_loan")
         repayment_df = self.cached_data.get("pcredit_repayment")
+        acc_speculate_df = self.cached_data.get("pcredit_acc_speculate")
 
-        if credit_loan_df.empty or repayment_df.empty:
+        if credit_loan_df.empty or repayment_df.empty or acc_speculate_df.empty:
             return
-        # TODO 等额本息需要从pcredit_acc_speculate中获取
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
-                                              '"99"] or (loan_type == "04" and loan_amount>200000)) and '
-                                              'loan_repay_type.str.contains("等额本息")')
+                                              '"99"] or (loan_type == "04" and loan_amount>200000)) ')
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        credit_loan_df = credit_loan_df.rename(columns={"id": "loan_id", "loan_repay_type": "loan_repay_type_temp"})
+        merged_df = pd.merge(credit_loan_df, acc_speculate_df, left_on="loan_id", right_on="record_id")
+        merged_df = merged_df.query('loan_repay_type in ["D_INTEREST"]')
+
+        repayment_df = repayment_df.query('record_id in ' + str(list(merged_df.loan_id)))
 
         digit_status_list = [0]
         for row in repayment_df.itertuples():
