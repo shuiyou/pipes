@@ -527,13 +527,16 @@ class PcreditLoanView(ModuleProcessor):
     # 单查询条件，获取对应的结果
     def _get_one_query_condition_max(self, df, query_field, query_list, filter_field, method):
         df_temp = df[df[query_field].isin(query_list)]
+        value = 0
         if not df_temp.empty:
             if method == 'max':
-                return df_temp.loc[:, filter_field].max()
+                value = df_temp.loc[:, filter_field].max()
             elif method == 'min':
-                return df_temp.loc[:, filter_field].min()
+                value = df_temp.loc[:, filter_field].min()
             elif method == 'sum':
-                return df_temp.loc[:, filter_field].sum()
+                value = df_temp.loc[:, filter_field].sum()
+        if pd.notna(value):
+            return value
         return 0
 
     def _util_loan_account_org(self, loan_account_type_df, date1, date2):
