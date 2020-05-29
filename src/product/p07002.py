@@ -20,6 +20,4 @@ class P07002(P07001):
         super().shake_hand_process()
 
     def strategy_process(self):
-        # TODO 测试Defensor的超时时间
-        time.sleep(120)
         super().strategy_process()
