@@ -2,6 +2,8 @@
 # @Author : lixiaobo
 # @File : p07002.py 
 # @Software: PyCharm
+import time
+
 from logger.logger_util import LoggerUtil
 from product.p07001 import P07001
 
@@ -18,4 +20,6 @@ class P07002(P07001):
         super().shake_hand_process()
 
     def strategy_process(self):
+        # TODO 测试Defensor的超时时间
+        time.sleep(120)
         super().strategy_process()

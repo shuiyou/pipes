@@ -1,28 +1,28 @@
 {
     "strategyParam":{
-        "reqNo":"Q462702153891479552",
-        "stepReqNo":"S462702154432544768",
-        "productCode":"07001",
+        "reqNo":"Q463744206746320896",
+        "stepReqNo":"S463744206763098112",
+        "productCode":"07002",
         "queryData":[
             {
-                "id":13043,
+                "id":29804,
                 "parentId":0,
-                "name":"李洁琼",
-                "idno":"360302197411071026",
-                "phone":"13661645777",
+                "name":"谷成应",
+                "idno":"342201197006098010",
+                "phone":"13305571222",
                 "userType":"PERSONAL",
                 "relation":"MAIN",
                 "extraParam":{
-                    "houseAddress":"户籍地址",
-                    "liveAddress":"居住地址",
+                    "houseAddress":"安徽省宿州市墉桥区蒿沟乡灰苗路2-091号",
+                    "liveAddress":"安徽省宿州市墉桥区香林丽景湾小区25栋1004室",
                     "marryState":"MARRIED",
-                    "postalAddress":"通讯地址",
-                    "spouseIdNo":"36252419901105652",
-                    "spouseName":"花木兰"
+                    "postalAddress":"安徽省宿州市墉桥区香林丽景湾小区25栋1004室",
+                    "spouseIdNo":"342201197604010429",
+                    "spouseName":"邵静"
                 }
             }
         ],
-        "preReportReqNo":"4783274827342343602",
+        "preReportReqNo":"45698789654278123890529002",
         "versionNo":"1.0"
     },
     "strategyResult":null
