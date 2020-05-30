@@ -44,7 +44,7 @@ class V41001(Transformer):
             "spouse_certificate_no": "",
             "extension_number": "",
             "category": "",
-            "default_type": "",
+            "default_type": [],
             "rhzx_business_loan_overdue_cnt": "",
             "business_loan_overdue_money": "",
             "loan_overdue_2times_cnt": "",
