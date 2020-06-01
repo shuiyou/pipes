@@ -1,0 +1,30 @@
+{
+    "strategyParam":{
+        "reqNo":"Q464880630644244480",
+        "stepReqNo":"S464880630925262848",
+        "productCode":"07001",
+        "queryData":[
+            {
+                "id":29972,
+                "parentId":0,
+                "name":"郭旺平",
+                "idno":"440823198010050076",
+                "phone":"13824420488",
+                "userType":"PERSONAL",
+                "applyAmo":10,
+                "relation":"MAIN",
+                "extraParam":{
+                    "houseAddress":"广东省遂溪县港门镇人民路教办宿舍41号NCIIC",
+                    "liveAddress":"",
+                    "marryState":"MARRIED",
+                    "postalAddress":"中国广东省广州市番禺区钟村镇谢村大岗路九巷2号",
+                    "spouseIdNo":"",
+                    "spouseName":""
+                }
+            }
+        ],
+        "preReportReqNo":"45698789654278123890528004",
+        "versionNo":"1.0"
+    },
+    "strategyResult":null
+}
