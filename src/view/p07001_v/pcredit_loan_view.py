@@ -121,7 +121,7 @@ class PcreditLoanView(ModuleProcessor):
                                                                    ['01', '02'],
                                                                    'loan_balance', 'max')
             self.variables["mort_max_principal"] = mort_max_principal
-            apply_amount = self.origin_data.get("applyAmount")
+            apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额是我司申请金额倍数
                 self.variables["ensure_principal_multi_apply"] = round(ensure_max_principal / apply_amount,
