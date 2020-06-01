@@ -10,7 +10,7 @@ def test_t41001_mapping():
     origin_data = {
         "reqNo": "Q388676688483090432",
         "stepReqNo": "S388676688512450560",
-        "preReportReqNo": "8378274324326",
+        "preReportReqNo": "47832748273423436022",
         "productCode": "07001",
         "versionNo": "1.0",
         "extraParam": {

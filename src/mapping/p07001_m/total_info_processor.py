@@ -40,9 +40,9 @@ class TotalInfoProcessor(ModuleProcessor):
         status_list = []
         for index, row in repayment_df.iterrows():
             if row["status"] and row["status"].isdigit():
-                if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
+                if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                     status_list.append(int(row["status"]))
-        self.variables["total_consume_loan_overdue_cnt_5y"] = 0 if len(status_list) == 0 else max(status_list)
+        self.variables["total_consume_loan_overdue_cnt_5y"] = len(status_list)
 
     # 消费贷5年内总逾期金额
     def _total_consume_loan_overdue_money_5y(self):
@@ -51,6 +51,9 @@ class TotalInfoProcessor(ModuleProcessor):
         # 3.将2中所有结果加总
         credit_loan = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data["pcredit_repayment"]
+        account_type = ["01", "02", "03"]
+        loan_type = ["02", "03", "04", "05", "06"]
+        credit_loan = credit_loan.query('account_type in ' + str(account_type) + 'and loan_type in ' + str(loan_type))
 
         if credit_loan.empty or repayment_df.empty:
             return

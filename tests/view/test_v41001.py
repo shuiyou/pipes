@@ -11,7 +11,7 @@ def test_v41001():
     phone = "15921664870"
     cached_data = {}
     origin_data = {
-        "preReportReqNo": "47832748273423435",
+        "preReportReqNo": "45698789654278123890529002",
         "productCode": "07001",
         "versionNo": "1.0",
         "name": "施网明",
