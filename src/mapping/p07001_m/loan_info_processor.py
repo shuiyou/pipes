@@ -216,7 +216,8 @@ class LoanInfoProcessor(ModuleProcessor):
         loan_df = loan_df.query('account_type in ["01", "02", "03"]')
         if loan_df.empty or repayment_df.empty:
             return
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and repayment_amt > 0')
+        repayment_df["status"] = repayment_df["status"].fillna("")
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
         self.variables["loan_total_overdue_cnt"] = repayment_df.shape[0]
 
     # 贷款最大连续逾期
