@@ -56,85 +56,89 @@ class PcreditAccSpeculateView(ModuleProcessor):
             loan_df_account_type_01_05 = loan_df_account_type_01_05.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
             loan_df_account_type_01_05 = pd.merge(loan_df_account_type_01_05, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
+            undestory_avg_use = pcredit_info_df.loc[:, 'undestory_avg_use'].sum()
+            undestory_semi_avg_overdraft = pcredit_info_df.loc[:, 'undestory_semi_avg_overdraft'].sum()
+            repay_credit_n_month = undestory_avg_use + undestory_semi_avg_overdraft
             # 信贷交易信息-资金压力解析-应还总额6个月前
             total_repay_6m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_6_month)
-            self.variables["total_repay_6m_before"] = total_repay_6m_before
+            self.variables["total_repay_6m_before"] = total_repay_6m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额5个月前
             total_repay_5m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_5_month)
-            self.variables["total_repay_5m_before"] = total_repay_5m_before
+            self.variables["total_repay_5m_before"] = total_repay_5m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额4个月前
             total_repay_4m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_4_month)
-            self.variables["total_repay_4m_before"] = total_repay_4m_before
+            self.variables["total_repay_4m_before"] = total_repay_4m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额3个月前
             total_repay_3m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_3_month)
-            self.variables["total_repay_3m_before"] = total_repay_3m_before
+            self.variables["total_repay_3m_before"] = total_repay_3m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额2个月前
             total_repay_2m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_2_month)
-            self.variables["total_repay_2m_before"] = total_repay_2m_before
+            self.variables["total_repay_2m_before"] = total_repay_2m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额1个月前
             total_repay_1m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_1_month)
-            self.variables["total_repay_1m_before"] = total_repay_1m_before
+            self.variables["total_repay_1m_before"] = total_repay_1m_before+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额1个月后
             total_repay_1m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time)
-            self.variables["total_repay_1m_after"] = total_repay_1m_after
+            self.variables["total_repay_1m_after"] = total_repay_1m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额2个月后
             total_repay_2m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_1_month)
-            self.variables["total_repay_2m_after"] = total_repay_2m_after
+            self.variables["total_repay_2m_after"] = total_repay_2m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额3个月后
             total_repay_3m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_2_month)
-            self.variables["total_repay_3m_after"] = total_repay_3m_after
+            self.variables["total_repay_3m_after"] = total_repay_3m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额4个月后
             total_repay_4m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_3_month)
-            self.variables["total_repay_4m_after"] = total_repay_4m_after
+            self.variables["total_repay_4m_after"] = total_repay_4m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额5个月后
             total_repay_5m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_4_month)
-            self.variables["total_repay_5m_after"] = total_repay_5m_after
+            self.variables["total_repay_5m_after"] = total_repay_5m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额6个月后
             total_repay_6m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_5_month)
-            self.variables["total_repay_6m_after"] = total_repay_6m_after
+            self.variables["total_repay_6m_after"] = total_repay_6m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额7个月后
             total_repay_7m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_6_month)
-            self.variables["total_repay_7m_after"] = total_repay_7m_after
+            self.variables["total_repay_7m_after"] = total_repay_7m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额8个月后
             total_repay_8m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_7_month)
-            self.variables["total_repay_8m_after"] = total_repay_8m_after
+            self.variables["total_repay_8m_after"] = total_repay_8m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额9个月后
             total_repay_9m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                       report_time_after_8_month)
-            self.variables["total_repay_9m_after"] = total_repay_9m_after
+            self.variables["total_repay_9m_after"] = total_repay_9m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额10个月后
             total_repay_10m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_after_9_month)
-            self.variables["total_repay_10m_after"] = total_repay_10m_after
+            self.variables["total_repay_10m_after"] = total_repay_10m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额11个月后
             total_repay_11m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_after_10_month)
-            self.variables["total_repay_11m_after"] = total_repay_11m_after
+            self.variables["total_repay_11m_after"] = total_repay_11m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-应还总额12个月后
             total_repay_12m_after = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_after_11_month)
-            self.variables["total_repay_12m_after"] = total_repay_12m_after
+            self.variables["total_repay_12m_after"] = total_repay_12m_after+repay_credit_n_month
             # 信贷交易信息-资金压力解析-过去6个月平均应还款
             self.variables["average_repay_6m_before"] = '%.2f' % ((
-                        total_repay_6m_before + total_repay_5m_before + total_repay_4m_before + total_repay_3m_before + total_repay_2m_before + total_repay_1m_before) / 6)
+                        total_repay_6m_before + total_repay_5m_before + total_repay_4m_before +
+                        total_repay_3m_before + total_repay_2m_before + total_repay_1m_before) / 6+repay_credit_n_month)
             # 信贷交易信息-资金压力解析-未来12个月平均应还款
             self.variables["average_repay_12m_after"] = '%.2f' % ((
                         total_repay_1m_after + total_repay_2m_after + total_repay_3m_after + total_repay_4m_after + total_repay_5m_after + total_repay_6m_after + total_repay_7m_after +
-                        total_repay_8m_after + total_repay_9m_after + total_repay_10m_after + total_repay_11m_after + total_repay_12m_after) / 12)
+                        total_repay_8m_after + total_repay_9m_after + total_repay_10m_after + total_repay_11m_after + total_repay_12m_after) / 12+repay_credit_n_month)
 
         if not loan_df_account_type_01_03.empty:
             loan_df_account_type_01_03 = loan_df_account_type_01_03.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
@@ -320,9 +324,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
             self.variables["repay_installment_12m_after"] = self.util_get_repay_n_month_before(
                 loan_df_account_type_01_03, report_time_after_11_month, 'loan_repay_type', ['D_INTEREST', 'D_PRINCIPAL', 'D_INTEREST_PRINCIPAL'])
 
-        undestory_avg_use = pcredit_info_df.loc[:, 'undestory_avg_use'].sum()
-        undestory_semi_avg_overdraft = pcredit_info_df.loc[:, 'undestory_semi_avg_overdraft'].sum()
-        repay_credit_n_month = undestory_avg_use + undestory_semi_avg_overdraft
+
         # 信贷交易信息-资金压力解析-应还贷记卡6个月前
         self.variables["repay_credit_6m_before"] = repay_credit_n_month
         # 信贷交易信息-资金压力解析-应还贷记卡5个月前
