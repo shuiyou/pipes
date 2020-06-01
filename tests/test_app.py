@@ -109,6 +109,11 @@ def test_strategy_07001_1(client):
     strategy_request(client, "07001_1")
 
 
+# 征信报告请求
+def test_strategy_07001_2(client):
+    strategy_request(client, "07001_2")
+
+
 # 征信拦截请求
 def test_strategy_07002(client):
     strategy_request(client, "07002")
