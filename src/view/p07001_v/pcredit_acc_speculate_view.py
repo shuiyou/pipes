@@ -52,13 +52,14 @@ class PcreditAccSpeculateView(ModuleProcessor):
             pcredit_loan_df['account_type'].isin(['01', '02', '03', '04', '05'])]
         loan_df_account_type_01_03 = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01', '02', '03'])]
 
+        undestory_avg_use = pcredit_info_df.loc[:, 'undestory_avg_use'].sum()
+        undestory_semi_avg_overdraft = pcredit_info_df.loc[:, 'undestory_semi_avg_overdraft'].sum()
+        repay_credit_n_month = undestory_avg_use + undestory_semi_avg_overdraft
+
         if not loan_df_account_type_01_05.empty:
             loan_df_account_type_01_05 = loan_df_account_type_01_05.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
             loan_df_account_type_01_05 = pd.merge(loan_df_account_type_01_05, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
-            undestory_avg_use = pcredit_info_df.loc[:, 'undestory_avg_use'].sum()
-            undestory_semi_avg_overdraft = pcredit_info_df.loc[:, 'undestory_semi_avg_overdraft'].sum()
-            repay_credit_n_month = undestory_avg_use + undestory_semi_avg_overdraft
             # 信贷交易信息-资金压力解析-应还总额6个月前
             total_repay_6m_before = self.util_get_repay_n_month_before(loan_df_account_type_01_05,
                                                                        report_time_before_6_month)
