@@ -14,4 +14,4 @@ class PcreditBizInfoView(ModuleProcessor):
         if biz_type_df is None or biz_type_df.empty:
             return
         biz_type_df = biz_type_df.sort_values(by='biz_first_month')
-        self.variables["biz_first_month"] = biz_type_df.loc[:, 'biz_first_month'].tolist()[0]
+        self.variables["biz_firstmonth"] = biz_type_df.loc[:, 'biz_first_month'].tolist()[0]
