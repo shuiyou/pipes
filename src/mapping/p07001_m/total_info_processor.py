@@ -21,28 +21,27 @@ class TotalInfoProcessor(ModuleProcessor):
 
     # 消费贷5年内总逾期次数
     def _total_consume_loan_overdue_cnt_5y(self):
-        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且loan_type=02,03,04,05,06的id;
-        # 2.对每一个id,count(pcredit_payment中record_id=id且status是数字且还款时间在report_time五年内的记录);
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=01,02,03且(loan_type=02,03,05,06或者(loan_type=04且loan_amount<=200000))的id
+        # 2.对每一个id,count(pcredit_payment中record_id=id且repayment_amt>0且还款时间在report_time五年内的记录)
         # 3.将2中所有结果加总
-        account_type = ["01", "02", "03"]
-        loan_type = ["02", "03", "04", "05", "06"]
-
-        loan_df = self.cached_data["pcredit_loan"]
-        loan_df = loan_df.query('account_type in ' + str(account_type) + 'and loan_type in ' + str(loan_type))
-
+        credit_loan_df = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data.get("pcredit_repayment")
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
-
-        if repayment_df is None or repayment_df.empty:
+        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
+                                              'and (loan_type in ["02", "03", "05", "06"]'
+                                              ' or (loan_type == "04" and loan_amount <= 200000))')
+        if credit_loan_df.empty:
             return
 
-        report_time = self.cached_data["report_time"]
-        status_list = []
-        for index, row in repayment_df.iterrows():
-            if row["status"] and row["status"].isdigit():
-                if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
-                    status_list.append(int(row["status"]))
-        self.variables["total_consume_loan_overdue_cnt_5y"] = len(status_list)
+        repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        if repayment_df is not None:
+            count = 0
+            report_time = self.cached_data["report_time"]
+            for index, row in repayment_df.iterrows():
+                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 0) \
+                        or (pd.notna(row["status"]) and row["status"].isdigit()):
+                    if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
+                        count = count + 1
+            self.variables["total_consume_loan_overdue_cnt_5y"] = count
 
     # 消费贷5年内总逾期金额
     def _total_consume_loan_overdue_money_5y(self):

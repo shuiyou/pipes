@@ -90,6 +90,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
             consume_loan_overdue_cnt_5y_df = self._util_filter_n_year_df(consume_loan_overdue_cnt_5y_merge, report_time,
                                                                          5)
             if not consume_loan_overdue_cnt_5y_df.empty:
+                # 不准确，参考决策入参变量
                 self.variables["total_consume_loan_overdue_cnt_5y"] = consume_loan_overdue_cnt_5y_df.shape[0]
 
                 # 征信不良信息-逾期信息-消费贷5年内总逾期金额
