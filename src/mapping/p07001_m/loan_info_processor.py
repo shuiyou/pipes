@@ -80,7 +80,8 @@ class LoanInfoProcessor(ModuleProcessor):
             count = 0
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if pd.notna(row["repayment_amt"]):
+                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 0) \
+                        or (pd.notna(row["status"]) and row["status"].isdigit()):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["loan_consume_overdue_5year"] = count
@@ -217,7 +218,8 @@ class LoanInfoProcessor(ModuleProcessor):
         if loan_df.empty or repayment_df.empty:
             return
         repayment_df["status"] = repayment_df["status"].fillna("")
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id))
+                                          + ' and (repayment_amt > 0 or status.str.isdigit())')
         self.variables["loan_total_overdue_cnt"] = repayment_df.shape[0]
 
     # 贷款最大连续逾期
