@@ -2,7 +2,7 @@
     "strategyParam": {
         "reqNo": "Q388676688483090432",
         "stepReqNo": "S388676688512450560",
-        "preReportReqNo": "8378274324329",
+        "preReportReqNo": "45699654278123890602013",
         "productCode": "07001",
         "versionNo": "1.0",
         "queryData": [
