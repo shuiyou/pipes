@@ -472,11 +472,11 @@ class PcreditLoanView(ModuleProcessor):
         # 个人信息-固定资产-按揭已归还
         self.variables["mort_settle_loan_date"] = loan_account_type_df[
                                                       (loan_account_type_df['loan_type'].isin(['03', '05', '06']))
-                                                      & (loan_account_type_df['loan_status'] == '03')].loc[:,
+                                                      & (loan_account_type_df['loan_status'] == '04')].loc[:,
                                                   'loan_date'].tolist()
         # 个人信息-固定资产-按揭未结清
         self.variables["mort_no_settle_loan_date"] = loan_account_type_df[(loan_account_type_df['loan_type'].isin(
-            ['03', '05', '06'])) & (loan_account_type_df['loan_status'] != '03')].loc[:, 'loan_date'].apply(
+            ['03', '05', '06'])) & (loan_account_type_df['loan_status'] != '04')].loc[:, 'loan_date'].apply(
             lambda x: format_timestamp(x)).tolist()
 
     def _loan_balance_distribution(self, loan_account_type_df):

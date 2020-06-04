@@ -186,9 +186,9 @@ class CreditInfoProcessor(ModuleProcessor):
 
     # 已激活贷记卡张数
     def _credit_activated_number(self):
-        # count(pcredit_loan中report_id=report_id且account_type=04,05且loan_status不等于3,62的记录)
+        # count(pcredit_loan中report_id=report_id且account_type=04,05且loan_status不等于07,08的记录)
         credit_loan_df = self.cached_data["pcredit_loan"]
-        df = credit_loan_df.query('account_type in ["04", "05"] and loan_status not in ["3", "62"]')
+        df = credit_loan_df.query('account_type in ["04", "05"] and loan_status not in ["07", "08"]')
         self.variables["credit_activated_number"] = df.shape[0]
 
     # 贷记卡最低还款张数
@@ -252,22 +252,26 @@ class CreditInfoProcessor(ModuleProcessor):
 
     #  贷记卡账户状态存在"呆账"
     def _credit_status_bad_cnt(self):
-        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=41,42的记录)
+        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=03的记录)
         loan_df = self.cached_data["pcredit_loan"]
-        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status in ["41", "42"]')
+        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status in ["03"]')
         self.variables["credit_status_bad_cnt"] = loan_df.shape[0]
 
     #  贷记卡账户状态存在"司法追偿"
     def _credit_status_legal_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=8的记录)
-        loan_df = self.cached_data["pcredit_loan"]
-        loan_df = loan_df.query('account_type in ["04", "05"] and loan_status == "8"')
-        self.variables["credit_status_legal_cnt"] = loan_df.shape[0]
+        pcredit_loan_df = self.cached_data["pcredit_loan"]
+        pcredit_special_df = self.cached_data["pcredit_special"]
+        pcredit_loan_df_temp = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['04', '05'])]
+        pcredit_special_df_temp = pcredit_special_df[pcredit_special_df['special_type'] == '8']
+        df_temp = pd.merge(pcredit_loan_df_temp, pcredit_special_df_temp, left_on='id', right_on='record_id',
+                           how='left')
+        self.variables['loan_status_legal_cnt'] = df_temp.shape[0]
 
     #  贷记卡账户状态存在"银行止付、冻结"
     def _credit_status_b_level_cnt(self):
-        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=5,"冻结"的记录)
+        # count(从pcredit_loan中report_id=report_id且account_type=04,05且loan_status=05,06的记录)
         loan_df = self.cached_data["pcredit_loan"]
         loan_df = loan_df.query('account_type in ["04", "05"] '
-                                'and (loan_status == "5" or loan_status.str.contains("冻结"))')
+                                'and (loan_status == "05" or loan_status == "06")')
         self.variables["credit_status_b_level_cnt"] = loan_df.shape[0]
