@@ -86,7 +86,7 @@ class T41001(Transformer):
             "if_postal_addr": 0,  # 与ccs通讯地址比对
             "if_residence_addr": 0,  # 与ccs户籍地址比对
             "if_live_addr": 0,  # 与ccs居住地址比对
-            "ployee": 0,  # 是否是员工
+            "if_employee": 0,  # 是否是员工
             "if_official": 0,  # 是否是公检法人员
             "if_spouse_name": 0,  # 与ccs配偶姓名匹配
             "if_spouse_cert_no": 0,  # 与ccs配偶身份证匹配
