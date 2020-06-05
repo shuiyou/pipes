@@ -242,20 +242,25 @@ class LoanInfoProcessor(ModuleProcessor):
 
     #  贷款账户状态存在"呆账"
     def _loan_status_bad_cnt(self):
-        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=41,42的记录)
-        self._loan_count(["01", "02", "03"], ["41", "42"], "loan_status_bad_cnt")
+        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=03的记录)
+        self._loan_count(["01", "02", "03"], ["03"], "loan_status_bad_cnt")
 
     #  贷款账户状态存在"司法追偿"
     def _loan_status_legal_cnt(self):
         # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=8的记录)
-        self._loan_count(["01", "02", "03"], ["8"], "loan_status_legal_cnt")
+        pcredit_loan_df = self.cached_data["pcredit_loan"]
+        pcredit_special_df = self.cached_data["pcredit_special"]
+        pcredit_loan_df_temp=pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01','02','03'])]
+        pcredit_special_df_temp=pcredit_special_df[pcredit_special_df['special_type']=='8']
+        df_temp=pd.merge(pcredit_loan_df_temp,pcredit_special_df_temp,left_on='id',right_on='record_id',how='left')
+        self.variables['loan_status_legal_cnt']=df_temp.shape[0]
 
     #  贷款账户状态存在"银行止付、冻结"
     def _loan_status_b_level_cnt(self):
-        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=5,"冻结"的记录)
+        # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=05,06的记录)
         loan_df = self.cached_data["pcredit_loan"]
         loan_df = loan_df.query('account_type in ["01", "02", "03"] '
-                                'and (loan_status == "5" or loan_status.str.contains("冻结"))')
+                                'and (loan_status == "05" or loan_status == "06")')
         self.variables["loan_status_b_level_cnt"] = loan_df.shape[0]
 
     def _loan_count(self, account_types, loan_status, var_name):
