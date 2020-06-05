@@ -200,9 +200,10 @@ class PcreditLoanView(ModuleProcessor):
                                                                   args=('repay_amount', 'amout_replay_amount'))
         self.variables['credit_min_repay'] = loan_credit_df.loc[:, 'credit_min_repay'].fillna(0).tolist()
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构个数
-        self.variables['credit_org_cnt'] = loan_credit_df.shape[0]
+        self.variables['credit_org_cnt'] = len(set(loan_credit_df.loc[:, 'account_org'].tolist()))
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总总授信额度
-        total_credit_card_limit = loan_credit_df.loc[:, 'loan_amount'].sum()
+        total_credit_card_limit = loan_credit_df[(loan_credit_df['loan_status'] != '07') |
+                                                 (loan_credit_df['currency'].str.contains('人民币'))].loc[:, 'loan_amount'].sum()
         self.variables["total_credit_card_limit"] = total_credit_card_limit
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总总已使用额度
         total_credit_quota_used = loan_credit_df.loc[:, 'quota_used'].sum()
@@ -501,17 +502,17 @@ class PcreditLoanView(ModuleProcessor):
             loan_type_list.append("经营性贷款")
             loan_busi_balance = loan_busi_df.loc[:, 'loan_balance'].sum()
             loan_type_balance_list.append(loan_busi_balance)
-            loan_type_cnt_list.append(loan_busi_df.shape[0])
+            loan_type_cnt_list.append(loan_busi_df[loan_busi_df['loan_balance'] > 0].shape[0])
         if not loan_con_df.empty:
             loan_type_list.append("消费性贷款")
             loan_con_balance = loan_con_df.loc[:, 'loan_balance'].sum()
             loan_type_balance_list.append(loan_con_balance)
-            loan_type_cnt_list.append(loan_con_df.shape[0])
+            loan_type_cnt_list.append(loan_con_df[loan_con_df['loan_balance'] > 0].shape[0])
         if not loan_mor_df.empty:
             loan_type_list.append("按揭类贷款")
             loan_mor_balance = loan_mor_df.loc[:, 'loan_balance'].sum()
             loan_type_balance_list.append(loan_mor_balance)
-            loan_type_cnt_list.append(loan_mor_df.shape[0])
+            loan_type_cnt_list.append(loan_mor_df[loan_mor_df['loan_balance'] > 0].shape[0])
         loan_total_balance = loan_busi_balance + loan_con_balance + loan_mor_balance
         loan_type_balance_prop_list.append(
             '%.2f' % (loan_busi_balance / loan_total_balance) if loan_total_balance > 0 else 0)

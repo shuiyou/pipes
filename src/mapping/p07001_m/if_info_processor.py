@@ -121,7 +121,7 @@ class IfInfoProcessor(ModuleProcessor):
         credit_profession_df = self.cached_data["pcredit_profession"]
         if credit_profession_df.empty:
             return
-        df = credit_profession_df.query('duty in ["3", "9"]')
+        df = credit_profession_df.query('duty in ["3"]')
 
         self.variables["if_employee"] = 1 if not df.empty else 0
 

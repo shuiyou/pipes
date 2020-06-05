@@ -30,9 +30,9 @@ class PcreditQueryRecordView(ModuleProcessor):
             # 查询信息-近三个月查询记录-保前审查记录条数
             self.variables["guar_query_cnt"] = df_3_month[df_3_month['reason'] == '08'].shape[0]
             # 查询信息-近三个月查询记录-资信审查记录条数
-            self.variables["loan_query_cnt"] = df_3_month[df_3_month['reason'].str.contains('资信审查')].shape[0]
+            self.variables["loan_query_cnt"] = df_3_month[df_3_month['reason']=='13'].shape[0]
             # 查询信息-近三个月查询记录-本人查询记录条数
-            self.variables["self_query_cnt"] = df_3_month[df_3_month['reason'].str.contains('本人')].shape[0]
+            self.variables["self_query_cnt"] = df_3_month[df_3_month['reason']=='18'].shape[0]
         report_time_before_1_year = before_n_year_date(report_time, 1)
         df_1_year = df[df['jhi_time'] > report_time_before_1_year]
         if not df_1_year.empty:

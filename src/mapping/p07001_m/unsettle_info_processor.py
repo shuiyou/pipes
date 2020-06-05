@@ -56,7 +56,7 @@ class UnSettleInfoProcessor(ModuleProcessor):
         # count(pcredit_loan中report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))且loan_balance>0的记录)
         df = self.cached_data["pcredit_loan"]
         df = df.query('account_type in ["01", "02", "03"] '
-                      'and (loan_type in ["01", "07"] or (loan_type == "04" and loan_amount > 200000))'
+                      'and (loan_type in ["01", "07","99"] or (loan_type == "04" and loan_amount > 200000))'
                       ' and loan_balance > 0')
         self.variables["unsettled_busLoan_total_cnt"] = df.shape[0]
 
