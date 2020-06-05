@@ -188,7 +188,7 @@ class CreditInfoProcessor(ModuleProcessor):
     def _credit_activated_number(self):
         # count(pcredit_loan中report_id=report_id且account_type=04,05且loan_status不等于3,62的记录)
         credit_loan_df = self.cached_data["pcredit_loan"]
-        df = credit_loan_df.query('account_type in ["04", "05"] and loan_status not in ["3", "62"]')
+        df = credit_loan_df.query('account_type in ["04", "05"] and loan_status not in ["07", "08"]')
         self.variables["credit_activated_number"] = df.shape[0]
 
     # 贷记卡最低还款张数
