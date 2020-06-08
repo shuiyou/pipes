@@ -200,11 +200,10 @@ class LoanInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if pd.isna(row.status) or not row.status.isdigit():
+            if (pd.isna(row.status) or not row.status.isdigit()) and row.repayment_amt == 0:
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + 1
-
         self.variables["loan_now_overdue_cnt"] = count
 
     # 贷款历史总逾期次数
