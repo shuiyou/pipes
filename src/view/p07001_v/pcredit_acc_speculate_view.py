@@ -57,7 +57,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         repay_credit_n_month = undestory_avg_use + undestory_semi_avg_overdraft
 
         if not loan_df_account_type_01_05.empty:
-            loan_df_account_type_01_05 = loan_df_account_type_01_05.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
+            loan_df_account_type_01_05 = loan_df_account_type_01_05.drop(["repay_amount", "loan_repay_type", "loan_balance","account_status"], axis=1)
             loan_df_account_type_01_05 = pd.merge(loan_df_account_type_01_05, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
             # 信贷交易信息-资金压力解析-应还总额6个月前
@@ -142,7 +142,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
                         total_repay_8m_after + total_repay_9m_after + total_repay_10m_after + total_repay_11m_after + total_repay_12m_after) / 12+repay_credit_n_month)
 
         if not loan_df_account_type_01_03.empty:
-            loan_df_account_type_01_03 = loan_df_account_type_01_03.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
+            loan_df_account_type_01_03 = loan_df_account_type_01_03.drop(["repay_amount", "loan_repay_type", "loan_balance","account_status"], axis=1)
             loan_df_account_type_01_03 = pd.merge(loan_df_account_type_01_03, pcredit_acc_speculate_df_temp,
                                                   left_on='id', right_on='record_id')
             # 信贷交易信息-资金压力解析-应还贷款总额6个月前
@@ -382,7 +382,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
                                                                        pcredit_acc_speculate_df[
                                                                            'loan_repay_type'].str.contains('D_INTEREST')))]
 
-        pcredit_loan_type_df_temp = pcredit_loan_type_df.drop(["repay_amount", "loan_repay_type", "loan_balance"], axis=1)
+        pcredit_loan_type_df_temp = pcredit_loan_type_df.drop(["repay_amount", "loan_repay_type", "loan_balance","account_status"], axis=1)
         max_temp_df = pd.merge(pcredit_loan_type_df_temp, pcredit_acc_speculate_df_temp1, left_on='id',
                                right_on='record_id')
         min_temp_df = pd.merge(pcredit_loan_type_df_temp, pcredit_acc_speculate_df_temp2, left_on='id',
@@ -440,7 +440,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         if not df.empty:
             year = date.year
             month = date.month
-            df = df[(df['year'] == year) & (df['month'] == month)]
+            df = df[(df['year'] == year) & (df['month'] == month) & (df['account_status'] == '1')]
             if param is not None:
                 df = df[df[param].isin(param_value_list)]
             return df.loc[:, 'repay_amount'].sum()
@@ -451,7 +451,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         if not df.empty:
             year = date.year
             month = date.month
-            df = df[(df['year'] == year) & (df['month'] == month)]
+            df = df[(df['year'] == year) & (df['month'] == month) &(df['account_status'] == '1')]
             if param is not None:
                 df = df[df[param].isin(param_value_list)]
             return df.loc[:, 'loan_balance'].sum()

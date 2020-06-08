@@ -154,7 +154,7 @@ class PcreditLoanView(ModuleProcessor):
         loan_credit_df = loan_df[(loan_df['account_type'].isin(['04', '05'])) & (pd.notnull(loan_df['loan_date']))]
         if not loan_credit_df.empty:
             self._get_credit_loan_variables(loan_credit_df, report_time_before_1_year, report_time_before_2_year,
-                                            report_time_before_3_year)
+                                            report_time_before_3_year,report_time)
         if not credit_info_df.empty:
             undestroy_limit = self._check_is_null(credit_info_df.loc[0,'undestroy_limit'])
             undestory_semi_limit = self._check_is_null(credit_info_df.loc[0,'undestory_semi_limit'])
@@ -196,7 +196,7 @@ class PcreditLoanView(ModuleProcessor):
         return 0 if pd.isnull(value) else value
 
     def _get_credit_loan_variables(self, loan_credit_df, report_time_before_1_year, report_time_before_2_year,
-                                   report_time_before_3_year):
+                                   report_time_before_3_year,report_time):
         loan_credit_df = loan_credit_df.sort_values(by='loan_date', ascending=False)
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构
         self.variables["credit_org"] = loan_credit_df.loc[:, 'account_org'].tolist()
@@ -225,25 +225,25 @@ class PcreditLoanView(ModuleProcessor):
         self.variables['credit_org_cnt'] = len(set(loan_credit_df.loc[:, 'account_org'].tolist()))
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总最低还款张数
         self.variables["credit_min_repay_cnt"] = loan_credit_df[loan_credit_df['credit_min_repay'] == "是"].shape[0]
-        credit_limit_3, credit_cnt_3 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_3_year)
+        credit_limit_3, credit_cnt_3 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_3_year,report_time_before_2_year)
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化3年前总额度
         self.variables["total_credit_limit_3y_ago"] = credit_limit_3
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化3年前总张数
         self.variables["total_credit_cnt_3y_ago"] = credit_cnt_3
-        credit_limit_2, credit_cnt_2 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_2_year)
+        credit_limit_2, credit_cnt_2 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_2_year,report_time_before_1_year)
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化2年前总额度
         self.variables["total_credit_limit_2y_ago"] = credit_limit_2
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化2年前总张数
         self.variables["total_credit_cnt_2y_ago"] = credit_cnt_2
-        credit_limit_1, credit_cnt_1 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_1_year)
+        credit_limit_1, credit_cnt_1 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_1_year,report_time)
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化1年前总额度
         self.variables["total_credit_limit_1y_ago"] = credit_limit_1
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化1年前总张数
         self.variables["total_credit_cnt_1y_ago"] = credit_cnt_1
 
-    def _get_total_credit_limit_ny_ago(self, loan_credit_df, date):
+    def _get_total_credit_limit_ny_ago(self, loan_credit_df, date1,date2):
         credit_limit, credit_cnt = 0, 0
-        df = loan_credit_df[loan_credit_df['loan_date'] < date]
+        df = loan_credit_df[(loan_credit_df['loan_date'] < date2) & (loan_credit_df['loan_date'] >= date1) ]
         if not df.empty:
             credit_limit = df.loc[:, 'loan_amount'].sum()
             credit_cnt = df.shape[0]
