@@ -164,25 +164,35 @@ class CreditInfoProcessor(ModuleProcessor):
         # 2.计算max(sum(quota_used),sum(avg_overdraft_balance_6))/sum(loan_amount)
         # 3.统计满足条件repay_amount*2>amount_replay_amount的记录
         # 4.计算(3中结果+1)*min(2,2中结果)
+        credit_info_df = self.cached_data["pcredit_info"]
+        if credit_info_df.empty:
+            return
         credit_loan_df = self.cached_data["pcredit_loan"]
         df = credit_loan_df.query('account_type in ["04", "05"]')
         if df.empty:
             return
-        stats = df.sum()
-        quota_used = stats.quota_used
-        avg_overdraft_balance_6 = stats.avg_overdraft_balance_6
-        loan_amount = stats.loan_amount
-        max_v = 0
-        if loan_amount > 0:
-            max_v = max(quota_used, avg_overdraft_balance_6) / loan_amount
+        undestory_used_limit = self._check_is_null(credit_info_df.loc[0, 'undestory_used_limit'])
+        undestory_semi_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_overdraft'])
+        undestory_avg_use = self._check_is_null(credit_info_df.loc[0, 'undestory_avg_use'])
+        undestory_semi_avg_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_avg_overdraft'])
+        undestroy_limit = self._check_is_null(credit_info_df.loc[0, 'undestroy_limit'])
+        undestory_semi_limit = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_limit'])
+        if undestroy_limit + undestroy_limit > 0:
+            max_v = max(undestory_used_limit + undestory_semi_overdraft,
+                        undestory_avg_use + undestory_semi_avg_overdraft) / (undestroy_limit + undestory_semi_limit)
+        else:
+            max_v = 0
 
         count = 0
         df = df.fillna(0)
         for row in df.itertuples():
             if row.repay_amount * 2 > row.amout_replay_amount:
                 count = count + 1
-
         self.variables["credit_financial_tension"] = (max_v + 1) * min(2, count)
+
+    @staticmethod
+    def _check_is_null(value):
+        return 0 if pd.isnull(value) else value
 
     # 已激活贷记卡张数
     def _credit_activated_number(self):
@@ -227,7 +237,7 @@ class CreditInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if pd.isna(row.status) or not row.status.isdigit():
+            if (pd.isna(row.status) or not row.status.isdigit()) and row.repayment_amt == 0:
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + int(row.status)
@@ -246,7 +256,7 @@ class CreditInfoProcessor(ModuleProcessor):
         if loan_df.empty or repayment_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and repayment_amt > 0')
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit()) ')
         count = repayment_df.shape[0]
         self.variables["credit_total_overdue_cnt"] = count
 

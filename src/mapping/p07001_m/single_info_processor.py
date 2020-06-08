@@ -38,7 +38,7 @@ class SingleInfoProcessor(ModuleProcessor):
             report_time = self.cached_data["report_time"]
             status_list = []
             for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if row["status"] and row["status"].isdigit() or (row['repayment_amt'] and row['repayment_amt'] > 0):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["single_house_overdue_2year_cnt"] = 0 if len(status_list) == 0 else max(status_list)
@@ -63,7 +63,7 @@ class SingleInfoProcessor(ModuleProcessor):
             report_time = self.cached_data["report_time"]
             status_list = []
             for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if row["status"] and row["status"].isdigit() or (row['repayment_amt'] and row['repayment_amt'] > 0):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["single_car_overdue_2year_cnt"] = 0 if len(status_list) == 0 else max(status_list)
@@ -89,7 +89,7 @@ class SingleInfoProcessor(ModuleProcessor):
         if repayment_df is not None and not repayment_df.empty:
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if row["status"] and row["status"].isdigit() or (row['repayment_amt'] and row['repayment_amt'] > 0):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
                         count = count + 1
         self.variables["single_consume_overdue_2year_cnt"] = count
@@ -145,12 +145,13 @@ class SingleInfoProcessor(ModuleProcessor):
         if loan_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
-        if not repayment_df.empty:
-            report_time = self.cached_data["report_time"]
-            status_list = []
-            for index, row in repayment_df.iterrows():
-                if row["status"] and row["status"].isdigit():
-                    if after_ref_date(row.jhi_year, row.month, report_time.year - within_year, report_time.month):
-                        status_list.append(int(row["status"]))
-            self.variables[var_name] = 0 if len(status_list) == 0 else max(status_list)
+        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
+        self.variables[var_name] = repayment_df.groupby(by='record_id').apply(len).max()
+        # if not repayment_df.empty:
+        #     report_time = self.cached_data["report_time"]
+        #     status_list = []
+        #     for index, row in repayment_df.iterrows():
+        #         if row["status"] and row["status"].isdigit():
+        #             if after_ref_date(row.jhi_year, row.month, report_time.year - within_year, report_time.month):
+        #                 status_list.append(int(row["status"]))
+        #     self.variables[var_name] = 0 if len(status_list) == 0 else max(status_list)

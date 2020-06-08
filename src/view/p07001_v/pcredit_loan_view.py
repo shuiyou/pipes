@@ -30,6 +30,7 @@ class PcreditLoanView(ModuleProcessor):
         loan_df = loan_df[pd.notnull(loan_df['loan_date'])]
         loan_df['loan_date'] = loan_df['loan_date'].apply(lambda x: date_to_timestamp(x))
         credit_base_info_df = self.cached_data.get("credit_base_info")
+        credit_info_df = self.cached_data.get("pcredit_info")
         pcredit_acc_speculate_df = self.cached_data.get("pcredit_acc_speculate")
         pcredit_acc_speculate_df["year"] = pcredit_acc_speculate_df.repay_month.apply(lambda x: int(x[:4]))
         pcredit_acc_speculate_df["month"] = pcredit_acc_speculate_df.repay_month.apply(lambda x: int(x[5:]))
@@ -90,17 +91,17 @@ class PcreditLoanView(ModuleProcessor):
                 guar_type_list.append("抵质押类")
                 mort_balance = gua_mort_df.loc[:, 'loan_balance'].sum()
                 guar_type_balance_list.append(mort_balance)
-                guar_type_cnt_list.append(gua_mort_df.shape[0])
+                guar_type_cnt_list.append(gua_mort_df[gua_mort_df['loan_balance'] > 0].shape[0])
             if not gua_credit_df.empty:
                 guar_type_list.append("担保信用类")
                 credit_balance = gua_credit_df.loc[:, 'loan_balance'].sum()
                 guar_type_balance_list.append(credit_balance)
-                guar_type_cnt_list.append(gua_credit_df.shape[0])
+                guar_type_cnt_list.append(gua_credit_df[gua_credit_df['loan_balance'] > 0].shape[0])
             if not gua_com_df.empty:
                 guar_type_list.append("组合类")
                 com_balance = gua_com_df.loc[:, 'loan_balance'].sum()
                 guar_type_balance_list.append(com_balance)
-                guar_type_cnt_list.append(gua_com_df.shape[0])
+                guar_type_cnt_list.append(gua_com_df[gua_com_df['loan_balance'] > 0].shape[0])
             total_balance = mort_balance + credit_balance + com_balance
             if total_balance != 0:
                 guar_type_balance_prop_list.append('%.2f' % (mort_balance / total_balance) if total_balance > 0 else 0)
@@ -154,6 +155,23 @@ class PcreditLoanView(ModuleProcessor):
         if not loan_credit_df.empty:
             self._get_credit_loan_variables(loan_credit_df, report_time_before_1_year, report_time_before_2_year,
                                             report_time_before_3_year)
+        if not credit_info_df.empty:
+            undestroy_limit = self._check_is_null(credit_info_df.loc[0,'undestroy_limit'])
+            undestory_semi_limit = self._check_is_null(credit_info_df.loc[0,'undestory_semi_limit'])
+            undestory_used_limit = self._check_is_null(credit_info_df.loc[0, 'undestory_used_limit'])
+            undestory_semi_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_overdraft'])
+            undestory_avg_use = self._check_is_null(credit_info_df.loc[0, 'undestory_avg_use'])
+            undestory_semi_avg_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_avg_overdraft'])
+            total_credit_card_limit = undestroy_limit + undestory_semi_limit
+            self.variables['total_credit_card_limit'] = total_credit_card_limit
+            total_credit_quota_used = undestory_used_limit + undestory_semi_overdraft
+            self.variables['total_credit_quota_used'] = total_credit_quota_used
+            total_credit_avg_used_6m = undestory_avg_use + undestory_semi_avg_overdraft
+            self.variables['total_credit_avg_used_6m'] = total_credit_avg_used_6m
+            if total_credit_card_limit > 0:
+                self.variables['total_credit_usage_rate'] = max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
+
+
 
         # 征信不良信息-严重预警信息-五级分类状态
         self.variables["category"] = loan_df[(loan_df['account_type'].isin(['01', '02', '03', '04', '05']))
@@ -172,6 +190,10 @@ class PcreditLoanView(ModuleProcessor):
             lambda x: format_timestamp(x)).tolist()
         # 信贷交易信息-资金压力解析-提示-贷款金额
         self.variables["hint_principal_amount"] = loan_pressure_df.loc[:, 'loan_amount'].fillna(0).tolist()
+
+    @staticmethod
+    def _check_is_null(value):
+        return 0 if pd.isnull(value) else value
 
     def _get_credit_loan_variables(self, loan_credit_df, report_time_before_1_year, report_time_before_2_year,
                                    report_time_before_3_year):
@@ -201,21 +223,6 @@ class PcreditLoanView(ModuleProcessor):
         self.variables['credit_min_repay'] = loan_credit_df.loc[:, 'credit_min_repay'].fillna(0).tolist()
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构个数
         self.variables['credit_org_cnt'] = len(set(loan_credit_df.loc[:, 'account_org'].tolist()))
-        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总授信额度
-        total_credit_card_limit = loan_credit_df[(loan_credit_df['loan_status'] != '07') |
-                                                 (loan_credit_df['currency'].str.contains('人民币'))].loc[:, 'loan_amount'].sum()
-        self.variables["total_credit_card_limit"] = total_credit_card_limit
-        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总已使用额度
-        total_credit_quota_used = loan_credit_df.loc[:, 'quota_used'].sum()
-        self.variables["total_credit_quota_used"] = total_credit_quota_used
-        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总最近6个月平均使用额度
-        total_credit_avg_used_6m = loan_credit_df.loc[:, 'avg_overdraft_balance_6'].sum()
-        self.variables["total_credit_avg_used_6m"] = total_credit_avg_used_6m
-        # 信贷交易信息-贷记卡信息-贷记卡信息汇总总贷记卡使用率
-        self.variables["total_credit_usage_rate"] = round([total_credit_avg_used_6m, total_credit_quota_used][
-                                                              total_credit_quota_used > total_credit_avg_used_6m] \
-                                                          / total_credit_card_limit,
-                                                          2) if total_credit_card_limit > 0 else 0
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总最低还款张数
         self.variables["credit_min_repay_cnt"] = loan_credit_df[loan_credit_df['credit_min_repay'] == "是"].shape[0]
         credit_limit_3, credit_cnt_3 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_3_year)
@@ -322,8 +329,8 @@ class PcreditLoanView(ModuleProcessor):
             df_temp = df[df['account_org'] == org].reset_index(drop=True)
             df_temp = df_temp.fillna(0)
             if not df_temp.empty:
-                loan_amount = df_temp.loc[0, 'loan_amount']
-                repay_period = df_temp.loc[0, 'repay_period']
+                loan_amount = df_temp.loc[:, 'loan_amount'].sum()
+                repay_period = df_temp.loc[:, 'repay_period'].max()
                 df_temp1 = pd.merge(df_temp, pcredit_acc_speculate_df, left_on='id', right_on='record_id')
                 if not df_temp1.empty:
                     max_interest_rate_ago_list.append(df_temp1.loc[:, 'nominal_interest_rate'].max())
@@ -548,13 +555,11 @@ class PcreditLoanView(ModuleProcessor):
         df1 = loan_account_type_df[
             (loan_account_type_df['loan_date'] < date1) & (loan_account_type_df['loan_date'] >= date2)]
         df2 = loan_account_type_df[loan_account_type_df['loan_date'] >= date1]
-        account_org_list = list(
+        account_org_list_temp = list(
             set(df2.loc[:, 'account_org'].tolist()).difference(set(df1.loc[:, 'account_org'].tolist())))
         if len(account_org_list) > 0:
-            for org in account_org_list:
-                df_temp = df2[df2['account_org'] == org]
-                loan_type = df_temp.loc[:, 'loan_type'].tolist()[0]
-                loan_amount = df_temp.loc[:, 'loan_amount'].tolist()[0]
-                loan_type_list.append(loan_type)
-                principal_amount_list.append(loan_amount)
+            df3=df2[df2['account_org'].isin(account_org_list_temp)]
+            account_org_list = df3.loc[:, 'account_org'].tolist()
+            loan_type_list = df3.loc[:, 'loan_type'].tolist()
+            principal_amount_list = df3.loc[:, 'loan_amount'].tolist()
         return account_org_list, loan_type_list, principal_amount_list
