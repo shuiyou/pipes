@@ -146,7 +146,7 @@ class SingleInfoProcessor(ModuleProcessor):
             return
 
         repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
-        self.variables[var_name] = repayment_df.groupby(by='record_id').apply(len).max()
+        self.variables[var_name] = repayment_df.groupby(by='record_id').size().max()
         # if not repayment_df.empty:
         #     report_time = self.cached_data["report_time"]
         #     status_list = []
