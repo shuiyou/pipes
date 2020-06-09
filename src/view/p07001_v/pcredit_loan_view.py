@@ -556,8 +556,8 @@ class PcreditLoanView(ModuleProcessor):
         principal_amount_list = []
         loan_account_type_df = loan_account_type_df.sort_values(by='loan_date', ascending=False)
         df1 = loan_account_type_df[
-            (loan_account_type_df['loan_date'] < date1) & (loan_account_type_df['loan_date'] >= date2)]
-        df2 = loan_account_type_df[loan_account_type_df['loan_date'] >= date1]
+            (loan_account_type_df['loan_date'] >= date1) & (loan_account_type_df['loan_date'] < date2)]
+        df2 = loan_account_type_df[loan_account_type_df['loan_date'] >= date2]
         account_org_list_temp = list(
             set(df2.loc[:, 'account_org'].tolist()).difference(set(df1.loc[:, 'account_org'].tolist())))
         if len(account_org_list_temp) > 0:
