@@ -180,9 +180,12 @@ class PcreditLoanView(ModuleProcessor):
 
         # 信贷交易信息-资金压力解析-提示
         record_id_list = pcredit_acc_speculate_df[pcredit_acc_speculate_df['account_status'] == '1'].loc[:,
-                         'record_id'].drop_duplicates().values.tolist()
+                         'record_id'].tolist()
+        record_id_list = list(set(record_id_list))
         loan_pressure_df = loan_df[
-            (loan_df['account_type'].isin(['01', '02', '03'])) & (~loan_df['id'].isin(record_id_list))]
+            (loan_df['account_type'].isin(['01', '02', '03'])) &
+            (~loan_df['id'].isin(record_id_list)) &
+            (loan_df['loan_status'] != '04')]
         # 信贷交易信息-资金压力解析-提示-机构名
         self.variables["hint_account_org"] = loan_pressure_df.loc[:, 'account_org'].tolist()
         # 信贷交易信息-资金压力解析-提示-发放时间
@@ -557,7 +560,7 @@ class PcreditLoanView(ModuleProcessor):
         df2 = loan_account_type_df[loan_account_type_df['loan_date'] >= date1]
         account_org_list_temp = list(
             set(df2.loc[:, 'account_org'].tolist()).difference(set(df1.loc[:, 'account_org'].tolist())))
-        if len(account_org_list) > 0:
+        if len(account_org_list_temp) > 0:
             df3=df2[df2['account_org'].isin(account_org_list_temp)]
             account_org_list = df3.loc[:, 'account_org'].tolist()
             loan_type_list = df3.loc[:, 'loan_type'].tolist()
