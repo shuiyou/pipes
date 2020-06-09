@@ -38,9 +38,14 @@ def test_04():
 
 def test_05():
     ps = V41001()
-    run(ps, "310230196909156672")
-    assert ps.variables["loan_principal_100_200w_cnt"] == 1
-    assert ps.variables["oan_principal_200w_cnt"] == 2
+    run(ps, "421223199302020513")
+    print("new_org_6m_ago:"+str(ps.variables["new_org_6m_ago"]))
+    print("new_org_12m_ago:" + str(ps.variables["new_org_12m_ago"]))
+    print("loan_type_6m_ago:" + str(ps.variables["loan_type_6m_ago"]))
+    print("loan_amount_6m_ago:" + str(ps.variables["principal_amount_6m_ago"]))
+    print("loan_type_12m_ago:" + str(ps.variables["loan_type_12m_ago"]))
+    print("loan_amount_12m_ago:" + str(ps.variables["principal_amount_12m_ago"]))
+
 
 def test_06():
     ps = V41001()
