@@ -45,10 +45,10 @@ class UnSettleInfoProcessor(ModuleProcessor):
 
     # 未销户贷记卡发卡机构数
     def _uncancelled_credit_organization_number(self):
-        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05且loan_status不等于3的account_org
+        # 1.从pcredit_loan中选取所有report_id=report_id且account_type=04,05且loan_status不等于07的account_org
         # 2.统计1中不同account_org的数目
         credit_loan_df = self.cached_data["pcredit_loan"]
-        credit_loan_df = credit_loan_df.query('account_type in ["04", "05"] and loan_status != "3"')
+        credit_loan_df = credit_loan_df.query('account_type in ["04", "05"] and loan_status != "07"')
         self.variables["uncancelled_credit_organization_number"] = credit_loan_df.shape[0]
 
     # 未结清经营性贷款笔笔数
@@ -56,7 +56,7 @@ class UnSettleInfoProcessor(ModuleProcessor):
         # count(pcredit_loan中report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))且loan_balance>0的记录)
         df = self.cached_data["pcredit_loan"]
         df = df.query('account_type in ["01", "02", "03"] '
-                      'and (loan_type in ["01", "07"] or (loan_type == "04" and loan_amount > 200000))'
+                      'and (loan_type in ["01", "07","99"] or (loan_type == "04" and loan_amount > 200000))'
                       ' and loan_balance > 0')
         self.variables["unsettled_busLoan_total_cnt"] = df.shape[0]
 

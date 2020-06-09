@@ -231,11 +231,11 @@ class BasicInfoProcessor(ModuleProcessor):
 
     # 存在房贷提前结清
     def _house_loan_pre_settle(self):
-        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且loan_type=03,05,06且loan_status=3且expire_date<end_date),若结果=0,则变量=1,否则=0
+        # count(pcredit_loan中report_id=report_id且account_type=01,02,03且loan_type=03,05,06且loan_status=04且expire_date<end_date),若结果=0,则变量=1,否则=0
         credit_loan_df = self.cached_data["pcredit_loan"]
         df = credit_loan_df.query('account_type in ["01", "02", "03"] '
                                   'and loan_type in ["03", "05", "06"] '
-                                  'and loan_status == "3" '
+                                  'and loan_status == "04" '
                                   'and expiry_date < end_date')
         self.variables["house_loan_pre_settle"] = 1 if not df.empty else 0
 
