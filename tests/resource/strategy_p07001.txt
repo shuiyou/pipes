@@ -1,0 +1,27 @@
+{
+    "strategyParam": {
+        "reqNo": "Q388676688483090432",
+        "stepReqNo": "S388676688512450560",
+        "preReportReqNo": "45699654278123890602013",
+        "productCode": "07001",
+        "versionNo": "1.0",
+        "queryData": [
+            {
+                "name": "徐秀花",
+                "idno": "462302388745801728",
+                "phone": "15921664870",
+                "userType": "PERSONAL",
+                "relation": "MAIN",
+                "applyAmo": 222,
+                "extraParam": {
+                    "marryState": "DIVORCE",
+                    "postalAddress": "上海市",
+                    "houseAddress": "上海市",
+                    "liveAddress": "上海市",
+                    "spouseName": "配偶姓名",
+                    "spouseIdNo": "78572847328943"
+                }
+            }
+        ]
+    }
+}

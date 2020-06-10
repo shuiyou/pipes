@@ -2,6 +2,7 @@ import importlib
 import time
 
 from flask import Flask, request, jsonify
+from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
 from config import EUREKA_SERVER, version_info
@@ -17,7 +18,13 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-logger.info("Flask...")
+
+logger.info("init eureka client...")
+logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
+eureka_client.init(eureka_server=EUREKA_SERVER,
+                   app_name="PIPES",
+                   instance_port=8010)
+logger.info("eureka client started. center: %s", EUREKA_SERVER)
 
 
 @app.route("/biz-types", methods=['POST'])
@@ -39,7 +46,9 @@ def shake_hand():
 
 @app.route("/strategy", methods=['POST'])
 def strategy():
+    logger.info("strategy begin...")
     json_data = request.get_json()
+    logger.info("strategy param:%s", json_data)
     strategy_param = json_data.get('strategyParam')
     product_code = strategy_param.get('productCode')
     handler = _get_product_handler(product_code)

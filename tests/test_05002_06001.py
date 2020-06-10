@@ -4,6 +4,11 @@ import pandas as pd
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
+import math
+import time
+import datetime
+import json
+import numpy as np
 
 
 def test_ps_name_id():
@@ -85,3 +90,25 @@ def test_ps_crime_type():
     }))
     assert ps.variables['ps_illeg_crim'] == 1
     assert ps.variables['ps_illegal_record_time'] == 4
+
+
+def test_df():
+    data={'a':['2020-09','2020-05','2020-06','2020-07'],'c':['10','2','3','4'],'e':[2,2,3,4]}
+    df=pd.DataFrame(data)
+    # data1={"d":[1,3],"h":['aaa','bbb']}
+    # df1=pd.DataFrame(data1)
+    # df2=pd.merge(df,df1,left_on='a',right_on='d')
+    # df['d']=df.apply(get_credit_min_repay,axis=1,args=('a','c'))
+    print(df.groupby('e').size().max())
+
+
+
+def test_datetime():
+    pass
+
+
+
+def get_credit_min_repay(df,repay_amount,amount_replay_amount):
+    return ['否','是'][df[repay_amount]*2>df[amount_replay_amount]]
+
+

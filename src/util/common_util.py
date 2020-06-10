@@ -1,5 +1,7 @@
 import traceback
 
+import pandas as pd
+
 from logger.logger_util import LoggerUtil
 
 logger = LoggerUtil().logger(__name__)
@@ -28,3 +30,7 @@ def exception(describe):
                 logger.error(traceback.format_exc())
         return add_robust
     return robust
+
+
+def replace_nan(values):
+    return [x if pd.notna(x) else 0 for x in values]
