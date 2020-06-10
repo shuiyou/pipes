@@ -145,8 +145,16 @@ class SingleInfoProcessor(ModuleProcessor):
         if loan_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
-        self.variables[var_name] = repayment_df.groupby(by='record_id').size().max()
+        # repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) +
+        # ' and (repayment_amt > 0 or status.str.isdigit())')
+        report_time = self.cached_data["report_time"]
+        repayment_df = repayment_df[(repayment_df['jhi_year'] > report_time.year - within_year) &
+                                    (repayment_df['month'] >= report_time.month) &
+                                    (repayment_df['record_id'].isin(list(loan_df['id']))) &
+                                    ((repayment_df['repayment_amt'] > 0) |
+                                     (repayment_df['status'].str.isdigit()))]
+        if len(repayment_df) > 0:
+            self.variables[var_name] = repayment_df.groupby(by='record_id').size().max()
         # if not repayment_df.empty:
         #     report_time = self.cached_data["report_time"]
         #     status_list = []

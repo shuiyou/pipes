@@ -8,7 +8,7 @@ from util.mysql_reader import sql_to_df
 
 def test_t41001_mapping_by_report_id():
     t41001 = T41001()
-    df = sql_to_df(sql='select * from credit_parse_request where report_id = %(report_id)s', params={"report_id": "465510488084713472"})
+    df = sql_to_df(sql='select * from credit_parse_request where report_id = %(report_id)s', params={"report_id": "467685699416625152"})
     if df.empty:
         print("没查找到数据.")
         return
@@ -30,6 +30,7 @@ def test_t41001_mapping_by_report_id():
             "spouseIdNo": "78572847328943"
         }
     }
-    t41001.run(user_name='叶秀金', id_card_no='350321198606175281', phone='13277154945', origin_data=origin_data,
+    t41001.run(user_name='胡文文', id_card_no='340406199005021652', phone='15800426764', origin_data=origin_data,
                cached_data={})
-    print(t41001.variables)
+    print(t41001.variables['loan_status_legal_cnt'])
+    print(t41001.variables['if_employee'])
