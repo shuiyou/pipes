@@ -107,7 +107,8 @@ def test_df():
 
 
 def test_datetime():
-    pass
+    value="read_test.xlsx"
+    print(value[0:len(value)-4])
 
 
 
