@@ -121,9 +121,11 @@ class IfInfoProcessor(ModuleProcessor):
         credit_profession_df = self.cached_data["pcredit_profession"]
         if credit_profession_df.empty:
             return
-        df = credit_profession_df.query('duty in ["3"]')
+        duty = credit_profession_df.loc[:, 'duty'].to_list()
+        duty = [x for x in duty if x != '--' and pd.notnull(x)]
+        # df = credit_profession_df.query('duty in ["3"]')
 
-        self.variables["if_employee"] = 1 if not df.empty else 0
+        self.variables["if_employee"] = 1 if len(duty) != 0 and duty[0] == '3' else 0
 
     def _if_official(self, credit_base_df, credit_person_df):
         # 1.从pcredit_profession中选取report_id=report_id且no=1的work_type;

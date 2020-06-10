@@ -33,7 +33,7 @@ def test_03():
 
 def test_04():
     ps = V41001()
-    run(ps, "350321198606175281")
+    run(ps, "362322198410268478")
     # assert ps.variables["loan_principal_50_100w_cnt"] == 3
     print(ps.variables['new_org_3m_ago'])
     print(ps.variables['new_org_6m_ago'])
