@@ -34,14 +34,7 @@ class HandShakeService(object):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
-        marry_state = data.get("marryState")
         user_type = data.get('userType')
-        extra_param = data.get('extraParam')
-        fund_ratio = data.get('fundratio')
-        apply_amount = data.get("applyAmo")
-        relation = data.get('relation')
-        self_id = data.get('id')
-        parent_id = data.get("parentId")
         # 获取base_type
         self.calc_base_type(base_type_service, data)
         variables = T00000().run(user_name, id_card_no, phone, user_type, self.base_type, data)['variables']
@@ -63,21 +56,14 @@ class HandShakeService(object):
             raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(resp_json, '$..Description')))
         biz_types, categories = _get_biz_types(resp_json)
         rules = _append_rules(biz_types)
-        resp['name'] = user_name
-        resp['idno'] = id_card_no
-        resp['phone'] = phone
-        resp['marryState'] = marry_state
-        resp['userType'] = user_type
-        resp['extraParam'] = extra_param
-        resp['fundratio'] = fund_ratio
-        resp["applyAmo"] = apply_amount
+
+        for key in data:
+            val = data.get(key)
+            resp[key] = val
         resp['baseType'] = self.base_type
-        resp['relation'] = relation
         resp['bizType'] = biz_types
         resp['rules'] = rules
         resp['categories'] = categories
-        resp['id'] = self_id
-        resp['parentId'] = parent_id
 
         return resp
 
