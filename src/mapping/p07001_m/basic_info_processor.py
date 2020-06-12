@@ -15,7 +15,7 @@ from util.id_card_info import GetInformation
 class BasicInfoProcessor(ModuleProcessor):
 
     def process(self):
-        print("BasicInfoProcessor process")
+        # print("BasicInfoProcessor process")
         self.variables["report_id"] = self.cached_data["report_id"]
 
         self._rhzx_business_loan_overdue_cnt()

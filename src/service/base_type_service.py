@@ -80,10 +80,10 @@ class BaseTypeService(object):
                     else:
                         key_val = item_info.split(":")
                         base_type_item[key_val[0].strip()] = key_val[1].strip()
-                    print("item_info:", base_type_item)
+                    # print("item_info:", base_type_item)
                 base_type_items.append(base_type_item)
             base_type_relations.append(base_type_items)
-        print("base_type_relations=", base_type_relations)
+        # print("base_type_relations=", base_type_relations)
         return base_type_relations
 
     def base_type_mapping(self, subject, parents):

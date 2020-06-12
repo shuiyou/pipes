@@ -36,8 +36,8 @@ class Tf0001(Transformer):
         before_df = self._relent_court_open_owed_owe_laf_before()
         after_df = self._relent_court_open_owed_owe_laf_after()
 
-        print("before_df", before_df)
-        print("after_df", after_df)
+        # print("before_df", before_df)
+        # print("after_df", after_df)
         df_compare(self.variables, before_df, after_df, variable_name)
 
     def _relent_court_open_owed_owe_laf_before(self):
@@ -76,11 +76,11 @@ class Tf0001(Transformer):
 
     def __search_biz_no(self, ent_name_sql, biz_sql, biz_no_type):
         ent_list = self.__get_ent_list(ent_name_sql)
-        print("ent_list:", ent_list)
+        # print("ent_list:", ent_list)
         result_df = pd.DataFrame(columns=[biz_no_type])
         for ent in ent_list:
             biz_no_df = to_df(self, biz_sql, {"ent_name": ent})
-            print("biz_no_df:", biz_no_df)
+            # print("biz_no_df:", biz_no_df)
             if biz_no_df.shape[0] > 0:
                 result_df = result_df.append(biz_no_df)
         return result_df
