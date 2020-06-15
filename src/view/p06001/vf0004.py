@@ -77,7 +77,7 @@ class Vf0004(Transformer):
             self.ent_list.append(credit_str)
         else:
             self.ent_list = ['Na', 'Na']
-        print("获取ent_list耗时:%.4f" % (time.time() - t1))
+        # print("获取ent_list耗时:%.4f" % (time.time() - t1))
         return
 
     # 根据ent_list获取需要info_court表中对应的记录id
@@ -185,7 +185,7 @@ class Vf0004(Transformer):
                     self.variables['info_com_bus_court'][-1]['after'].append({})
                     for col in df_after_loan.columns:
                         self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
-            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
+            # print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
         return
 
     # 企业对外投资企业金融借款合同纠纷和民间借贷纠纷详细信息展示
@@ -275,7 +275,7 @@ class Vf0004(Transformer):
                     self.variables['info_com_bus_court'][-1]['after'].append({})
                     for col in df_after_loan2.columns:
                         self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
-            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
+            # print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
         return
 
     # 企业对外投资企业借款合同纠纷详细信息展示
@@ -362,7 +362,7 @@ class Vf0004(Transformer):
                 self.variables['info_com_bus_court'][-1]['after'].append({})
                 for col in df_after_loan2.columns:
                     self.variables['info_com_bus_court'][-1]['after'][-1][col] = str(getattr(row, col))
-        print("变量%s赋值耗时:%.4f" % ('info_com_bus_court_open_loan_con', time.time() - t1))
+        # print("变量%s赋值耗时:%.4f" % ('info_com_bus_court_open_loan_con', time.time() - t1))
         return
 
     # 执行变量转换
@@ -378,16 +378,16 @@ class Vf0004(Transformer):
 
         self._get_ent_list()
         t1 = time.time()
-        print("方法_get_ent_list耗时:%.4f" % (t1-t0))
+        # print("方法_get_ent_list耗时:%.4f" % (t1-t0))
         self._get_info_court_id()
         tx = time.time()
-        print("方法_get_info_court_id耗时:%.4f" % (tx - t1))
+        # print("方法_get_info_court_id耗时:%.4f" % (tx - t1))
         self._hit_list_details()
         t2 = time.time()
-        print("方法_hit_list_details耗时:%.4f" % (t2 - tx))
+        # print("方法_hit_list_details耗时:%.4f" % (t2 - tx))
         self._hit_contract_dispute_details()
         t3 = time.time()
-        print("方法_hit_contract_dispute_details耗时:%.4f" % (t3 - t2))
+        # print("方法_hit_contract_dispute_details耗时:%.4f" % (t3 - t2))
         self._info_com_bus_court_open_loan_con()
         t4 = time.time()
-        print("方法_info_com_bus_court_open_loan_con耗时:%.4f" % (t4 - t3))
+        # print("方法_info_com_bus_court_open_loan_con耗时:%.4f" % (t4 - t3))
