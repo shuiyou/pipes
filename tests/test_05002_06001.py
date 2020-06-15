@@ -107,8 +107,12 @@ def test_df():
 
 
 def test_datetime():
-    value="read_test.xlsx"
-    print(value[0:len(value)-4])
+    data={'借据编号':['1','2'],'借据起期':[20190521,20190521]}
+    df=pd.DataFrame(data=data)
+    df=df.astype(object)
+    df['借据起期']=pd.to_datetime(df['借据起期'])
+    # df['借据起期']=df['借据起期'].apply(lambda x:datetime.datetime.strptime(str(x), '%Y%m%d'))
+    print(df)
 
 
 
