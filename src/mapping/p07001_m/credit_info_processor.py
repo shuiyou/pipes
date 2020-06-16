@@ -90,6 +90,7 @@ class CreditInfoProcessor(ModuleProcessor):
             v2 = row.undestroy_limit + row.undestory_semi_limit
             if v2 > 0:
                 v1_satisfy |= (v1/v2) >= 0.8
+            self.variables['total_credit_used_rate'] = v1 / v2
 
         df = credit_loan_df.query('account_type in ["04", "05"]')
         df = df.fillna(0)
@@ -97,6 +98,7 @@ class CreditInfoProcessor(ModuleProcessor):
         for row in df.itertuples():
             if row.repay_amount*2 > row.amout_replay_amount:
                 v2_count = v2_count + 1
+        self.variables['total_credit_min_repay_cnt'] = v2_count
 
         final_result = v1_satisfy and v2_count >= 2
         self.variables["credit_overdrawn_2card"] = 1 if final_result else 0

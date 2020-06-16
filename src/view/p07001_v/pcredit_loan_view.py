@@ -138,6 +138,8 @@ class PcreditLoanView(ModuleProcessor):
             if not loan_account_type_df_status03.empty:
                 # 信贷交易信息-资金压力解析-提示-已结清贷款机构名
                 self.variables["settle_account_org"] = loan_account_type_df_status03.loc[:, 'account_org'].tolist()
+                # 信贷交易信息-资金压力解析-提示-已结清贷款申请时间
+                self.variables['settle_loan_date'] = loan_account_type_df_status03.loc[:, 'loan_date'].tolist()
                 # 信贷交易信息-资金压力解析-提示-结清时间
                 self.variables["settle_date"] = loan_account_type_df_status03.loc[:, 'loan_status_time'].apply(
                     lambda x: format_timestamp(x)).tolist()
@@ -193,6 +195,15 @@ class PcreditLoanView(ModuleProcessor):
             lambda x: format_timestamp(x)).tolist()
         # 信贷交易信息-资金压力解析-提示-贷款金额
         self.variables["hint_principal_amount"] = loan_pressure_df.loc[:, 'loan_amount'].fillna(0).tolist()
+
+        house_loan_pre_settle_df = loan_df[
+            (loan_df['account_type'].isin(['01', '02', '03'])) &
+            (loan_df['loan_type'].isin(['03', '05', '06'])) &
+            (loan_df['loan_status'] == '04') &
+            (loan_df['loan_status_time'] < loan_df['end_date'])]
+        # 信贷交易信息-贷款信息-房贷提前结清机构名
+        self.variables['house_loan_pre_settle_org'] = house_loan_pre_settle_df['account_org'].to_list()
+        self.variables['house_loan_pre_settle_date'] = house_loan_pre_settle_df['loan_status_time'].to_list()
 
     @staticmethod
     def _check_is_null(value):
@@ -395,6 +406,8 @@ class PcreditLoanView(ModuleProcessor):
         self.variables["total_guar_loan_balance"] = loan_gua_df.loc[:, 'loan_balance'].sum()
 
     def _report_time_after_2_year(self, report_time_before_2_year_df, pcredit_acc_speculate_df):
+        # 信贷交易信息-贷款信息-贷款趋势变化图-贷款机构
+        self.variables['each_loan_account_org'] = report_time_before_2_year_df.loc[:, 'account_org'].tolist()
         # 信贷交易信息-贷款信息-贷款趋势变化图-发放时间
         self.variables["each_loan_date"] = report_time_before_2_year_df.loc[:, 'loan_date'].apply(
             lambda x: format_timestamp(x)).tolist()
