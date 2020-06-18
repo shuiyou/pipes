@@ -10,7 +10,7 @@ app_env = os.getenv("ENV", 'dev').lower()
 STRATEGY_URL = os.getenv('STRATEGY_URL',
                          'http://192.168.1.20:8091/rest/S1Public')
 
-EUREKA_SERVER = os.getenv('EUREKA_SERVER', 'http://192.168.1.27:8032/eureka/')
+EUREKA_SERVER = os.getenv('EUREKA_SERVER', 'http://192.168.1.27:8030/eureka/')
 
 # 通过环境变量配置不同部署环境的是数据库
 # GEARS_DB = {
