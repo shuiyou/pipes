@@ -25,7 +25,7 @@ logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 eureka_client.init(eureka_server=EUREKA_SERVER,
                    app_name="PIPES",
-                   instance_port=8010)
+                   instance_port=5000)
 logger.info("eureka client started. center: %s", EUREKA_SERVER)
 
 

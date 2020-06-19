@@ -23,6 +23,10 @@ class P08001(Generate):
         self.response: {}
 
     def shake_hand_process(self):
+        """
+        json_data主体的关联关系
+        需要根据关联关系，处理**portrait的相关数据
+        """
         json_data = request.get_json()
 
     def strategy_process(self):
