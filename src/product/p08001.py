@@ -21,7 +21,7 @@ from portrait.transflow.union_portrait import UnionPortrait
 from product.generate import Generate
 from product.p_config import product_codes_dict
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
-from service.base_type_service import BaseTypeService
+from service.base_type_service_v3 import BaseTypeServiceV3
 from view.mapper_detail import translate_for_report_detail
 
 logger = LoggerUtil().logger(__name__)
@@ -42,38 +42,55 @@ class P08001(Generate):
             json_data = request.get_json()
             logger.info("json_data:%s", json.dumps(json_data))
 
+            req_no = json_data.get('reqNo')
             report_req_no = json_data.get("reportReqNo")
             product_code = json_data.get('productCode')
             is_single = json_data.get("isSingle")
             query_data_array = json_data.get('queryData')
-            req_no = json_data.get('reqNo')
-            base_type_service = BaseTypeService(query_data_array)
+
+            base_type_service = BaseTypeServiceV3(query_data_array)
 
             response_array = []
-            cached_data = {}
-            # 遍历query_data_array调用strategy
             for data in query_data_array:
-                user_name = data.get('name')
-                id_card_no = data.get('idno')
-                phone = data.get('phone')
-                user_type = data.get('userType')
-
-                var_item = {}
-                portrait_processor = self._obtain_portrait_processor(is_single)
-                portrait_processor.init(var_item, user_name, id_card_no, data, cached_data)
-                portrait_processor.process()
-
-                response_array.append(var_item)
+                base_type = base_type_service.find_base_type(data)
+                resp = self._query_entity_hand_shake(json_data, data, req_no, report_req_no, is_single, query_data_array, base_type)
+                response_array.append(resp)
 
             resp = {
-                'productCode': product_code,
                 'reqNo': req_no,
+                'reportReqNo': report_req_no,
+                'productCode': product_code,
+                "single": is_single,
                 'queryData': response_array
             }
             self.response = resp
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
+
+    def _query_entity_hand_shake(self, json_data, data, req_no, report_req_no, is_single, query_data_array, base_type):
+        """
+        流水握手的相关信息处理
+        """
+        cached_data = {}
+        user_name = data.get('name')
+        id_card_no = data.get('idno')
+        phone = data.get('phone')
+        bank_name = data.get('bankName')
+        bank_account = data.get('bankAccount')
+        user_type = data.get('userType')
+
+        var_item = {
+            "baseType": base_type,
+            "bizType": product_codes_dict[json_data.get("productCode")]
+        }
+
+        var_item.update(data)
+        portrait_processor = self._obtain_portrait_processor(is_single)
+        portrait_processor.init(var_item, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
+        portrait_processor.process()
+
+        return var_item
 
     def strategy_process(self):
         # 获取请求参数
@@ -87,36 +104,52 @@ class P08001(Generate):
             version_no = strategy_param.get('versionNo')
             pre_report_req_no = strategy_param.get('preReportReqNo')
             query_data_array = strategy_param.get('queryData')
-            subject = []
 
             # 遍历query_data_array调用strategy
-            index = 0
-            total = len(query_data_array)
+            base_type_service = BaseTypeServiceV3(query_data_array)
+            main_query_data = None
+            subjects = []
             for data in query_data_array:
-                index = index + 1
-                logger.info("P08001_process------------" + str(index) + "/" + str(total))
-                data["preReportReqNo"] = pre_report_req_no;
-                resp = self.strategy(self.df_client, data, product_code, req_no)
-                subject.append(resp)
+                data["preReportReqNo"] = pre_report_req_no
+                data["baseTypeDetail"] = base_type_service.parse_base_type(data)
+                subjects.append(data)
 
-            self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
+                if data.get("relation") == "MAIN":
+                    main_query_data = data
+
+            # 决策调用及view变量清洗
+            resp = self.strategy(self.df_client, subjects, main_query_data, product_code, req_no)
+
+            item_data_list = []
+            for subject in subjects:
+                item_data = {
+                    "queryData": subject
+                }
+
+                if subject.get("relation") == "MAIN":
+                    item_data.update(resp)
+
+                item_data_list.append(item_data)
+
+            self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, item_data_list)
 
             logger.info("2. 流水报告，应答：%s", json.dumps(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def strategy(self, df_client, data, product_code, req_no):
-        user_name = data.get('name')
-        id_card_no = data.get('idno')
-        phone = data.get('phone')
-        user_type = data.get('userType')
+    def strategy(self, df_client, subjects, main_query_data, product_code, req_no):
+        user_name = main_query_data.get('name')
+        id_card_no = main_query_data.get('idno')
+        phone = main_query_data.get('phone')
+        user_type = main_query_data.get('userType')
         codes = product_codes_dict[product_code]
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
-        data_repository = {}
+        biz_types.append('00000')
+        data_repository = {"input_param": subjects}
         variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
-                                                              user_type, base_type, df_client, data, data_repository)
+                                                              user_type, base_type, df_client, main_query_data, data_repository)
         origin_input = {'out_strategyBranch': ','.join(codes)}
         # 合并新的转换变量
         origin_input.update(variables)
@@ -139,27 +172,22 @@ class P08001(Generate):
         logger.info(biz_types)
 
         resp = {}
-        self._strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                        resp, strategy_resp, user_name, user_type, variables, data_repository)
-        data_repository.clear()
-        del data_repository
-        return resp
 
-    @staticmethod
-    def _strategy_second_loop_resp(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
-                                   resp, strategy_resp, user_name, user_type, variables, data_repository):
-        data['bizType'] = biz_types
-        data['strategyInputVariables'] = variables
+        main_query_data['bizType'] = biz_types
+        main_query_data["baseType"] = base_type
+        main_query_data['strategyInputVariables'] = variables
         # 最后返回报告详情
-        # if STRATEGE_DONE in biz_types:
         detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
-                                             base_type, data, data_repository)
+                                             base_type, main_query_data, data_repository)
         resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp
         resp['rules'] = _append_rules(biz_types)
-        resp['queryData'] = data
+
+        data_repository.clear()
+        del data_repository
+        return resp
 
     @staticmethod
     def calc_base_type(user_type):
@@ -176,3 +204,4 @@ class P08001(Generate):
             return SinglePortrait()
         else:
             return UnionPortrait()
+

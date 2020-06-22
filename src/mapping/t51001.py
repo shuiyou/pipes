@@ -3,7 +3,10 @@
 # @Author : lixiaobo
 # @File : t51001.py.py 
 # @Software: PyCharm
+from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
+
+logger = LoggerUtil().logger(__name__)
 
 
 class T51001(Transformer):
@@ -18,6 +21,48 @@ class T51001(Transformer):
         }
 
     def transform(self):
+        """
+        input_param 为所有关联关系的入参
+        [
+            {
+                "applyAmo":66600,
+                "authorStatus":"AUTHORIZED",
+                "extraParam":{
+                    "bankAccount":"银行账户",
+                    "bankName":"银行名"
+                },
+                "fundratio":0,
+                "id":11843,
+                "idno":"31011519910503253X",
+                "name":"韩骁頔",
+                "parentId":0,
+                "phone":"13611647802",
+                "relation":"CONTROLLER",
+                "userType":"PERSONAL",
+                "preReportReqNo":"PR472454663971700736",
+                "baseTypeDetail":"U_COM_CT_PERSONAL"
+            },
+            {
+                "applyAmo":66600,
+                "extraParam":{
+                    "bankAccount":"银行账户",
+                    "bankName":"银行名"
+                },
+                "fundratio":0,
+                "id":11844,
+                "idno":"91440300MA5EEJUR92",
+                "name":"磁石供应链商业保理（深圳）有限公司",
+                "parentId":0,
+                "phone":"021-1234567",
+                "relation":"MAIN",
+                "userType":"COMPANY",
+                "preReportReqNo":"PR472454663971700736",
+                "baseTypeDetail":"U_COMPANY"
+            }
+        ]
+        """
+        logger.info("input_param:%s", self.cached_data.get("input_param"))
+
         handle_list = [
         ]
 
