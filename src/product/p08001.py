@@ -52,7 +52,7 @@ class P08001(Generate):
 
             response_array = []
             for data in query_data_array:
-                base_type = base_type_service.find_base_type(data)
+                base_type = base_type_service.parse_base_type(data)
                 resp = self._query_entity_hand_shake(json_data, data, req_no, report_req_no, is_single, query_data_array, base_type)
                 response_array.append(resp)
 
