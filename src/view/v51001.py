@@ -12,6 +12,12 @@ class V51001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
+            "detail_var1": [],
+            "detail_var2": [],
+            "detail_var3": [],
+            "detail_var4": [],
+            "detail_var5": [],
+            "detail_var6": []
         }
 
     def transform(self):

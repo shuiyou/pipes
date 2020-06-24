@@ -45,7 +45,7 @@ class P08001(Generate):
             req_no = json_data.get('reqNo')
             report_req_no = json_data.get("reportReqNo")
             product_code = json_data.get('productCode')
-            is_single = json_data.get("isSingle")
+            is_single = json_data.get("single")
             query_data_array = json_data.get('queryData')
 
             base_type_service = BaseTypeServiceV3(query_data_array)
@@ -104,6 +104,7 @@ class P08001(Generate):
             version_no = strategy_param.get('versionNo')
             pre_report_req_no = strategy_param.get('preReportReqNo')
             query_data_array = strategy_param.get('queryData')
+            is_single = strategy_param.get("single")
 
             # 遍历query_data_array调用strategy
             base_type_service = BaseTypeServiceV3(query_data_array)
@@ -118,7 +119,7 @@ class P08001(Generate):
                     main_query_data = data
 
             # 决策调用及view变量清洗
-            resp = self.strategy(self.df_client, subjects, main_query_data, product_code, req_no)
+            resp = self.strategy(is_single, self.df_client, subjects, main_query_data, product_code, req_no)
 
             item_data_list = []
             for subject in subjects:
@@ -138,7 +139,7 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def strategy(self, df_client, subjects, main_query_data, product_code, req_no):
+    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no):
         user_name = main_query_data.get('name')
         id_card_no = main_query_data.get('idno')
         phone = main_query_data.get('phone')
@@ -153,6 +154,7 @@ class P08001(Generate):
         origin_input = {'out_strategyBranch': ','.join(codes)}
         # 合并新的转换变量
         origin_input.update(variables)
+        variables["single"] = is_single
         logger.info("1. 流水报告-开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
         logger.info("2. 流水报告-策略引擎封装入参:%s", strategy_request)
