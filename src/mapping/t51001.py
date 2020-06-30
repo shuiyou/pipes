@@ -28,8 +28,14 @@ class T51001(Transformer):
                 "applyAmo":66600,
                 "authorStatus":"AUTHORIZED",
                 "extraParam":{
+                    "bankName":"银行名",
                     "bankAccount":"银行账户",
-                    "bankName":"银行名"
+                    "totalSalesLastYear":23232,
+                    "industry":"E20",
+                    "industryName":"xx行业",
+                    "seasonable":"1",
+                    "seasonOffMonth":"2,3",
+                    "seasonOnMonth":"9,10"
                 },
                 "fundratio":0,
                 "id":11843,
@@ -45,8 +51,14 @@ class T51001(Transformer):
             {
                 "applyAmo":66600,
                 "extraParam":{
+                    "bankName":"银行名",
                     "bankAccount":"银行账户",
-                    "bankName":"银行名"
+                    "totalSalesLastYear":23232,
+                    "industry":"E20",
+                    "industryName":"xx行业",
+                    "seasonable":"1",
+                    "seasonOffMonth":"2,3",
+                    "seasonOnMonth":"9,10"
                 },
                 "fundratio":0,
                 "id":11844,
