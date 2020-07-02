@@ -2,8 +2,10 @@
 # @Author : lixiaobo
 # @File : Parser001.py 
 # @Software: PyCharm
-from logger.logger_util import LoggerUtil
+from os import read
+
 from fileparser.Parser import Parser
+from logger.logger_util import LoggerUtil
 
 # 流水报告解析及验真
 logger = LoggerUtil().logger(__name__)
@@ -45,6 +47,9 @@ class Parser001(Parser):
         """
         logger.info("流水报告解析及验真参数:param:%s", self.param)
         logger.info("流水报告解析及验真参数:file:%s", self.file)
+
+        file_data = self.file.read()
+        print("文件类型为：", file_data)
 
         resp = {
             "resCode": "0",

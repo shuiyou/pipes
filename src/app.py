@@ -9,8 +9,8 @@ from werkzeug.exceptions import HTTPException
 from config import EUREKA_SERVER, version_info
 from config_controller import base_type_api
 from exceptions import APIException, ServerException
-from logger.logger_util import LoggerUtil
 from fileparser.Parser import Parser
+from logger.logger_util import LoggerUtil
 from product.generate import Generate
 from util.defensor_client import DefensorClient
 
@@ -81,7 +81,7 @@ def parse():
     elif file is None:
         return "缺少 file字段"
 
-    handler = _get_handler("parser", "Parser", function_code)
+    handler = _get_handler("fileparser", "Parser", function_code)
     handler.init_param(json.loads(data), file)
     resp = handler.process()
 
