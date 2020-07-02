@@ -3,7 +3,7 @@
 # @File : Parser001.py 
 # @Software: PyCharm
 from logger.logger_util import LoggerUtil
-from parser.Parser import Parser
+from fileparser.Parser import Parser
 
 # 流水报告解析及验真
 logger = LoggerUtil().logger(__name__)

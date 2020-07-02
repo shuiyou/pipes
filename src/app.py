@@ -10,7 +10,7 @@ from config import EUREKA_SERVER, version_info
 from config_controller import base_type_api
 from exceptions import APIException, ServerException
 from logger.logger_util import LoggerUtil
-from parser.Parser import Parser
+from fileparser.Parser import Parser
 from product.generate import Generate
 from util.defensor_client import DefensorClient
 
