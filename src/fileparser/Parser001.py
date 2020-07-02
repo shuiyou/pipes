@@ -106,7 +106,7 @@ class Parser001(Parser):
         other_info = TransactionOtherInfo(opponent_info.df, trans_basic.col_mapping)
         other_info.trans_info_match()
 
-        # todo 后续包括原始数据落库(涉及到逻辑删除重复数据),标签处理,画像数据落库
+        # todo 后续包括原始数据落库,标签处理,画像数据落库
 
         # resp = {
         #     "resCode": "0",
