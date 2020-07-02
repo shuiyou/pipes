@@ -4,7 +4,7 @@
 # @Software: PyCharm
 
 # 解析操作002
-from parser.Parser import Parser
+from fileparser.Parser import Parser
 
 
 class Parser002(Parser):
