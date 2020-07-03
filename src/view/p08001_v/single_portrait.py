@@ -1,3 +1,22 @@
+from view.TransFlow import TransFlow
+
+class trans_single_portrait(TransFlow):
+
+    def read_single_pt_process(self):
+
+        df = self.cached_data['trans_single_portrait']
+        df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],inplace = True)
+        # str_col = []
+        # for col in df.columns.tolist():
+        #     if col.dtype == object:
+        #         str_col.append(col)
+        # df.fillna(0,inplace = True)
+        # for col in str_col:
+        #     df[col].replace(0,'',inplace = True)
+
+        self.variables['trans_single_portrait'] = df.to_json( orient = 'records')[1:-1]
+
+
 
 from view.p08001_v.trans_flow import transform_class_str
 import pandas as pd
