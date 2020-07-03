@@ -1,5 +1,6 @@
 from abc import ABC
-
+from view.p08001_v.models import TransSinglePortrait, TransSingleSummaryPortrait, TransSingleRemarkPortrait, \
+    TransSingleRelatedPortrait, TransSingleLoanPortrait, TransSingleCounterpartyPortrait
 from mapping.module_processor import ModuleProcessor
 import datetime
 import pandas as pd
@@ -20,42 +21,30 @@ def months_ago(end_date, months):
         res_year = end_year
     temp_date = datetime.datetime(res_year, res_month, 1) - datetime.timedelta(days=1)
     if temp_date.day <= end_day:
-        return temp_date
+        return temp_date.date()
     else:
-        return datetime.datetime(temp_date.year, temp_date.month, end_day)
+        return datetime.datetime(temp_date.year, temp_date.month, end_day).date()
 
 
-def transform_enumerate(params, key_str, mapping, non_str):
-    if params.__contains__(key_str):
-        if mapping.__contains__(params[key_str]):
-            params[key_str] = mapping[params[key_str]]
-        else:
-            params[key_str] = non_str
+def transform_class_str(params, class_name):
+    func_str = class_name + '('
+    for k, v in params.items():
+        if v is not None and v != '':
+            func_str += k + "='" + str(v) + "',"
+    func_str = func_str[:-1]
+    func_str += ')'
+    value = eval(func_str)
+    return value
 
 
-def transform_dict(detailinfo, mapping):
-    params = dict()
-    for k, v in mapping.items():
-        if type(v) == list:
-            temp = detailinfo
-            for _ in v:
-                if temp.__contains__(_):
-                    temp = temp[_]
-                else:
-                    temp = ''
-                    break
-            params[k] = temp
-        else:
-            params[k] = v
-    return params
-
-
-class TransModuleProcessor(ModuleProcessor, ABC):
+class TransFlow(ModuleProcessor, ABC):
 
     def __init__(self):
         super().__init__()
-        self.trans_flow_portrait_df = self._time_interval('trans_flow_portrait')
+        # self.trans_flow_portrait_df = self._time_interval('trans_flow_portrait')
+        # self.trans_flow_portrait_df_2_years = self._time_interval('trans_flow_portrait', year=2)
         self.db = self._db()
+        self.variables = {}
 
     def _time_interval(self, tablename, year=1):
         flow_df = self.cached_data(tablename)
@@ -63,7 +52,13 @@ class TransModuleProcessor(ModuleProcessor, ABC):
         max_date = max(flow_df['trans_date'])
         min_date = min(flow_df['trans_date'])
 
-        years_before_first = datetime.datetime(max_date.year - year, max_date.month, 1)
+        if year != 1:
+            if max_date.month == 12:
+                years_before_first = datetime.datetime(max_date.year - year + 1, 1, 1)
+            else:
+                years_before_first = datetime.datetime(max_date.year - year, max_date.month + 1, 1)
+        else:
+            years_before_first = datetime.datetime(max_date.year - year, max_date.month, 1)
         min_date = min(min_date, years_before_first)
         flow_df = flow_df[(flow_df.trans_date >= min_date) &
                           (flow_df.trans_date <= max_date)]

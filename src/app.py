@@ -1,4 +1,5 @@
 import importlib
+import json
 import time
 
 from flask import Flask, request, jsonify
@@ -8,6 +9,7 @@ from werkzeug.exceptions import HTTPException
 from config import EUREKA_SERVER, version_info
 from config_controller import base_type_api
 from exceptions import APIException, ServerException
+from fileparser.Parser import Parser
 from logger.logger_util import LoggerUtil
 from product.generate import Generate
 from util.defensor_client import DefensorClient
@@ -23,7 +25,7 @@ logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 eureka_client.init(eureka_server=EUREKA_SERVER,
                    app_name="PIPES",
-                   instance_port=8010)
+                   instance_port=5000)
 logger.info("eureka client started. center: %s", EUREKA_SERVER)
 
 
@@ -59,15 +61,31 @@ def strategy():
     return jsonify(resp)
 
 
-def _get_product_handler(product_code) -> Generate:
-    try:
-        model = importlib.import_module("product.p" + str(product_code))
-        api_class = getattr(model, "P" + str(product_code))
-        api_instance = api_class()
-        return api_instance
-    except ModuleNotFoundError as err:
-        logger.error(str(err))
-        return Generate()
+@app.route("/parse", methods=['POST'])
+def parse():
+    """
+    流水解析，验真请求
+    """
+    file = request.files.get("file")
+    function_code = request.args.get("parseCode")
+    if function_code is None:
+        function_code = request.form.get("parseCode")
+    data = request.args.get("param")
+    if data is None:
+        data = request.form.get("param")
+
+    if function_code is None:
+        return "缺少 parseCode字段"
+    elif data is None:
+        return "缺少 param字段"
+    elif file is None:
+        return "缺少 file字段"
+
+    handler = _get_handler("fileparser", "Parser", function_code)
+    handler.init_param(json.loads(data), file)
+    resp = handler.process()
+
+    return jsonify(resp)
 
 
 @app.route("/health", methods=['GET'])
@@ -111,6 +129,28 @@ def flask_global_exception_handler(e):
     if current_app.config["DEBUG"]:
         return e
     return ServerException()
+
+
+def _get_product_handler(product_code) -> Generate:
+    try:
+        model = importlib.import_module("product.p" + str(product_code))
+        api_class = getattr(model, "P" + str(product_code))
+        api_instance = api_class()
+        return api_instance
+    except ModuleNotFoundError as err:
+        logger.error(str(err))
+        return Generate()
+
+
+def _get_handler(folder, prefix, code) -> Parser:
+    try:
+        model = importlib.import_module(folder + "." + prefix + str(code))
+        api_class = getattr(model, prefix + str(code))
+        api_instance = api_class()
+        return api_instance
+    except ModuleNotFoundError as err:
+        logger.error(str(err))
+        return Parser()
 
 
 if __name__ == '__main__':
