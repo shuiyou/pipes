@@ -1,8 +1,11 @@
 from view.TransFlow import TransFlow
 
-class trans_u_related_portrait(TransFlow):
+class JsonUnionRelatedPortrait(TransFlow):
 
-    def read_u_related_pt_process(self):
+    def process(self):
+        self.read_u_related_pt()
+
+    def read_u_related_pt(self):
 
         df = self.cached_data['trans_u_related_portrait']
         df.drop(columns=['id', 'apply_no', 'report_req_no',
@@ -11,5 +14,5 @@ class trans_u_related_portrait(TransFlow):
                          'create_time', 'update_time'],
                 inplace=True)
 
-        self.variables['trans_u_related_portrait'] = df.to_json(
+        self.variables["trans_u_related_portrait"] = df.to_json(
                         orient='records').encode('utf-8').decode("unicode_escape")

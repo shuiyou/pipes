@@ -2,14 +2,16 @@ from view.TransFlow import TransFlow
 import pandas as pd
 
 
-class u_unusual_trans(TransFlow):
+class JsonSingleUnusualTrans(TransFlow):
 
-    def read_u_unusual_process(self):
+    def process(self):
+        self.read_unusual_in_flow()
 
-        df = self.cached_data['trans_u_flow_portrait']
-        df = df[pd.notnull(df.unusual_trans_type)][['bank','account_no','trans_date', 'trans_time',
-                                                    'opponent_name', 'trans_amt',
-                                                    'remark', 'unusual_trans_type']]
+    def read_unusual_in_flow(self):
+        df = self.cached_data['trans_flow_portrait']
+        df = df[pd.notnull(df.unusual_trans_type)][['trans_date','trans_time',
+                                                    'opponent_name','trans_amt',
+                                                    'remark','unusual_trans_type']]
 
         df['trans_time'] = df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
 
@@ -38,11 +40,9 @@ class u_unusual_trans(TransFlow):
         }
 
         json = ""
-
         for risk in unusual_dict:
-            temp_df = df[df['unusual_trans_type'].str.contains(unusual_dict[risk])].drop(columns=['unusual_trans_type',
-                                                                                                  'trans_date'])
+            temp_df = df[df['unusual_trans_type'].str.contains( unusual_dict[risk] )].drop(columns= ['unusual_trans_type',
+                                                                                                     'trans_date'])
+            json +=  f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
 
-            json += f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
-
-        self.variables['交易对手明细'] = "{" + json[:-1] + "}"
+        self.variables["异常交易风险"] = "{" + json[:-1] + "}"
