@@ -50,15 +50,19 @@ class P08001(Generate):
 
             base_type_service = BaseTypeServiceV3(query_data_array)
 
+            main_node = None
+            response_array = []
             for data in query_data_array:
                 base_type = base_type_service.parse_base_type(data)
                 data["baseType"] = base_type
+                if data.get("relation") == "MAIN":
+                    main_node = data
+                else:
+                    response_array.append(data)
 
-            response_array = []
-            for data in query_data_array:
-                resp = self._query_entity_hand_shake(json_data, data, req_no, report_req_no, is_single,
-                                                     query_data_array)
-                response_array.append(resp)
+            resp = self._query_entity_hand_shake(json_data, main_node, req_no, report_req_no, is_single,
+                                                 query_data_array)
+            response_array.append(resp)
 
             resp = {
                 'reqNo': req_no,
@@ -86,7 +90,6 @@ class P08001(Generate):
         base_type = data.get("baseType")
 
         var_item = {
-            "baseType": base_type,
             "bizType": product_codes_dict[json_data.get("productCode")]
         }
 
