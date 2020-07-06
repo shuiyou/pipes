@@ -50,10 +50,14 @@ class P08001(Generate):
 
             base_type_service = BaseTypeServiceV3(query_data_array)
 
-            response_array = []
             for data in query_data_array:
                 base_type = base_type_service.parse_base_type(data)
-                resp = self._query_entity_hand_shake(json_data, data, req_no, report_req_no, is_single, query_data_array, base_type)
+                data["baseType"] = base_type
+
+            response_array = []
+            for data in query_data_array:
+                resp = self._query_entity_hand_shake(json_data, data, req_no, report_req_no, is_single,
+                                                     query_data_array)
                 response_array.append(resp)
 
             resp = {
@@ -68,7 +72,7 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def _query_entity_hand_shake(self, json_data, data, req_no, report_req_no, is_single, query_data_array, base_type):
+    def _query_entity_hand_shake(self, json_data, data, req_no, report_req_no, is_single, query_data_array):
         """
         流水握手的相关信息处理
         """
@@ -79,6 +83,7 @@ class P08001(Generate):
         bank_name = data.get('bankName')
         bank_account = data.get('bankAccount')
         user_type = data.get('userType')
+        base_type = data.get("baseType")
 
         var_item = {
             "baseType": base_type,
@@ -87,7 +92,7 @@ class P08001(Generate):
 
         var_item.update(data)
         portrait_processor = self._obtain_portrait_processor(is_single)
-        portrait_processor.init(var_item, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
+        portrait_processor.init(var_item, query_data_array, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
         portrait_processor.process()
 
         return var_item
