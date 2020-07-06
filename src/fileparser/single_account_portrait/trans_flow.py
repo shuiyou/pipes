@@ -1,6 +1,4 @@
 from abc import ABC
-from view.p08001_v.models import TransSinglePortrait, TransSingleSummaryPortrait, TransSingleRemarkPortrait, \
-    TransSingleRelatedPortrait, TransSingleLoanPortrait, TransSingleCounterpartyPortrait
 from mapping.module_processor import ModuleProcessor
 import datetime
 import pandas as pd
