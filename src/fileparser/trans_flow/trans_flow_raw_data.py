@@ -1,6 +1,5 @@
-from view.p08001_v.trans_flow import transform_class_str
+from fileparser.single_account_portrait.trans_flow import transform_class_str
 import pandas as pd
-import numpy as np
 import datetime
 import re
 
@@ -14,7 +13,13 @@ class TransFlowRawData:
         self.label_list = []
 
     def _loan_type_label(self):
+        """
+        包括交易对手类型标签opponent_type,贷款类型标签loan_type,是否还款标签is_repay,是否结息标签is_interest
+        是否结息前一周标签is_before_interest_repay
+        :return:
+        """
         self.df['opponent_name'] = self.df['opponent_name'].fillna('')
+        # 交易对手标签赋值,1个人,2企业,其他为空
         self.df['opponent_type'] = self.df['opponent_name'].apply(self._opponent_type)
         self.df['month'] = self.df['trans_time'].apply(lambda x: x.month)
         self.df['day'] = self.df['trans_time'].apply(lambda x: x.day)
@@ -112,6 +117,56 @@ class TransFlowRawData:
                             re.match(r'[财存天停大柜订百本宝网保北电放还好汇结借跨理利内其上深浙税现中微短发卡随有月油退收快取]',
                                      cleaned_name) is None:
                         return 1
+
+    def _in_out_order(self):
+        income_per_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
+                                (self.df.opponent_type == 1)]
+        expense_per_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
+                                 (self.df.opponent_type == 1)]
+        income_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
+                                (self.df.opponent_type == 2)]
+        expense_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
+                                 (self.df.opponent_type == 2)]
+        income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}).\
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}).\
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        expense_per_cnt_list = expense_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        expense_per_amt_list = expense_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
+            sort_values(by='trans_amt', ascending=True).index.to_list()[:10]
+        income_com_cnt_list = income_com_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        income_com_amt_list = income_com_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        expense_com_cnt_list = expense_com_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
+            sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
+        expense_com_amt_list = expense_com_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
+            sort_values(by='trans_amt', ascending=True).index.to_list()[:10]
+        for i in range(len(income_per_cnt_list)):
+            self.df.loc[(self.df['opponent_name'] == income_per_cnt_list[i]) & 
+                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+        for i in range(len(income_com_cnt_list)):
+            self.df.loc[(self.df['opponent_name'] == income_com_cnt_list[i]) & 
+                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+        for i in range(len(expense_per_cnt_list)):
+            self.df.loc[(self.df['opponent_name'] == expense_per_cnt_list[i]) & 
+                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+        for i in range(len(expense_com_cnt_list)):
+            self.df.loc[(self.df['opponent_name'] == expense_com_cnt_list[i]) & 
+                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+        for i in range(len(income_per_amt_list)):
+            self.df.loc[(self.df['opponent_name'] == income_per_amt_list[i]) & 
+                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+        for i in range(len(income_com_amt_list)):
+            self.df.loc[(self.df['opponent_name'] == income_com_amt_list[i]) & 
+                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+        for i in range(len(expense_per_amt_list)):
+            self.df.loc[(self.df['opponent_name'] == expense_per_amt_list[i]) & 
+                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
+        for i in range(len(expense_com_amt_list)):
+            self.df.loc[(self.df['opponent_name'] == expense_com_amt_list[i]) & 
+                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
 
     def save_raw_data(self):
         # 原始数据列名
@@ -241,3 +296,22 @@ class TransFlowRawData:
                 elif re.search(r'(分期|到期|贷款扣款|正常还款|约定还款|扣贷|贷还款|自动收利|贷款还本|贷款还息|收回贷款本息|'
                                r'归还贷款|贷款利息|归还个贷|银行利息|利息收入|信用卡.*还款)', no_channel_str):
                     temp_dict['cost_type'] = '到期贷款'
+            # 进账笔数排名标签
+            if hasattr(row, 'income_cnt_order') and pd.notnull(getattr(row, 'income_cnt_order')):
+                temp_dict['income_cnt_order'] = getattr(row, 'income_cnt_order')
+            # 出账笔数排名标签
+            if hasattr(row, 'expense_cnt_order') and pd.notnull(getattr(row, 'expense_cnt_order')):
+                temp_dict['expense_cnt_order'] = getattr(row, 'expense_cnt_order')
+            # 进账金额排名标签
+            if hasattr(row, 'income_amt_order') and pd.notnull(getattr(row, 'income_amt_order')):
+                temp_dict['income_amt_order'] = getattr(row, 'income_amt_order')
+            # 出账金额排名标签
+            if hasattr(row, 'expense_amt_order') and pd.notnull(getattr(row, 'expense_amt_order')):
+                temp_dict['expense_amt_order'] = getattr(row, 'expense_amt_order')
+            # 将标签表数据落到数据库
+            label_role = transform_class_str(temp_dict, 'TransFlowPortrait')
+            self.label_list.append(label_role)
+        self.db.session.add_all(self.raw_list)
+        self.db.session.commit()  # todo 是否需要commit两次
+        self.db.session.add_all(self.label_list)
+        self.db.session.commit()

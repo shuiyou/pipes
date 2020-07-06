@@ -1,6 +1,5 @@
 
-from view.p08001_v.trans_flow import transform_class_str, months_ago
-import pandas as pd
+from fileparser.single_account_portrait.trans_flow import transform_class_str, months_ago
 
 
 class SingleLoanPortrait:

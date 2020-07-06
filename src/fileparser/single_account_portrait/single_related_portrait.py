@@ -1,5 +1,5 @@
 
-from view.p08001_v.trans_flow import transform_class_str
+from fileparser.single_account_portrait.trans_flow import transform_class_str
 import pandas as pd
 
 
