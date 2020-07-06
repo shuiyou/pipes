@@ -10,6 +10,8 @@ class PortraitProcessor(object):
     def __init__(self):
         self.variables = None
         self.query_data_array = None
+        self.req_no = None
+        self.report_req_no = None
         self.user_name = None
         self.user_type = None
         self.base_type = None
@@ -20,9 +22,11 @@ class PortraitProcessor(object):
         self.origin_data = None
         self.cached_data = None
 
-    def init(self, variables, query_data_array, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, origin_data, cached_data):
+    def init(self, variables, query_data_array, req_no, report_req_no, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, origin_data, cached_data):
         self.variables = variables
         self.query_data_array = query_data_array
+        self.req_no = req_no
+        self.report_req_no = report_req_no
         self.user_name = user_name
         self.user_type = user_type
         self.base_type = base_type

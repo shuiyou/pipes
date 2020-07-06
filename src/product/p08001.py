@@ -43,7 +43,7 @@ class P08001(Generate):
             logger.info("json_data:%s", json.dumps(json_data))
 
             req_no = json_data.get('reqNo')
-            report_req_no = json_data.get("reportReqNo")
+            report_req_no = json_data.get("preReportReqNo")
             product_code = json_data.get('productCode')
             is_single = json_data.get("single")
             query_data_array = json_data.get('queryData')
@@ -95,7 +95,7 @@ class P08001(Generate):
 
         var_item.update(data)
         portrait_processor = self._obtain_portrait_processor(is_single)
-        portrait_processor.init(var_item, query_data_array, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
+        portrait_processor.init(var_item, query_data_array, req_no, report_req_no, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
         portrait_processor.process()
 
         return var_item
