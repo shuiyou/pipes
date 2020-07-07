@@ -7,10 +7,21 @@ from mapping.trans_module_processor import TransModuleProcessor
 class ApplyAmtPrediction(TransModuleProcessor):
 
     def process(self):
-        self._prediction()
+        self.variables["cus_apply_amt_pred"] = self._calculate_output(
+            self.variables["q_2_balance_amt"],
+            self.variables["balance_max_0_to_5"],
+            self.variables["mean_sigma_left"],
+            self.variables["mean_sigma_right"],
+            self.variables["q_3_balance_amt"],
+            self.variables["income_max_weight"],
+            self.variables["mean_2_sigma_left"],
+            self.variables["balance_max"],
+            self.variables["balance_min_weight"],
+            self.variables["balance_max_weight"]
+        )
 
-    def calculate_output(self,
-                         q_2_balance_amt,
+    @staticmethod
+    def _calculate_output(q_2_balance_amt,
                          balance_max_0_to_5,
                          mean_sigma_left,
                          mean_sigma_right,
@@ -49,17 +60,3 @@ class ApplyAmtPrediction(TransModuleProcessor):
             return 300e4
         else:
             return int(cus_apply_amt_pred/1e4) * 1e4
-
-    def _prediction(self):
-        self.variables["cus_apply_amt_pred"] = self.calculate_output(
-                                    self.variables["q_2_balance_amt"],
-                                    self.variables["balance_max_0_to_5"],
-                                    self.variables["mean_sigma_left"],
-                                    self.variables["mean_sigma_right"],
-                                    self.variables["q_3_balance_amt"],
-                                    self.variables["income_max_weight"],
-                                    self.variables["mean_2_sigma_left"],
-                                    self.variables["balance_max"],
-                                    self.variables["balance_min_weight"],
-                                    self.variables["balance_max_weight"]
-                                    )

@@ -4,6 +4,9 @@
 # @File : t51001.py.py 
 # @Software: PyCharm
 from logger.logger_util import LoggerUtil
+from mapping.p08001_m.app_amt_predication import ApplyAmtPrediction
+from mapping.p08001_m.get_variable_in_db import GetVariableInDB
+from mapping.p08001_m.get_variable_in_flow import GetVariableInFlow
 from mapping.tranformer import Transformer
 
 logger = LoggerUtil().logger(__name__)
@@ -76,6 +79,9 @@ class T51001(Transformer):
         logger.info("input_param:%s", self.cached_data.get("input_param"))
 
         handle_list = [
+            GetVariableInFlow(),
+            GetVariableInDB(),
+            ApplyAmtPrediction(),
         ]
 
         for handler in handle_list:

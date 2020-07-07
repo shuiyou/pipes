@@ -3,6 +3,7 @@ from datetime import datetime
 from util.mysql_reader import sql_to_df
 from mapping.trans_module_processor import TransModuleProcessor
 
+
 class GetVariableInFlow(TransModuleProcessor):
 
     def process(self):
