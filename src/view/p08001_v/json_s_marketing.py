@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonSingleMarketing(TransFlow):
 
@@ -8,7 +8,13 @@ class JsonSingleMarketing(TransFlow):
         self.read_single_marketing_in_flow()
 
     def create_json(self, oppo_type , order ):
-        df = self.cached_data['trans_flow_portrait']
+        sql = """
+            select *
+            from trans_flow_portrait
+            where account_id = %(account_id)s
+        """
+        df = sql_to_df(sql = sql,
+                       params= {"account_id":self.account_id})
         df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]))][[order, 'opponent_name',
                                                                                'trans_amt', 'phone']]
         df1_1 = df1.groupby([order, 'opponent_name'])['trans_amt'] \

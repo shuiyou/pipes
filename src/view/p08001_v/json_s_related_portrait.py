@@ -1,4 +1,6 @@
 from view.TransFlow import TransFlow
+from util.mysql_reader import sql_to_df
+
 
 class JsonSingleRelatedPortrait(TransFlow):
 
@@ -6,8 +8,14 @@ class JsonSingleRelatedPortrait(TransFlow):
         self.read_single_related_pt()
 
     def read_single_related_pt(self):
+        sql = """
+                    select *
+                    from trans_single_related_portrait
+                    where account_id = %(account_id)s
+                """
+        df = sql_to_df(sql=sql,
+                       params={"account_id": self.account_id})
 
-        df = self.cached_data['trans_single_related_portrait']
         df.drop(columns = ['id','account_id','report_req_no',
                            'income_cnt_order','income_amt_order',
                            'expense_cnt_order','expense_amt_order',

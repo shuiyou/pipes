@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonUnionCounterpartyPortrait(TransFlow):
 
@@ -14,7 +14,14 @@ class JsonUnionCounterpartyPortrait(TransFlow):
         return string[:-1]
 
     def read_u_counterparty_pt(self):
-        df = self.cached_data['trans_u_counterparty_portrait']
+
+        sql = """
+            select *
+            from trans_u_counterparty_portrait
+            where report_req_no = %(report_req_no)s
+        """
+        df = sql_to_df(sql=sql,
+                       params={"report_req_no":self.reqno})
         df.drop(columns=['id', 'apply_no', 'report_req_no', 'create_time', 'update_time'],
                 inplace=True)
 

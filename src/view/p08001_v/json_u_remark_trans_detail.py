@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonUnionRemarkTransDetail(TransFlow):
 
@@ -14,14 +14,24 @@ class JsonUnionRemarkTransDetail(TransFlow):
         return string[:-1]
 
     def read_u_remark_trans_in_u_flow(self):
+        sql1 = """
+            select bank,account_no,trans_date,trans_time,opponent_name,trans_amt,remark
+            from trans_u_flow_portrait
+            where report_req_no = %(report_req_no)s
+        """
+        flow_df = sql_to_df(sql=sql1,
+                            params={"report_req_no": self.reqno})
 
-        flow_df = self.cached_data['trans_u_flow_portrait'][['bank','account_no','trans_date',
-                                                             'trans_time','opponent_name',
-                                                             'trans_amt','remark']]
         flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
         flow_df.drop(columns='trans_date', inplace=True)
 
-        remark_portrait = self.cached_data['trans_u_remark_portrait']
+        sql2 = """
+            select *
+            from trans_u_remark_portrait
+            where report_req_no = %(report_req_no)s
+        """
+        remark_portrait = sql_to_df(sql=sql2,
+                                    params={"report_req_no": self.reqno})
         remark_portrait.drop(columns=['id', 'apply_no', 'report_req_no', 'create_time', 'update_time'],
                              inplace=True)
         remark_income_dict = remark_portrait[pd.notnull(remark_portrait.remark_income_amt_order)] \

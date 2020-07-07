@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class trans_u_related_portrait(TransFlow):
 
@@ -8,8 +8,13 @@ class trans_u_related_portrait(TransFlow):
         self.read_guarantor_in_u_flow()
 
     def create_guarantor_json(self,guarantor):
-
-        df = self.cached_data['trans_u_flow_portrait']
+        sql = """
+                    select *
+                    from trans_u_flow_portrait
+                    where report_req_no = %(report_req_no)s
+                """
+        df = sql_to_df(sql=sql,
+                       params={"report_req_no": self.reqno})
         df = df[df.opponent_name == guarantor][['opponent_name', 'trans_amt', 'trans_date', 'trans_time', 'remark',
                                                 'is_before_interest_repay', 'income_amt_order', 'expense_amt_order',
                                                 'income_cnt_order', 'expense_cnt_order']]

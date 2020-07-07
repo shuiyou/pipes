@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonSingleGuarantor(TransFlow):
 
@@ -8,7 +8,13 @@ class JsonSingleGuarantor(TransFlow):
         self.read_single_guarantor_in_flow()
 
     def create_guarantor_json(self,  guarantor):
-        df = self.cached_data['trans_flow_portrait']
+        sql = """
+                    select *
+                    from trans_flow_portrait
+                    where account_id = %(account_id)s
+                """
+        df = sql_to_df(sql=sql,
+                       params={"account_id": self.account_id})
         df = df[df.opponent_name == guarantor][['opponent_name', 'trans_amt', 'trans_date', 'trans_time', 'remark',
                                                 'is_before_interest_repay', 'income_amt_order', 'expense_amt_order',
                                                 'income_cnt_order', 'expense_cnt_order']]

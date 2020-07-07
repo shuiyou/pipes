@@ -1,5 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
+from util.mysql_reader import sql_to_df
 
 
 class JsonSingleCounterpartyPortrait(TransFlow):
@@ -14,8 +15,13 @@ class JsonSingleCounterpartyPortrait(TransFlow):
         return string[:-1]
 
     def read_single_counterparty_pt(self):
-
-        df = self.cached_data['trans_single_counterparty_portrait']
+        sql = """
+            select *
+            from trans_single_counterparty_portrait
+            where account_id = %(account_id)s
+            """
+        df = sql_to_df(sql = sql,
+                       params= {"account_id":self.account_id})
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],
                 inplace = True)
 

@@ -1,5 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
+from util.mysql_reader import sql_to_df
 
 
 class JsonSingleRemarkPortrait(TransFlow):
@@ -8,7 +9,14 @@ class JsonSingleRemarkPortrait(TransFlow):
         self.read_single_remark_pt()
 
     def read_single_remark_pt(self):
-        df = self.cached_data['trans_single_remark_portrait']
+        sql = """
+                            select *
+                            from trans_single_remark_portrait
+                            where account_id = %(account_id)s
+                        """
+        df = sql_to_df(sql=sql,
+                       params={"account_id": self.account_id})
+
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],
                                     inplace = True)
         # income_order_max = df.remark_income_amt_order.max()

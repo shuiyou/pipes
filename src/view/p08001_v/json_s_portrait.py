@@ -1,13 +1,22 @@
 from view.TransFlow import TransFlow
+from util.mysql_reader import sql_to_df
+
 
 class JsonSinglePortrait(TransFlow):
+
 
     def process(self):
         self.read_single_pt()
 
     def read_single_pt(self):
 
-        df = self.cached_data['trans_single_portrait']
+        sql = """
+            select * 
+            from trans_single_portrait
+            where account_id = %(account_id)s
+            """
+        df = sql_to_df(sql = sql,
+                       params= {"account_id":self.account_id})
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],inplace = True)
         # str_col = []
         # for col in df.columns.tolist():

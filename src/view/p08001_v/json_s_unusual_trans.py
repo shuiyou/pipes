@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonSingleUnusualTrans(TransFlow):
 
@@ -8,7 +8,13 @@ class JsonSingleUnusualTrans(TransFlow):
         self.read_unusual_in_flow()
 
     def read_unusual_in_flow(self):
-        df = self.cached_data['trans_flow_portrait']
+        sql = """
+                    select *
+                    from trans_flow_portrait
+                    where account_id = %(account_id)s
+                """
+        df = sql_to_df(sql=sql,
+                       params={"account_id": self.account_id})
         df = df[pd.notnull(df.unusual_trans_type)][['trans_date','trans_time',
                                                     'opponent_name','trans_amt',
                                                     'remark','unusual_trans_type']]

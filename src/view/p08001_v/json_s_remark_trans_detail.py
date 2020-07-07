@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonSingleRemarkTransDetail(TransFlow):
 
@@ -16,11 +16,26 @@ class JsonSingleRemarkTransDetail(TransFlow):
 
     def read_single_remark_trans_in_flow(self):
 
-        flow_df = self.cached_data['trans_flow_portrait'][['trans_date','trans_time','opponent_name','trans_amt','remark']]
+        sql1 = """
+            select trans_date,trans_time,opponent_name,trans_amt,remark
+            from trans_flow_portrait
+            where account_id = %(account_id)s
+        """
+        flow_df = sql_to_df(sql= sql1 ,
+                            params= {"account_id": self.account_id})
+
         flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
         flow_df.drop(columns='trans_date', inplace=True)
 
-        remark_portrait = self.cached_data['trans_single_remark_portrait']
+        sql2 = """
+            select *
+            from trans_single_remark_portrait
+            where account_id = %(account_id)s
+        """
+
+        remark_portrait = sql_to_df( sql = sql2,
+                                     params={"account_id": self.account_id})
+
         remark_portrait.drop(columns=['id','account_id','report_req_no','create_time','update_time'],
                              inplace = True)
 

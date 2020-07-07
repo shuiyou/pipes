@@ -1,4 +1,5 @@
 from view.TransFlow import TransFlow
+from util.mysql_reader import sql_to_df
 
 class JsonUnionRelatedPortrait(TransFlow):
 
@@ -6,8 +7,13 @@ class JsonUnionRelatedPortrait(TransFlow):
         self.read_u_related_pt()
 
     def read_u_related_pt(self):
-
-        df = self.cached_data['trans_u_related_portrait']
+        sql = """
+            select *
+            from trans_u_related_portrait
+            where report_req_no = %(report_req_no)s
+        """
+        df = sql_to_df(sql=sql,
+                       params={"report_req_no": self.reqno})
         df.drop(columns=['id', 'apply_no', 'report_req_no',
                          'income_cnt_order', 'income_amt_order',
                          'expense_cnt_order', 'expense_amt_order',

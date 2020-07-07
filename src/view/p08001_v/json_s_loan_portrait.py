@@ -1,4 +1,5 @@
 from view.TransFlow import TransFlow
+from util.mysql_reader import sql_to_df
 
 class JsonSingleLoanPortrait(TransFlow):
 
@@ -12,8 +13,13 @@ class JsonSingleLoanPortrait(TransFlow):
         return string[:-1]
 
     def read_single_loan_pt(self):
-
-        df = self.cached_data['trans_single_loan_portrait']
+        sql = """
+            select * 
+            from trans_single_loan_portrait
+            where account_id = %(account_id)s
+        """
+        df = sql_to_df(sql = sql,
+                       params= {"account_id": self.account_id})
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],
                     inplace = True)
 

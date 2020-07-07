@@ -1,4 +1,6 @@
 from view.TransFlow import TransFlow
+from util.mysql_reader import sql_to_df
+
 
 class JsonSingleSummaryPortrait(TransFlow):
 
@@ -6,7 +8,15 @@ class JsonSingleSummaryPortrait(TransFlow):
         self.read_single_summary_pt()
 
     def read_single_summary_pt(self):
-        df = self.cached_data['trans_single_summary_portrait']
+
+        sql = """
+        select *
+        from trans_single_summary_portrait
+        where account_id = %(account_id)s
+        """
+        df = sql_to_df(sql=sql,
+                       params={"account_id":self.account_id})
+
         df.drop(columns=['id', 'account_id', 'report_req_no', 'q_1_year', 'q_2_year',
                          'q_3_year', 'q_4_year', 'create_time', 'update_time'],
                 inplace=True)

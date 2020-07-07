@@ -1,6 +1,6 @@
 from view.TransFlow import TransFlow
 import pandas as pd
-
+from util.mysql_reader import sql_to_df
 
 class JsonUnionMarketing(TransFlow):
 
@@ -8,7 +8,13 @@ class JsonUnionMarketing(TransFlow):
         self.read_u_marketing_in_u_flow()
 
     def create_json( self,oppo_type , order ):
-        df = self.cached_data['trans_u_flow_portrait']
+        sql = """
+            select *
+            from trans_u_flow_portrait
+            where report_req_no = %(report_req_no)s
+        """
+        df = sql_to_df(sql=sql,
+                       params={"report_req_no": self.reqno})
         df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]))][[order, 'opponent_name',
                                                                                'trans_amt', 'phone']]
         df1_1 = df1.groupby([order, 'opponent_name'])['trans_amt'] \
