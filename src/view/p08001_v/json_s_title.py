@@ -1,0 +1,48 @@
+from view.TransFlow import TransFlow
+from datetime import datetime
+import pandas as pd
+from util.mysql_reader import sql_to_df
+
+class JsonSingleTitle(TransFlow):
+
+    def process(self):
+        self.create_s_title()
+
+
+    def create_s_title(self):
+
+        param_list = self.cached_data.get("input_param")
+        for i in param_list:
+            if i["relation"] == "MAIN":
+                self.cusName = i["name"]
+                self.bankName = i["extraParam"]["bankName"]
+                self.bankAccount = i["extraParam"]["bankAccount"]
+                self.idno = i["idno"]
+                self.reqno = i["preReportReqNo"]
+
+        sql1 = '''
+            select start_time,end_time
+            from trans_account
+            where id_card_no = %(id_card_no)s
+        '''
+
+        df1 = sql_to_df(sql=sql1,
+                       params={"id_card_no":self.idno})
+
+        startEndDate = df1.start_time.strftime('%Y年%m月%d日') \
+                    + "——"  + df1.end_time.strftime('%Y年%m月%d日')
+
+        sql2 = '''
+            select related_name as name , relationship as relation
+            from trans_apply
+            where report_req_no = %(report_req_no)s
+        '''
+        df2 = sql_to_df(sql=sql2,
+                        params={"report_req_no": self.reqno})
+
+
+        self.variables["表头"] = "{\"cusName\":" + self.cusName  \
+                               +  ",\"流水信息\":{\"bankName\":" + self.bankName \
+                               + ",\"bankAccount\":" + self.bankAccount \
+                               + ",\"startEndDate\":" + startEndDate + "},"  \
+       + "\"关联人\":" + df2.to_json(orient = 'records').encode('utf-8').decode("unicode_escape") + "}"
