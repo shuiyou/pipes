@@ -14,9 +14,9 @@ class TransactionOtherInfo:
 
     def trans_info_match(self):
         self._trans_info_match('cur_col', 'currency')
-        self._trans_info_match('chn_col', 'transaction_channel')
-        self._trans_info_match('typ_col', 'transaction_type')
-        self._trans_info_match('use_col', 'transaction_use')
+        self._trans_info_match('chn_col', 'trans_channel')
+        self._trans_info_match('typ_col', 'trans_type')
+        self._trans_info_match('use_col', 'trans_use')
         self._remark_match()
 
     def _trans_info_match(self, trans_info, col_name):

@@ -130,9 +130,9 @@ class TransactionTime:
         x1 = self._match_time_head(col, dttime_pat, 14)
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
-            self.df['transaction_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
         elif x2:
-            self.df['transaction_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
         else:
             raise ValueError("交易日期列有不符合格式的值t004")
 
@@ -146,7 +146,7 @@ class TransactionTime:
         time_col = ''
         for col in res:
             if self._match_time_head(col, dttime_pat, 14):
-                self.df['transaction_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+                self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
                 return
         for col in res:
             if self._match_time_head(col, date_pat, 8):
@@ -164,10 +164,10 @@ class TransactionTime:
                 self.df[time_col] = self.df[time_col].astype(str).apply(self._time_apply)
                 break
         if date_col != '' and time_col != '':
-            self.df['transaction_time'] = self.df[date_col] + self.df[time_col]
-            self.df['transaction_time'] = self.df['transaction_time'].apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[date_col] + self.df[time_col]
+            self.df['trans_time'] = self.df['trans_time'].apply(self._dttime_apply)
         elif date_col != '' and time_col == '':
-            self.df['transaction_time'] = self.df[date_col].apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[date_col].apply(self._dttime_apply)
         else:
             raise ValueError("没有找到交易日期列t005")
         return
@@ -181,7 +181,7 @@ class TransactionTime:
             else:
                 self._multi_col_match(res)
             # todo 待商量,是否要去掉时间顺序判断
-            self.df.sort_values(by='transaction_time', ascending=True, inplace=True)
+            self.df.sort_values(by='trans_time', ascending=True, inplace=True)
         except ValueError as e:
             self.basic_status = False
             self.resp['resCode'] = '20'
@@ -190,8 +190,8 @@ class TransactionTime:
 
     def time_interval_check(self):
         self._query_date_transform()
-        trans_max = max(self.df['transaction_time'])
-        trans_min = min(self.df['transaction_time'])
+        trans_max = max(self.df['trans_time'])
+        trans_min = min(self.df['trans_time'])
         if self.query_end is not None and self.query_start is not None:
             x1 = self.query_end < trans_max
             x2 = self.query_start > trans_min
@@ -237,8 +237,8 @@ class TransactionTime:
 
     # 可能不需要
     def time_sequence_check(self):
-        trans_first = self.df['transaction_time'][0]
-        trans_last = self.df['transaction_time'][-1]
+        trans_first = self.df['trans_time'][0]
+        trans_last = self.df['trans_time'][-1]
         if trans_first == trans_last:
             self.basic_status = False
             self.resp['resCode'] = '22'
@@ -251,7 +251,7 @@ class TransactionTime:
             asc = 1
         last_date = ''
         for row in self.df.itertuples():
-            this_date = getattr(row, 'transaction_time')
+            this_date = getattr(row, 'trans_time')
             if asc == -1 and this_date > last_date or asc == 1 and this_date < last_date:
                 self.basic_status = False
                 self.resp['resCode'] = '22'

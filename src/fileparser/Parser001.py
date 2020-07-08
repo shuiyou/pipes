@@ -3,15 +3,17 @@
 # @File : Parser001.py 
 # @Software: PyCharm
 from logger.logger_util import LoggerUtil
-from parser.Parser import Parser
-from parser.trans_flow.report_parsing import TransProfile
-from parser.trans_flow.trans_basic import TransBasic
-from parser.trans_flow.trans_data_standardization import TransDataStandardization
-from parser.trans_flow.trans_time_standardization import TransactionTime
-from parser.trans_flow.trans_amount_standardization import TransactionAmt
-from parser.trans_flow.trans_balance_standardization import TransactionBalance
-from parser.trans_flow.trans_opponent_info_standardization import OpponentInfo
-from parser.trans_flow.trans_other_info_standardization import TransactionOtherInfo
+from fileparser.Parser import Parser
+from fileparser.trans_flow.trans_z01_profile import TransProfile
+from fileparser.trans_flow.trans_z02_data_standardization import TransDataStandardization
+from fileparser.trans_flow.trans_z03_title_distribute import TransBasic
+from fileparser.trans_flow.trans_z04_time_standardization import TransactionTime
+from fileparser.trans_flow.trans_z05_amount_standardization import TransactionAmt
+from fileparser.trans_flow.trans_z06_balance_standardization import TransactionBalance
+from fileparser.trans_flow.trans_z07_opponent_info_standardization import OpponentInfo
+from fileparser.trans_flow.trans_z08_other_info_standardization import TransactionOtherInfo
+from fileparser.trans_flow.trans_z09_flow_raw_data import TransFlowRawData
+from portrait.transflow.single_account_portrait.trans_flow import TransFlowBasic
 
 # 流水报告解析及验真
 logger = LoggerUtil().logger(__name__)
@@ -55,6 +57,7 @@ class Parser001(Parser):
         logger.info("流水报告解析及验真参数:file:%s", self.file)
 
         # 1.传入文件,检验是否存在标题行,以及标题行以上是否存在银行,姓名,账号等信息,若存在则与客户所填的信息进行匹配
+        logger.info("%d-----------------------%s" % (1, '进行标题行校验'))
         trans_profile = TransProfile(self.file, self.param)
         trans_profile.trans_title_check()
         # 若匹配不上,则直接返回相应的回应报文
@@ -62,14 +65,17 @@ class Parser001(Parser):
             return trans_profile.resp
 
         # 2.将1中得到的流水数据传入流水数据标准化类,即去掉不需要的行(空行,总结行等)
+        logger.info("%d-----------------------%s" % (2, '进行流水数据标准化'))
         trans_data_standardization = TransDataStandardization(trans_profile.trans_data)
         trans_data_standardization.standard()
 
         # 3.将2中得到的流水数据传入基准类,将流水数据的标题行粗略分类
+        logger.info("%d-----------------------%s" % (3, '进行标题行分类'))
         trans_basic = TransBasic(trans_data_standardization.trans_data)
         trans_basic.match_title()
 
         # 4.将3中得到的流水数据传入交易时间处理类,并进行时间间隔校验,并将流水数据按照交易时间顺序排列
+        logger.info("%d-----------------------%s" % (4, '进行时间列校验'))
         transaction_time = TransactionTime(trans_basic.df, trans_basic.col_mapping, trans_profile.title_params)
         # 将时间列都转化为标准时间,若出现转化错误则直接返回相应的回应报文
         transaction_time.time_match()
@@ -81,6 +87,7 @@ class Parser001(Parser):
             return transaction_time.resp
 
         # 5.将4中得到的流水数据传入交易金额列处理类
+        logger.info("%d-----------------------%s" % (5, '进行交易金额列校验'))
         transaction_amt = TransactionAmt(transaction_time.df, trans_basic.col_mapping)
         # 将交易金额列转化为标准金额,若出现转化错误则直接返回相应的回应报文
         transaction_amt.amt_match()
@@ -88,6 +95,7 @@ class Parser001(Parser):
             return transaction_amt.resp
 
         # 6.将5中得到的流水数据传入交易余额列处理类
+        logger.info("%d-----------------------%s" % (6, '进行交易余额列校验'))
         transaction_bal = TransactionBalance(transaction_amt.df, trans_basic.col_mapping)
         # 将交易余额列转化为标准金额,若出现转化错误则直接返回相应的回应报文
         transaction_bal.balance_match()
@@ -99,21 +107,22 @@ class Parser001(Parser):
             return transaction_bal.resp
 
         # 7.将6中得到的流水数据传入交易对手相关信息列处理类
+        logger.info("%d-----------------------%s" % (7, '进行交易对手信息列处理'))
         opponent_info = OpponentInfo(transaction_bal.df, trans_basic.col_mapping)
         opponent_info.opponent_info_match()
 
         # 8.将7中得到的流水数据传入其他交易信息列处理类
+        logger.info("%d-----------------------%s" % (8, '进行其他交易信息列处理'))
         other_info = TransactionOtherInfo(opponent_info.df, trans_basic.col_mapping)
         other_info.trans_info_match()
 
-        # todo 后续包括原始数据落库,标签处理,画像数据落库
+        # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
+        logger.info("%d-----------------------%s" % (9, '进行数据落库'))
+        trans_flow = TransFlowBasic()
+        raw_data = TransFlowRawData(trans_flow, self.param, trans_profile.title_params)
+        raw_data.df = raw_data.remove_duplicate_data(other_info.df)
+        # 若没有新增数据将不进行落库操作
+        if raw_data.new_data:
+            raw_data.save_raw_data()
 
-        # resp = {
-        #     "resCode": "0",
-        #     "resMsg": "成功",
-        #     "data": {
-        #         "warningMsg": []
-        #     }
-        # }
-        #
-        # return resp
+        return trans_profile.resp

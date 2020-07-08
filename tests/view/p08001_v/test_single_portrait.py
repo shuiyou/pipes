@@ -1,10 +1,10 @@
-from view.p08001_v.single_portrait import SingleProtrait
-from view.p08001_v.trans_flow import TransFlow
-from view.p08001_v.single_summary_portrait import SingleSummaryPortrait
-from view.p08001_v.single_remark_portrait import SingleRemarkPortrait
-from view.p08001_v.single_conterparty_portrait import SingleCounterpartyPortrait
-from view.p08001_v.single_loan_portrait import SingleLoanPortrait
-from view.p08001_v.single_related_portrait import SingleRelatedPortrait
+from portrait.transflow.single_account_portrait.trans_z02_single_portrait import SingleProtrait
+from portrait.transflow.single_account_portrait.trans_flow import TransFlow
+from portrait.transflow.single_account_portrait.trans_z03_single_summary_portrait import SingleSummaryPortrait
+from portrait.transflow.single_account_portrait.trans_z04_single_remark_portrait import SingleRemarkPortrait
+from portrait.transflow.single_account_portrait.trans_z05_single_counterparty_portrait import SingleCounterpartyPortrait
+from portrait.transflow.single_account_portrait.trans_z07_single_loan_portrait import SingleLoanPortrait
+from portrait.transflow.single_account_portrait.trans_z06_single_related_portrait import SingleRelatedPortrait
 from sqlalchemy import create_engine
 import pandas as pd
 import random
@@ -39,6 +39,7 @@ def real_df():
 
 base = TransFlow()
 r_df = real_df()
+# r_df = pd.read_excel(r'E:\二级流水\TEST_CASE.xls')
 r_df['loan_type'] = ''
 base.trans_flow_portrait_df = r_df
 base.trans_flow_portrait_df_2_year = r_df
