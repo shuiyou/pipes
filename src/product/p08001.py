@@ -60,8 +60,7 @@ class P08001(Generate):
                 else:
                     response_array.append(data)
 
-            resp = self._query_entity_hand_shake(json_data, main_node, req_no, report_req_no, is_single,
-                                                 query_data_array)
+            resp = self._query_entity_hand_shake(json_data, main_node, query_data_array)
             response_array.append(resp)
 
             resp = {
@@ -76,7 +75,7 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def _query_entity_hand_shake(self, json_data, data, req_no, report_req_no, is_single, query_data_array):
+    def _query_entity_hand_shake(self, json_data, data, query_data_array):
         """
         流水握手的相关信息处理
         """
@@ -84,10 +83,24 @@ class P08001(Generate):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
-        bank_name = data.get('bankName')
-        bank_account = data.get('bankAccount')
         user_type = data.get('userType')
         base_type = data.get("baseType")
+
+        req_no = json_data.get('reqNo')
+        report_req_no = json_data.get("preReportReqNo")
+        product_code = json_data.get('productCode')
+        is_single = json_data.get("single")
+
+        public_param = {
+            "reqNo": req_no,
+            "reportReqNo": report_req_no,
+            "productCode": product_code,
+            "isSingle": is_single,
+            "outApplyNo": json_data.get("outApplyNo"),
+            "applyAmt": json_data.get("applyAmt"),
+            "renewLoans": json_data.get("renewLoans"),
+            "historicalBiz": json_data.get("historicalBiz")
+        }
 
         var_item = {
             "bizType": product_codes_dict[json_data.get("productCode")]
@@ -95,7 +108,8 @@ class P08001(Generate):
 
         var_item.update(data)
         portrait_processor = self._obtain_portrait_processor(is_single)
-        portrait_processor.init(var_item, query_data_array, req_no, report_req_no, user_name, user_type, base_type, id_card_no, phone, bank_name, bank_account, data, cached_data)
+        portrait_processor.init(var_item, query_data_array, user_name, user_type, base_type,
+                                id_card_no, phone, data, public_param, cached_data)
         portrait_processor.process()
 
         return var_item
