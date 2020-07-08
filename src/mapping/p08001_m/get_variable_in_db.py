@@ -1,5 +1,7 @@
 import pandas as pd
 from datetime import datetime
+
+from mapping.utils.df_utils import df_value
 from util.mysql_reader import sql_to_df
 from mapping.trans_module_processor import TransModuleProcessor
 
@@ -22,15 +24,16 @@ class GetVariableInDB(TransModuleProcessor):
         """
         portrait = sql_to_df(sql=sql,
                              params={"report_req_no": self.reqno})
-        self.variables['balance_0_to_5_prop'] = portrait['balance_0_to_5_day'].values / flow_cnt
-        self.variables['income_0_to_5_prop'] = portrait['income_0_to_5_cnt'].values / flow_cnt
-        self.variables['balance_min_weight'] = portrait['balance_weight_min'].values
-        self.variables['balance_max_weight'] = portrait['balance_weight_max'].values
-        self.variables['income_max_weight'] = portrait['income_weight_max'].values
-        self.variables['normal_income_mean'] = portrait['normal_income_mean'].values
-        self.variables['normal_income_amt_d_mean'] = portrait['normal_income_amt_d_mean'].values
-        self.variables['normal_income_amt_m_mean'] = portrait['normal_income_amt_m_mean'].values
-        self.variables['relationship_risk'] = portrait['relationship_risk'].values
+        if flow_cnt > 0:
+            self.variables['balance_0_to_5_prop'] = df_value(portrait['balance_0_to_5_day']) / flow_cnt
+            self.variables['income_0_to_5_prop'] = df_value(portrait['income_0_to_5_cnt']) / flow_cnt
+        self.variables['balance_min_weight'] = df_value(portrait['balance_weight_min'])
+        self.variables['balance_max_weight'] = df_value(portrait['balance_weight_max'])
+        self.variables['income_max_weight'] = df_value(portrait['income_weight_max'])
+        self.variables['normal_income_mean'] = df_value(portrait['normal_income_mean'])
+        self.variables['normal_income_d_mean'] = df_value(portrait['normal_income_d_mean'])
+        self.variables['normal_income_m_mean'] = df_value(portrait['normal_income_m_mean'])
+        self.variables['relationship_risk'] = df_value(portrait['relationship_risk'])
 
     def _from_u_summary_portrait(self):
         sql = """
@@ -40,23 +43,26 @@ class GetVariableInDB(TransModuleProcessor):
         """
         summary_portrait = sql_to_df(sql=sql,
                                      params={"report_req_no": self.reqno})
-        self.variables['half_year_interest_amt'] = summary_portrait[summary_portrait['month'] == 'half_year'][
-            'interest_amt'].values
-        self.variables['half_year_balance_amt'] = summary_portrait[summary_portrait['month'] == 'half_year'][
-            'balance_amt'].values
-        self.variables['year_interest_amt'] = summary_portrait[summary_portrait['month'] == 'year'][
-            'interest_amt'].values
-        self.variables['q_2_balance_amt'] = summary_portrait[summary_portrait['month'] == 'quarter2'][
-            'balance_amt'].values
-        self.variables['q_3_balance_amt'] = summary_portrait[summary_portrait['month'] == 'quarter3'][
-            'balance_amt'].values
-        self.variables['year_interest_balance_prop'] = summary_portrait[summary_portrait['month'] == 'year'][
-            'interest_balance_proportion'].values
-        self.variables['q_4_interest_balance_prop'] = summary_portrait[summary_portrait['month'] == 'quarter4'][
-            'interest_balance_proportion'].values
-        self.variables['income_net_rate_compare_2'] = \
-            summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() \
-            / summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum()
+        self.variables['half_year_interest_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'half_year'][
+            'interest_amt'])
+        self.variables['half_year_balance_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'half_year'][
+            'balance_amt'])
+        self.variables['year_interest_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'year'][
+            'interest_amt'])
+        self.variables['q_2_balance_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter2'][
+            'balance_amt'])
+        self.variables['q_3_balance_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter3'][
+            'balance_amt'])
+        self.variables['year_interest_balance_prop'] = df_value(summary_portrait[summary_portrait['month'] == 'year'][
+            'interest_balance_proportion'])
+        self.variables['q_4_interest_balance_prop'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter4'][
+            'interest_balance_proportion'])
+
+        val = summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum()
+        if val > 0:
+            self.variables['income_net_rate_compare_2'] = \
+                summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() \
+                / summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum()
 
     def _from_u_counterparty(self):
         sql = """
@@ -66,29 +72,28 @@ class GetVariableInDB(TransModuleProcessor):
         """
         counterparty = sql_to_df(sql=sql,
                                  params={"report_req_no": self.reqno})
-        self.variables['income_rank_1_amt'] = counterparty[(counterparty['income_amt_order'] == 1)
-                                                           & (counterparty['month'] == '汇总')]['trans_amt'].values
-        self.variables['income_rank_2_amt'] = counterparty[(counterparty['income_amt_order'] == 2)
-                                                           & (counterparty['month'] == '汇总')]['trans_amt'].values
-        self.variables['income_rank_3_amt'] = counterparty[(counterparty['income_amt_order'] == 3)
-                                                           & (counterparty['month'] == '汇总')]['trans_amt'].values
-        self.variables['income_rank_4_amt'] = counterparty[(counterparty['income_amt_order'] == 4)
-                                                           & (counterparty['month'] == '汇总')]['trans_amt'].values
+        self.variables['income_rank_1_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 1)
+                                                           & (counterparty['month'] == '汇总')]['trans_amt'])
+        self.variables['income_rank_2_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
+                                                           & (counterparty['month'] == '汇总')]['trans_amt'])
+        self.variables['income_rank_3_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 3)
+                                                           & (counterparty['month'] == '汇总')]['trans_amt'])
+        self.variables['income_rank_4_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 4)
+                                                           & (counterparty['month'] == '汇总')]['trans_amt'])
 
-        self.variables['income_rank_2_cnt_prop'] = counterparty[(counterparty['income_amt_order'] == 2)
-                                                                & (counterparty['month'] == '汇总')]['trans_cnt'].values / \
-                                                   counterparty[(counterparty['income_amt_order'] == '前100%')
-                                                                & (counterparty['month'] == '汇总')]['trans_cnt'].values
+        val = df_value(counterparty[(counterparty['income_amt_order'] == '前100%') & (counterparty['month'] == '汇总')]['trans_cnt'])
+        if val > 0:
+            self.variables['income_rank_2_cnt_prop'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
+                                                                    & (counterparty['month'] == '汇总')]['trans_cnt']) / val
 
-        self.variables['expense_rank_6_avg_gap'] = counterparty[(counterparty['expense_amt_order'] == 6)
-                                                                & (counterparty['month'] == '汇总')][
-            'trans_gap_avg'].values
-        self.variables['income_rank_9_avg_gap'] = counterparty[(counterparty['income_amt_order'] == 9)
-                                                               & (counterparty['month'] == '汇总')][
-            'trans_gap_avg'].values
-        self.variables['expense_rank_10_avg_gap'] = counterparty[(counterparty['expense_amt_order'] == 10)
-                                                                 & (counterparty['month'] == '汇总')][
-            'trans_gap_avg'].values
+        self.variables['expense_rank_6_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == 6)
+                                                                & (counterparty['month'] == '汇总')]['trans_gap_avg'])
+
+        self.variables['income_rank_9_avg_gap'] = df_value(counterparty[(counterparty['income_amt_order'] == 9)
+                                                               & (counterparty['month'] == '汇总')]['trans_gap_avg'])
+
+        self.variables['expense_rank_10_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == 10)
+                                                                 & (counterparty['month'] == '汇总')]['trans_gap_avg'])
 
     def _from_u_loan_portrait(self):
         sql = """
@@ -107,33 +112,31 @@ class GetVariableInDB(TransModuleProcessor):
         self.variables['private_income_amt_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                    & (loan_portrait['loan_type'] == '民间借贷')][
             'loan_amt'].sum()
-        self.variables['private_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
-                                                                    & (loan_portrait['loan_type'] == '民间借贷')][
-                                                          'loan_amt'].sum() / \
-                                                      loan_portrait[(loan_portrait.month.isin(cm_12))
-                                                                    & (loan_portrait['loan_type'] == '民间借贷')][
-                                                          'loan_cnt'].sum()
+        val = loan_portrait[(loan_portrait.month.isin(cm_12)) & (loan_portrait['loan_type'] == '民间借贷')]['loan_cnt'].sum()
+        if val > 0:
+            self.variables['private_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+                                                                        & (loan_portrait['loan_type'] == '民间借贷')][
+                                                              'loan_amt'].sum() / val
 
         self.variables['pettyloan_income_amt_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                      & (loan_portrait['loan_type'] == '小贷')][
             'loan_amt'].sum()
-        self.variables['pettyloan_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
-                                                                      & (loan_portrait['loan_type'] == '小贷')][
-                                                            'loan_amt'].sum() / \
-                                                        loan_portrait[(loan_portrait.month.isin(cm_12))
-                                                                      & (loan_portrait['loan_type'] == '小贷')][
-                                                            'loan_cnt'].sum()
+
+        val = loan_portrait[(loan_portrait.month.isin(cm_12))& (loan_portrait['loan_type'] == '小贷')]['loan_cnt'].sum()
+        if val > 0:
+            self.variables['pettyloan_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+                                                                          & (loan_portrait['loan_type'] == '小贷')][
+                                                                'loan_amt'].sum() / val
 
         self.variables['finlease_expense_cnt_6_cm'] = loan_portrait[(loan_portrait.month.isin(cm_6))
                                                                     & (loan_portrait['loan_type'] == '融资租赁')][
             'repay_cnt'].sum()
 
-        self.variables['otherfin_income_mean_3_cm'] = loan_portrait[(loan_portrait.month.isin(cm_3))
-                                                                    & (loan_portrait['loan_type'] == '其他金融')][
-                                                          'loan_amt'].sum() / \
-                                                      loan_portrait[(loan_portrait.month.isin(cm_3))
-                                                                    & (loan_portrait['loan_type'] == '其他金融')][
-                                                          'loan_cnt'].sum()
+        val = loan_portrait[(loan_portrait.month.isin(cm_3)) & (loan_portrait['loan_type'] == '其他金融')]['loan_cnt'].sum()
+        if val > 0:
+            self.variables['otherfin_income_mean_3_cm'] = loan_portrait[(loan_portrait.month.isin(cm_3))
+                                                                        & (loan_portrait['loan_type'] == '其他金融')][
+                                                              'loan_amt'].sum() / val
 
         self.variables['all_loan_expense_cnt_3_cm'] = loan_portrait[loan_portrait.month.isin(cm_3)]['repay_cnt'].sum()
 
@@ -145,5 +148,4 @@ class GetVariableInDB(TransModuleProcessor):
         """
         related_portrait = sql_to_df(sql=sql,
                                      params={"report_req_no": self.reqno})
-        self.variables['enterprise_3_income_amt'] = related_portrait[related_portrait['relationship'] == '借款人作为股东的企业'][
-            'income_amt'].values()
+        self.variables['enterprise_3_income_amt'] = related_portrait[related_portrait['relationship'] == '借款人作为股东的企业']['income_amt'].sum()

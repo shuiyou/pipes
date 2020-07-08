@@ -1,5 +1,7 @@
 import pandas as pd
 from datetime import datetime
+
+from mapping.utils.df_utils import nan_to_zero
 from util.mysql_reader import sql_to_df
 from mapping.trans_module_processor import TransModuleProcessor
 
@@ -40,17 +42,17 @@ class GetVariableInFlow(TransModuleProcessor):
     def _balance(self):
         flow_df = self.trans_u_flow_portrait
         balance = flow_df['account_balance']
-        self.variables['balance_mean'] = balance.mean()
-        self.variables['balance_max'] = balance.max()
-        self.variables['balance_max_0_to_5'] = balance[balance <= 50000].max()
+        self.variables['balance_mean'] = nan_to_zero(balance.mean())
+        self.variables['balance_max'] = nan_to_zero(balance.max())
+        self.variables['balance_max_0_to_5'] = nan_to_zero(balance[balance <= 50000].max())
 
     # 进账金额   笔均 笔均-1倍标准差 笔均+1倍标准差 笔均-2倍标准差 笔均+2倍标准差
     def _income(self):
         flow_df = self.trans_u_flow_portrait
         trans_amt = flow_df['trans_amt']
-        income_mean = trans_amt[trans_amt > 0].mean()
+        income_mean = nan_to_zero(trans_amt[trans_amt > 0].mean())
         self.variables['income_mean'] = income_mean
-        income_std = trans_amt[trans_amt > 0].std()
+        income_std = nan_to_zero(trans_amt[trans_amt > 0].std())
         self.variables['mean_sigma_left'] = income_mean - income_std
         self.variables['mean_sigma_right'] = income_mean + income_std
         self.variables['mean_2_sigma_left'] = income_mean - 2 * income_std
@@ -59,8 +61,7 @@ class GetVariableInFlow(TransModuleProcessor):
     # 交易对手类
     def _opponent(self):
         flow_df = self.trans_u_flow_portrait
-        distinct_opponent_name = flow_df['opponent_name'].drop_duplicates(["opponent_name"], keep='first')
-        self.variables['opponent_cnt'] = distinct_opponent_name.count()
+        self.variables['opponent_cnt'] = flow_df[pd.notnull(flow_df.opponent_name)]['opponent_name'].nunique()
 
     # 关联关系类
     def _related(self):
@@ -69,10 +70,11 @@ class GetVariableInFlow(TransModuleProcessor):
         income_flow = flow_df[flow_df['trans_amt'] > 0]
         self.variables['enterprise_3_income_amt'] = \
             income_flow[income_flow['relationship'] == '借款人作为股东的企业']['trans_amt'].sum()
-        self.variables['enterprise_3_expense_cnt_prop'] = \
-            len(expense_flow[expense_flow['relationship'] == '借款人作为股东的企业']) / len(expense_flow)
-        self.variables['all_relations_expense_cnt_prop'] = \
-            len(expense_flow[pd.notnull(expense_flow['relationship'])]) / len(expense_flow)
+        if len(expense_flow) > 0:
+            self.variables['enterprise_3_expense_cnt_prop'] = \
+                len(expense_flow[expense_flow['relationship'] == '借款人作为股东的企业']) / len(expense_flow)
+            self.variables['all_relations_expense_cnt_prop'] = \
+                len(expense_flow[pd.notnull(expense_flow['relationship'])]) / len(expense_flow)
 
     # 日常经营类
     def _normal(self):
