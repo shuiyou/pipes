@@ -188,7 +188,7 @@ class CreditInfoProcessor(ModuleProcessor):
         for row in df.itertuples():
             if row.repay_amount * 2 > row.amout_replay_amount:
                 count = count + 1
-        self.variables["credit_financial_tension"] = (max_v + 1) * min(2, count)
+        self.variables["credit_financial_tension"] = (count + 1) * min(2, max_v)
 
     @staticmethod
     def _check_is_null(value):
@@ -237,7 +237,7 @@ class CreditInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if (pd.isna(row.status) or not row.status.isdigit()) and row.repayment_amt == 0:
+            if (pd.isna(row.status) or not row.status.isdigit()) and (pd.isna(row.repayment_amt) or row.repayment_amt == 0):
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + 1
@@ -256,7 +256,10 @@ class CreditInfoProcessor(ModuleProcessor):
         if loan_df.empty or repayment_df.empty:
             return
 
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit()) ')
+        # repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
+        repayment_df = repayment_df[(repayment_df.record_id.isin(list(loan_df.id))) &
+                                    ((repayment_df.repayment_amt > 0) |
+                                     (repayment_df.status.str.isdigit()))]
         count = repayment_df.shape[0]
         self.variables["credit_total_overdue_cnt"] = count
 

@@ -76,7 +76,7 @@ class Tf0004(Transformer):
             self.ent_list.append(credit_str)
         else:
             self.ent_list = ['Na', 'Na']
-        print("获取ent_list耗时:%.4f" % (time.time()-t1))
+        # print("获取ent_list耗时:%.4f" % (time.time()-t1))
         return
 
     # 根据ent_list获取需要info_court表中对应的记录id
@@ -162,7 +162,7 @@ class Tf0004(Transformer):
             df_after_loan = sql_to_df(sql=sql_after_loan,
                                       params={'id': self.id_list[1]})
             df_compare(self.variables, df_before_loan, df_after_loan, var)
-            print("变量%s赋值耗时:%.4f" % (var, time.time()-t1))
+            # print("变量%s赋值耗时:%.4f" % (var, time.time()-t1))
 
     # 判断命中合同纠纷次数相关变量是否发生变化
     def _hit_contract_dispute_times(self):
@@ -225,7 +225,7 @@ class Tf0004(Transformer):
             df_after_loan = pd.concat([df_after_loan1, df_after_loan2],
                                       axis=0, ignore_index=True, sort=False)
             df_compare(self.variables, df_before_loan, df_after_loan, var)
-            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
+            # print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
 
     # 判断借款合同纠纷命中数是否有新增
     def _com_bus_court_open_loan_con_laf(self):
@@ -289,7 +289,7 @@ class Tf0004(Transformer):
         df_after_loan = pd.concat([df_after_loan1, df_after_loan2],
                                   axis=0, ignore_index=True, sort=False)
         df_compare(self.variables, df_before_loan, df_after_loan, 'com_bus_court_open_loan_con_laf')
-        print("变量%s赋值耗时:%.4f" % ('com_bus_court_open_loan_con_laf', time.time() - t1))
+        # print("变量%s赋值耗时:%.4f" % ('com_bus_court_open_loan_con_laf', time.time() - t1))
 
     # 统计欠税名单,纳税非正常户新增命中次数
     def _count_hit_times_newly_increased(self):
@@ -314,7 +314,7 @@ class Tf0004(Transformer):
                            params={'id': self.id_list[1],
                                    'result_date': self.pre_biz_date})
             self.variables[var] = df.values[0][0]
-            print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
+            # print("变量%s赋值耗时:%.4f" % (var, time.time() - t1))
 
     # 统计执行公开信息新增命中次数
     def _com_bus_court_open_pub_info_laf(self):
@@ -330,7 +330,7 @@ class Tf0004(Transformer):
         df = sql_to_df(sql=sql,
                        params={'id': self.id_list[1]})
         self.variables['com_bus_court_open_pub_info_laf'] = df.values[0][0]
-        print("变量%s赋值耗时:%.4f" % ('com_bus_court_open_pub_info_laf', time.time() - t1))
+        # print("变量%s赋值耗时:%.4f" % ('com_bus_court_open_pub_info_laf', time.time() - t1))
 
     # 执行变量转换
     def transform(self):
@@ -345,22 +345,22 @@ class Tf0004(Transformer):
 
         self._get_ent_list()
         t1 = time.time()
-        print("方法_get_ent_list耗时:%.4f" % (t1 - t0))
+        # print("方法_get_ent_list耗时:%.4f" % (t1 - t0))
         self._get_info_court_id()
         tx = time.time()
-        print("方法_get_info_court_id耗时:%.4f" % (tx-t1))
+        # print("方法_get_info_court_id耗时:%.4f" % (tx-t1))
         self._hit_list_times()
         t2 = time.time()
-        print("方法_hit_list_times耗时:%.4f" % (t2 - tx))
+        # print("方法_hit_list_times耗时:%.4f" % (t2 - tx))
         self._hit_contract_dispute_times()
         t3 = time.time()
-        print("方法_hit_contract_dispute_times耗时:%.4f" % (t3 - t2))
+        # print("方法_hit_contract_dispute_times耗时:%.4f" % (t3 - t2))
         self._com_bus_court_open_loan_con_laf()
         t4 = time.time()
-        print("方法_com_bus_court_open_loan_con_laf耗时:%.4f" % (t4 - t3))
+        # print("方法_com_bus_court_open_loan_con_laf耗时:%.4f" % (t4 - t3))
         self._count_hit_times_newly_increased()
         t5 = time.time()
-        print("方法_count_hit_times_newly_increased耗时:%.4f" % (t5 - t4))
+        # print("方法_count_hit_times_newly_increased耗时:%.4f" % (t5 - t4))
         self._com_bus_court_open_pub_info_laf()
         t6 = time.time()
-        print("方法_com_bus_court_open_pub_info_laf耗时:%.4f" % (t6 - t5))
+        # print("方法_com_bus_court_open_pub_info_laf耗时:%.4f" % (t6 - t5))

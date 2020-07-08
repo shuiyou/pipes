@@ -200,7 +200,7 @@ class LoanInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if (pd.isna(row.status) or not row.status.isdigit()) and row.repayment_amt == 0:
+            if (pd.isna(row.status) or not row.status.isdigit()) and (row.repayment_amt == 0 or pd.isna(row.repayment_amt)):
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + 1
@@ -217,8 +217,11 @@ class LoanInfoProcessor(ModuleProcessor):
         if loan_df.empty or repayment_df.empty:
             return
         repayment_df["status"] = repayment_df["status"].fillna("")
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id))
-                                          + ' and (repayment_amt > 0 or status.str.isdigit())')
+        # repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id))
+        #                                   + ' and (repayment_amt > 0 or status.str.isdigit())')
+        repayment_df = repayment_df[(repayment_df.record_id.isin(list(loan_df.id))) &
+                                    ((repayment_df.repayment_amt > 0) |
+                                     (repayment_df.status.str.isdigit()))]
         self.variables["loan_total_overdue_cnt"] = repayment_df.shape[0]
 
     # 贷款最大连续逾期
@@ -249,10 +252,11 @@ class LoanInfoProcessor(ModuleProcessor):
         # count(从pcredit_loan中report_id=report_id且account_type=01,02,03且loan_status=8的记录)
         pcredit_loan_df = self.cached_data["pcredit_loan"]
         pcredit_special_df = self.cached_data["pcredit_special"]
-        pcredit_loan_df_temp=pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01','02','03'])]
-        pcredit_special_df_temp=pcredit_special_df[pcredit_special_df['special_type']=='8']
-        df_temp=pd.merge(pcredit_loan_df_temp,pcredit_special_df_temp,left_on='id',right_on='record_id',how='left')
-        self.variables['loan_status_legal_cnt']=df_temp.shape[0]
+        pcredit_loan_df_temp = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01', '02', '03'])]
+        pcredit_special_df_temp = pcredit_special_df[pcredit_special_df['special_type'] == '8']
+        df_temp = pd.merge(pcredit_special_df_temp, pcredit_loan_df_temp, left_on='record_id',
+                           right_on='id', how='left')
+        self.variables['loan_status_legal_cnt'] = df_temp.shape[0]
 
     #  贷款账户状态存在"银行止付、冻结"
     def _loan_status_b_level_cnt(self):

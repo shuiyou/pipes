@@ -42,11 +42,15 @@ class P06001(Generate):
             for data in query_data_array:
                 resp = hand_shake_service.hand_shake(base_type_service, data, product_code, req_no)
                 response_array.append(resp)
+
             final_resp = {
-                'productCode': product_code,
-                'reqNo': req_no,
                 'queryData': response_array
             }
+
+            for key in json_data:
+                val = json_data.get(key)
+                if not isinstance(val, dict) and not isinstance(val, list):
+                    final_resp[key] = val
             self.response = final_resp
 
             logger.info("2. 贷后报告决策握手流程结束 应答 Defensor报文为：%s", json.dumps(self.response))
@@ -63,6 +67,8 @@ class P06001(Generate):
             req_no = strategy_param.get('reqNo')
             product_code = strategy_param.get('productCode')
             step_req_no = strategy_param.get('stepReqNo')
+            pre_report_req_no = strategy_param.get('preReportReqNo')
+            pre_biz_date = strategy_param.get('preBizDate')
             version_no = strategy_param.get('versionNo')
             query_data_array = strategy_param.get('queryData')
             subject = []
@@ -72,6 +78,8 @@ class P06001(Generate):
             index = 0
             total = len(query_data_array)
             for data in query_data_array:
+                data["preReportReqNo"] = pre_report_req_no
+                data["pre_biz_date"] = pre_biz_date
                 index = index + 1
                 logger.info("strategy_process------------" + str(index) + "/" + str(total))
                 resp = strategy_service.strategy(self.df_client, data, product_code, req_no)

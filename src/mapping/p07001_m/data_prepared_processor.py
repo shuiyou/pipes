@@ -12,7 +12,7 @@ from util.mysql_reader import sql_to_df
 class DataPreparedProcessor(ModuleProcessor):
 
     def process(self):
-        print("DataPreparedProcessor process")
+        # print("DataPreparedProcessor process")
         # credit_parse_request表
         report_id = self._credit_parse_request_extract()
         # 表数据转换为DataFrame

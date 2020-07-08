@@ -451,7 +451,7 @@ class PcreditAccSpeculateView(ModuleProcessor):
         if not df.empty:
             year = date.year
             month = date.month
-            df = df[(df['year'] == year) & (df['month'] == month) &(df['account_status'] == '1')]
+            df = df[(df['year'] == year) & (df['month'] == month)]
             if param is not None:
                 df = df[df[param].isin(param_value_list)]
             return df.loc[:, 'loan_balance'].sum()
