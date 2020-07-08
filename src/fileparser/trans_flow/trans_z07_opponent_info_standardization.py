@@ -57,7 +57,7 @@ class OpponentInfo:
             neg = self.col_mapping[opponent_info][0]
             pos = self.col_mapping[opponent_info][1]
             for i in self.df.index:
-                if self.df.loc[i, 'transaction_amt'] > 0:
+                if self.df.loc[i, 'trans_amt'] > 0:
                     self.df.loc[i, col_name] = self.df.loc[i, neg]
                 else:
                     self.df.loc[i, col_name] = self.df.loc[i, pos]

@@ -49,7 +49,7 @@ class TransactionBalance:
         return
 
     def _one_col_match(self, col):
-        self.df['transaction_balance'] = self.df[col].fillna('').astype(str). \
+        self.df['account_balance'] = self.df[col].fillna('').astype(str). \
                 apply(lambda x: re.sub(r'[^\d.]', '', x)).replace('', '0').astype(float)
         return
 
@@ -70,14 +70,13 @@ class TransactionBalance:
         last = -1
         for row in self.df.itertuples():
             if last == -1:
-                last = getattr(row, 'transaction_balance')
+                last = getattr(row, 'account_balance')
             else:
-                trans_amt = getattr(row, 'transaction_amount')
-                trans_bal = getattr(row, 'transaction_balance')
+                trans_amt = getattr(row, 'trans_amt')
+                trans_bal = getattr(row, 'account_balance')
                 if float(decimal.Decimal(str(trans_amt)) + decimal.Decimal(str(last))) != trans_bal:
                     self.basic_status = False
                     self.resp['resCode'] = '22'
                     self.resp['resMsg'] = '验真失败'
                     self.resp['data']['warningMsg'] = ['该流水存在余额与交易金额不匹配的行,该流水为假流水']
-
-
+                    return

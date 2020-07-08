@@ -1,5 +1,5 @@
 from abc import ABC
-from parser.Parser import Parser
+from fileparser.Parser import Parser
 import pandas as pd
 import re
 

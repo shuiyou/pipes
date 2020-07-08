@@ -1,16 +1,49 @@
-from fileparser.single_account_portrait.trans_flow import transform_class_str
+
+from portrait.transflow.single_account_portrait.trans_flow import transform_class_str
+from portrait.transflow.single_account_portrait.trans_mapping import base_type_mapping
 import pandas as pd
 import datetime
 import re
 
 
-class TransFlowRawData:
+class TransSingleLabel:
+    """
+    单账户标签画像表清洗并落库
+    author:汪腾飞
+    created_time:20200706
+    updated_time_v1:
+    """
 
-    def __init__(self, trans_data, trans_flow):
-        self.df = trans_data
+    def __init__(self, trans_flow):
         self.db = trans_flow.db
-        self.raw_list = []
+        self.query_data_array = trans_flow.query_data_array
+        self.report_req_no = trans_flow.report_req_no
+        self.account_id = trans_flow.account_id
+        self.df = trans_flow.trans_flow_df
         self.label_list = []
+
+    def process(self):
+        if self.df is None:
+            return
+        self._relationship_dict()
+        self._loan_type_label()
+        self._unusual_type_label()
+        self._in_out_order()
+
+        self.save_raw_data()
+        self.db.session.add_all(self.label_list)
+        self.db.session.commit()
+
+    def _relationship_dict(self):
+        """
+        生成姓名和关联关系对应的字典,需要将编码形式的关联关系转化为中文关联关系
+        :return:
+        """
+        length = len(self.query_data_array)
+        self.relation_dict = dict()
+        for i in range(length):
+            temp = self.query_data_array[i]
+            self.relation_dict[temp['name']] = base_type_mapping[temp['ralation']]
 
     def _loan_type_label(self):
         """
@@ -127,9 +160,9 @@ class TransFlowRawData:
                                 (self.df.opponent_type == 2)]
         expense_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
                                  (self.df.opponent_type == 2)]
-        income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}).\
+        income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
-        income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}).\
+        income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
         expense_per_cnt_list = expense_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
@@ -144,46 +177,47 @@ class TransFlowRawData:
         expense_com_amt_list = expense_com_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
             sort_values(by='trans_amt', ascending=True).index.to_list()[:10]
         for i in range(len(income_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_cnt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == income_per_cnt_list[i]) &
                         (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
         for i in range(len(income_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_cnt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == income_com_cnt_list[i]) &
                         (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
         for i in range(len(expense_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_cnt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == expense_per_cnt_list[i]) &
                         (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
         for i in range(len(expense_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_cnt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == expense_com_cnt_list[i]) &
                         (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
         for i in range(len(income_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_amt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == income_per_amt_list[i]) &
                         (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
         for i in range(len(income_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_amt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == income_com_amt_list[i]) &
                         (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
         for i in range(len(expense_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_amt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == expense_per_amt_list[i]) &
                         (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
         for i in range(len(expense_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_amt_list[i]) & 
+            self.df.loc[(self.df['opponent_name'] == expense_com_amt_list[i]) &
                         (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
 
     def save_raw_data(self):
         # 原始数据列名
-        col_list = ['trans_time', 'opponent_name', 'trans_amt', 'account_balance', 'currency', 'opponent_account_no',
-                    'opponent_account_bank', 'trans_channel', 'trans_type', 'trans_use', 'remark']
+        col_list = ['trans_time', 'opponent_name', 'trans_amt', 'account_balance',
+                    'currency', 'opponent_account_no', 'opponent_account_bank', 'trans_channel',
+                    'trans_type', 'trans_use', 'remark']
+        # account_id = self.df['account_id'].max()
         for row in self.df.itertuples():
             temp_dict = dict()
-            # todo 所有的account_id和out_req_no都需要加到落库的表里面
-            temp_dict['account_id'] = ''
-            temp_dict['out_req_no'] = ''
+            # trans_flow表中的id
+            temp_dict['flow_id'] = getattr(row, 'id')
+            # 当前所有标签表中的account_id取最新录入的一笔流水的account_id
+            temp_dict['account_id'] = self.account_id
+            # 外部流水报告请求编号
+            temp_dict['report_req_no'] = self.report_req_no
+            # 其他trans_flow中的字段
             for col in col_list:
                 temp_dict[col] = getattr(row, 'col')
-            # 先把原始数据落到TransFlow表格中,再处理标签表
-            role = transform_class_str(temp_dict, 'TransFlow')
-            self.raw_list.append(role)
-
-            # 处理标签
             trans_amt = temp_dict['trans_amt']
             temp_dict['trans_date'] = temp_dict['trans_time'].date()
             temp_dict['trans_time'] = temp_dict['trans_time'].time()
@@ -198,11 +232,12 @@ class TransFlowRawData:
             phone = re.search(r'1[3-9]\d{9}', remark_num)
             if phone is not None:
                 temp_dict['phone'] = phone.group(0)
-            # todo 与该账户名的关系
-
+            # 与该账户名的关系
+            if self.relation_dict.__contains__(op_name):
+                temp_dict['relationship'] = self.relation_dict[op_name]
             # 将合并列拉出来
             concat_str = getattr(row, 'concat_str')
-            no_channel_str = op_name + ';' + remark + ';' + temp_dict['trans_use'] + ';' + temp_dict['trans_type']
+            no_channel_str = op_name + ';' + remark + ';' + str(temp_dict['trans_use']) + ';' + temp_dict['trans_type']
             # 是否为理财
             if re.search(r'(理财|钱生钱|余额宝|零钱通|招财盈|宜人财富)', concat_str):
                 temp_dict['is_financing'] = 1
@@ -311,7 +346,3 @@ class TransFlowRawData:
             # 将标签表数据落到数据库
             label_role = transform_class_str(temp_dict, 'TransFlowPortrait')
             self.label_list.append(label_role)
-        self.db.session.add_all(self.raw_list)
-        self.db.session.commit()  # todo 是否需要commit两次
-        self.db.session.add_all(self.label_list)
-        self.db.session.commit()

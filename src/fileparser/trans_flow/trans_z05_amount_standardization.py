@@ -70,7 +70,7 @@ class TransactionAmt:
                         self.amt_col.remove(col)
         return
 
-    def _one_col_match(self, col: str, col_name='transaction_amt'):
+    def _one_col_match(self, col: str, col_name='trans_amt'):
         """
         将对应的金额列转化为标准浮点型数据
         :param col: 需要转化的列名
@@ -91,25 +91,25 @@ class TransactionAmt:
         length = len(self.amt_col)
         if length == 1:
             if len(self.df.loc[self.df[self.amt_col[0]] < 0]) > 0:
-                self.df['transaction_amt'] = self.df[self.amt_col[0]]
+                self.df['trans_amt'] = self.df[self.amt_col[0]]
             elif tag:
-                self.df['transaction_amt'] = self.df['tag']*self.df[self.amt_col[0]]
+                self.df['trans_amt'] = self.df['tag']*self.df[self.amt_col[0]]
             else:
                 raise ValueError("未找到交易金额列")
         elif length == 2:
             if tag:
-                self.df['transaction_amt'] = self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
-                if len(self.df.loc[self.df.transaction_amt < 0]) == 0:
-                    self.df['transaction_amt'] = self.df['tag'] * self.df['transaction_amt']
+                self.df['trans_amt'] = self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
+                if len(self.df.loc[self.df.trans_amt < 0]) == 0:
+                    self.df['trans_amt'] = self.df['tag'] * self.df['trans_amt']
             else:
                 if re.search(r'(借|出|支|往|Debit)', self.amt_col[0]):
                     neg = len(self.df.loc[self.df[self.amt_col[0]] < 0])
                     multi = 1 if neg > 0 else -1
-                    self.df['transaction_amt'] = multi * self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
+                    self.df['trans_amt'] = multi * self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
                 elif re.search(r'(借|出|支|往|Debit)', self.amt_col[1]):
                     neg = len(self.df.loc[self.df[self.amt_col[1]] < 0])
                     multi = 1 if neg > 0 else -1
-                    self.df['transaction_amt'] = self.df[self.amt_col[0]] + multi * self.df[self.amt_col[1]]
+                    self.df['trans_amt'] = self.df[self.amt_col[0]] + multi * self.df[self.amt_col[1]]
                 else:
                     raise ValueError("存在多列无法区分的交易金额列")
         else:

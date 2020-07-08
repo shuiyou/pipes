@@ -1,28 +1,40 @@
 
-from fileparser.single_account_portrait.trans_flow import transform_class_str, months_ago
+from portrait.transflow.single_account_portrait.trans_flow import transform_class_str, months_ago
+import datetime
 
 
-class SingleLoanPortrait:
+class UnionLoanPortrait:
+    """
+    联合账户画像表_贷款信息
+    author:汪腾飞
+    created_time:20200708
+    updated_time_v1:
+    """
 
     def __init__(self, trans_flow):
         self.trans_flow_portrait_df = trans_flow.trans_flow_portrait_df_2_year
+        self.report_req_no = trans_flow.report_req_no
+        self.app_no = trans_flow.app_no
         self.db = trans_flow.db
-        self.variables = []
+        self.role_list = []
 
-    # todo account_id
     def process(self):
+        if self.trans_flow_portrait_df is None:
+            return
         self._loan_type_detail()
 
-        self.db.session.add_all(self.variables)
+        self.db.session.add_all(self.role_list)
         self.db.session.commit()
 
     def _loan_type_detail(self):
         flow_df = self.trans_flow_portrait_df
-        max_date = max(flow_df['trans_date'])
-        min_date = min(flow_df['trans_date'])
+        create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+
+        max_date = flow_df['trans_time'].max()
+        min_date = flow_df['trans_time'].min()
         min_year = min_date.year
         min_month = min_date.month - 1
-        flow_df['calendar_month'] = flow_df['trans_date'].apply(lambda x:
+        flow_df['calendar_month'] = flow_df['trans_time'].apply(lambda x:
                                                                 (x.year - min_year) * 12 + x.month - min_month)
 
         loan_type_list = list(set(flow_df['loan_type'].to_list()))
@@ -36,22 +48,29 @@ class SingleLoanPortrait:
                 if len(temp_df) == 0:
                     continue
                 temp_dict = dict()
+                temp_dict['apply_no'] = self.app_no
+                temp_dict['report_req_no'] = self.report_req_no
                 temp_dict['loan_type'] = t
                 temp_dict['month'] = str(i)
                 temp_dict['loan_amt'] = temp_df[temp_df['trans_amt'] > 0]['trans_amt'].sum()
                 temp_dict['repay_amt'] = temp_df[temp_df['trans_amt'] < 0]['trans_amt'].sum()
-                role = transform_class_str(temp_dict, 'TransSingleLoanPortrait')
-                self.variables.append(role)
+                temp_dict['create_time'] = create_time
+                temp_dict['update_time'] = create_time
+
+                role = transform_class_str(temp_dict, 'TransULoanPortrait')
+                self.role_list.append(role)
             # 近3/6/12个月及历史可查
             for j in [3, 6, 12, 24]:
                 if j != 24:
                     temp_min_date = months_ago(max_date, j)
-                    temp_df = loan_type_df[loan_type_df['trans_date'] >= temp_min_date]
+                    temp_df = loan_type_df[loan_type_df['trans_time'] >= temp_min_date]
                 else:
                     temp_df = loan_type_df.copy()
                 if len(temp_df) == 0:
                     continue
                 temp_dict = dict()
+                temp_dict['apply_no'] = self.app_no
+                temp_dict['report_req_no'] = self.report_req_no
                 temp_income_df = temp_df[temp_df['trans_amt'] > 0]
                 temp_expense_df = temp_df[temp_df['trans_amt'] < 0]
                 temp_dict['loan_type'] = t
@@ -62,8 +81,8 @@ class SingleLoanPortrait:
                 temp_dict['repay_amt'] = temp_expense_df['trans_amt'].sum()
                 temp_dict['repay_cnt'] = temp_expense_df.shape[0]
                 temp_dict['repay_mean'] = temp_expense_df['trans_amt'].mean()
-                role = transform_class_str(temp_dict, 'TransSingleLoanPortrait')
-                self.variables.append(role)
+                temp_dict['create_time'] = create_time
+                temp_dict['update_time'] = create_time
 
-
-
+                role = transform_class_str(temp_dict, 'TransULoanPortrait')
+                self.role_list.append(role)

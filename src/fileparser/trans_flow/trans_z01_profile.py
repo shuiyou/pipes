@@ -10,6 +10,9 @@ class TransProfile:
     流水文件读取,并进行标题行校验和属性校验
     标题行校验:检验流水文件中前30行(从第一行有数据的行开始算起)是否包含符合规范的标题行
     属性校验:包括银行名称,银行账号,户名校验
+    author:汪腾飞
+    created_time:20200630
+    updated_time_v1:20200706,表头搜索到银行名将不再更改客户所填入参,而直接将该银行名存入account表中
     """
 
     def __init__(self, file, param):
@@ -135,8 +138,9 @@ class TransProfile:
                             right_value = check_df.iloc[i, j+1]
                             if pd.notnull(right_value):
                                 self._single_cell_match(right_value, 'end_date')
-            if self.title_params.__contains__('bank'):
-                self.param['bankName'] = self.title_params['bank']
+            # 若表头所显示的银行信息与客户所填银行信息不匹配则将客户所填银行信息更新为表头所显示的银行信息
+            # if self.title_params.__contains__('bank'):
+            #     self.param['bankName'] = self.title_params['bank']
             if self.title_params.__contains__('account_no'):
                 if self.param['bankAccount'] not in self.title_params['account_no']:
                     self.basic_status = False
@@ -239,7 +243,7 @@ class TransProfile:
         :param min_row: 需要转化的数据区域最小行数
         :param min_col: 需要转化的数据区域最小列数
         :param max_row: 需要转化的数据区域最大行数
-        :param max_col: 需要转化的数据区域最小行数
+        :param max_col: 需要转化的数据区域最大列数
         :param index: 是否有行标签列,默认不包含行标签列
         :param column: 是否有列标签行,默认包含列标签行
         :return: pd.DataFrame
