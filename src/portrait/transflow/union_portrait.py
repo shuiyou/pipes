@@ -87,7 +87,7 @@ class UnionPortrait(PortraitProcessor):
             "historicalBiz"
         """
         # 1.读取原始数据,并筛选时间范围,包括一年内和两年内两种
-        trans_flow = TransFlowBasic()
+        trans_flow = TransFlowBasic(self)
         # 查找所有关联人的标签数据,若为空则直接返回
         trans_flow.u_process()
         if trans_flow.trans_u_flow_df is None:

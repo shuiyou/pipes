@@ -31,7 +31,7 @@ class SinglePortrait(PortraitProcessor):
         logger.info("单账户画像数据表清洗及落库,关联关系参数:%s" % str(self.query_data_array))
 
         # 1.读取原始数据,并筛选时间范围,包括一年内和两年内两种
-        trans_flow = TransFlowBasic()
+        trans_flow = TransFlowBasic(self)
 
         # 2.将业务关联信息落库
         logger.info("-----------业务号%s正在%s------------" % (trans_flow.app_no, '进行业务关联信息落库'))

@@ -41,18 +41,18 @@ def transform_class_str(params, class_name):
     return value
 
 
-class TransFlowBasic(PortraitProcessor):
+class TransFlowBasic:
 
-    def __init__(self):
+    def __init__(self, portrait):
         super().__init__()
         self.trans_flow_df = None
         self.account_id = None
         # 限制上传时间在3个月内的流水会生成画像表,后续可配置
         self.month_interval = 3
         self.object_k = 0
-        self.object_nums = len(self.query_data_array)
-        self.report_req_no = self.public_param.get('reportReqNo')
-        self.app_no = self.public_param.get('outApplyNo')
+        self.object_nums = len(portrait.query_data_array)
+        self.report_req_no = portrait.public_param.get('reportReqNo')
+        self.app_no = portrait.public_param.get('outApplyNo')
         self.trans_flow_portrait_df = None
         self.trans_flow_portrait_df_2_years = None
         self.trans_u_flow_df = None
