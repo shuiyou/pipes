@@ -18,49 +18,52 @@ class UnionPortrait(PortraitProcessor):
         参数query_data_array的结构如下：
         [
             {
-                "id":11879,
-                "parentId":0,
-                "name":"韩骁頔",
-                "idno":"31011519910503253X",
-                "phone":"13611647802",
-                "userType":"PERSONAL",
-                "authorStatus":"AUTHORIZED",
-                "fundratio":0,
                 "applyAmo":66600,
-                "relation":"CONTROLLER",
+                "authorStatus":"AUTHORIZED",
                 "extraParam":{
-                    "bankName":"银行名",
                     "bankAccount":"银行账户",
-                    "totalSalesLastYear":23232,
+                    "bankName":"银行名",
                     "industry":"E20",
                     "industryName":"xx行业",
-                    "seasonable":"1",
                     "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10"
-                }
+                    "seasonOnMonth":"9,10",
+                    "seasonable":"1",
+                    "totalSalesLastYear":23232
+                },
+                "fundratio":0,
+                "id":11879,
+                "idno":"31011519910503253X",
+                "name":"韩骁頔",
+                "parentId":0,
+                "phone":"13611647802",
+                "relation":"CONTROLLER",
+                "userType":"PERSONAL",
+                "baseType":"U_COM_CT_PERSONAL"
             },
             {
-                "id":11880,
-                "parentId":0,
-                "name":"磁石供应链商业保理（深圳）有限公司",
-                "idno":"91440300MA5EEJUR92",
-                "phone":"021-1234567",
-                "userType":"COMPANY",
-                "fundratio":0,
                 "applyAmo":66600,
-                "relation":"MAIN",
                 "extraParam":{
-                    "bankName":"银行名",
                     "bankAccount":"银行账户",
-                    "totalSalesLastYear":23232,
+                    "bankName":"银行名",
                     "industry":"E20",
                     "industryName":"xx行业",
-                    "seasonable":"1",
                     "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10"
-                }
+                    "seasonOnMonth":"9,10",
+                    "seasonable":"1",
+                    "totalSalesLastYear":23232
+                },
+                "fundratio":0,
+                "id":11880,
+                "idno":"91440300MA5EEJUR92",
+                "name":"磁石供应链商业保理（深圳）有限公司",
+                "parentId":0,
+                "phone":"021-1234567",
+                "relation":"MAIN",
+                "userType":"COMPANY",
+                "baseType":"U_COMPANY"
             }
         ]
+
         self.public_param的参数包含：
             "reqNo"
             "reportReqNo"
