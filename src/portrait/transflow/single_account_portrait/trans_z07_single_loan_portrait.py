@@ -1,6 +1,7 @@
 
 from portrait.transflow.single_account_portrait.trans_flow import transform_class_str, months_ago
 import datetime
+import pandas as pd
 
 
 class SingleLoanPortrait:
@@ -8,11 +9,11 @@ class SingleLoanPortrait:
     单账户画像表_贷款信息
     author:汪腾飞
     created_time:20200708
-    updated_time_v1:
+    updated_time_v1:20200709 trans_time-->trans_date
     """
 
     def __init__(self, trans_flow):
-        self.trans_flow_portrait_df = trans_flow.trans_flow_portrait_df_2_year
+        self.trans_flow_portrait_df = trans_flow.trans_flow_portrait_df_2_years
         self.report_req_no = trans_flow.report_req_no
         self.account_id = trans_flow.account_id
         self.db = trans_flow.db
@@ -30,11 +31,11 @@ class SingleLoanPortrait:
         flow_df = self.trans_flow_portrait_df
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
 
-        max_date = flow_df['trans_time'].max()
-        min_date = flow_df['trans_time'].min()
+        max_date = flow_df['trans_date'].max()
+        min_date = flow_df['trans_date'].min()
         min_year = min_date.year
         min_month = min_date.month - 1
-        flow_df['calendar_month'] = flow_df['trans_time'].apply(lambda x:
+        flow_df['calendar_month'] = flow_df['trans_date'].apply(lambda x:
                                                                 (x.year - min_year) * 12 + x.month - min_month)
 
         loan_type_list = list(set(flow_df['loan_type'].to_list()))
@@ -63,7 +64,7 @@ class SingleLoanPortrait:
             for j in [3, 6, 12, 24]:
                 if j != 24:
                     temp_min_date = months_ago(max_date, j)
-                    temp_df = loan_type_df[loan_type_df['trans_time'] >= temp_min_date]
+                    temp_df = loan_type_df[loan_type_df['trans_date'] >= temp_min_date]
                 else:
                     temp_df = loan_type_df.copy()
                 if len(temp_df) == 0:
@@ -77,10 +78,12 @@ class SingleLoanPortrait:
                 temp_dict['month'] = '近' + str(j) + '个月' if j != 24 else '历史可查'
                 temp_dict['loan_amt'] = temp_income_df['trans_amt'].sum()
                 temp_dict['loan_cnt'] = temp_income_df.shape[0]
-                temp_dict['loan_mean'] = temp_income_df['trans_amt'].mean()
+                loan_mean = temp_income_df['trans_amt'].mean()
+                temp_dict['loan_mean'] = loan_mean if pd.notnull(loan_mean) else 0
                 temp_dict['repay_amt'] = temp_expense_df['trans_amt'].sum()
                 temp_dict['repay_cnt'] = temp_expense_df.shape[0]
-                temp_dict['repay_mean'] = temp_expense_df['trans_amt'].mean()
+                repay_mean = temp_expense_df['trans_amt'].mean()
+                temp_dict['repay_mean'] = repay_mean if pd.notnull(repay_mean) else 0
                 temp_dict['create_time'] = create_time
                 temp_dict['update_time'] = create_time
 

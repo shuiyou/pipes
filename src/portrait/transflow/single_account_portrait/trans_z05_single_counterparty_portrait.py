@@ -34,12 +34,12 @@ class SingleCounterpartyPortrait:
         flow_df = flow_df[(pd.isnull(flow_df['relationship'])) &
                           (flow_df['is_sensitive'] != 1) &
                           (pd.notnull(flow_df['opponent_name']))]
-        min_date = min(flow_df['trans_time'])
+        min_date = min(flow_df['trans_date'])
         min_year = min_date.year
         min_month = min_date.month - 1
-        flow_df['calendar_month'] = flow_df['trans_time'].apply(lambda x:
+        flow_df['calendar_month'] = flow_df['trans_date'].apply(lambda x:
                                                                 (x.year - min_year) * 12 + x.month - min_month)
-        flow_df['str_date'] = flow_df['trans_time'].apply(lambda x: x.date if type(x) == datetime.datetime else x)
+        flow_df['str_date'] = flow_df['trans_date'].apply(lambda x: x.date if type(x) == datetime.datetime else x)
 
         income_order_df = flow_df[flow_df['trans_amt'] > 0].groupby('opponent_name').agg({'trans_amt': sum})
         income_order_df.sort_values(by='trans_amt', ascending=False, inplace=True)
@@ -107,9 +107,9 @@ class SingleCounterpartyPortrait:
             total_months_dict['trans_amt_proportion'] = temp_income_df['trans_amt'].sum() / total_income_amt if \
                 total_income_amt != 0 else 0
             # 平均账期
-            all_unique_trans_time = sorted(list(set(temp_income_df['str_date'].to_list())))
-            diff_days = [(all_unique_trans_time[i+1] - all_unique_trans_time[i]).days - 1
-                         for i in range(len(all_unique_trans_time)-1)]
+            all_unique_trans_date = sorted(list(set(temp_income_df['str_date'].to_list())))
+            diff_days = [(all_unique_trans_date[i+1] - all_unique_trans_date[i]).days - 1
+                         for i in range(len(all_unique_trans_date)-1)]
             diff_days = [x for x in diff_days if x != 0]
             total_months_dict['trans_gap_avg'] = sum(diff_days) / len(diff_days) if len(diff_days) != 0 else 0
             total_months_dict['create_time'] = create_time
@@ -191,9 +191,9 @@ class SingleCounterpartyPortrait:
             total_months_dict['trans_amt_proportion'] = temp_expense_df['trans_amt'].sum() / total_expense_amt if \
                 total_income_amt != 0 else 0
             # 平均账期
-            all_unique_trans_time = sorted(list(set(temp_expense_df['str_date'].to_list())))
-            diff_days = [(all_unique_trans_time[i + 1] - all_unique_trans_time[i]).days - 1
-                         for i in range(len(all_unique_trans_time) - 1)]
+            all_unique_trans_date = sorted(list(set(temp_expense_df['str_date'].to_list())))
+            diff_days = [(all_unique_trans_date[i + 1] - all_unique_trans_date[i]).days - 1
+                         for i in range(len(all_unique_trans_date) - 1)]
             diff_days = [x for x in diff_days if x != 0]
             total_months_dict['trans_gap_avg'] = sum(diff_days) / len(diff_days) if len(diff_days) != 0 else 0
             total_months_dict['create_time'] = create_time

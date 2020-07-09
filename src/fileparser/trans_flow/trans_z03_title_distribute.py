@@ -41,7 +41,7 @@ class TransBasic:
         cur_pat = re.compile(r'(币种|货币|[Cc]urrency)')
         opname_pat = re.compile(r"(?<!本.)(户名|方名称|姓名|单位名称|对方单位|公司名|对手名称|人名称|账号名称)")
         opacc_pat = re.compile(r'(?<!本.)(账号(?!名称)|账户(?!名称|明细|省市)|ID|户口号)')
-        opbank_pat = re.compile(r'(?<!本.)((?<!交易)行名|开户行|开户机构|开户网点|银行名称)')
+        opbank_pat = re.compile(r'(?<!本.)((?<!交易)行名|开户行|开户机构|开户网点|银行名称|银行)')
         chn_pat = re.compile(r'(渠道|交易行|受理机构|交易网点|交易机构)')
         typ_pat = re.compile(r'(方式|业务类型|[Tt]ype|业务类别|现转)')
         use_pat = re.compile(r'(用途)')

@@ -13,7 +13,6 @@ from fileparser.trans_flow.trans_z06_balance_standardization import TransactionB
 from fileparser.trans_flow.trans_z07_opponent_info_standardization import OpponentInfo
 from fileparser.trans_flow.trans_z08_other_info_standardization import TransactionOtherInfo
 from fileparser.trans_flow.trans_z09_flow_raw_data import TransFlowRawData
-from portrait.transflow.single_account_portrait.trans_flow import TransFlowBasic
 
 # 流水报告解析及验真
 logger = LoggerUtil().logger(__name__)
@@ -118,8 +117,7 @@ class Parser001(Parser):
 
         # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
         logger.info("%d-----------------------%s" % (9, '进行数据落库'))
-        trans_flow = TransFlowBasic()
-        raw_data = TransFlowRawData(trans_flow, self.param, trans_profile.title_params)
+        raw_data = TransFlowRawData(self.param, trans_profile.title_params)
         raw_data.df = raw_data.remove_duplicate_data(other_info.df)
         # 若没有新增数据将不进行落库操作
         if raw_data.new_data:

@@ -67,6 +67,7 @@ class TransactionBalance:
 
     # 流水验真
     def balance_sequence_check(self):
+        self.df = self.df[self.df['trans_amt'] != 0]
         last = -1
         for row in self.df.itertuples():
             if last == -1:
@@ -80,3 +81,4 @@ class TransactionBalance:
                     self.resp['resMsg'] = '验真失败'
                     self.resp['data']['warningMsg'] = ['该流水存在余额与交易金额不匹配的行,该流水为假流水']
                     return
+                last = trans_bal

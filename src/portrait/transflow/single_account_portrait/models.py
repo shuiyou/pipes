@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, DECIMAL, Date, DateTime, ForeignKey, Index, JSON, String, TIMESTAMP, Table, Text, text
+from sqlalchemy import Column, DECIMAL, Date, DateTime, ForeignKey, Index, JSON, String, TIMESTAMP, Table, Text, Time
 from sqlalchemy.dialects.mysql import BIGINT, BIT, INTEGER, LONGTEXT, MEDIUMTEXT, TINYINT
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -1341,18 +1341,18 @@ class TransFlowPortrait(Base):
     flow_id = Column(BIGINT(20))
     report_req_no = Column(String(32))
     account_id = Column(BIGINT(20))
-    trans_date = Column(DateTime)
-    trans_time = Column(DateTime)
+    trans_date = Column(Date)
+    trans_time = Column(Time)
     trans_amt = Column(DECIMAL(16, 4))
     account_balance = Column(DECIMAL(16, 4))
-    opponent_name = Column(String(32))
+    opponent_name = Column(String(64))
     opponent_type = Column(INTEGER(11))
     opponent_account_no = Column(String(32))
     opponent_account_bank = Column(String(32))
-    trans_channel = Column(String(32))
-    trans_type = Column(String(32))
-    trans_use = Column(String(32))
-    remark = Column(String(32))
+    trans_channel = Column(String(64))
+    trans_type = Column(String(64))
+    trans_use = Column(String(64))
+    remark = Column(String(255))
     currency = Column(String(16))
     phone = Column(String(32))
     relationship = Column(String(32))
@@ -1364,7 +1364,7 @@ class TransFlowPortrait(Base):
     unusual_trans_type = Column(String(16))
     is_sensitive = Column(INTEGER(11))
     cost_type = Column(String(16))
-    remark_type = Column(String(32))
+    remark_type = Column(String(255))
     income_cnt_order = Column(INTEGER(11))
     expense_cnt_order = Column(INTEGER(11))
     income_amt_order = Column(INTEGER(11))
@@ -1454,7 +1454,7 @@ class TransSinglePortrait(Base):
     income_10_to_30_cnt = Column(INTEGER(11))
     income_30_to_50_cnt = Column(INTEGER(11))
     income_50_to_100_cnt = Column(INTEGER(11))
-    ncome_100_to_200_cnt = Column(INTEGER(11))
+    income_100_to_200_cnt = Column(INTEGER(11))
     income_above_200_cnt = Column(INTEGER(11))
     balance_0_to_5_day = Column(INTEGER(11))
     balance_5_to_10_day = Column(INTEGER(11))

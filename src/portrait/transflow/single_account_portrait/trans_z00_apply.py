@@ -11,7 +11,7 @@ class TransApply:
     业务申请表,将业务相关的信息存入业务申请表中
     author:汪腾飞
     created_time:20200708
-    updated_time_v1:
+    updated_time_v1:20200709 单个关联人有多个账号均需要落库
     """
     def __init__(self, trans_flow):
         self.report_req_no = trans_flow.report_req_no
@@ -42,7 +42,6 @@ class TransApply:
         limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         for i in range(length):
-            bank_no = None
             temp = self.query_data_array[i]
             temp_dict = dict()
             temp_dict['report_req_no'] = self.report_req_no
@@ -54,11 +53,7 @@ class TransApply:
             relationship = self._get_object_attr(temp, 'baseTypeDetail')
             if relationship is not None:
                 temp_dict['relationship'] = base_type_mapping.get(relationship)
-            if temp.__contains__('extraParam'):
-                industry = self._get_object_attr(temp['extraParam'], 'industryName')
-                if industry is not None:
-                    temp_dict['industry'] = industry
-                bank_no = self._get_object_attr(temp['extraParam'], 'bankAccount')
+
             id_card_no = self._get_object_attr(temp, 'idno')
             if id_card_no is not None:
                 temp_dict['id_card_no'] = id_card_no
@@ -70,13 +65,30 @@ class TransApply:
                     temp_dict['id_type'] = 'CREDIT_CODE'
                 else:
                     temp_dict['id_type'] = 'OTHER'
-            if bank_no is not None and id_card_no is not None:
-                temp_df = sql_to_df(sql_compile % (id_card_no, bank_no, limit_time))
-                if len(temp_df) > 0:
-                    temp_dict['account_id'] = temp_df['id'].to_list()[0]
-            temp_dict['create_time'] = create_time
-            temp_dict['update_time'] = create_time
-            role = transform_class_str(temp_dict, 'TransApply')
-            self.role_list.append(role)
+
+            if temp.__contains__('extraParam') and temp['extraParam'].__contains__('accounts'):
+                for j in range(len(temp['extraParam']['accounts'])):
+                    if temp_dict.__contains__('industry'):
+                        temp_dict.pop('industry')
+                    if temp_dict.__contains__('account_id'):
+                        temp_dict.pop('account_id')
+                    temp_data = temp['extraParam']['accounts'][j]
+                    industry = self._get_object_attr(temp['extraParam'], 'industryName')
+                    if industry is not None:
+                        temp_dict['industry'] = industry
+                    bank_no = self._get_object_attr(temp_data, 'bankAccount')
+                    if bank_no is not None and id_card_no is not None:
+                        temp_df = sql_to_df(sql_compile % (id_card_no, bank_no, limit_time))
+                        if len(temp_df) > 0:
+                            temp_dict['account_id'] = temp_df['id'].to_list()[0]
+                    temp_dict['create_time'] = create_time
+                    temp_dict['update_time'] = create_time
+                    role = transform_class_str(temp_dict, 'TransApply')
+                    self.role_list.append(role)
+            else:
+                temp_dict['create_time'] = create_time
+                temp_dict['update_time'] = create_time
+                role = transform_class_str(temp_dict, 'TransApply')
+                self.role_list.append(role)
         self.db.session.add_all(self.role_list)
         self.db.session.commit()

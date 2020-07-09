@@ -13,7 +13,7 @@ class TransUnionLabel:
     """
     def __init__(self, trans_flow):
         self.db = trans_flow.db
-        self.apply_no = trans_flow.apply_no
+        self.apply_no = trans_flow.app_no
         self.query_data_array = trans_flow.query_data_array
         self.df = trans_flow.trans_u_flow_df
         self.label_list = []
@@ -22,6 +22,7 @@ class TransUnionLabel:
         if self.df is None:
             return
         self._in_out_order()
+        self._save_union_trans_label()
 
         self.db.session.add_all(self.label_list)
         self.db.session.commit()
@@ -86,8 +87,9 @@ class TransUnionLabel:
             temp_dict = dict()
             temp_dict['apply_no'] = self.apply_no
             for col in col_list:
-                if pd.notnull(getattr(row, 'col')):
-                    temp_dict[col] = getattr(row, 'col')
+                if pd.notnull(getattr(row, col)):
+                    temp_dict[col] = getattr(row, col)
+            temp_dict['trans_time'] = str(temp_dict['trans_time'])[-8:]
             temp_dict['create_time'] = create_time
             temp_dict['update_time'] = create_time
             role = transform_class_str(temp_dict, 'TransUFlowPortrait')
