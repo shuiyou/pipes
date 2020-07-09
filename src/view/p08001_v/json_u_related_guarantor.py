@@ -2,7 +2,7 @@ from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
 
-class trans_u_related_portrait(TransFlow):
+class JsonUnionGuarantor(TransFlow):
 
     def process(self):
         self.read_guarantor_in_u_flow()

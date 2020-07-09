@@ -21,13 +21,16 @@ class JsonSingleTitle(TransFlow):
                 self.reqno = i["preReportReqNo"]
 
         sql1 = '''
-            select start_time,end_time
-            from trans_account
-            where id_card_no = %(id_card_no)s
+            SELECT min(f.trans_time) AS start_time, 
+            max(f.trans_time) AS end_time
+            FROM trans_account ac
+            left join trans_flow f 
+            on ac.id = f.account_id
+            where ac.account_no = %(account_no)s
         '''
 
         df1 = sql_to_df(sql=sql1,
-                       params={"id_card_no":self.idno})
+                       params={"account_no":self.bankAccount})
 
         startEndDate = df1.start_time.strftime('%Y年%m月%d日') \
                     + "——"  + df1.end_time.strftime('%Y年%m月%d日')
@@ -46,3 +49,5 @@ class JsonSingleTitle(TransFlow):
                                + ",\"bankAccount\":" + self.bankAccount \
                                + ",\"startEndDate\":" + startEndDate + "},"  \
        + "\"关联人\":" + df2.to_json(orient = 'records').encode('utf-8').decode("unicode_escape") + "}"
+
+        
