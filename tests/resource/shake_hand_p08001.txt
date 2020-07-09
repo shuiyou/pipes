@@ -1,10 +1,10 @@
 {
-    "reqNo":"Q478173396073611264",
-    "stepReqNo":"S478173396224606208",
+    "reqNo":"Q478649766507610112",
+    "stepReqNo":"S478649766843154432",
     "productCode":"08001",
     "queryData":[
         {
-            "id":11879,
+            "id":11891,
             "parentId":0,
             "name":"韩骁頔",
             "idno":"31011519910503253X",
@@ -15,18 +15,26 @@
             "applyAmo":66600,
             "relation":"CONTROLLER",
             "extraParam":{
-                "bankName":"银行名",
-                "bankAccount":"银行账户",
-                "totalSalesLastYear":23232,
+                "accounts":[
+                    {
+                        "bankAccount":"账户1",
+                        "bankName":"银行名1"
+                    },
+                    {
+                        "bankAccount":"账户1",
+                        "bankName":"银行名1"
+                    }
+                ],
                 "industry":"E20",
                 "industryName":"xx行业",
-                "seasonable":"1",
                 "seasonOffMonth":"2,3",
-                "seasonOnMonth":"9,10"
+                "seasonOnMonth":"9,10",
+                "seasonable":"1",
+                "totalSalesLastYear":23232
             }
         },
         {
-            "id":11880,
+            "id":11892,
             "parentId":0,
             "name":"磁石供应链商业保理（深圳）有限公司",
             "idno":"91440300MA5EEJUR92",
@@ -36,18 +44,26 @@
             "applyAmo":66600,
             "relation":"MAIN",
             "extraParam":{
-                "bankName":"银行名",
-                "bankAccount":"银行账户",
-                "totalSalesLastYear":23232,
+                "accounts":[
+                    {
+                        "bankAccount":"账户1",
+                        "bankName":"银行名1"
+                    },
+                    {
+                        "bankAccount":"账户1",
+                        "bankName":"银行名1"
+                    }
+                ],
                 "industry":"E20",
                 "industryName":"xx行业",
-                "seasonable":"1",
                 "seasonOffMonth":"2,3",
-                "seasonOnMonth":"9,10"
+                "seasonOnMonth":"9,10",
+                "seasonable":"1",
+                "totalSalesLastYear":23232
             }
         }
     ],
-    "preReportReqNo":"PR478173390256111616",
+    "preReportReqNo":"PR478649764951523328",
     "single":false,
     "outApplyNo":"IQP202003270000012460",
     "applyAmt":23233,
