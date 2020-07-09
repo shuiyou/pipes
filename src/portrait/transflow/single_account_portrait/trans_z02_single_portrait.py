@@ -35,8 +35,8 @@ class SingleTransProtrait:
         flow_df = self.trans_flow_portrait_df
         self.role['account_id'] = self.account_id
         self.role['report_req_no'] = self.report_req_no
-        max_date = flow_df['trans_time'].max()
-        min_date = flow_df['trans_time'].min()
+        max_date = flow_df['trans_date'].max()
+        min_date = flow_df['trans_date'].min()
 
         not_full_month = []
         if min_date.day != 1:
@@ -52,23 +52,25 @@ class SingleTransProtrait:
         flow_df = self.trans_flow_portrait_df
         df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)) &
                      (flow_df.trans_amt > 0)]
-        df['trans_year'] = df['trans_time'].apply(lambda x: x.year)
-        df['trans_month'] = df['trans_time'].apply(lambda x: x.month)
-        self.role['normal_income_amt'] = df.trans_amt.sum()
+        df['trans_year'] = df['trans_date'].apply(lambda x: x.year)
+        df['trans_month'] = df['trans_date'].apply(lambda x: x.month)
+        self.role['normal_income_amt'] = df.trans_amt.sum() if df.shape[0] > 0 else 0
         self.role['normal_income_cnt'] = df.shape[0]
-        self.role['normal_income_mean'] = df.trans_amt.mean()
-        self.role['normal_income_d_mean'] = df.groupby(by='trans_time').agg({'trans_amt': sum})['trans_amt'].mean()
+        self.role['normal_income_mean'] = df.trans_amt.mean() if df.shape[0] > 0 else 0
+        self.role['normal_income_d_mean'] = df.groupby(by='trans_date').agg({'trans_amt': sum})['trans_amt'].mean()
 
         month_mean_income = df.groupby(by=['trans_year', 'trans_month']).\
             agg({'trans_amt': sum})['trans_amt'].mean()
+        if pd.isnull(month_mean_income):
+            month_mean_income = 0
         self.role['normal_income_m_mean'] = month_mean_income
         self.role['income_amt_y_pred'] = month_mean_income * 12
-        self.role['normal_income_m_std'] = df.groupby(by=['trans_year', 'trans_month']).\
-            agg({'trans_amt': sum})['trans_amt'].std()
+        normal_income_m_std = df.groupby(by=['trans_year', 'trans_month']).agg({'trans_amt': sum})['trans_amt'].std()
+        self.role['normal_income_m_std'] = normal_income_m_std if pd.notnull(normal_income_m_std) else 0
 
         expense_df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == '1')) &
                              (flow_df.trans_amt < 0)]
-        self.role['normal_expense_amt'] = expense_df.trans_amt.sum()
+        self.role['normal_expense_amt'] = expense_df.trans_amt.sum() if expense_df.shape[0] > 0 else 0
         self.role['normal_expense_cnt'] = expense_df.shape[0]
 
     def _relationship_risk(self):
@@ -80,8 +82,8 @@ class SingleTransProtrait:
     def _income_detail(self):
         flow_df = self.trans_flow_portrait_df
         income_list = [0, 5, 10, 30, 50, 100, 200]
-        temp_df = flow_df.sort_values(by='trans_time', ascending=True)
-        temp_df['str_date'] = temp_df['trans_time'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
+        temp_df = flow_df.sort_values(by='trans_date', ascending=True)
+        temp_df['str_date'] = temp_df['trans_date'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
         temp_df.drop_duplicates(subset='str_date', keep='last', inplace=True)
         income_weight_max = 0
         income_weight_min = 0

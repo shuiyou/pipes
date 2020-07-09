@@ -1,10 +1,9 @@
-from abc import ABC
-from fileparser.Parser import Parser
+
 import pandas as pd
 import re
 
 
-class TransDataStandardization(Parser, ABC):
+class TransDataStandardization:
     """
     流水数据标准化
     将流水数据中与标题行相同的数据删除,将流水数据中头部和尾部不符合规范的数据删除
@@ -77,16 +76,17 @@ class TransDataStandardization(Parser, ABC):
         col = [x for x in col if 'Na' not in x]
         remove_list = []
         next_row = False
-        for row in self.trans_data.itertuples():
+        for index in self.trans_data.index:
+            row = self.trans_data.loc[index, :]
             if next_row:
                 next_row = False
                 continue
-            value = list(row._as_dict().values())[1:]
+            value = row.values[1:]
             value = [y for y in value if pd.notna(y)]
             if value == col:
-                remove_list.append(row['Index'])
+                remove_list.append(row.index.tolist()[0])
                 if self.title_status:
-                    remove_list.append(row['Index'] + 1)
+                    remove_list.append(row.index.tolist()[0] + 1)
                     next_row = True
         self.trans_data.drop(remove_list, axis=0, inplace=True)
 

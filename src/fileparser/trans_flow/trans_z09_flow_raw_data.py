@@ -1,6 +1,7 @@
 from portrait.transflow.single_account_portrait.trans_flow import transform_class_str
 from logger.logger_util import LoggerUtil
 from util.mysql_reader import sql_to_df
+from portrait.transflow.single_account_portrait.trans_flow import sql_db
 import pandas as pd
 import datetime
 
@@ -15,9 +16,9 @@ class TransFlowRawData:
     updated_time_v1:20200707新增是否有新增数据字段,若有则有所有后续操作,若无,则无后续操作
     """
 
-    def __init__(self, trans_flow, param, title_param):
+    def __init__(self, param, title_param):
         self.df = None
-        self.db = trans_flow.db
+        self.db = sql_db()
         self.param = param
         self.title_param = title_param
         self.raw_list = []
@@ -34,7 +35,7 @@ class TransFlowRawData:
         :return: 
         """
         sql = """select * from trans_flow where account_id = (select id from trans_account where account_name='%s' and 
-            id_card_no='%s' and account_no='%s' order by id desc limit 1) order by trans_time desc""" % \
+            id_card_no='%s' and account_no='%s' order by id desc limit 1) order by id desc""" % \
               (self.param.get('cusName'), self.param.get('idNo'), self.param.get('bankAccount'))
         df = sql_to_df(sql)
         df['trans_time'] = pd.to_datetime(df['trans_time'])
@@ -54,8 +55,7 @@ class TransFlowRawData:
                 remove_index = temp_df.index.to_list()[0]
                 break
         if remove_index != -1:
-            remove_list = list(range(remove_index+1))
-            data.drop(remove_list, axis=0, inplace=True)
+            data = data[data.index > remove_index]
             data.reset_index(drop=True, inplace=True)
         if data.shape[0] == 0:
             self.new_data = False
@@ -73,10 +73,10 @@ class TransFlowRawData:
         min_trans_time = datetime.datetime.strftime(min_trans_time, '%Y-%m-%d %H:%M:%S')
         max_trans_time = datetime.datetime.strftime(max_trans_time, '%Y-%m-%d %H:%M:%S')
         temp_dict = dict()
-        temp_dict['account_name'] = self.title_param.get('opponent_name', self.param.get('cusName'))
+        temp_dict['account_name'] = self.param.get('cusName')
         temp_dict['id_card_no'] = self.param.get('idNo')
         temp_dict['id_type'] = self.param.get('idType')
-        temp_dict['bank'] = self.param.get('bankName')
+        temp_dict['bank'] = self.title_param.get('bank', self.param.get('bankName'))
         temp_dict['account_no'] = self.param.get('bankAccount')
         temp_dict['start_time'] = self.title_param.get('start_date', min_trans_time)
         temp_dict['end_time'] = self.title_param.get('end_time', max_trans_time)
@@ -99,7 +99,7 @@ class TransFlowRawData:
             temp_dict['account_id'] = account_id
             temp_dict['out_req_no'] = self.param.get('outReqNo')
             for col in col_list:
-                temp_dict[col] = getattr(row, 'col')
+                temp_dict[col] = getattr(row, col)
             temp_dict['create_time'] = self.create_time
             temp_dict['update_time'] = self.create_time
             # 将原始数据落库

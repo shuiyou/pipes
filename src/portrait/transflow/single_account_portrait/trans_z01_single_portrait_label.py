@@ -20,6 +20,8 @@ class TransSingleLabel:
         self.report_req_no = trans_flow.report_req_no
         self.account_id = trans_flow.account_id
         self.df = trans_flow.trans_flow_df
+        self.user_name = trans_flow.user_name
+        self.create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         self.label_list = []
 
     def process(self):
@@ -43,7 +45,7 @@ class TransSingleLabel:
         self.relation_dict = dict()
         for i in range(length):
             temp = self.query_data_array[i]
-            self.relation_dict[temp['name']] = base_type_mapping[temp['ralation']]
+            self.relation_dict[temp['name']] = base_type_mapping.get(temp['baseTypeDetail'])
 
     def _loan_type_label(self):
         """
@@ -51,14 +53,14 @@ class TransSingleLabel:
         是否结息前一周标签is_before_interest_repay
         :return:
         """
-        self.df['opponent_name'] = self.df['opponent_name'].fillna('')
+        concat_list = ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']
+        self.df[concat_list] = self.df[concat_list].fillna('').astype(str)
         # 交易对手标签赋值,1个人,2企业,其他为空
         self.df['opponent_type'] = self.df['opponent_name'].apply(self._opponent_type)
         self.df['month'] = self.df['trans_time'].apply(lambda x: x.month)
         self.df['day'] = self.df['trans_time'].apply(lambda x: x.day)
         # 将字符串列合并到一起
-        self.df['concat_str'] = self.df.apply(lambda x: ';'.join(x[['opponent_name', 'trans_channel', 'trans_type',
-                                                                    'trans_use', 'remark']]), axis=1)
+        self.df['concat_str'] = self.df.apply(lambda x: ';'.join(x[concat_list]), axis=1)
         # 贷款类型赋值,优先级从上至下
         self.df.loc[self.df['concat_str'].str.contains('消费金融|消费银企|汽车金融|陆金所|微粒贷|花呗|借呗|360还款|消费贷款'),
                     'loan_type'] = '消金'
@@ -85,21 +87,24 @@ class TransSingleLabel:
                                   (self.df.day.isin([20, 21])) &
                                   (self.df.trans_amt > 0) &
                                   ((self.df.opponent_name == '') |
+                                   (self.df.opponent_name == self.user_name) |
                                    (self.df.opponent_name.str.contains(
-                                       '本账户|银行|利息|结息|个人活期结息|批量结息|存息|付息|存款利息'))) &
-                                  (self.df.concat_str.str.contains('利息|结息|个人活期结息|批量结息|存息|付息|存款利息'))]
+                                       '银行|利息|结息|个人活期结息|批量结息|存息|付息|存款利息'))) &
+                                  (self.df.concat_str.str.contains('利息|结息|个人活期结息|批量结息|存息|付息|存款利息')) &
+                                  (~self.df.concat_str.str.contains('理财|钱生钱|余额宝|零钱通|招财盈|宜人财富'))]
         interest_df.reset_index(drop=False, inplace=True)
-        interest_df = interest_df.groupby(by='month').agg({'index': max})
-        index_list = interest_df['index'].to_list()
-        self.df.loc[self.df['index'].isin(index_list), 'is_interest'] = 1
+        group_df = interest_df.groupby(by='month', as_index=False).agg({'trans_amt': min})
+        index_list = interest_df.loc[group_df.index.to_list(), 'index'].to_list()
+        self.df.loc[index_list, 'is_interest'] = 1
 
         # 是否结息前一周标签
         repay_date_list = self.df[(self.df['is_repay'] == 1) |
                                   (self.df['is_interest'] == 1)]['trans_time'].to_list()
         for repay_date in repay_date_list:
             seven_days_ago = repay_date - datetime.timedelta(days=7)
-            self.df.loc[seven_days_ago <= self.df.trans_time <= repay_date, 'is_before_interest_repay'] = 1
-        self.df.drop(['month', 'day'], axis=1, inplance=True)
+            self.df.loc[(self.df.trans_time <= repay_date) &
+                        (self.df.trans_time >= seven_days_ago), 'is_before_interest_repay'] = 1
+        self.df.drop(['month', 'day'], axis=1, inplace=True)
 
     def _unusual_type_label(self):
         self.df['date'] = self.df['trans_time'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
@@ -217,10 +222,10 @@ class TransSingleLabel:
             temp_dict['report_req_no'] = self.report_req_no
             # 其他trans_flow中的字段
             for col in col_list:
-                temp_dict[col] = getattr(row, 'col')
+                temp_dict[col] = getattr(row, col)
             trans_amt = temp_dict['trans_amt']
             temp_dict['trans_date'] = temp_dict['trans_time'].date()
-            temp_dict['trans_time'] = temp_dict['trans_time'].time()
+            temp_dict['trans_time'] = datetime.datetime.strftime(temp_dict['trans_time'], '%H:%M:%S')
             # 交易对手类型
             op_name = temp_dict['opponent_name']
             if hasattr(row, 'opponent_type') and pd.notnull(getattr(row, 'opponent_type')):
@@ -237,7 +242,7 @@ class TransSingleLabel:
                 temp_dict['relationship'] = self.relation_dict[op_name]
             # 将合并列拉出来
             concat_str = getattr(row, 'concat_str')
-            no_channel_str = op_name + ';' + remark + ';' + str(temp_dict['trans_use']) + ';' + temp_dict['trans_type']
+            no_channel_str = op_name + ';' + remark + ';' + temp_dict['trans_use'] + ';' + temp_dict['trans_type']
             # 是否为理财
             if re.search(r'(理财|钱生钱|余额宝|零钱通|招财盈|宜人财富)', concat_str):
                 temp_dict['is_financing'] = 1
@@ -269,9 +274,9 @@ class TransSingleLabel:
                 unusual_type.append('逾期')
             if re.search(r'(证券|银证转账|基金)', concat_str):
                 unusual_type.append('股票投机')
-            if (datetime.time(21, 0, 0) <= temp_dict['trans_time'] <= datetime.time(23, 59, 59) and
+            if ('21:00:00' <= temp_dict['trans_time'] <= '23:59:59' and
                 re.search(r'(ATM|atm)', op_name) is not None) or \
-                    datetime.time(0, 0, 1) <= temp_dict['trans_time'] <= datetime.time(4, 0, 0):
+                    '00:00:01' <= temp_dict['trans_time'] <= '04:00:00':
                 unusual_type.append('夜间交易')
             if trans_amt < 0 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', concat_str):
                 unusual_type.append('医院')
@@ -287,7 +292,7 @@ class TransSingleLabel:
                 unusual_type.append('预收款')
             if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str):
                 unusual_type.append('分红退股')
-            if temp_dict['relationship'] != '配偶':
+            if temp_dict.__contains__('relationship') and temp_dict['relationship'] != '配偶':
                 if temp_dict['opponent_type'] == 1 and \
                         abs(trans_amt) in [5.20, 5.21, 13.14, 14.13, 20.20, 20.13, 20.14, 131.4, 201.3, 201.4, 520,
                                            520.20, 521, 1314, 1314.2, 1413, 1413.2, 2013.14, 2014.13, 201314, 2020.2,
@@ -343,6 +348,8 @@ class TransSingleLabel:
             # 出账金额排名标签
             if hasattr(row, 'expense_amt_order') and pd.notnull(getattr(row, 'expense_amt_order')):
                 temp_dict['expense_amt_order'] = getattr(row, 'expense_amt_order')
+            temp_dict['create_time'] = self.create_time
+            temp_dict['update_time'] = self.create_time
             # 将标签表数据落到数据库
             label_role = transform_class_str(temp_dict, 'TransFlowPortrait')
             self.label_list.append(label_role)

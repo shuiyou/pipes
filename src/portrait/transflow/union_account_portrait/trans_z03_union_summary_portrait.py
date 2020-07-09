@@ -29,7 +29,7 @@ class UnionSummaryPortrait:
         self.db.session.commit()
 
     def _single_portrait(self):
-        sql = """select * from trans_single_summary_protrait where report_req_no = '%s'""" % self.report_req_no
+        sql = """select * from trans_single_summary_portrait where report_req_no = '%s'""" % self.report_req_no
         single_u_df = sql_to_df(sql)
         return single_u_df
 
@@ -38,13 +38,13 @@ class UnionSummaryPortrait:
         single_u_df = self._single_portrait()
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
 
-        # max_date = flow_df['trans_time'].max()
-        min_date = flow_df['trans_time'].min()
+        # max_date = flow_df['trans_date'].max()
+        min_date = flow_df['trans_date'].min()
         min_year = min_date.year
         min_month = min_date.month - 1
-        flow_df['calendar_month'] = flow_df['trans_time'].apply(lambda x:
+        flow_df['calendar_month'] = flow_df['trans_date'].apply(lambda x:
                                                                 (x.year - min_year) * 12 + x.month - min_month)
-        flow_df['month'] = flow_df['trans_time'].apply(lambda x: x.month)
+        flow_df['month'] = flow_df['trans_date'].apply(lambda x: x.month)
 
         not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)]
 
@@ -55,18 +55,19 @@ class UnionSummaryPortrait:
                                                  (not_sensitive_df.trans_amt > 0)]['trans_amt'].sum()
             normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i) &
                                                   (not_sensitive_df.trans_amt < 0)]['trans_amt'].sum()
+            temp_df = flow_df[flow_df['calendar_month'] == i+1]
             temp_dict['apply_no'] = self.app_no
             temp_dict['report_req_no'] = self.report_req_no
             temp_dict['month'] = str(i+1)
             temp_dict['normal_income_amt'] = normal_income_amt
             temp_dict['normal_expense_amt'] = normal_expense_amt
             temp_dict['net_income_amt'] = normal_income_amt + normal_expense_amt
-            temp_dict['salary_cost_amt'] = flow_df[flow_df.cost_type == '工资']['trans_amt'].sum()
-            temp_dict['living_cost_amt'] = flow_df[flow_df.cost_type == '水电']['trans_amt'].sum()
-            temp_dict['tax_cost_amt'] = flow_df[flow_df.cost_type == '税费']['trans_amt'].sum()
-            temp_dict['rent_cost_amt'] = flow_df[flow_df.cost_type == '房租']['trans_amt'].sum()
-            temp_dict['insurance_cost_amt'] = flow_df[flow_df.cost_type == '保险']['trans_amt'].sum()
-            temp_dict['loan_cost_amt'] = flow_df[flow_df.cost_type == '到期贷款']['trans_amt'].sum()
+            temp_dict['salary_cost_amt'] = temp_df[temp_df.cost_type == '工资']['trans_amt'].sum()
+            temp_dict['living_cost_amt'] = temp_df[temp_df.cost_type == '水电']['trans_amt'].sum()
+            temp_dict['tax_cost_amt'] = temp_df[temp_df.cost_type == '税费']['trans_amt'].sum()
+            temp_dict['rent_cost_amt'] = temp_df[temp_df.cost_type == '房租']['trans_amt'].sum()
+            temp_dict['insurance_cost_amt'] = temp_df[temp_df.cost_type == '保险']['trans_amt'].sum()
+            temp_dict['loan_cost_amt'] = temp_df[temp_df.cost_type == '到期贷款']['trans_amt'].sum()
             temp_dict['create_time'] = create_time
             temp_dict['update_time'] = create_time
 
@@ -83,8 +84,8 @@ class UnionSummaryPortrait:
                 value = 'year'
             temp_dict1 = {}
 
-            interest_amt = single_u_df['interest_amt'].sum()
-            balance_amt = single_u_df['balance_amt'].sum()
+            interest_amt = single_u_df[single_u_df['month'] == value]['interest_amt'].sum()
+            balance_amt = single_u_df[single_u_df['month'] == value]['balance_amt'].sum()
             interest_balance_proportion = interest_amt / balance_amt if balance_amt != 0 else 0
 
             temp_dict1['apply_no'] = self.app_no

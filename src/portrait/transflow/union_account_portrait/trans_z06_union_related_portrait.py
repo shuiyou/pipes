@@ -13,7 +13,7 @@ class UnionRelatedPortrait:
     """
 
     def __init__(self, trans_flow):
-        self.trans_flow_portrait_df = trans_flow.trans_flow_portrait_df
+        self.trans_flow_portrait_df = trans_flow.trans_u_flow_portrait_df
         self.report_req_no = trans_flow.report_req_no
         self.app_no = trans_flow.app_no
         self.db = trans_flow.db

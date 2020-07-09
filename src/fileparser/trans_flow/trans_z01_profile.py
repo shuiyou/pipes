@@ -188,22 +188,26 @@ class TransProfile:
         if cell_type == "raw":
             for val in cell_list:
                 sub_temp = re.sub(r'[^:：0-9\u4e00-\u9fa5]', '', val)
+                # todo 除银行外还有其他信息 如xx银行交易明细之类
                 if '银行' in sub_temp and not self.title_params.__contains__('bank'):
                     self.title_params['bank'] = sub_temp
-                if '账号' in sub_temp:
+                # todo 关键字卡号/卡号被空格隔开
+                if '账号' in sub_temp or '卡号' in sub_temp:
                     acc_temp = re.search(r'[3-9]\d{12,18}', sub_temp)
                     if acc_temp is not None:
                         if self.title_params.__contains__('account_no'):
                             self.title_params['account_no'].append(acc_temp.group(0))
                         else:
                             self.title_params['account_no'] = [acc_temp.group(0)]
-                if '户名' in sub_temp:
+                # todo 关键字户名/户名和姓名被空格隔开
+                if '户名' in sub_temp or '姓名' in sub_temp:
                     name_temp = re.search(r'(?<=[\u4e00-\u9fa5][:：])[\u4e00-\u9fa5]{2,4}', sub_temp)
                     if name_temp is not None:
                         if self.title_params.__contains__('opponent_name'):
                             self.title_params['opponent_name'].append(name_temp.group(0))
                         else:
                             self.title_params['opponent_name'] = [name_temp.group(0)]
+                # todo 关键字 本次查询时间段
                 if re.search(r'[起|开]始', sub_temp):
                     start_temp = re.search(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', sub_temp)
                     if start_temp is not None:

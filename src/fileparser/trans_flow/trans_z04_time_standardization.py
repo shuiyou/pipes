@@ -18,6 +18,7 @@ class TransactionTime:
         self.query_start = None
         self.query_end = None
         self.basic_status = True
+        self.asc = True  # 时间列是否升序标签
         self.resp = {
             "resCode": "0",
             "resMsg": "成功",
@@ -30,7 +31,7 @@ class TransactionTime:
         try:
             self.query_start = self._dttime_apply(self.title_param.get('start_date'))
             self.query_end = self._dttime_apply(self.title_param.get('end_date'))
-        except ValueError:
+        except (ValueError, TypeError):
             self.query_start = None
             self.query_end = None
 
@@ -58,7 +59,7 @@ class TransactionTime:
             y = [_ for _ in x if _.isdigit()]
             z = ''.join(y)[:number]
             # 一旦出现不匹配的时间格式则返回False
-            if re.match(pattern, z) is not None:
+            if re.match(pattern, z) is None:
                 return False
             # 日期时间列的时间不能全都是0,否则可能忽略真实的时间列
             if number == 14 and z[-6:] == '000000':
@@ -131,6 +132,8 @@ class TransactionTime:
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
             self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+            self.df.sort_values(by=col, ascending=True, inplace=True)
+            self.df.reset_index(drop=True, inplace=True)
         elif x2:
             self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
         else:
@@ -147,6 +150,8 @@ class TransactionTime:
         for col in res:
             if self._match_time_head(col, dttime_pat, 14):
                 self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+                self.df.reset_index(drop=False, inplace=True)
+                self.df.sort_values(by=[col, 'index'], ascending=True, inplace=True)
                 return
         for col in res:
             if self._match_time_head(col, date_pat, 8):
@@ -166,22 +171,29 @@ class TransactionTime:
         if date_col != '' and time_col != '':
             self.df['trans_time'] = self.df[date_col] + self.df[time_col]
             self.df['trans_time'] = self.df['trans_time'].apply(self._dttime_apply)
+            self.df.reset_index(drop=False, inplace=True)
+            self.df.sort_values(by=[date_col, time_col, 'index'], ascending=True, inplace=True)
         elif date_col != '' and time_col == '':
             self.df['trans_time'] = self.df[date_col].apply(self._dttime_apply)
         else:
             raise ValueError("没有找到交易日期列t005")
+        self.df.reset_index(drop=True, inplace=True)
         return
 
     def time_match(self):
         res = self._notnull_cnt(self.time_col)
         length = len(res)
+        if length == 0:
+            self.basic_status = False
+            self.resp['resCode'] = '20'
+            self.resp['resMsg'] = '解析失败'
+            self.resp['data']['warningMsg'] = ['找不到时间列']
+            return
         try:
             if length == 1:
                 self._one_col_match(res[0])
             else:
                 self._multi_col_match(res)
-            # todo 待商量,是否要去掉时间顺序判断
-            self.df.sort_values(by='trans_time', ascending=True, inplace=True)
         except ValueError as e:
             self.basic_status = False
             self.resp['resCode'] = '20'
@@ -237,8 +249,8 @@ class TransactionTime:
 
     # 可能不需要
     def time_sequence_check(self):
-        trans_first = self.df['trans_time'][0]
-        trans_last = self.df['trans_time'][-1]
+        trans_first = list(self.df['trans_time'])[0]
+        trans_last = list(self.df['trans_time'])[-1]
         if trans_first == trans_last:
             self.basic_status = False
             self.resp['resCode'] = '22'
@@ -246,15 +258,18 @@ class TransactionTime:
             self.resp['data']['warningMsg'] = ['该流水存在时间顺序错乱的行,该流水为假流水']
             return
         elif trans_first > trans_last:
-            asc = -1
-        else:
-            asc = 1
-        last_date = ''
+            self.df.sort_index(ascending=False, inplace=True)
+            trans_first = trans_last
+        self.df.reset_index(drop=True, inplace=True)
+        last_date = trans_first
         for row in self.df.itertuples():
+            if getattr(row, 'Index') == self.df.index[0]:
+                continue
             this_date = getattr(row, 'trans_time')
-            if asc == -1 and this_date > last_date or asc == 1 and this_date < last_date:
+            if this_date < last_date:
                 self.basic_status = False
                 self.resp['resCode'] = '22'
                 self.resp['resMsg'] = '验真失败'
                 self.resp['data']['warningMsg'] = ['该流水存在时间顺序错乱的行,该流水为假流水']
                 return
+            last_date = this_date

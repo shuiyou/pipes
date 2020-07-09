@@ -90,12 +90,17 @@ class TransactionAmt:
         self.df[self.amt_col] = self.df[self.amt_col].replace('', '0').astype(float)
         length = len(self.amt_col)
         if length == 1:
-            if len(self.df.loc[self.df[self.amt_col[0]] < 0]) > 0:
-                self.df['trans_amt'] = self.df[self.amt_col[0]]
-            elif tag:
-                self.df['trans_amt'] = self.df['tag']*self.df[self.amt_col[0]]
+            if tag:
+                if len(self.df.loc[(self.df['tag'] == -1) &
+                                   (self.df[self.amt_col[0]] > 0)]) == 0:
+                    self.df['trans_amt'] = self.df[self.amt_col[0]]
+                else:
+                    self.df['trans_amt'] = self.df['tag']*self.df[self.amt_col[0]]
             else:
-                raise ValueError("未找到交易金额列")
+                if len(self.df.loc[self.df[self.amt_col[0]] < 0]) > 0:
+                    self.df['trans_amt'] = self.df[self.amt_col[0]]
+                else:
+                    raise ValueError("未找到交易金额列")
         elif length == 2:
             if tag:
                 self.df['trans_amt'] = self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
