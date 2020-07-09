@@ -3,6 +3,8 @@
 # @File : 51001.py.py 
 # @Software: PyCharm
 from mapping.tranformer import Transformer
+from view.p08001_v.json_s_counterparty_portrait import JsonSingleCounterpartyPortrait
+from view.p08001_v.json_u_counterparty_portrait import JsonUnionCounterpartyPortrait
 
 
 class V51001(Transformer):
@@ -11,18 +13,15 @@ class V51001(Transformer):
     """
     def __init__(self) -> None:
         super().__init__()
-        self.variables = {
-            "detail_var1": [],
-            "detail_var2": [],
-            "detail_var3": [],
-            "detail_var4": [],
-            "detail_var5": [],
-            "detail_var6": []
-        }
 
     def transform(self):
         view_handle_list = [
         ]
+
+        if self.cached_data["single"]:
+            view_handle_list.append(JsonSingleCounterpartyPortrait())
+        else:
+            view_handle_list.append(JsonUnionCounterpartyPortrait())
 
         for view in view_handle_list:
             view.init(self.variables, self.user_name, self.id_card_no, self.origin_data, self.cached_data)
