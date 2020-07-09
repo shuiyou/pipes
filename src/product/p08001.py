@@ -32,6 +32,7 @@ class P08001(Generate):
     def __init__(self) -> None:
         super().__init__()
         self.response: {}
+        self.sql_db = None
 
     def shake_hand_process(self):
         """
@@ -108,6 +109,7 @@ class P08001(Generate):
 
         var_item.update(data)
         portrait_processor = self._obtain_portrait_processor(is_single)
+        portrait_processor.sql_db = self.sql_db
         portrait_processor.init(var_item, query_data_array, user_name, user_type, base_type,
                                 id_card_no, phone, data, public_param, cached_data)
         portrait_processor.process()

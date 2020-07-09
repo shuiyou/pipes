@@ -1,7 +1,6 @@
 from portrait.transflow.single_account_portrait.trans_flow import transform_class_str
 from logger.logger_util import LoggerUtil
 from util.mysql_reader import sql_to_df
-from portrait.transflow.single_account_portrait.trans_flow import sql_db
 import pandas as pd
 import datetime
 
@@ -16,9 +15,9 @@ class TransFlowRawData:
     updated_time_v1:20200707新增是否有新增数据字段,若有则有所有后续操作,若无,则无后续操作
     """
 
-    def __init__(self, param, title_param):
+    def __init__(self, sql_db, param, title_param):
         self.df = None
-        self.db = sql_db()
+        self.db = sql_db
         self.param = param
         self.title_param = title_param
         self.raw_list = []

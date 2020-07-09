@@ -3,10 +3,11 @@ import json
 import time
 
 from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from py_eureka_client import eureka_client
 from werkzeug.exceptions import HTTPException
 
-from config import EUREKA_SERVER, version_info
+from config import EUREKA_SERVER, version_info, GEARS_DB
 from config_controller import base_type_api
 from exceptions import APIException, ServerException
 from fileparser.Parser import Parser
@@ -40,6 +41,7 @@ def shake_hand():
     handler = _get_product_handler(product_code)
     df_client = DefensorClient(request.headers)
     handler.df_client = df_client
+    handler.sql_db = sql_db()
 
     resp = handler.shake_hand(json_data)
     logger.info("shake_hand------end-------")
@@ -56,6 +58,7 @@ def strategy():
     handler = _get_product_handler(product_code)
     df_client = DefensorClient(request.headers)
     handler.df_client = df_client
+    handler.sql_db = sql_db()
 
     resp = handler.call_strategy(json_data)
     return jsonify(resp)
@@ -83,6 +86,7 @@ def parse():
 
     handler = _get_handler("fileparser", "Parser", function_code)
     handler.init_param(json.loads(data), file)
+    handler.sql_db = sql_db()
     resp = handler.process()
 
     return jsonify(resp)
@@ -151,6 +155,15 @@ def _get_handler(folder, prefix, code) -> Parser:
     except ModuleNotFoundError as err:
         logger.error(str(err))
         return Parser()
+
+
+def sql_db():
+    db_url = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % GEARS_DB
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SQLALCHEMY_ECHO'] = True
+    db = SQLAlchemy(app)
+    return db
 
 
 if __name__ == '__main__':

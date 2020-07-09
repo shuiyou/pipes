@@ -21,6 +21,7 @@ logger = LoggerUtil().logger(__name__)
 class Parser001(Parser):
     def __init__(self):
         super().__init__()
+        self.sql_db = None
 
     # 解析，验真逻辑， 此成员变量
     # self.param  提交的入参
@@ -117,7 +118,7 @@ class Parser001(Parser):
 
         # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
         logger.info("%d-----------------------%s" % (9, '进行数据落库'))
-        raw_data = TransFlowRawData(self.param, trans_profile.title_params)
+        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params)
         raw_data.df = raw_data.remove_duplicate_data(other_info.df)
         # 若没有新增数据将不进行落库操作
         if raw_data.new_data:

@@ -1,15 +1,8 @@
-
-from portrait.transflow.single_account_portrait.models import TransAccount, TransFlow, TransFlowPortrait, \
-    TransSinglePortrait, TransSingleSummaryPortrait, TransSingleRemarkPortrait, TransSingleCounterpartyPortrait, \
-    TransSingleRelatedPortrait, TransSingleLoanPortrait, TransApply, TransUFlowPortrait, TransULoanPortrait, \
-    TransUModelling, TransUPortrait, TransUCounterpartyPortrait, TransURelatedPortrait, TransURemarkPortrait, \
-    TransUSummaryPortrait
 import datetime
+
 import pandas as pd
-from app import app
+
 from util.mysql_reader import sql_to_df
-from flask_sqlalchemy import SQLAlchemy
-from config import GEARS_DB
 
 
 def months_ago(end_date, months):
@@ -40,17 +33,6 @@ def transform_class_str(params, class_name):
     return value
 
 
-def sql_db():
-    # app = Flask(__name__)
-
-    db_url = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % GEARS_DB
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ECHO'] = True
-    db = SQLAlchemy(app)
-    return db
-
-
 class TransFlowBasic:
 
     def __init__(self, portrait):
@@ -71,7 +53,7 @@ class TransFlowBasic:
         self.trans_u_flow_df = None
         self.trans_u_flow_portrait_df = None
         self.trans_u_flow_portrait_df_2_years = None
-        self.db = sql_db()
+        self.db = portrait.sql_db
 
     def process(self):
         data = self.query_data_array[self.object_k]
