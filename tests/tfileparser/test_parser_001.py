@@ -2,15 +2,15 @@
 from fileparser.Parser001 import Parser001
 
 
-file = r"..\resource\trans_flow\农商行流水.xlsx"
+file = r"../resource/trans_flow/农商行流水.xlsx"
 param = {
     'bankAccount': '32438708080074424',
     'cusName': '上海陶胜建筑材料有限公司',
     'idNo': '666666888888'
 }
 
-file_list = [r"..\resource\trans_flow\王伟明.xlsx", r"..\resource\trans_flow\农行流水.xlsx",
-             r"..\resource\trans_flow\建行流水.xlsx", r"..\resource\trans_flow\王伟芳.xlsx"]
+file_list = [r"../resource/trans_flow/王伟明.xlsx", r"../resource/trans_flow/农行流水.xlsx",
+             r"../resource/trans_flow/建行流水.xlsx", r"../resource/trans_flow/王伟芳.xlsx"]
 param_list = [
     {
         # 'appId': '商户端ID',
