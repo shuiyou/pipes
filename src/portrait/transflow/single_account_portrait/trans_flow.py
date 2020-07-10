@@ -1,7 +1,12 @@
 import datetime
 
 import pandas as pd
-
+# TODO eval 动态导入，不能删除下面的导入。
+from portrait.transflow.single_account_portrait.models import TransAccount, TransFlow, TransFlowPortrait, \
+    TransSinglePortrait, TransSingleSummaryPortrait, TransSingleRemarkPortrait, TransSingleCounterpartyPortrait, \
+    TransSingleRelatedPortrait, TransSingleLoanPortrait, TransApply, TransUFlowPortrait, TransULoanPortrait, \
+    TransUModelling, TransUPortrait, TransUCounterpartyPortrait, TransURelatedPortrait, TransURemarkPortrait, \
+    TransUSummaryPortrait
 from util.mysql_reader import sql_to_df
 
 
