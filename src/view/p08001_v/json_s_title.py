@@ -15,8 +15,8 @@ class JsonSingleTitle(TransFlow):
         for i in param_list:
             if i["relation"] == "MAIN":
                 self.cusName = i["name"]
-                self.bankName = i["extraParam"]["bankName"]
-                self.bankAccount = i["extraParam"]["bankAccount"]
+                self.bankName = i["extraParam"]["accounts"][0]["bankName"]
+                self.bankAccount = i["extraParam"]["accounts"][0]["bankAccount"]
                 self.idno = i["idno"]
                 self.reqno = i["preReportReqNo"]
 
@@ -32,8 +32,9 @@ class JsonSingleTitle(TransFlow):
         df1 = sql_to_df(sql=sql1,
                        params={"account_no":self.bankAccount})
 
-        startEndDate = df1.start_time.strftime('%Y年%m月%d日') \
-                    + "——"  + df1.end_time.strftime('%Y年%m月%d日')
+        start_end_date = ""
+        if not df1.empty:
+            start_end_date = df1.start_time.iloc[0].strftime('%Y年%m月%d日') + "——" + df1.end_time.iloc[0].strftime('%Y年%m月%d日')
 
         sql2 = '''
             select related_name as name , relationship as relation
@@ -43,11 +44,8 @@ class JsonSingleTitle(TransFlow):
         df2 = sql_to_df(sql=sql2,
                         params={"report_req_no": self.reqno})
 
-
         self.variables["表头"] = "{\"cusName\":" + self.cusName  \
-                               +  ",\"流水信息\":{\"bankName\":" + self.bankName \
+                               + ",\"流水信息\":{\"bankName\":" + self.bankName \
                                + ",\"bankAccount\":" + self.bankAccount \
-                               + ",\"startEndDate\":" + startEndDate + "},"  \
-       + "\"关联人\":" + df2.to_json(orient = 'records').encode('utf-8').decode("unicode_escape") + "}"
-
-        
+                               + ",\"startEndDate\":" + start_end_date + "},"  \
+                + "\"关联人\":" + df2.to_json(orient='records').encode('utf-8').decode("unicode_escape") + "}"

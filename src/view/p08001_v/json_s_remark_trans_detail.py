@@ -21,11 +21,10 @@ class JsonSingleRemarkTransDetail(TransFlow):
             from trans_flow_portrait
             where account_id = %(account_id)s
         """
-        flow_df = sql_to_df(sql= sql1 ,
-                            params= {"account_id": self.account_id})
-
-        flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
-        flow_df.drop(columns='trans_date', inplace=True)
+        flow_df = sql_to_df(sql=sql1, params={"account_id": self.account_id})
+        if not flow_df.empty:
+            flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
+            flow_df.drop(columns='trans_date', inplace=True)
 
         sql2 = """
             select *

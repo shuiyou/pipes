@@ -2,21 +2,22 @@ from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
 
+
 class JsonSingleMarketing(TransFlow):
 
     def process(self):
         self.read_single_marketing_in_flow()
 
-    def create_json(self, oppo_type , order ):
+    def create_json(self, oppo_type, order):
         sql = """
             select *
             from trans_flow_portrait
             where account_id = %(account_id)s
         """
-        df = sql_to_df(sql = sql,
-                       params= {"account_id":self.account_id})
+        df = sql_to_df(sql=sql,
+                       params={"account_id": self.account_id})
         df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]))][[order, 'opponent_name',
-                                                                               'trans_amt', 'phone']]
+                                                                             'trans_amt', 'phone']]
         df1_1 = df1.groupby([order, 'opponent_name'])['trans_amt'] \
             .agg(['count', 'sum']).reset_index() \
             .rename(columns={'count': 'trans_cnt', 'sum': 'trans_amt'})
@@ -29,14 +30,13 @@ class JsonSingleMarketing(TransFlow):
         # order列 直接是 varchar
         # df1[order] = df1[order].apply(lambda x: "No." + x  )
         # order列 是int
-        df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
+        df1[order] = df1[order].apply(lambda x: "No." + str(x)[0])
         return df1.to_json(orient='records').encode('utf-8').decode("unicode_escape")
 
     def read_single_marketing_in_flow(self):
+        json1 = "\"对私进账\":" + self.create_json(oppo_type=1, order='income_cnt_order') + ","
+        json3 = "\"对私出账\":" + self.create_json(oppo_type=1, order='expense_cnt_order') + ","
+        json2 = "\"对公进账\":" + self.create_json(oppo_type=2, order='income_cnt_order') + ","
+        json4 = "\"对公出账\":" + self.create_json(oppo_type=2, order='expense_cnt_order')
 
-        json1 = "\"对私进账\":" + self.create_json(oppo_type = 1, order = 'income_cnt_order') + ","
-        json3 = "\"对私出账\":" + self.create_json(oppo_type = 1, order = 'expense_cnt_order') + ","
-        json2 = "\"对公进账\":" + self.create_json(oppo_type = 2, order = 'income_cnt_order') + ","
-        json4 = "\"对公出账\":" + self.create_json(oppo_type = 2, order='expense_cnt_order')
-
-        self.variables["营销反哺"] = "{" + json1 + json2 +json3 + json4 + "}"
+        self.variables["营销反哺"] = "{" + json1 + json2 + json3 + json4 + "}"

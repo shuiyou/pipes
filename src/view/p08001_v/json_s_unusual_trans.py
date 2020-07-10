@@ -18,8 +18,8 @@ class JsonSingleUnusualTrans(TransFlow):
         df = df[pd.notnull(df.unusual_trans_type)][['trans_date','trans_time',
                                                     'opponent_name','trans_amt',
                                                     'remark','unusual_trans_type']]
-
-        df['trans_time'] = df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
+        if not df.empty:
+            df['trans_time'] = df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
 
         unusual_dict = {
             "博彩娱乐风险": "博彩娱乐",

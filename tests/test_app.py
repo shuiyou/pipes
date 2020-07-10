@@ -127,3 +127,8 @@ def test_hand_shake_08001(client):
 # 流水报告决策请求
 def test_strategy_08001(client):
     strategy_request(client, "08001")
+
+
+# 流水报告决策请求
+def test_strategy_08001_1(client):
+    strategy_request(client, "08001_1")
