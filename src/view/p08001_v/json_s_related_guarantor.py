@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -9,17 +11,15 @@ class JsonSingleGuarantor(TransFlow):
 
     def create_guarantor_json(self,  guarantor):
         sql = """
-                    select *
-                    from trans_flow_portrait
-                    where account_id = %(account_id)s
-                """
+            select concat(trans_date," ",trans_time) as trans_time
+            opponent_name,trans_amt,remark,is_before_interest_repay,
+            income_amt_order,expense_amt_order,income_cnt_order,expense_cnt_order
+            from trans_flow_portrait
+            where account_id = %(account_id)s
+        """
         df = sql_to_df(sql=sql,
                        params={"account_id": self.account_id})
-        df = df[df.opponent_name == guarantor][['opponent_name', 'trans_amt', 'trans_date', 'trans_time', 'remark',
-                                                'is_before_interest_repay', 'income_amt_order', 'expense_amt_order',
-                                                'income_cnt_order', 'expense_cnt_order']]
-        df['trans_time'] = df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
-
+        df = df[df.opponent_name == guarantor]
         df.rename(columns={'opponent_name': 'guarantor'}, inplace=True)
 
         json1 = "\"流水\":" + df[['guarantor', 'trans_amt',
@@ -49,8 +49,9 @@ class JsonSingleGuarantor(TransFlow):
         # 获取guarantor 一个/多个担保人姓名 列表
         guarantor_list = []
 
-        json = ''
+        json_str = ''
         for guarantor in guarantor_list:
-            json += self.create_guarantor_json(guarantor)
+            json_str += self.create_guarantor_json(guarantor)
 
-        self.variables["第三方担保交易信息"] = "[" + json[:-1] + "]"
+        json_str = "[" + json_str[:-1] + "]"
+        self.variables["第三方担保交易信息"] = json.loads(json_str)

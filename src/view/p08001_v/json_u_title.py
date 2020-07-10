@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -8,12 +10,6 @@ class JsonUnionTitle(TransFlow):
         self.create_u_title()
 
     def create_u_title(self):
-        param_list = self.cached_data.get("input_param")
-        for i in param_list:
-            if i["relation"] == "MAIN":
-                self.cusName = i["name"]
-                self.appAmt = i["applyAmo"]
-
 
         sql1 = """
             SELECT ap.related_name AS relatedName ,
@@ -27,8 +23,8 @@ class JsonUnionTitle(TransFlow):
 
         account_df = sql_to_df(sql=sql1,
                                params={"report_req_no":self.reqno})
-        account_df['startEndDate'] = account_df.start_time.strftime('%Y年%m月%d日') \
-                                    + "——"  + account_df.end_time.strftime('%Y年%m月%d日')
+        account_df['startEndDate'] = account_df.at[0,'start_time'].strftime('%Y年%m月%d日') \
+                                    + "——"  + account_df.at[0,'end_time'].strftime('%Y年%m月%d日')
 
         account_list = account_df.drop(columns=['start_time','end_time']).to_json(orient='records')\
                         .encode('utf-8').decode("unicode_escape")
@@ -41,8 +37,10 @@ class JsonUnionTitle(TransFlow):
         relation_df = sql_to_df(sql=sql2,
                         params={"report_req_no": self.reqno})
 
-        self.variables["表头"]  = "{\"cusName\":" + self.cusName  \
+        json_str  = "{\"cusName\":\"" + self.cusName  \
                                 + ",\"appAmt\":" + self.appAmt  \
                                 + ",\"流水信息\":" + account_list \
                                 + ",\"关联人\":"  + relation_df.to_json(orient='records')\
                                .encode('utf-8').decode("unicode_escape")  + "}"
+
+        self.variables["表头"] = json.loads(json_str)

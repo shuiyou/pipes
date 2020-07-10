@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -28,4 +30,4 @@ class JsonSingleSummaryPortrait(TransFlow):
         # for m in month_list:
         #     temp_df = df[df.month == m]
         #     if temp_df.empty:
-        self.variables["trans_single_summary_portrait"] = df.to_json(orient='records')
+        self.variables["trans_single_summary_portrait"] = json.loads(df.to_json(orient='records'))

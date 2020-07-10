@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -25,12 +27,15 @@ class JsonUnionMarketing(TransFlow):
             .groupby([order, 'opponent_name'])['phone'] \
             .apply(lambda x: x.str.cat(sep=';')).reset_index()
 
-        df1 = pd.merge(df1_1, df1_2, how='left', on=[order, 'opponent_name'])
-        # order列 直接是 varchar
-        # df1[order] = df1[order].apply(lambda x: "No." + x  )
-        # order列 是int
-        df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
-        return df1.to_json(orient='records').encode('utf-8').decode("unicode_escape")
+        if not df1_1.empty and df1_2.empty:
+            df1 = pd.merge(df1_1, df1_2, how='left', on=[order, 'opponent_name'])
+            # order列 直接是 varchar
+            # df1[order] = df1[order].apply(lambda x: "No." + x  )
+            # order列 是int
+            df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
+            return df1.to_json(orient='records').encode('utf-8').decode("unicode_escape")
+        else:
+            return '\"\"'
 
     def read_u_marketing_in_u_flow(self):
 
@@ -39,4 +44,4 @@ class JsonUnionMarketing(TransFlow):
         json2 = "\"对公进账\":" + self.create_json(oppo_type=2, order='income_cnt_order') + ","
         json4 = "\"对公出账\":" + self.create_json(oppo_type=2, order='expense_cnt_order')
 
-        self.variables["营销反哺"] = "{" + json1 + json2 + json3 + json4 + "}"
+        self.variables["营销反哺"] = json.loads("{" + json1 + json2 + json3 + json4 + "}")

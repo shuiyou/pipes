@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -20,5 +22,5 @@ class JsonUnionRelatedPortrait(TransFlow):
                          'create_time', 'update_time'],
                 inplace=True)
 
-        self.variables["trans_u_related_portrait"] = df.to_json(
-                        orient='records').encode('utf-8').decode("unicode_escape")
+        self.variables["trans_u_related_portrait"] = json.loads(df.to_json(
+                        orient='records').encode('utf-8').decode("unicode_escape"))

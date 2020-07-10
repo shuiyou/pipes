@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -25,4 +27,8 @@ class JsonSinglePortrait(TransFlow):
         # df.fillna(0,inplace = True)
         # for col in str_col:
         #     df[col].replace(0,'',inplace = True)
-        self.variables["trans_single_portrait"] = df.to_json( orient = 'records')[1:-1]
+        json_str = df.to_json( orient = 'records')[1:-1]
+        self.variables["trans_single_portrait"] = json.loads(json_str)
+
+
+        print(json_str)

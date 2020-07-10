@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -10,10 +12,10 @@ class JsonSingleRemarkPortrait(TransFlow):
 
     def read_single_remark_pt(self):
         sql = """
-                            select *
-                            from trans_single_remark_portrait
-                            where account_id = %(account_id)s
-                        """
+            select *
+            from trans_single_remark_portrait
+            where account_id = %(account_id)s
+        """
         df = sql_to_df(sql=sql,
                        params={"account_id": self.account_id})
 
@@ -30,5 +32,6 @@ class JsonSingleRemarkPortrait(TransFlow):
         expense_df.rename(columns={'remark_expense_amt_order': 'order'}, inplace=True)
         json2 = expense_df.to_json(orient = 'records').encode('utf-8').decode("unicode_escape")
 
-        self.variables["trans_single_remark_portrait"] = "{\"remark_income\":" + json1 + ","\
-                                                        + "\"remark_expense\":" + json2 + "}"
+        json_str = "{\"remark_income\":" + json1 + ",\"remark_expense\":" + json2 + "}"
+
+        self.variables["trans_single_remark_portrait"] = json.loads(json_str)
