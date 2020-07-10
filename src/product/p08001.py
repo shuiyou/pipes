@@ -55,7 +55,7 @@ class P08001(Generate):
             response_array = []
             for data in query_data_array:
                 base_type = base_type_service.parse_base_type(data)
-                data["baseType"] = base_type
+                data["baseTypeDetail"] = base_type
                 if data.get("relation") == "MAIN":
                     main_node = data
                 else:
@@ -172,34 +172,39 @@ class P08001(Generate):
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
         biz_types.append('00000')
+        variables = {}
+        out_decision_code = {}
+        strategy_resp = {}
+
         data_repository = {"input_param": subjects, "single": is_single}
-        variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
+        if not is_single:
+            variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, df_client, main_query_data, data_repository)
-        origin_input = {'out_strategyBranch': ','.join(codes)}
-        # 合并新的转换变量
-        origin_input.update(variables)
+            origin_input = {'out_strategyBranch': ','.join(codes)}
+            # 合并新的转换变量
+            origin_input.update(variables)
+            logger.info("1. 流水报告-开始策略引擎封装入参")
+            strategy_request = _build_request(req_no, product_code, origin_input)
+            logger.info("2. 流水报告-策略引擎封装入参:%s", strategy_request)
+            strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+            logger.info("3. 流水报告-策略引擎返回结果：%s", strategy_response)
+
+            status_code = strategy_response.status_code
+            if status_code != 200:
+                raise Exception("strategyOne错误:" + strategy_response.text)
+            strategy_resp = strategy_response.json()
+            logger.info("4. 流水报告-策略引擎调用成功 %s", strategy_resp)
+            error = jsonpath(strategy_resp, '$..Error')
+            if error:
+                raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
+            score_to_int(strategy_resp)
+            biz_types, categories = _get_biz_types(strategy_resp)
+            logger.info(biz_types)
+            main_query_data['bizType'] = biz_types
+
         variables["single"] = is_single
-        logger.info("1. 流水报告-开始策略引擎封装入参")
-        strategy_request = _build_request(req_no, product_code, origin_input)
-        logger.info("2. 流水报告-策略引擎封装入参:%s", strategy_request)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-        logger.info("3. 流水报告-策略引擎返回结果：%s", strategy_response)
-
-        status_code = strategy_response.status_code
-        if status_code != 200:
-            raise Exception("strategyOne错误:" + strategy_response.text)
-        strategy_resp = strategy_response.json()
-        logger.info("4. 流水报告-策略引擎调用成功 %s", strategy_resp)
-        error = jsonpath(strategy_resp, '$..Error')
-        if error:
-            raise Exception("决策引擎返回的错误：" + ';'.join(jsonpath(strategy_resp, '$..Description')))
-        score_to_int(strategy_resp)
-        biz_types, categories = _get_biz_types(strategy_resp)
-        logger.info(biz_types)
-
         resp = {}
 
-        main_query_data['bizType'] = biz_types
         main_query_data["baseType"] = base_type
         main_query_data['strategyInputVariables'] = variables
         # 最后返回报告详情
