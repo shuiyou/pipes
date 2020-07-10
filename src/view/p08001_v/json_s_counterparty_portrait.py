@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -54,7 +56,7 @@ class JsonSingleCounterpartyPortrait(TransFlow):
 
         # json_2 =
 
-        self.variables["trans_single_counterparty_portrait"] = "{\"income_amt_order\":{" + self.connect_json(json1)\
-                                                               +"},\"expense_amt_order\":{" \
-                                                               + self.connect_json(json2)  + "}}"
+        json_str = "{\"income_amt_order\":{" + self.connect_json(json1)\
+                                           +"},\"expense_amt_order\":{"  + self.connect_json(json2)  + "}}"
 
+        self.variables["trans_single_counterparty_portrait"] = json.loads(json_str)

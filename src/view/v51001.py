@@ -51,6 +51,7 @@ class V51001(Transformer):
             view_handle_list.append(JsonSingleUnusualTrans())
             view_handle_list.append(JsonSingleMarketing())
 
+
         else:
             view_handle_list.append(JsonUnionTitle())
             view_handle_list.append(JsonUnionPortrait())
@@ -67,3 +68,4 @@ class V51001(Transformer):
         for view in view_handle_list:
             view.init(self.variables, self.user_name, self.id_card_no, self.origin_data, self.cached_data)
             view.process()
+

@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -9,17 +11,14 @@ class JsonSingleUnusualTrans(TransFlow):
 
     def read_unusual_in_flow(self):
         sql = """
-                    select *
-                    from trans_flow_portrait
-                    where account_id = %(account_id)s
-                """
+            select concat(trans_date," ",trans_time) as trans_time,
+            opponent_name,trans_amt,remark,unusual_trans_type
+            from trans_flow_portrait
+            where account_id = %(account_id)s
+        """
         df = sql_to_df(sql=sql,
                        params={"account_id": self.account_id})
-        df = df[pd.notnull(df.unusual_trans_type)][['trans_date','trans_time',
-                                                    'opponent_name','trans_amt',
-                                                    'remark','unusual_trans_type']]
-        if not df.empty:
-            df['trans_time'] = df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
+        df = df[pd.notnull(df.unusual_trans_type)]
 
         unusual_dict = {
             "博彩娱乐风险": "博彩娱乐",
@@ -45,10 +44,10 @@ class JsonSingleUnusualTrans(TransFlow):
             "存在代偿": "代偿"
         }
 
-        json = ""
+        json_str = ""
         for risk in unusual_dict:
-            temp_df = df[df['unusual_trans_type'].str.contains( unusual_dict[risk] )].drop(columns= ['unusual_trans_type',
-                                                                                                     'trans_date'])
-            json +=  f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
+            temp_df = df[df['unusual_trans_type'].str.contains( unusual_dict[risk] )].drop(columns= 'unusual_trans_type')
+            json_str +=  f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
 
-        self.variables["异常交易风险"] = "{" + json[:-1] + "}"
+        json_str = "{" + json_str[:-1] + "}"
+        self.variables["异常交易风险"] = json.loads(json_str)

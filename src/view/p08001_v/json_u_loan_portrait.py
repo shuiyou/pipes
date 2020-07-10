@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -27,11 +29,11 @@ class JsonUnionLoanPortrait(TransFlow):
 
         loan_type_list = ['消金', '银行', '融资租赁', '担保', '保理', '小贷', '其他金融', '民间借贷']
 
-        json = []
+        json_str = []
         for loan in loan_type_list:
             temp_df = df[df.loan_type == loan]
-            json.append("\"" + loan + "\":" +
+            json_str.append("\"" + loan + "\":" +
                         temp_df.set_index('loan_type').to_json(orient='records').encode(
                             'utf-8').decode("unicode_escape") + ",")
 
-        self.variables['trans_u_loan_portrait'] = "{" + self.connect_json(json) + "}"
+        self.variables['trans_u_loan_portrait'] = json.loads("{" + self.connect_json(json_str) + "}")

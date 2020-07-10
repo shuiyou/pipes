@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
 
@@ -9,10 +11,10 @@ class JsonSingleRelatedPortrait(TransFlow):
 
     def read_single_related_pt(self):
         sql = """
-                    select *
-                    from trans_single_related_portrait
-                    where account_id = %(account_id)s
-                """
+            select *
+            from trans_single_related_portrait
+            where account_id = %(account_id)s
+        """
         df = sql_to_df(sql=sql,
                        params={"account_id": self.account_id})
 
@@ -22,4 +24,6 @@ class JsonSingleRelatedPortrait(TransFlow):
                            'create_time','update_time'],
                 inplace = True)
 
-        self.variables["trans_single_related_portrait"] = df.to_json(orient='records').encode('utf-8').decode("unicode_escape")
+        self.variables["trans_single_related_portrait"] = json.loads(df.to_json(orient='records')
+                                                                     .encode('utf-8')
+                                                                     .decode("unicode_escape"))

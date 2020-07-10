@@ -1,3 +1,5 @@
+import json
+
 from view.TransFlow import TransFlow
 import pandas as pd
 from util.mysql_reader import sql_to_df
@@ -17,14 +19,14 @@ class JsonSingleRemarkTransDetail(TransFlow):
     def read_single_remark_trans_in_flow(self):
 
         sql1 = """
-            select trans_date,trans_time,opponent_name,trans_amt,remark
+            select concat(trans_date," ",trans_time) as trans_time,opponent_name,trans_amt,remark
             from trans_flow_portrait
             where account_id = %(account_id)s
         """
         flow_df = sql_to_df(sql=sql1, params={"account_id": self.account_id})
-        if not flow_df.empty:
-            flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
-            flow_df.drop(columns='trans_date', inplace=True)
+        # if not flow_df.empty:
+        #     flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
+        #     flow_df.drop(columns='trans_date', inplace=True)
 
         sql2 = """
             select *
@@ -66,5 +68,7 @@ class JsonSingleRemarkTransDetail(TransFlow):
 
         json_2 = self.connect_json(json2).encode('utf-8').decode("unicode_escape")
 
-        self.variables["交易对手明细"] = "{\"remark_income_amt_order\":{"+ json_1 + \
+        json_str = "{\"remark_income_amt_order\":{"+ json_1 + \
                                    "},\"remark_expense_amt_order\":{" + json_2 + "}}"
+
+        self.variables["交易对手明细"] = json.loads(json_str)
