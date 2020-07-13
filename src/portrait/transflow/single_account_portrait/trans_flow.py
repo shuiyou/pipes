@@ -44,8 +44,8 @@ class TransFlowBasic:
         super().__init__()
         self.trans_flow_df = None
         self.account_id = None
-        # 限制上传时间在3个月内的流水会生成画像表,后续可配置
-        self.month_interval = 3
+        # # 限制上传时间在3个月内的流水会生成画像表,后续可配置
+        # self.month_interval = 3
         self.object_k = 0
         self.object_nums = len(portrait.query_data_array)
         self.object_k_k = 0
@@ -89,19 +89,20 @@ class TransFlowBasic:
             return
 
         # 最新流水上传时间必须在限制时间之内,暂定为3个月内,若在限定之间之外,则不重新生成画像表
-        limit_time = pd.to_datetime(months_ago(datetime.datetime.now(), self.month_interval))
-        if df['create_time'].max() < limit_time:
-            self.account_id = None
-            self.trans_flow_df = None
-            self.trans_flow_portrait_df = None
-            self.trans_flow_portrait_df_2_years = None
-            return
+        # limit_time = pd.to_datetime(months_ago(datetime.datetime.now(), self.month_interval))
+        # if df['create_time'].max() < limit_time:
+        #     self.account_id = None
+        #     self.trans_flow_df = None
+        #     self.trans_flow_portrait_df = None
+        #     self.trans_flow_portrait_df_2_years = None
+        #     return
         # 上述关系均没有跳过此关联人则正常走余下的流程
         self.trans_flow_df = self._time_interval(df, 2)
         self.account_id = self.trans_flow_df['account_id'].max()
 
     def trans_single_portrait(self):
-        sql = """select * from trans_flow_portrait where account_id = '%s'""" % self.account_id
+        sql = """select * from trans_flow_portrait where account_id = '%s' and report_req_no = '%s'""" \
+              % (self.account_id, self.report_req_no)
         df = sql_to_df(sql)
         if len(df) == 0:
             return
