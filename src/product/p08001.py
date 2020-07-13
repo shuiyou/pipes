@@ -108,11 +108,18 @@ class P08001(Generate):
         }
 
         var_item.update(data)
-        portrait_processor = self._obtain_portrait_processor(is_single)
-        portrait_processor.sql_db = self.sql_db
-        portrait_processor.init(var_item, query_data_array, user_name, user_type, base_type,
+        single, union = self._obtain_portrait_processor(is_single)
+
+        single.sql_db = self.sql_db
+        single.init(var_item, query_data_array, user_name, user_type, base_type,
                                 id_card_no, phone, data, public_param, cached_data)
-        portrait_processor.process()
+        single.process()
+
+        if union is not None:
+            union.sql_db = self.sql_db
+            union.init(var_item, query_data_array, user_name, user_type, base_type,
+                        id_card_no, phone, data, public_param, cached_data)
+            union.process()
 
         return var_item
 
@@ -232,7 +239,7 @@ class P08001(Generate):
     @staticmethod
     def _obtain_portrait_processor(is_single) -> PortraitProcessor:
         if is_single:
-            return SinglePortrait()
+            return SinglePortrait(), None
         else:
-            return UnionPortrait()
+            return SinglePortrait(), UnionPortrait()
 

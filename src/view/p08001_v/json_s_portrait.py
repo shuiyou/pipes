@@ -15,10 +15,10 @@ class JsonSinglePortrait(TransFlow):
         sql = """
             select * 
             from trans_single_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no=%(report_req_no)s
             """
         df = sql_to_df(sql = sql,
-                       params= {"account_id":self.account_id})
+                       params= {"account_id":self.account_id, "report_req_no": self.reqno})
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],inplace = True)
         # str_col = []
         # for col in df.columns.tolist():
@@ -27,8 +27,6 @@ class JsonSinglePortrait(TransFlow):
         # df.fillna(0,inplace = True)
         # for col in str_col:
         #     df[col].replace(0,'',inplace = True)
-        json_str = df.to_json( orient = 'records')[1:-1]
-        self.variables["trans_single_portrait"] = json.loads(json_str)
-
-
-        print(json_str)
+        json_str = df.to_json( orient = 'records')
+        data = json.loads(json_str)
+        self.variables["trans_single_portrait"] = data
