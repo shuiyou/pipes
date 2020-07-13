@@ -1,29 +1,15 @@
 import json
 
-from view.TransFlow import TransFlow
-from datetime import datetime
-import pandas as pd
 from util.mysql_reader import sql_to_df
-import locale
+from view.TransFlow import TransFlow
+
 
 class JsonSingleTitle(TransFlow):
 
     def process(self):
         self.create_s_title()
 
-
     def create_s_title(self):
-        locale.setlocale(locale.LC_CTYPE, 'chinese')
-        # param_list = self.cached_data.get("input_param")
-        # for i in param_list:
-        #     if i["relation"] == "MAIN":
-        #         self.cusName = i["name"]
-        #         self.bankName = i["extraParam"]["accounts"][0]["bankName"]
-        #         self.bankAccount = i["extraParam"]["accounts"][0]["bankAccount"]
-        #         self.idno = i["idno"]
-        #         self.reqno = i["preReportReqNo"]
-
-
         sql1 = '''
             SELECT min(f.trans_time) AS start_time, 
             max(f.trans_time) AS end_time
@@ -48,7 +34,6 @@ class JsonSingleTitle(TransFlow):
         '''
         df2 = sql_to_df(sql=sql2,
                         params={"report_req_no": self.reqno})
-
 
         json_str= "{\"cusName\":\"" + self.cusName  \
                                + "\",\"流水信息\":{\"bankName\":\"" + self.bankName \
