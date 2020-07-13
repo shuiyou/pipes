@@ -20,10 +20,14 @@ class JsonSingleCounterpartyPortrait(TransFlow):
         sql = """
             select *
             from trans_single_counterparty_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
             """
         df = sql_to_df(sql = sql,
-                       params= {"account_id":self.account_id})
+                       params= {"account_id":self.account_id,
+                               "report_req_no":self.reqno})
+        if df.empty:
+            return
+
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],
                 inplace = True)
 
@@ -41,10 +45,7 @@ class JsonSingleCounterpartyPortrait(TransFlow):
             json1.append("\"" + income_order +  "\":"   +
                          temp_df1.to_json( orient = 'records').encode('utf-8').decode("unicode_escape") + ",")
 
-        # json_1 =
-
         expense_df = df[pd.notnull(df.expense_amt_order)]
-
         expense_order_list = list(map(str, list(range(1,11))))
         json2 = []
 
@@ -53,8 +54,6 @@ class JsonSingleCounterpartyPortrait(TransFlow):
 
             json2.append("\"" + expense_order + "\":" +
                          temp_df2.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ",")
-
-        # json_2 =
 
         json_str = "{\"income_amt_order\":{" + self.connect_json(json1)\
                                            +"},\"expense_amt_order\":{"  + self.connect_json(json2)  + "}}"

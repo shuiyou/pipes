@@ -25,6 +25,8 @@ class JsonSingleTitle(TransFlow):
         if not df1.empty:
             start_end_date = df1.at[0,'start_time'].strftime('%Y年%m月%d日') \
                              + "——" + df1.at[0,'end_time'].strftime('%Y年%m月%d日')
+        else:
+            start_end_date = "error"
 
         sql2 = '''
             select related_name as name , relationship as relation
@@ -35,10 +37,15 @@ class JsonSingleTitle(TransFlow):
         df2 = sql_to_df(sql=sql2,
                         params={"report_req_no": self.reqno})
 
+        if not df2.empty:
+            relation_json = df2.to_json(orient='records').encode('utf-8').decode("unicode_escape")
+        else:
+            relation_json = "\"\""
+
         json_str= "{\"cusName\":\"" + self.cusName  \
                                + "\",\"流水信息\":{\"bankName\":\"" + self.bankName \
                                + "\",\"bankAccount\":" + self.bankAccount \
                                + ",\"startEndDate\":\"" + start_end_date + "\"},"  \
-                + "\"关联人\":" + df2.to_json(orient='records').encode('utf-8').decode("unicode_escape") + "}"
+                                + "\"关联人\":" + relation_json + "}"
 
         self.variables["表头"] = json.loads(json_str)

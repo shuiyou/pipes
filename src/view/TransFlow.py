@@ -14,6 +14,7 @@ class TransFlow(ModuleProcessor):
         self.idno = None
         self.reqno = None
         self.appAmt = None
+        self.guarantor_list = []
         self.variables = {}
 
     def init(self, variables, user_name, id_card_no, origin_data, cached_data):
@@ -37,7 +38,12 @@ class TransFlow(ModuleProcessor):
                     and ap.id_card_no = %(id_card_no)s 
                     and ac.account_no = %(account_no)s
                 """
-                self.account_id =  int(sql_to_df(sql=sql,
+                account_df = sql_to_df(sql=sql,
                                params={"report_req_no":self.reqno,
                                        "id_card_no":self.idno,
-                                       "account_no":self.bankAccount}).values[0][0])
+                                       "account_no":self.bankAccount})
+                if not account_df.empty:
+                    self.account_id =  int(account_df.values[0][0])
+
+            if i["relation"] == "GUARANTOR":
+                self.guarantor_list.append(i["name"])

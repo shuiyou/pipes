@@ -15,10 +15,13 @@ class JsonSingleGuarantor(TransFlow):
             opponent_name,trans_amt,remark,is_before_interest_repay,
             income_amt_order,expense_amt_order,income_cnt_order,expense_cnt_order
             from trans_flow_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
         df = sql_to_df(sql=sql,
-                       params={"account_id": self.account_id})
+                       params={"account_id": self.account_id,
+                               "report_req_no":self.reqno})
+        if df.empty:
+            return
         df = df[df.opponent_name == guarantor]
         df.rename(columns={'opponent_name': 'guarantor'}, inplace=True)
 
@@ -45,12 +48,8 @@ class JsonSingleGuarantor(TransFlow):
         return "{" + json1 + json2 + "},"
 
     def read_single_guarantor_in_flow(self):
-
-        # 获取guarantor 一个/多个担保人姓名 列表
-        guarantor_list = []
-
         json_str = ''
-        for guarantor in guarantor_list:
+        for guarantor in self.guarantor_list:
             json_str += self.create_guarantor_json(guarantor)
 
         json_str = "[" + json_str[:-1] + "]"
