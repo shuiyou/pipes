@@ -117,3 +117,18 @@ def test_strategy_07001_2(client):
 # 征信拦截请求
 def test_strategy_07002(client):
     strategy_request(client, "07002")
+
+
+# 流水报告握手请求
+def test_hand_shake_08001(client):
+    shake_hand_request(client, "08001")
+
+
+# 流水报告决策请求
+def test_strategy_08001(client):
+    strategy_request(client, "08001")
+
+
+# 流水报告决策请求
+def test_strategy_08001_1(client):
+    strategy_request(client, "08001_1")
