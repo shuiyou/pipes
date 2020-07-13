@@ -21,21 +21,22 @@ class JsonSingleRemarkTransDetail(TransFlow):
         sql1 = """
             select concat(trans_date," ",trans_time) as trans_time,opponent_name,trans_amt,remark
             from trans_flow_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
-        flow_df = sql_to_df(sql=sql1, params={"account_id": self.account_id})
-        # if not flow_df.empty:
-        #     flow_df['trans_time'] = flow_df.apply(lambda x: pd.datetime.combine(x['trans_date'], x['trans_time']), 1)
-        #     flow_df.drop(columns='trans_date', inplace=True)
+        flow_df = sql_to_df(sql=sql1, params={"account_id": self.account_id,
+                                                "report_req_no":self.reqno})
 
         sql2 = """
             select *
             from trans_single_remark_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
 
         remark_portrait = sql_to_df( sql = sql2,
-                                     params={"account_id": self.account_id})
+                                     params={"account_id": self.account_id,
+                                               "report_req_no":self.reqno})
+        if flow_df.empty or remark_portrait.empty:
+            return
 
         remark_portrait.drop(columns=['id','account_id','report_req_no','create_time','update_time'],
                              inplace = True)

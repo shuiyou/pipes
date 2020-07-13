@@ -14,10 +14,13 @@ class JsonSingleSummaryPortrait(TransFlow):
         sql = """
         select *
         from trans_single_summary_portrait
-        where account_id = %(account_id)s
+        where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
         df = sql_to_df(sql=sql,
-                       params={"account_id":self.account_id})
+                       params={"account_id":self.account_id,
+                               "report_req_no":self.reqno})
+        if df.empty:
+            return
 
         df.drop(columns=['id', 'account_id', 'report_req_no', 'q_1_year', 'q_2_year',
                          'q_3_year', 'q_4_year', 'create_time', 'update_time'],

@@ -14,10 +14,14 @@ class JsonSingleUnusualTrans(TransFlow):
             select concat(trans_date," ",trans_time) as trans_time,
             opponent_name,trans_amt,remark,unusual_trans_type
             from trans_flow_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
         df = sql_to_df(sql=sql,
-                       params={"account_id": self.account_id})
+                       params={"account_id": self.account_id,
+                               "report_req_no":self.reqno})
+        if df.empty:
+            return
+
         df = df[pd.notnull(df.unusual_trans_type)]
 
         unusual_dict = {

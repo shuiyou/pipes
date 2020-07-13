@@ -14,10 +14,13 @@ class JsonSingleRemarkPortrait(TransFlow):
         sql = """
             select *
             from trans_single_remark_portrait
-            where account_id = %(account_id)s
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
         """
         df = sql_to_df(sql=sql,
-                       params={"account_id": self.account_id})
+                       params={"account_id": self.account_id,
+                               "report_req_no":self.reqno})
+        if df.empty:
+            return
 
         df.drop(columns = ['id','account_id','report_req_no','create_time','update_time'],
                                     inplace = True)
