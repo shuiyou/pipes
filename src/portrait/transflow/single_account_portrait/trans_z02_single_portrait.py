@@ -82,7 +82,7 @@ class SingleTransProtrait:
     def _income_detail(self):
         flow_df = self.trans_flow_portrait_df
         income_list = [0, 5, 10, 30, 50, 100, 200]
-        temp_df = flow_df.sort_values(by='trans_date', ascending=True)
+        temp_df = flow_df.copy()
         temp_df['str_date'] = temp_df['trans_date'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
         temp_df.drop_duplicates(subset='str_date', keep='last', inplace=True)
         income_weight_max = 0

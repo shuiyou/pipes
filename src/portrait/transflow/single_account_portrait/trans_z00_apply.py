@@ -15,7 +15,7 @@ class TransApply:
     """
     def __init__(self, trans_flow):
         self.report_req_no = trans_flow.report_req_no
-        self.month_interval = trans_flow.month_interval
+        # self.month_interval = trans_flow.month_interval
         self.app_no = trans_flow.app_no
         self.cus_name = trans_flow.user_name
         self.query_data_array = trans_flow.query_data_array
@@ -36,10 +36,10 @@ class TransApply:
         :return:
         """
         length = len(self.query_data_array)
-        sql_compile = """select id from trans_account where id_card_no='%s' and account_no='%s' and create_time >= '%s'
+        sql_compile = """select id from trans_account where id_card_no='%s' and account_no='%s'
             order by id desc limit 1"""
-        limit_time = months_ago(datetime.datetime.now(), self.month_interval)
-        limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
+        # limit_time = months_ago(datetime.datetime.now(), self.month_interval)
+        # limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         for i in range(length):
             temp = self.query_data_array[i]
@@ -78,7 +78,7 @@ class TransApply:
                         temp_dict['industry'] = industry
                     bank_no = self._get_object_attr(temp_data, 'bankAccount')
                     if bank_no is not None and id_card_no is not None:
-                        temp_df = sql_to_df(sql_compile % (id_card_no, bank_no, limit_time))
+                        temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
                         if len(temp_df) > 0:
                             temp_dict['account_id'] = temp_df['id'].to_list()[0]
                     temp_dict['create_time'] = create_time

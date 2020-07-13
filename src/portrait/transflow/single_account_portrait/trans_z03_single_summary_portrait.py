@@ -46,9 +46,9 @@ class SingleSummaryPortrait:
         # 十三个公历月
         for i in range(13):
             temp_dict = {}
-            normal_income_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i) &
+            normal_income_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
                                                  (not_sensitive_df.trans_amt > 0)]['trans_amt'].sum()
-            normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i) &
+            normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
                                                   (not_sensitive_df.trans_amt < 0)]['trans_amt'].sum()
             temp_df = flow_df[flow_df['calendar_month'] == i + 1]
             temp_dict['account_id'] = self.account_id
@@ -105,12 +105,12 @@ class SingleSummaryPortrait:
             else:
                 start_date = year_ago
             balance_df = flow_df[(flow_df.trans_date >= start_date) & (flow_df.trans_date <= end_date)]
-            balance_df.sort_values(by=['trans_date', 'trans_time'], ascending=True, inplace=True)
+            # balance_df.sort_values(by=['trans_date', 'trans_time'], ascending=True, inplace=True)
             balance_df['str_date'] = balance_df['trans_date'].apply(lambda x:
                                                                     x.date if type(x) == datetime.datetime else x)
             balance_df.drop_duplicates(subset='str_date', keep='last', inplace=True)
             str_date = balance_df['trans_date'].to_list()
-            trans_amt = balance_df['trans_amt'].to_list()
+            trans_amt = balance_df['account_balance'].to_list()
             length = len(str_date)
             diff_days = [(str_date[i+1] - str_date[i]).days for i in range(length - 1)]
             diff_days.append(1)

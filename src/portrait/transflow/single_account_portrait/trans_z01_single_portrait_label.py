@@ -119,6 +119,8 @@ class TransSingleLabel:
         self.df.loc[big_in_out_list, 'big_in_out'] = 1
 
         # 异常交易类型之快进快出标签
+        self.df['date'] = self.df[['date', 'opponent_name']]. \
+            apply(lambda x: x['date'] + x['opponent_name'], axis=1)
         fast_in_out_df = self.df[(self.df.trans_amt.apply(lambda x: abs(x)) >= 500000) &
                                  (self.df.opponent_name != '') &
                                  (~self.df.opponent_name.str.contains('转账|转存|转支'))]
