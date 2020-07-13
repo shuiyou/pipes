@@ -11,12 +11,12 @@ class JsonUnionGuarantor(TransFlow):
 
     def create_guarantor_json(self,guarantor):
         sql = """
-                    select concat(trans_date," ",trans_time) as trans_time,
-                    opponent_name,trans_amt,remark,is_before_interest_repay,
-                    income_amt_order,expense_amt_order,income_cnt_order,expense_cnt_order
-                    from trans_u_flow_portrait
-                    where report_req_no = %(report_req_no)s
-                """
+            select concat(trans_date," ",trans_time) as trans_time,
+            opponent_name,trans_amt,remark,is_before_interest_repay,
+            income_amt_order,expense_amt_order,income_cnt_order,expense_cnt_order
+            from trans_u_flow_portrait
+            where report_req_no = %(report_req_no)s
+        """
         df = sql_to_df(sql=sql,
                        params={"report_req_no": self.reqno})
         df = df[df.opponent_name == guarantor]
@@ -47,10 +47,8 @@ class JsonUnionGuarantor(TransFlow):
 
     def read_guarantor_in_u_flow(self):
 
-        # 获取guarantor 一个/多个担保人姓名 列表
-        guarantor_list = []
         json_str = ""
-        for guarantor in guarantor_list:
+        for guarantor in self.guarantor_list:
             json_str += self.create_guarantor_json(guarantor)
 
         self.variables['第三方担保交易信息'] = json.loads("[" + json_str[:-1] + "]")

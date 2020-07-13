@@ -31,6 +31,8 @@ class JsonUnionRemarkTransDetail(TransFlow):
         """
         remark_portrait = sql_to_df(sql=sql2,
                                     params={"report_req_no": self.reqno})
+        if flow_df.empty or remark_portrait.empty:
+            return
         remark_portrait.drop(columns=['id', 'apply_no', 'report_req_no', 'create_time', 'update_time'],
                              inplace=True)
         remark_income_dict = remark_portrait[pd.notnull(remark_portrait.remark_income_amt_order)] \

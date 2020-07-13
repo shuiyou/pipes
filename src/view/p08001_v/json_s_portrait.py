@@ -21,13 +21,10 @@ class JsonSinglePortrait(TransFlow):
         if df.empty:
             return
         df.drop(columns=['id', 'account_id', 'report_req_no', 'create_time', 'update_time'], inplace=True)
-        # str_col = []
-        # for col in df.columns.tolist():
-        #     if col.dtype == object:
-        #         str_col.append(col)
-        # df.fillna(0,inplace = True)
-        # for col in str_col:
-        #     df[col].replace(0,'',inplace = True)
+
+        df['analyse_start_time'] = df['analyse_start_time'].astype(str)
+        df['analyse_end_time'] = df['analyse_end_time'].astype(str)
+
         json_str = df.to_json(orient='records')
         data = json.loads(json_str)
         self.variables["trans_single_portrait"] = data[0]

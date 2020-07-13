@@ -1,5 +1,5 @@
 import json
-
+# import locale
 from util.mysql_reader import sql_to_df
 from view.TransFlow import TransFlow
 
@@ -10,6 +10,7 @@ class JsonSingleTitle(TransFlow):
         self.create_s_title()
 
     def create_s_title(self):
+        # locale.setlocale(locale.LC_CTYPE, 'chinese')
         sql1 = '''
             SELECT min(f.trans_time) AS start_time, 
             max(f.trans_time) AS end_time
@@ -40,7 +41,7 @@ class JsonSingleTitle(TransFlow):
         if not df2.empty:
             relation_json = df2.to_json(orient='records').encode('utf-8').decode("unicode_escape")
         else:
-            relation_json = "\"\""
+            relation_json = "[]"
 
         json_str= "{\"cusName\":\"" + self.cusName  \
                                + "\",\"流水信息\":{\"bankName\":\"" + self.bankName \
