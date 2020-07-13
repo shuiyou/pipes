@@ -35,7 +35,7 @@ class JsonUnionMarketing(TransFlow):
             df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
             return df1.to_json(orient='records').encode('utf-8').decode("unicode_escape")
         else:
-            return '\"\"'
+            return '[]'
 
     def read_u_marketing_in_u_flow(self):
 
