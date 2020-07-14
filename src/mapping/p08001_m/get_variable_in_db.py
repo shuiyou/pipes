@@ -25,8 +25,8 @@ class GetVariableInDB(TransModuleProcessor):
         portrait = sql_to_df(sql=sql,
                              params={"report_req_no": self.reqno})
         if flow_cnt > 0:
-            self.variables['balance_0_to_5_prop'] = df_value(portrait['balance_0_to_5_day']) / flow_cnt
-            self.variables['income_0_to_5_prop'] = df_value(portrait['income_0_to_5_cnt']) / flow_cnt
+            self.variables['balance_0_to_5_prop'] = round(df_value(portrait['balance_0_to_5_day']) / flow_cnt,4)
+            self.variables['income_0_to_5_prop'] = round(df_value(portrait['income_0_to_5_cnt']) / flow_cnt,4)
         self.variables['balance_min_weight'] = df_value(portrait['balance_weight_min'])
         self.variables['balance_max_weight'] = df_value(portrait['balance_weight_max'])
         self.variables['income_max_weight'] = df_value(portrait['income_weight_max'])
@@ -61,7 +61,7 @@ class GetVariableInDB(TransModuleProcessor):
         val = summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum()
         if val > 0:
             self.variables['income_net_rate_compare_2'] = \
-                summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() / val
+                round(summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() / val,4)
 
     def _from_u_counterparty(self):
         sql = """
