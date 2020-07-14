@@ -22,4 +22,9 @@ class JsonUnionPortrait(TransFlow):
         df['analyse_start_time'] = df['analyse_start_time'].astype(str)
         df['analyse_end_time'] = df['analyse_end_time'].astype(str)
 
-        self.variables["trans_u_portrait"] = json.loads(df.to_json(orient='records'))[0]
+        self.variables["trans_u_portrait"] = {}
+
+        value = json.loads(df.to_json(orient='records'))
+        if value is not None and len(value) > 0:
+            value = json.loads(df.to_json(orient='records'))
+            self.variables["trans_u_portrait"] = value[0]
