@@ -43,10 +43,10 @@ class JsonSingleTitle(TransFlow):
         else:
             relation_json = "[]"
 
-        json_str= "{\"cusName\":\"" + self.cusName  \
-                               + "\",\"流水信息\":{\"bankName\":\"" + self.bankName \
+        json_str = "{\"cusName\":\"" + self.cusName  \
+                               + "\",\"流水信息\":[{\"bankName\":\"" + self.bankName \
                                + "\",\"bankAccount\":" + self.bankAccount \
-                               + ",\"startEndDate\":\"" + start_end_date + "\"},"  \
+                               + ",\"startEndDate\":\"" + start_end_date + "\"}],"  \
                                 + "\"关联人\":" + relation_json + "}"
 
         self.variables["表头"] = json.loads(json_str)
