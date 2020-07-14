@@ -7,9 +7,10 @@ import json
 
 import pandas as pd
 
-from app import logger
+from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
 
+logger = LoggerUtil().logger(__name__)
 
 class T00001(Transformer):
     """
