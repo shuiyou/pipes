@@ -1,4 +1,4 @@
-
+from app import sql_db
 from portrait.transflow.single_portrait import SinglePortrait
 
 
@@ -84,4 +84,5 @@ def test_single():
     s.query_data_array = query_data_array
     s.public_param = public_param
     s.user_name = '王伟明'
+    s.sql_db = sql_db()
     s.process()
