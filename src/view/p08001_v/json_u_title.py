@@ -37,10 +37,10 @@ class JsonUnionTitle(TransFlow):
         relation_df = sql_to_df(sql=sql2,
                         params={"report_req_no": self.reqno})
 
-        json_str  = "{\"cusName\":\"" + self.cusName  \
+        json_str = "{\"cusName\":\"" + self.cusName  \
                                 + "\",\"appAmt\":" + self.appAmt  \
                                 + ",\"流水信息\":" + account_list \
-                                + ",\"关联人\":"  + relation_df.to_json(orient='records')\
-                               .encode('utf-8').decode("unicode_escape")  + "}"
+                                + ",\"关联人\":" + relation_df.to_json(orient='records')\
+                                + "}"
 
         self.variables["表头"] = json.loads(json_str)
