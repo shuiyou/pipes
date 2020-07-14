@@ -1,4 +1,4 @@
-
+from app import sql_db
 from portrait.transflow.union_portrait import UnionPortrait
 
 
@@ -84,4 +84,5 @@ def test_union():
     u.query_data_array = query_data_array
     u.public_param = public_param
     u.user_name = '王伟明'
+    u.sql_db = sql_db()
     u.process()
