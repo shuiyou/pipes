@@ -50,7 +50,7 @@ class SingleTransProtrait:
 
     def _trans_amt(self):
         flow_df = self.trans_flow_portrait_df
-        df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)) &
+        df = flow_df[((pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)) &
                      (flow_df.trans_amt > 0)]
         df['trans_year'] = df['trans_date'].apply(lambda x: x.year)
         df['trans_month'] = df['trans_date'].apply(lambda x: x.month)
@@ -68,7 +68,7 @@ class SingleTransProtrait:
         normal_income_m_std = df.groupby(by=['trans_year', 'trans_month']).agg({'trans_amt': sum})['trans_amt'].std()
         self.role['normal_income_m_std'] = normal_income_m_std if pd.notnull(normal_income_m_std) else 0
 
-        expense_df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == '1')) &
+        expense_df = flow_df[((pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)) &
                              (flow_df.trans_amt < 0)]
         self.role['normal_expense_amt'] = expense_df.trans_amt.sum() if expense_df.shape[0] > 0 else 0
         self.role['normal_expense_cnt'] = expense_df.shape[0]
@@ -101,14 +101,14 @@ class SingleTransProtrait:
                 right = income_list[i+1] * 10000
                 income_df = flow_df[(flow_df.trans_amt > left) & (flow_df.trans_amt <= right)]
                 balance_df = temp_df[(temp_df.account_balance > left) & (temp_df.account_balance <= right)]
-                balance_amt_df = flow_df[(flow_df.account_balance > left) & (flow_df.account_balance <= right)]
+                # balance_amt_df = flow_df[(flow_df.account_balance > left) & (flow_df.account_balance <= right)]
             else:
                 income_variable = 'income_above_' + str(income_list[i]) + '_cnt'
                 balance_variable = 'balance_above_' + str(income_list[i]) + '_day'
                 left = income_list[i] * 10000
                 income_df = flow_df[flow_df.trans_amt > left]
                 balance_df = temp_df[temp_df.account_balance > left]
-                balance_amt_df = flow_df[flow_df.account_balance > left]
+                # balance_amt_df = flow_df[flow_df.account_balance > left]
 
             temp_income_max = income_df['trans_amt'].max() if len(income_df) > 0 else 0
             temp_income_min = income_df['trans_amt'].min() if len(income_df) > 0 else 0
@@ -117,8 +117,8 @@ class SingleTransProtrait:
             income_weight_min += temp_income_min * temp_income_cnt
             income_total_cnt += temp_income_cnt
 
-            temp_balance_max = balance_amt_df['account_balance'].max() if len(balance_amt_df) > 0 else 0
-            temp_balance_min = balance_amt_df['account_balance'].min() if len(balance_amt_df) > 0 else 0
+            temp_balance_max = balance_df['account_balance'].max() if len(balance_df) > 0 else 0
+            temp_balance_min = balance_df['account_balance'].min() if len(balance_df) > 0 else 0
             temp_balance_cnt = balance_df.shape[0]
             balance_weight_max += temp_balance_max * temp_balance_cnt
             balance_weight_min += temp_balance_min * temp_balance_cnt

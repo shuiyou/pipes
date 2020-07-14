@@ -46,16 +46,16 @@ class UnionSummaryPortrait:
                                                                 (x.year - min_year) * 12 + x.month - min_month)
         flow_df['month'] = flow_df['trans_date'].apply(lambda x: x.month)
 
-        not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)]
+        not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)]
 
         # 十三个公历月
         for i in range(13):
             temp_dict = {}
-            normal_income_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i) &
+            normal_income_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
                                                  (not_sensitive_df.trans_amt > 0)]['trans_amt'].sum()
-            normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i) &
+            normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
                                                   (not_sensitive_df.trans_amt < 0)]['trans_amt'].sum()
-            temp_df = flow_df[flow_df['calendar_month'] == i+1]
+            temp_df = flow_df[flow_df['calendar_month'] == i + 1]
             temp_dict['apply_no'] = self.app_no
             temp_dict['report_req_no'] = self.report_req_no
             temp_dict['month'] = str(i+1)

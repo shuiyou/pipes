@@ -41,7 +41,7 @@ class SingleSummaryPortrait:
         half_year_ago = months_ago(max_date, 6)
         year_ago = months_ago(max_date, 12)
 
-        not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)]
+        not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)]
 
         # 十三个公历月
         for i in range(13):
@@ -89,11 +89,11 @@ class SingleSummaryPortrait:
                                        (flow_df.is_interest == 1)]['trans_amt'].fillna(0).mean()
             interest_amt = interest_amt * 4 / 0.003 if pd.notna(interest_amt) else 0
             if i <= 4:
-                end_date_list = flow_df[(flow_df.month == i * 3) &
-                                        (flow_df.is_interest == 1)]['trans_date'].to_list()
+                end_date_list = flow_df[flow_df.month == i * 3]['trans_date'].to_list()
                 if len(end_date_list) == 0:
                     continue
-                end_date = end_date_list[0]
+                end_date = end_date_list[-1]
+                end_date = datetime.datetime(end_date.year, end_date.month, 21)
             else:
                 end_date = max_date
             if i == 1:

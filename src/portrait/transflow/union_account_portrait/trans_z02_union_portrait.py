@@ -56,7 +56,7 @@ class UnionTransProtrait:
 
     def _trans_amt(self):
         flow_df = self.trans_flow_portrait_df
-        df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == 1)) &
+        df = flow_df[((pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)) &
                      (flow_df.trans_amt > 0)]
         df['trans_year'] = df['trans_date'].apply(lambda x: x.year)
         df['trans_month'] = df['trans_date'].apply(lambda x: x.month)
@@ -72,7 +72,7 @@ class UnionTransProtrait:
         self.role['normal_income_m_std'] = df.groupby(by=['trans_year', 'trans_month']).\
             agg({'trans_amt': sum})['trans_amt'].std()
 
-        expense_df = flow_df[((pd.isnull(flow_df.relationship)) | (flow_df.is_sensitive == '1')) &
+        expense_df = flow_df[((pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)) &
                              (flow_df.trans_amt < 0)]
         self.role['normal_expense_amt'] = expense_df.trans_amt.sum()
         self.role['normal_expense_cnt'] = expense_df.shape[0]
@@ -87,9 +87,10 @@ class UnionTransProtrait:
         flow_df = self.trans_flow_portrait_df
         single_u_df = self._single_portrait()
         income_list = [0, 5, 10, 30, 50, 100, 200]
-        # temp_df = flow_df.sort_values(by='trans_date', ascending=True)
-        # temp_df['str_date'] = temp_df['trans_date'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
-        # temp_df.drop_duplicates(subset='str_date', keep='last', inplace=True)
+        temp_df = flow_df.copy()
+        temp_df['str_date'] = temp_df[['account_id', 'trans_date']].apply(
+            lambda x: str(x['account_id']) + datetime.datetime.strftime(x['trans_date'], '%Y-%m-%d'), axis=1)
+        temp_df.drop_duplicates(subset='str_date', keep='last', inplace=True)
         income_weight_max = 0
         income_weight_min = 0
         balance_weight_max = 0
@@ -105,13 +106,13 @@ class UnionTransProtrait:
                 left = income_list[i] * 10000
                 right = income_list[i+1] * 10000
                 income_df = flow_df[(flow_df.trans_amt > left) & (flow_df.trans_amt <= right)]
-                balance_df = flow_df[(flow_df.account_balance > left) & (flow_df.account_balance <= right)]
+                balance_df = temp_df[(temp_df.account_balance > left) & (temp_df.account_balance <= right)]
             else:
                 income_variable = 'income_above_' + str(income_list[i]) + '_cnt'
                 balance_variable = 'balance_above_' + str(income_list[i]) + '_day'
                 left = income_list[i] * 10000
                 income_df = flow_df[flow_df.trans_amt > left]
-                balance_df = flow_df[flow_df.account_balance > left]
+                balance_df = temp_df[temp_df.account_balance > left]
 
             temp_income_max = income_df['trans_amt'].max() if len(income_df) > 0 else 0
             temp_income_min = income_df['trans_amt'].min() if len(income_df) > 0 else 0
