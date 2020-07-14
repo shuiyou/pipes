@@ -20,23 +20,17 @@ class GetVariableInFlow(TransModuleProcessor):
     def _unusual_trans_cnt(self):
         flow_df = self.trans_u_flow_portrait
         # 典当笔数
-        self.variables['pawn_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.find('典当') == 1].count()
+        self.variables['pawn_cnt'] = flow_df['unusual_trans_type'].str.contains('典当').fillna(False).sum()
         # 医疗笔数
-        self.variables['medical_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.find('医院')==1].count()
+        self.variables['medical_cnt'] = flow_df['unusual_trans_type'].str.contains('医院').fillna(False).sum()
         # 案件纠纷笔数
-        self.variables['court_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.find('案件纠纷') == 1].count()
+        self.variables['court_cnt'] = flow_df['unusual_trans_type'].str.contains('案件纠纷').fillna(False).sum()
         # 保险理赔笔数
-        self.variables['insure_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.find('保险理赔')==1].count()
+        self.variables['insure_cnt'] = flow_df['unusual_trans_type'].str.contains('保险理赔').fillna(False).sum()
         # 夜间交易笔数
-        self.variables['night_trans_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.contains('夜间交易')==1].count()
+        self.variables['night_trans_cnt'] = flow_df['unusual_trans_type'].str.contains('夜间交易').fillna(False).sum()
         # 家庭不稳定笔数
-        self.variables['fam_unstab_cnt'] = flow_df[
-            'unusual_trans_type'][flow_df.unusual_trans_type.str.contains('家庭不稳定')==1].count()
+        self.variables['fam_unstab_cnt'] = flow_df['unusual_trans_type'].str.contains('家庭不稳定').fillna(False).sum()
 
     # 余额笔均 余额最大值 余额在0~5万的最大值
     def _balance(self):
@@ -69,17 +63,17 @@ class GetVariableInFlow(TransModuleProcessor):
         expense_flow = flow_df[flow_df['trans_amt'] < 0]
         income_flow = flow_df[flow_df['trans_amt'] > 0]
         self.variables['enterprise_3_income_amt'] = round(
-            income_flow[income_flow['relationship'] == '借款人作为股东的企业']['trans_amt'].sum())
+            income_flow[income_flow['relationship'] == '借款人作为股东的企业']['trans_amt'].sum(),4)
         if len(expense_flow) > 0:
             self.variables['enterprise_3_expense_cnt_prop'] = round(
-                len(expense_flow[expense_flow['relationship'] == '借款人作为股东的企业']) / len(expense_flow))
+                len(expense_flow[expense_flow['relationship'] == '借款人作为股东的企业']) / len(expense_flow),4)
             self.variables['all_relations_expense_cnt_prop'] = round(
-                len(expense_flow[pd.notnull(expense_flow['relationship'])]) / len(expense_flow))
+                len(expense_flow[pd.notnull(expense_flow['relationship'])]) / len(expense_flow),4)
 
     # 日常经营类
     def _normal(self):
         flow_df = self.trans_u_flow_portrait
-        df = flow_df[(pd.notnull(flow_df['cost_type'])) & (flow_df['trans_amt'] < 0)]
+        df = flow_df[(pd.isnull(flow_df.relationship)) & (flow_df['trans_amt'] < 0) &(flow_df.is_sensitive != 1)]
         df['year(trans_date)'] = df['trans_date'].apply(lambda x: x.year)
         df['month(trans_date)'] = df['trans_date'].apply(lambda x: x.month)
         self.variables['normal_expense_amt_m_std'] = round(nan_to_zero(df.groupby(['year(trans_date)', 'month(trans_date)'])[
