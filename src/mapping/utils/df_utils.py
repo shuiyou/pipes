@@ -10,6 +10,6 @@ def df_value(series):
 
 def nan_to_zero(val):
     if pd.isna(val):
-        return 0
+        return None
     else:
         return val

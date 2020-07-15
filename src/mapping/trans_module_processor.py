@@ -16,6 +16,7 @@ class TransModuleProcessor(ModuleProcessor):
         super().init(variables, user_name, id_card_no, origin_data, cached_data)
 
         self.reqno = self.cached_data.get("input_param")[0]["preReportReqNo"]
+        self.variables['apply_amt'] = self.cached_data.get("input_param")[0]["applyAmo"]
 
         sql = """
             select *
