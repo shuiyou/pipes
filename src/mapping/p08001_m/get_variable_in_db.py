@@ -62,6 +62,8 @@ class GetVariableInDB(TransModuleProcessor):
         if val > 0:
             self.variables['income_net_rate_compare_2'] = \
                 round(summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() / val,4)
+        else:
+            self.variables['income_net_rate_compare_2'] = None
 
     def _from_u_counterparty(self):
         sql = """
@@ -84,6 +86,8 @@ class GetVariableInDB(TransModuleProcessor):
         if val > 0:
             self.variables['income_rank_2_cnt_prop'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
                                                                     & (counterparty['month'] == '汇总')]['trans_cnt']) / val
+        else:
+            self.variables['income_rank_2_cnt_prop'] = None
 
         self.variables['expense_rank_6_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == 6)
                                                                 & (counterparty['month'] == '汇总')]['trans_gap_avg'])
@@ -116,7 +120,8 @@ class GetVariableInDB(TransModuleProcessor):
             self.variables['private_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                         & (loan_portrait['loan_type'] == '民间借贷')][
                                                               'loan_amt'].sum() / val
-
+        else:
+            self.variables['private_income_mean_12_cm'] = None
         self.variables['pettyloan_income_amt_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                      & (loan_portrait['loan_type'] == '小贷')][
             'loan_amt'].sum()
@@ -126,7 +131,8 @@ class GetVariableInDB(TransModuleProcessor):
             self.variables['pettyloan_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                           & (loan_portrait['loan_type'] == '小贷')][
                                                                 'loan_amt'].sum() / val
-
+        else:
+            self.variables['pettyloan_income_mean_12_cm'] = None
         self.variables['finlease_expense_cnt_6_cm'] = loan_portrait[(loan_portrait.month.isin(cm_6))
                                                                     & (loan_portrait['loan_type'] == '融资租赁')][
             'repay_cnt'].sum()
@@ -136,7 +142,8 @@ class GetVariableInDB(TransModuleProcessor):
             self.variables['otherfin_income_mean_3_cm'] = loan_portrait[(loan_portrait.month.isin(cm_3))
                                                                         & (loan_portrait['loan_type'] == '其他金融')][
                                                               'loan_amt'].sum() / val
-
+        else:
+            self.variables['otherfin_income_mean_3_cm'] = None
         self.variables['all_loan_expense_cnt_3_cm'] = loan_portrait[loan_portrait.month.isin(cm_3)]['repay_cnt'].sum()
 
     def _from_u_related_portrait(self):
