@@ -28,9 +28,9 @@ class GetVariableInDB(TransModuleProcessor):
         if flow_cnt > 0:
             self.variables['balance_0_to_5_prop'] = round(df_zero(portrait['balance_0_to_5_day']) / flow_cnt,4)
             self.variables['income_0_to_5_prop'] = round(df_zero(portrait['income_0_to_5_cnt']) / flow_cnt,4)
-        self.variables['balance_min_weight'] = df_value(portrait['balance_weight_min'])
-        self.variables['balance_max_weight'] = df_value(portrait['balance_weight_max'])
-        self.variables['income_max_weight'] = df_value(portrait['income_weight_max'])
+        self.variables['balance_min_weight'] = df_zero(portrait['balance_weight_min'])
+        self.variables['balance_max_weight'] = df_zero(portrait['balance_weight_max'])
+        self.variables['income_max_weight'] = df_zero(portrait['income_weight_max'])
         self.variables['normal_income_mean'] = df_value(portrait['normal_income_mean'])
         self.variables['normal_income_d_mean'] = df_value(portrait['normal_income_d_mean'])
         self.variables['normal_income_m_mean'] = df_value(portrait['normal_income_m_mean'])
@@ -50,9 +50,9 @@ class GetVariableInDB(TransModuleProcessor):
             'balance_amt'])
         self.variables['year_interest_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'year'][
             'interest_amt'])
-        self.variables['q_2_balance_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter2'][
+        self.variables['q_2_balance_amt'] = df_zero(summary_portrait[summary_portrait['month'] == 'quarter2'][
             'balance_amt'])
-        self.variables['q_3_balance_amt'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter3'][
+        self.variables['q_3_balance_amt'] = df_zero(summary_portrait[summary_portrait['month'] == 'quarter3'][
             'balance_amt'])
         self.variables['year_interest_balance_prop'] = df_value(summary_portrait[summary_portrait['month'] == 'year'][
             'interest_balance_proportion'])
