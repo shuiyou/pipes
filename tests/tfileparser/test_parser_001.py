@@ -1,11 +1,11 @@
-
+from app import sql_db
 from fileparser.Parser001 import Parser001
 
 
-file = r"../resource/trans_flow/农商行流水.xlsx"
+file = r"../resource/trans_flow/账号6226190200138646交易明细070902.xls"
 param = {
-    'bankAccount': '32438708080074424',
-    'cusName': '上海陶胜建筑材料有限公司',
+    'bankAccount': '6226190200138646',
+    'cusName': '赵高枫',
     'idNo': '666666888888'
 }
 
@@ -71,6 +71,7 @@ def test_001():
     p = Parser001()
     p.file = file
     p.param = param
+    p.sql_db = sql_db()
     resp = p.process()
     print(resp)
 
@@ -79,12 +80,14 @@ def test_002():
     p = Parser001()
     p.file = file_list[2]
     p.param = param_list[2]
+    p.sql_db = sql_db()
     resp = p.process()
     print(resp)
 
 
 def test_003():
     p = Parser001()
+    p.sql_db = sql_db()
     for i in range(4):
         p.file = file_list[i]
         p.param = param_list[i]

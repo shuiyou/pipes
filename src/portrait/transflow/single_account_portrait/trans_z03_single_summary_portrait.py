@@ -42,14 +42,14 @@ class SingleSummaryPortrait:
         year_ago = months_ago(max_date, 12)
 
         not_sensitive_df = flow_df[(pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)]
+        cost_df = flow_df[pd.notnull(flow_df.cost_type)]
 
         # 十三个公历月
         for i in range(13):
             temp_dict = {}
             normal_income_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
                                                  (not_sensitive_df.trans_amt > 0)]['trans_amt'].sum()
-            normal_expense_amt = not_sensitive_df[(not_sensitive_df.calendar_month == i + 1) &
-                                                  (not_sensitive_df.trans_amt < 0)]['trans_amt'].sum()
+            normal_expense_amt = cost_df[cost_df.calendar_month == i + 1]['trans_amt'].sum()
             temp_df = flow_df[flow_df['calendar_month'] == i + 1]
             temp_dict['account_id'] = self.account_id
             temp_dict['report_req_no'] = self.report_req_no

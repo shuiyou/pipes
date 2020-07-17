@@ -59,7 +59,7 @@ class Parser001(Parser):
         # 1.传入文件,检验是否存在标题行,以及标题行以上是否存在银行,姓名,账号等信息,若存在则与客户所填的信息进行匹配
         logger.info("%d-----------------------%s" % (1, '进行标题行校验'))
         trans_profile = TransProfile(self.file, self.param)
-        trans_profile.trans_title_check()
+        trans_profile.process()
         # 若匹配不上,则直接返回相应的回应报文
         if not trans_profile.basic_status:
             return trans_profile.resp
