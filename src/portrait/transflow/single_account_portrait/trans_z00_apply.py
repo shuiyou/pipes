@@ -24,11 +24,9 @@ class TransApply:
 
     @staticmethod
     def _get_object_attr(dict_object, attr_name):
-        if dict_object.__contains__(attr_name):
-            attr_value = dict_object[attr_name]
-            attr_value = attr_value.strip()
-            if attr_value != '':
-                return attr_value
+        attr_value = dict_object.get(attr_name, '')
+        if attr_value is not None and attr_value != '':
+            return attr_value
 
     def save_trans_apply_data(self):
         """
@@ -66,22 +64,26 @@ class TransApply:
                 else:
                     temp_dict['id_type'] = 'OTHER'
 
-            if temp.__contains__('extraParam') and temp['extraParam'].__contains__('accounts') and \
-                    type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
-                for j in range(len(temp['extraParam']['accounts'])):
-                    if temp_dict.__contains__('industry'):
-                        temp_dict.pop('industry')
-                    if temp_dict.__contains__('account_id'):
-                        temp_dict.pop('account_id')
-                    temp_data = temp['extraParam']['accounts'][j]
-                    industry = self._get_object_attr(temp['extraParam'], 'industryName')
-                    if industry is not None:
-                        temp_dict['industry'] = industry
-                    bank_no = self._get_object_attr(temp_data, 'bankAccount')
-                    if bank_no is not None and id_card_no is not None:
-                        temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
-                        if len(temp_df) > 0:
-                            temp_dict['account_id'] = temp_df['id'].to_list()[0]
+            if temp.__contains__('extraParam'):
+                industry = self._get_object_attr(temp['extraParam'], 'industryName')
+                if industry is not None:
+                    temp_dict['industry'] = industry
+                if temp['extraParam'].__contains__('accounts') and \
+                        type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
+                    for j in range(len(temp['extraParam']['accounts'])):
+                        if temp_dict.__contains__('account_id'):
+                            temp_dict.pop('account_id')
+                        temp_data = temp['extraParam']['accounts'][j]
+                        bank_no = self._get_object_attr(temp_data, 'bankAccount')
+                        if bank_no is not None and id_card_no is not None:
+                            temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
+                            if len(temp_df) > 0:
+                                temp_dict['account_id'] = temp_df['id'].to_list()[0]
+                        temp_dict['create_time'] = create_time
+                        temp_dict['update_time'] = create_time
+                        role = transform_class_str(temp_dict, 'TransApply')
+                        self.role_list.append(role)
+                else:
                     temp_dict['create_time'] = create_time
                     temp_dict['update_time'] = create_time
                     role = transform_class_str(temp_dict, 'TransApply')
