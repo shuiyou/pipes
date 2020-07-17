@@ -59,7 +59,8 @@ class JsonUnionRemarkTransDetail(TransFlow):
             # j = int(j)
             temp_df = flow_df[(flow_df.remark == remark_expense_dict[j]) & (flow_df.trans_amt < 0)]. \
                 rename(columns={'opponent_name': 'oppo_name'})
-            json2.append((f"\"{j}\"" + ":" + temp_df.to_json(orient='records')) + ",")
+            key = str(j).replace(".", "_")
+            json2.append((f"\"{key}\"" + ":" + temp_df.to_json(orient='records')) + ",")
 
         json_2 = self.connect_json(json2).encode('utf-8').decode("unicode_escape")
 
