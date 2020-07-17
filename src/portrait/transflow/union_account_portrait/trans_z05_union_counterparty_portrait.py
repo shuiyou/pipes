@@ -121,7 +121,7 @@ class UnionCounterpartyPortrait:
         income_top_n_list = [5, 10, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
         for k in income_top_n_list:
             if k > 1:
-                opponent_name_list = income_order_list[k - 5:k]
+                opponent_name_list = income_order_list[:k]
             else:
                 opponent_name_list = income_order_list[:int(income_order_cnt * k)]
             if len(opponent_name_list) == 0:
