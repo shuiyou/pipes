@@ -4,6 +4,8 @@ import openpyxl
 import pandas as pd
 import re
 
+from openpyxl.utils.exceptions import InvalidFileException
+
 
 class TransProfile:
     """
@@ -19,14 +21,14 @@ class TransProfile:
         super().__init__()
         self.file = file
         self.param = param
-        self.ws = self._load_worksheet()
-        self.maxcol = self.ws.max_column
-        self.maxrow = self.ws.max_row
-        self.mincol = self.ws.min_column
-        self.minrow = self.ws.min_row
-        self.title = self._find_title()
+        self.ws = None
+        self.maxcol = None
+        self.maxrow = None
+        self.mincol = None
+        self.minrow = None
+        self.title = None
         self.title_params = {}
-        self.trans_data = self.trans_data()
+        self.trans_data = None
         self.basic_status = True
         self.resp = {
             "resCode": "0",
@@ -35,6 +37,24 @@ class TransProfile:
                 "warningMsg": []
             }
         }
+
+    def process(self):
+        try:
+            self.ws = self._load_worksheet()
+        except InvalidFileException:
+            self.basic_status = False
+            self.resp['resCode'] = '1'
+            self.resp['resMsg'] = '失败'
+            self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持xlsx格式文件']
+            return
+        self.maxcol = self.ws.max_column
+        self.maxrow = self.ws.max_row
+        self.mincol = self.ws.min_column
+        self.minrow = self.ws.min_row
+        self.title = self._find_title()
+        self.trans_title_check()
+        if self.basic_status:
+            self.trans_data = self.trans_data()
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
