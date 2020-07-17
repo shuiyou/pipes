@@ -323,7 +323,7 @@ class TransSingleLabel:
             if temp_dict.__contains__('loan_type') or temp_dict.__contains__('unusual_trans_type'):
                 temp_dict['is_sensitive'] = 1
             # 成本支出类别标签
-            if not (temp_dict.__contains__('relation') or temp_dict.__contains__('unusual_trans_type')) and \
+            if not (temp_dict.__contains__('relationship') or temp_dict.__contains__('unusual_trans_type')) and \
                     trans_amt < 0:
                 if re.search(r'(工资|奖金|年终奖|差旅费|报销|福利费|慰问|公共缴费)', no_channel_str):
                     temp_dict['cost_type'] = '工资'

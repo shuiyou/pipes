@@ -68,8 +68,7 @@ class SingleTransProtrait:
         normal_income_m_std = df.groupby(by=['trans_year', 'trans_month']).agg({'trans_amt': sum})['trans_amt'].std()
         self.role['normal_income_m_std'] = normal_income_m_std if pd.notnull(normal_income_m_std) else 0
 
-        expense_df = flow_df[((pd.isnull(flow_df.relationship)) & (flow_df.is_sensitive != 1)) &
-                             (flow_df.trans_amt < 0)]
+        expense_df = flow_df[pd.notnull(flow_df['cost_type'])]
         self.role['normal_expense_amt'] = expense_df.trans_amt.sum() if expense_df.shape[0] > 0 else 0
         self.role['normal_expense_cnt'] = expense_df.shape[0]
 
