@@ -66,7 +66,8 @@ class TransApply:
                 else:
                     temp_dict['id_type'] = 'OTHER'
 
-            if temp.__contains__('extraParam') and temp['extraParam'].__contains__('accounts'):
+            if temp.__contains__('extraParam') and temp['extraParam'].__contains__('accounts') and \
+                    type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
                 for j in range(len(temp['extraParam']['accounts'])):
                     if temp_dict.__contains__('industry'):
                         temp_dict.pop('industry')
