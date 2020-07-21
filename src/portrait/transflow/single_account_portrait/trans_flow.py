@@ -143,7 +143,7 @@ class TransFlowBasic:
                 years_before_first = datetime.datetime(max_date.year - year, max_date.month + 1, 1)
         else:
             years_before_first = datetime.datetime(max_date.year - year, max_date.month, 1)
-        min_date = min(min_date, years_before_first)
+        min_date = max(min_date, years_before_first)
         flow_df = flow_df[(flow_df[filter_col] >= min_date) &
                           (flow_df[filter_col] <= max_date)]
         return flow_df
