@@ -18,7 +18,7 @@ class TransactionTime:
         self.query_start = None
         self.query_end = None
         self.basic_status = True
-        self.asc = True  # 时间列是否升序标签
+        self.col_list = []  # 需要排序的列
         self.resp = {
             "resCode": "0",
             "resMsg": "成功",
@@ -124,6 +124,18 @@ class TransactionTime:
             result = '000000'
         return result
 
+    def _sort_trans_time(self):
+        first_date = self.df.trans_time.to_list()[0]
+        last_date = self.df.trans_time.to_list()[-1]
+        if first_date < last_date:
+            self.df['index'] = list(range(len(self.df)))
+        else:
+            self.df['index'] = list(range(len(self.df), -1, -1))
+        self.col_list.append('index')
+        self.df.sort_values(by=self.col_list, ascending=True, inplace=True)
+        self.df.drop(['index'], axis=1, inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
+
     def _one_col_match(self, col):
         dttime_pat = re.compile(
             r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])([0-5]\d){1,2}|^4\d{4}\d*[1-9]+\d*')
@@ -132,8 +144,9 @@ class TransactionTime:
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
             self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
-            self.df.sort_values(by=col, ascending=True, inplace=True)
-            self.df.reset_index(drop=True, inplace=True)
+            self.col_list = [col]
+            # self.df.sort_values(by=col, ascending=True, inplace=True)
+            # self.df.reset_index(drop=True, inplace=True)
         elif x2:
             self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
         else:
@@ -150,29 +163,33 @@ class TransactionTime:
         for col in res:
             if self._match_time_head(col, dttime_pat, 14):
                 self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
-                self.df.reset_index(drop=False, inplace=True)
-                self.df.sort_values(by=[col, 'index'], ascending=True, inplace=True)
+                self.col_list = [col]
+                # self.df.reset_index(drop=False, inplace=True)
+                # self.df.sort_values(by=[col, 'index'], ascending=True, inplace=True)
                 return
         for col in res:
             if self._match_time_head(col, date_pat, 8):
                 date_col = col
                 self.df[date_col] = self.df[date_col].astype(str).apply(self._date_apply)
+                self.col_list.append(date_col)
                 res.remove(col)
                 break
         for col in res:
             if self._match_time_head(col, time_pat, 6):
                 time_col = col
                 self.df[time_col] = self.df[time_col].astype(str).apply(self._time_apply)
+                self.col_list.append(time_col)
                 break
             elif self._match_time_head(col, time_s_pat, 4):
                 time_col = col
                 self.df[time_col] = self.df[time_col].astype(str).apply(self._time_apply)
+                self.col_list.append(time_col)
                 break
         if date_col != '' and time_col != '':
             self.df['trans_time'] = self.df[date_col] + self.df[time_col]
             self.df['trans_time'] = self.df['trans_time'].apply(self._dttime_apply)
-            self.df.reset_index(drop=False, inplace=True)
-            self.df.sort_values(by=[date_col, time_col, 'index'], ascending=True, inplace=True)
+            # self.df.reset_index(drop=False, inplace=True)
+            # self.df.sort_values(by=[date_col, time_col, 'index'], ascending=True, inplace=True)
         elif date_col != '' and time_col == '':
             self.df['trans_time'] = self.df[date_col].apply(self._dttime_apply)
         else:
@@ -194,6 +211,7 @@ class TransactionTime:
                 self._one_col_match(res[0])
             else:
                 self._multi_col_match(res)
+            self._sort_trans_time()
         except ValueError as e:
             self.basic_status = False
             self.resp['resCode'] = '20'
