@@ -57,6 +57,7 @@ class TransSingleLabel:
         self.df[concat_list] = self.df[concat_list].fillna('').astype(str)
         # 交易对手标签赋值,1个人,2企业,其他为空
         self.df['opponent_type'] = self.df['opponent_name'].apply(self._opponent_type)
+        self.df['year'] = self.df['trans_time'].apply(lambda x: x.year)
         self.df['month'] = self.df['trans_time'].apply(lambda x: x.month)
         self.df['day'] = self.df['trans_time'].apply(lambda x: x.day)
         # 将字符串列合并到一起
@@ -93,7 +94,7 @@ class TransSingleLabel:
                                   (self.df.concat_str.str.contains('利息|结息|个人活期结息|批量结息|存息|付息|存款利息')) &
                                   (~self.df.concat_str.str.contains('理财|钱生钱|余额宝|零钱通|招财盈|宜人财富'))]
         interest_df.reset_index(drop=False, inplace=True)
-        group_df = interest_df.groupby(by='month', as_index=False).agg({'trans_amt': min})
+        group_df = interest_df.groupby(by=['year', 'month'], as_index=False).agg({'trans_amt': min})
         index_list = interest_df.loc[group_df.index.to_list(), 'index'].to_list()
         self.df.loc[index_list, 'is_interest'] = 1
 
@@ -101,10 +102,10 @@ class TransSingleLabel:
         repay_date_list = self.df[(self.df['is_repay'] == 1) |
                                   (self.df['is_interest'] == 1)]['trans_time'].to_list()
         for repay_date in repay_date_list:
-            seven_days_ago = repay_date - datetime.timedelta(days=7)
-            self.df.loc[(self.df.trans_time <= repay_date) &
+            seven_days_ago = pd.to_datetime((repay_date - datetime.timedelta(days=7)).date())
+            self.df.loc[(self.df.trans_time < repay_date) &
                         (self.df.trans_time >= seven_days_ago), 'is_before_interest_repay'] = 1
-        self.df.drop(['month', 'day'], axis=1, inplace=True)
+        self.df.drop(['year', 'month', 'day'], axis=1, inplace=True)
 
     def _unusual_type_label(self):
         self.df['date'] = self.df['trans_time'].apply(lambda x: datetime.datetime.strftime(x, '%Y-%m-%d'))
