@@ -130,7 +130,7 @@ class TransactionTime:
         if first_date < last_date:
             self.df['index'] = list(range(len(self.df)))
         else:
-            self.df['index'] = list(range(len(self.df), -1, -1))
+            self.df['index'] = list(range(len(self.df), 0, -1))
         self.col_list.append('index')
         self.df.sort_values(by=self.col_list, ascending=True, inplace=True)
         self.df.drop(['index'], axis=1, inplace=True)
