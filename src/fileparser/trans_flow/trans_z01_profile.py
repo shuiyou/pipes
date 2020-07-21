@@ -54,7 +54,7 @@ class TransProfile:
         self.title = self._find_title()
         self.trans_title_check()
         if self.basic_status:
-            self.trans_data = self.trans_data()
+            self.trans_data = self._trans_data()
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
@@ -181,7 +181,7 @@ class TransProfile:
                 self.resp['data']['warningMsg'].append('该流水无法体现户名信息,请线下核实')
             return
 
-    def trans_data(self):
+    def _trans_data(self):
         df = self._convert_to_dataframe(self.ws, self.title, self.mincol, self.maxrow, self.maxcol)
         return df
 
