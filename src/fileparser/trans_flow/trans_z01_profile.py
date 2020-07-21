@@ -6,10 +6,14 @@ import re
 
 from openpyxl.utils.exceptions import InvalidFileException
 
+from logger.logger_util import LoggerUtil
+
+logger = LoggerUtil().logger(__name__)
+
 
 class TransProfile:
     """
-    流水文件读取,并进行标题行校验和属性校验
+    流水文件读取,并和属性校验
     标题行校验:检验流水文件中前30行(从第一行有数据的行开始算起)是否包含符合规范的标题行
     属性校验:包括银行名称,银行账号,户名校验
     author:汪腾飞
@@ -41,20 +45,21 @@ class TransProfile:
     def process(self):
         try:
             self.ws = self._load_worksheet()
-        except InvalidFileException:
+            self.maxcol = self.ws.max_column
+            self.maxrow = self.ws.max_row
+            self.mincol = self.ws.min_column
+            self.minrow = self.ws.min_row
+            self.title = self._find_title()
+            self.trans_title_check()
+            if self.basic_status:
+                self.trans_data = self._trans_data()
+        except Exception as e:
+            logger.error(e)
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
             self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持xlsx格式文件']
             return
-        self.maxcol = self.ws.max_column
-        self.maxrow = self.ws.max_row
-        self.mincol = self.ws.min_column
-        self.minrow = self.ws.min_row
-        self.title = self._find_title()
-        self.trans_title_check()
-        if self.basic_status:
-            self.trans_data = self.trans_data()
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
@@ -181,7 +186,7 @@ class TransProfile:
                 self.resp['data']['warningMsg'].append('该流水无法体现户名信息,请线下核实')
             return
 
-    def trans_data(self):
+    def _trans_data(self):
         df = self._convert_to_dataframe(self.ws, self.title, self.mincol, self.maxrow, self.maxcol)
         return df
 

@@ -32,13 +32,12 @@ class JsonUnionMarketing(TransFlow):
             # order列 直接是 varchar
             # df1[order] = df1[order].apply(lambda x: "No." + x  )
             # order列 是int
-            df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
+            # df1[order] = df1[order].apply(lambda x: "No." + str(x)[0]  )
             return df1.to_json(orient='records').encode('utf-8').decode("unicode_escape")
         else:
             return '[]'
 
     def read_u_marketing_in_u_flow(self):
-
         json1 = "\"对私进账\":" + self.create_json(oppo_type=1, order='income_cnt_order') + ","
         json3 = "\"对私出账\":" + self.create_json(oppo_type=1, order='expense_cnt_order') + ","
         json2 = "\"对公进账\":" + self.create_json(oppo_type=2, order='income_cnt_order') + ","

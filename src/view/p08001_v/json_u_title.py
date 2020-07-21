@@ -24,11 +24,12 @@ class JsonUnionTitle(TransFlow):
         account_df = sql_to_df(sql=sql1,
                                params={"report_req_no":self.reqno})
         if not account_df.empty:
-            account_df['startEndDate'] = account_df.at[0,'start_time'].strftime('%Y年%m月%d日') \
-                                    + "——" + account_df.at[0,'end_time'].strftime('%Y年%m月%d日')
+            account_df['start_time'] = account_df['start_time'].apply(lambda x: x.strftime('%Y/%m/%d'))
+            account_df['end_time'] = account_df['end_time'].apply(lambda x: x.strftime('%Y/%m/%d'))
+            account_df['startEndDate'] = account_df['start_time'] + "—" + account_df['end_time']
 
         account_list = account_df.drop(columns=['start_time','end_time']).to_json(orient='records')\
-                        .encode('utf-8').decode("unicode_escape")
+                    .encode('utf-8').decode("unicode_escape")
 
         sql2 = '''
             select related_name as name , relationship as relation

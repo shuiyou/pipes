@@ -24,8 +24,8 @@ class JsonSingleTitle(TransFlow):
                        params={"account_no":self.bankAccount})
 
         if not df1.empty:
-            start_end_date = df1.at[0,'start_time'].strftime('%Y年%m月%d日') \
-                             + "——" + df1.at[0,'end_time'].strftime('%Y年%m月%d日')
+            start_end_date = df1.at[0,'start_time'].strftime('%Y/%m/%d') \
+                             + "—" + df1.at[0,'end_time'].strftime('%Y/%m/%d')
         else:
             start_end_date = "error"
 
