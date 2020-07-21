@@ -214,8 +214,8 @@ class TransProfile:
             for val in cell_list:
                 sub_temp = re.sub(r'[^:：0-9\u4e00-\u9fa5]', '', val)
                 # todo 除银行外还有其他信息 如xx银行交易明细之类
-                if '银行' in sub_temp and not self.title_params.__contains__('bank'):
-                    self.title_params['bank'] = sub_temp
+                # if '银行' in sub_temp and not self.title_params.__contains__('bank'):
+                #     self.title_params['bank'] = sub_temp
                 # todo 关键字卡号/卡号被空格隔开
                 if '账号' in sub_temp or '卡号' in sub_temp:
                     acc_temp = re.search(r'[3-9]\d{12,18}', sub_temp)
