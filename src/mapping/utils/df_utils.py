@@ -8,11 +8,13 @@ def df_value(series):
     else:
         return series.iloc[0]
 
+
 def df_zero(series):
     if series.empty:
         return 0
     else:
-        return series.iloc[0]
+        val = series.iloc[0]
+        return val if not pd.isna(val) else 0
 
 
 def nan_to_zero(val):
