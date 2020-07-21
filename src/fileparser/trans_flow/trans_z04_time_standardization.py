@@ -216,7 +216,7 @@ class TransactionTime:
             self.basic_status = False
             self.resp['resCode'] = '20'
             self.resp['resMsg'] = '解析失败'
-            self.resp['data']['warningMsg'].append(e)
+            self.resp['data']['warningMsg'].append(str(e))
 
     def time_interval_check(self):
         self._query_date_transform()
