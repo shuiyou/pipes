@@ -15,6 +15,8 @@ from fileparser.trans_flow.trans_z08_other_info_standardization import Transacti
 from fileparser.trans_flow.trans_z09_flow_raw_data import TransFlowRawData
 
 # 流水报告解析及验真
+from util.common_util import exception
+
 logger = LoggerUtil().logger(__name__)
 
 
@@ -27,6 +29,7 @@ class Parser001(Parser):
     # self.param  提交的入参
     # self.file   待解析的文件
     # 返回解析验真结果
+    @exception('purpose=Parser001')
     def process(self):
         """
             入参： param：
