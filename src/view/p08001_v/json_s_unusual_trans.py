@@ -23,6 +23,7 @@ class JsonSingleUnusualTrans(TransFlow):
             return
 
         df = df[pd.notnull(df.unusual_trans_type)]
+        df['trans_time'] = df['trans_time'].astype(str)
 
         unusual_dict = {
             "博彩娱乐风险": "博彩娱乐",

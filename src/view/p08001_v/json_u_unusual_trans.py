@@ -1,4 +1,5 @@
 import json
+import time
 
 from view.TransFlow import TransFlow
 import pandas as pd
@@ -20,6 +21,7 @@ class JsonUnionUnusualTrans(TransFlow):
         df = sql_to_df(sql=sql,
                        params={"report_req_no": self.reqno})
         df = df[pd.notnull(df.unusual_trans_type)]
+        df['trans_time'] = df['trans_time'].astype(str)
 
         unusual_dict = {
             "博彩娱乐风险": "博彩娱乐",
