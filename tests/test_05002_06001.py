@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 
+
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
 from mapping.t06001 import T06001
@@ -118,5 +119,10 @@ def test_datetime():
 
 def get_credit_min_repay(df,repay_amount,amount_replay_amount):
     return ['否','是'][df[repay_amount]*2>df[amount_replay_amount]]
+
+
+def test_trans_score():
+    value = 480-40*math.log(0.014681/(1-0.014681))
+    print(value)
 
 
