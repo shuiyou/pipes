@@ -12,7 +12,7 @@ class JsonUnionUnusualTrans(TransFlow):
 
     def read_u_unusual_in_u_flow(self):
         sql = """
-            select concat(trans_date," ",trans_time) as trans_time,
+            select trans_date as trans_time,
             bank,account_no,opponent_name,trans_amt,remark,unusual_trans_type
             from trans_u_flow_portrait
             where report_req_no = %(report_req_no)s
