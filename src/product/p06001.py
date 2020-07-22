@@ -79,7 +79,7 @@ class P06001(Generate):
             total = len(query_data_array)
             for data in query_data_array:
                 data["preReportReqNo"] = pre_report_req_no
-                data["pre_biz_date"] = pre_biz_date
+                data["preBizDate"] = pre_biz_date
                 index = index + 1
                 logger.info("strategy_process------------" + str(index) + "/" + str(total))
                 resp = strategy_service.strategy(self.df_client, data, product_code, req_no)
