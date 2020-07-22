@@ -166,8 +166,10 @@ class TransSingleLabel:
                                  (self.df.opponent_type == 1)]
         income_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
                                 (self.df.opponent_type == 2)]
+        income_com_df = income_com_df[~income_com_df.opponent_name.str.contains('支付宝|财付通')]
         expense_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
                                  (self.df.opponent_type == 2)]
+        expense_com_df = expense_com_df[~expense_com_df.opponent_name.str.contains('支付宝|财付通')]
         income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
         income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
