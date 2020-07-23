@@ -297,7 +297,7 @@ class TransSingleLabel:
                 unusual_type.append('预收款')
             if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str):
                 unusual_type.append('分红退股')
-            if temp_dict.__contains__('relationship') and temp_dict['relationship'] != '配偶':
+            if not temp_dict.__contains__('relationship') or temp_dict['relationship'] != '配偶':
                 if temp_dict['opponent_type'] == 1 and \
                         abs(trans_amt) in [5.20, 5.21, 13.14, 14.13, 20.20, 20.13, 20.14, 131.4, 201.3, 201.4, 520,
                                            520.20, 521, 1314, 1314.2, 1413, 1413.2, 2013.14, 2014.13, 201314, 2020.2,
