@@ -17,8 +17,14 @@ class JsonUnionMarketing(TransFlow):
         """
         df = sql_to_df(sql=sql,
                        params={"report_req_no": self.reqno})
-        df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]))][[order, 'opponent_name',
-                                                                               'trans_amt', 'phone']]
+        df1 = None
+        if order == 'income_cnt_order':
+            df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]) & (df.trans_amt > 0))][[
+                order, 'opponent_name', 'trans_amt', 'phone']]
+        else:
+            df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]) & (df.trans_amt < 0))][[
+                order, 'opponent_name', 'trans_amt', 'phone']]
+
         df1_1 = df1.groupby([order, 'opponent_name'])['trans_amt'] \
             .agg(['count', 'sum']).reset_index() \
             .rename(columns={'count': 'trans_cnt', 'sum': 'trans_amt'})
