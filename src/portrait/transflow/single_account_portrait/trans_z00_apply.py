@@ -50,7 +50,10 @@ class TransApply:
                 temp_dict['related_name'] = related_name
             relationship = self._get_object_attr(temp, 'baseTypeDetail')
             if relationship is not None:
-                temp_dict['relationship'] = base_type_mapping.get(relationship)
+                temp_rel = base_type_mapping.get(relationship)
+                if temp_rel is None:
+                    continue
+                temp_dict['relationship'] = temp_rel
 
             id_card_no = self._get_object_attr(temp, 'idno')
             if id_card_no is not None:
