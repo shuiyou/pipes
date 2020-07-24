@@ -36,7 +36,7 @@ class JsonSingleTitle(TransFlow):
             and relationship is not null
         '''
         df2 = sql_to_df(sql=sql2,
-                        params={"report_req_no": self.reqno})
+                        params={"report_req_no": self.reqno}).drop_duplicates()
 
         if not df2.empty:
             relation_json = df2.to_json(orient='records').encode('utf-8').decode("unicode_escape")

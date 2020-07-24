@@ -37,7 +37,7 @@ class JsonUnionTitle(TransFlow):
             where report_req_no = %(report_req_no)s
         '''
         relation_df = sql_to_df(sql=sql2,
-                        params={"report_req_no": self.reqno})
+                        params={"report_req_no": self.reqno}).drop_duplicates()
 
         json_str = "{\"cusName\":\"" + self.cusName  \
                                 + "\",\"appAmt\":" + str(self.appAmt)  \
