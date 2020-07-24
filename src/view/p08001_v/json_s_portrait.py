@@ -28,14 +28,14 @@ class JsonSinglePortrait(TransFlow):
         df['analyse_end_time'] = df['analyse_end_time'].astype(str)
 
         sql1 = '''
-            select report_req_no,min(trans_date) as loan_start_time
-            from trans_u_flow_portrait
-            where report_req_no = %(report_req_no)s
-            '''
+            select report_req_no,min(trans_date) as loan_anal_start_time
+            from trans_flow_portrait
+            where account_id = %(account_id)s and report_req_no = %(report_req_no)s
+        '''
         df1 = sql_to_df(sql=sql1,
-                       params={"report_req_no": self.reqno})
+                        params={"account_id": self.account_id, "report_req_no": self.reqno})
 
-        df1['loan_start_time'] = df1['loan_start_time'].astype(str)
+        df1['loan_anal_start_time'] = df1['loan_anal_start_time'].astype(str)
 
         df = pd.merge(df,df1,how='left', on='report_req_no' ).drop(columns = 'report_req_no')
 
