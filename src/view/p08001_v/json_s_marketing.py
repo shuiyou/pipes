@@ -18,8 +18,13 @@ class JsonSingleMarketing(TransFlow):
         df = sql_to_df(sql=sql,
                        params={"account_id": self.account_id,
                                "report_req_no":self.reqno})
-        df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]))][[order, 'opponent_name',
-                                                                             'trans_amt', 'phone']]
+        df1 = None
+        if order == 'income_cnt_order':
+            df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]) & (df.trans_amt > 0))][[
+                order, 'opponent_name', 'trans_amt', 'phone']]
+        else:
+            df1 = df[(df.opponent_type == oppo_type) & (pd.notnull(df[order]) & (df.trans_amt < 0))][[
+                order, 'opponent_name', 'trans_amt', 'phone']]
         df1_1 = df1.groupby([order, 'opponent_name'])['trans_amt'] \
             .agg(['count', 'sum']).reset_index() \
             .rename(columns={'count': 'trans_cnt', 'sum': 'trans_amt'})
@@ -28,7 +33,7 @@ class JsonSingleMarketing(TransFlow):
             .groupby([order, 'opponent_name'])['phone'] \
             .apply(lambda x: x.str.cat(sep=';')).reset_index()
 
-        if not df1_1.empty and df1_2.empty:
+        if not df1_1.empty and not df1_2.empty:
             df1 = pd.merge(df1_1, df1_2, how='left', on=[order, 'opponent_name'])
             # order列 直接是 varchar
             # df1[order] = df1[order].apply(lambda x: "No." + x  )

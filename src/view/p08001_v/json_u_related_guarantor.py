@@ -40,8 +40,11 @@ class JsonUnionGuarantor(TransFlow):
         df_ = pd.merge(df_, df[['guarantor', 'income_amt_order', 'expense_amt_order',
                                 'income_cnt_order', 'expense_cnt_order']].drop_duplicates(),
                        how='left', on='guarantor')
+        if df_.empty:
+            json2 = "\"提示\":{}"
+        else:
+            json2 = "\"提示\":" + df_.to_json(orient='records').encode('utf-8').decode("unicode_escape")[1:-1]
 
-        json2 = "\"提示\":" + df_.to_json(orient='records').encode('utf-8').decode("unicode_escape")[1:-1]
         return "{" + json1 + json2 + "},"
 
 

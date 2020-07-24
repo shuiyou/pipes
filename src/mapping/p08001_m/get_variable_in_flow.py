@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from mapping.utils.df_utils import nan_to_zero
 from util.mysql_reader import sql_to_df
@@ -28,7 +28,14 @@ class GetVariableInFlow(TransModuleProcessor):
         # 保险理赔笔数
         self.variables['insure_cnt'] = flow_df['unusual_trans_type'].str.contains('保险理赔').fillna(False).sum()
         # 夜间交易笔数
-        self.variables['night_trans_cnt'] = flow_df['unusual_trans_type'].str.contains('夜间交易').fillna(False).sum()
+        # 夜间交易 00:01~04:00
+        self.variables['night_trans_cnt'] = len(flow_df[(flow_df.trans_time >= timedelta(hours=0, minutes=1)) &
+                                                        (flow_df.trans_time <= timedelta(hours=4, minutes=0))])
+
+        # 夜间atm交易  21:00~23：59
+        self.variables['night_atm_trans_cnt'] = len(flow_df[(flow_df.trans_time >= timedelta(hours=21, minutes=0)) &
+                                                            (flow_df.trans_time <= timedelta(hours=23, minutes=59)) &
+                                                            (flow_df.opponent_name.isin(['atm', 'ATM']))])
         # 家庭不稳定笔数
         self.variables['fam_unstab_cnt'] = flow_df['unusual_trans_type'].str.contains('家庭不稳定').fillna(False).sum()
 

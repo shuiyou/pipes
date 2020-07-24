@@ -37,8 +37,10 @@ class TransUnionLabel:
                                  (self.df.opponent_type == 1)]
         income_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
                                 (self.df.opponent_type == 2)]
+        income_com_df = income_com_df[~income_com_df.opponent_name.str.contains('支付宝|财付通')]
         expense_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
                                  (self.df.opponent_type == 2)]
+        expense_com_df = expense_com_df[~expense_com_df.opponent_name.str.contains('支付宝|财付通')]
         income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
         income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
@@ -56,29 +58,21 @@ class TransUnionLabel:
         expense_com_amt_list = expense_com_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
             sort_values(by='trans_amt', ascending=True).index.to_list()[:10]
         for i in range(len(income_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_cnt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_per_cnt_list[i], 'income_cnt_order'] = i + 1
         for i in range(len(income_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_cnt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_com_cnt_list[i], 'income_cnt_order'] = i + 1
         for i in range(len(expense_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_cnt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_per_cnt_list[i], 'expense_cnt_order'] = i + 1
         for i in range(len(expense_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_cnt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_com_cnt_list[i], 'expense_cnt_order'] = i + 1
         for i in range(len(income_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_amt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_per_amt_list[i], 'income_amt_order'] = i + 1
         for i in range(len(income_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_amt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_com_amt_list[i], 'income_amt_order'] = i + 1
         for i in range(len(expense_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_amt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_per_amt_list[i], 'expense_amt_order'] = i + 1
         for i in range(len(expense_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_amt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_com_amt_list[i], 'expense_amt_order'] = i + 1
 
     def _save_union_trans_label(self):
         col_list = self.df.columns.to_list()

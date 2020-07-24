@@ -166,8 +166,10 @@ class TransSingleLabel:
                                  (self.df.opponent_type == 1)]
         income_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
                                 (self.df.opponent_type == 2)]
+        income_com_df = income_com_df[~income_com_df.opponent_name.str.contains('支付宝|财付通')]
         expense_com_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt < 0) &
                                  (self.df.opponent_type == 2)]
+        expense_com_df = expense_com_df[~expense_com_df.opponent_name.str.contains('支付宝|财付通')]
         income_per_cnt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': len}). \
             sort_values(by='trans_amt', ascending=False).index.to_list()[:10]
         income_per_amt_list = income_per_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
@@ -185,29 +187,21 @@ class TransSingleLabel:
         expense_com_amt_list = expense_com_df.groupby(by='opponent_name').agg({'trans_amt': sum}). \
             sort_values(by='trans_amt', ascending=True).index.to_list()[:10]
         for i in range(len(income_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_cnt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_per_cnt_list[i], 'income_cnt_order'] = i + 1
         for i in range(len(income_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_cnt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_com_cnt_list[i], 'income_cnt_order'] = i + 1
         for i in range(len(expense_per_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_cnt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_per_cnt_list[i], 'expense_cnt_order'] = i + 1
         for i in range(len(expense_com_cnt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_cnt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_cnt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_com_cnt_list[i], 'expense_cnt_order'] = i + 1
         for i in range(len(income_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_per_amt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_per_amt_list[i], 'income_amt_order'] = i + 1
         for i in range(len(income_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == income_com_amt_list[i]) &
-                        (self.df['trans_amt'] > 0), 'income_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == income_com_amt_list[i], 'income_amt_order'] = i + 1
         for i in range(len(expense_per_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_per_amt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_per_amt_list[i], 'expense_amt_order'] = i + 1
         for i in range(len(expense_com_amt_list)):
-            self.df.loc[(self.df['opponent_name'] == expense_com_amt_list[i]) &
-                        (self.df['trans_amt'] < 0), 'expense_amt_order'] = i + 1
+            self.df.loc[self.df['opponent_name'] == expense_com_amt_list[i], 'expense_amt_order'] = i + 1
 
     def save_raw_data(self):
         # 原始数据列名
@@ -295,8 +289,9 @@ class TransSingleLabel:
                 unusual_type.append('预收款')
             if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str):
                 unusual_type.append('分红退股')
-            if temp_dict.__contains__('relationship') and temp_dict['relationship'] != '配偶':
-                if temp_dict['opponent_type'] == 1 and \
+            if not temp_dict.__contains__('relationship') or temp_dict['relationship'] != '配偶':
+                opponent_type = temp_dict.get('opponent_type')
+                if opponent_type is not None and opponent_type == 1 and \
                         abs(trans_amt) in [5.20, 5.21, 13.14, 14.13, 20.20, 20.13, 20.14, 131.4, 201.3, 201.4, 520,
                                            520.20, 521, 1314, 1314.2, 1413, 1413.2, 2013.14, 2014.13, 201314, 2020.2,
                                            202020.2, 13145.2, 1314520, 52013.14, 5201314]:

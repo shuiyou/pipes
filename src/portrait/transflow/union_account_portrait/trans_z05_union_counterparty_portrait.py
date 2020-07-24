@@ -34,6 +34,8 @@ class UnionCounterpartyPortrait:
         flow_df = flow_df[(pd.isnull(flow_df['relationship'])) &
                           (flow_df['is_sensitive'] != 1) &
                           (pd.notnull(flow_df['opponent_name']))]
+        if flow_df.shape[0] == 0:
+            return
         min_date = min(flow_df['trans_date'])
         min_year = min_date.year
         min_month = min_date.month - 1
