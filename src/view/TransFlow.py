@@ -22,8 +22,9 @@ class TransFlow(ModuleProcessor):
         for i in self.cached_data.get("input_param"):
             if i["relation"] == "MAIN":
                 self.cusName = i["name"]
-                self.bankName = i["extraParam"]["accounts"][0]["bankName"]
-                self.bankAccount = i["extraParam"]["accounts"][0]["bankAccount"]
+                if  len(i["extraParam"]["accounts"])>0:
+                    self.bankName = i["extraParam"]["accounts"][0]["bankName"]
+                    self.bankAccount = i["extraParam"]["accounts"][0]["bankAccount"]
                 self.idno = i["idno"]
                 self.reqno = i["preReportReqNo"]
                 self.appAmt = i["applyAmo"]

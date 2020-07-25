@@ -190,13 +190,6 @@ class P08001(Generate):
             origin_input = {'out_strategyBranch': ','.join(codes)}
             # 合并新的转换变量
             origin_input.update(variables)
-            # TODO MOCK BEGIN
-            origin_input["Private_income_amt_12cm"] = 1
-            origin_input["Private_income_mean_12cm"] = 1
-            origin_input["balance_max_weight"] = 1
-            origin_input["medical_cnt"] = 8
-            origin_input["AllLoanType_expense_cnt_3cm"] = 20
-            # TODO MOCK END
 
             logger.info("1. 流水报告-开始策略引擎封装入参")
             strategy_request = _build_request(req_no, product_code, origin_input)

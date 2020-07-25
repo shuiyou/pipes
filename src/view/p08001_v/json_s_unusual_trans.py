@@ -11,7 +11,7 @@ class JsonSingleUnusualTrans(TransFlow):
 
     def read_unusual_in_flow(self):
         sql = """
-            select concat(trans_date," ",trans_time) as trans_time,
+            select trans_date as trans_time,
             opponent_name,trans_amt,remark,unusual_trans_type
             from trans_flow_portrait
             where account_id = %(account_id)s and report_req_no = %(report_req_no)s
@@ -23,6 +23,7 @@ class JsonSingleUnusualTrans(TransFlow):
             return
 
         df = df[pd.notnull(df.unusual_trans_type)]
+        df['trans_time'] = df['trans_time'].astype(str)
 
         unusual_dict = {
             "博彩娱乐风险": "博彩娱乐",
