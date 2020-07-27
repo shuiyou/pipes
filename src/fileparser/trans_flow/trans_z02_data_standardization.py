@@ -126,6 +126,8 @@ class TransDataStandardization:
             if time_cnt == 1 and amt_cnt == 2:
                 return True
         # 遍历完都没有找到不少于一个的时间格式,和不少于两个的金额格式则返回False
+        if time_cnt == 1 and amt_cnt == 2:
+            return True
         return False
 
     def standard(self):
