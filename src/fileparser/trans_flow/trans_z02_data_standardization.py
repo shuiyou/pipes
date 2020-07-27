@@ -67,7 +67,7 @@ class TransDataStandardization:
             if self._entire_row_values_match(df.loc[head, :]):
                 break
             else:
-                df.drop(head, asix=0, inplace=True)
+                df.drop(head, axis=0, inplace=True)
         df.reset_index(drop=True, inplace=True)
         self.trans_data = df
 
