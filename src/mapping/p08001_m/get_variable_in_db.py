@@ -26,14 +26,14 @@ class GetVariableInDB(TransModuleProcessor):
         portrait = sql_to_df(sql=sql,
                              params={"report_req_no": self.reqno})
         if flow_cnt > 0:
-            self.variables['balance_0_to_5_prop'] = round(df_zero(portrait['balance_0_to_5_day']) / flow_cnt,4)
-            self.variables['income_0_to_5_prop'] = round(df_zero(portrait['income_0_to_5_cnt']) / flow_cnt,4)
+            self.variables['balance_0_5_prop'] = round(df_zero(portrait['balance_0_to_5_day']) / flow_cnt,4)
+            self.variables['income_0_5_prop'] = round(df_zero(portrait['income_0_to_5_cnt']) / flow_cnt,4)
         self.variables['balance_min_weight'] = df_zero(portrait['balance_weight_min'])
         self.variables['balance_max_weight'] = df_zero(portrait['balance_weight_max'])
         self.variables['income_max_weight'] = df_zero(portrait['income_weight_max'])
         self.variables['normal_income_mean'] = df_value(portrait['normal_income_mean'])
-        self.variables['normal_income_d_mean'] = df_value(portrait['normal_income_d_mean'])
-        self.variables['normal_income_m_mean'] = df_value(portrait['normal_income_m_mean'])
+        self.variables['normal_income_amt_d_mean'] = df_value(portrait['normal_income_d_mean'])
+        self.variables['normal_income_amt_m_mean'] = df_value(portrait['normal_income_m_mean'])
         self.variables['relationship_risk'] = df_value(portrait['relationship_risk'])
 
     def _from_u_summary_portrait(self):
@@ -74,13 +74,13 @@ class GetVariableInDB(TransModuleProcessor):
         """
         counterparty = sql_to_df(sql=sql,
                                  params={"report_req_no": self.reqno})
-        self.variables['income_rank_1_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 1)
+        self.variables['income_rank1_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 1)
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank_2_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
+        self.variables['income_rank2_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank_3_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 3)
+        self.variables['income_rank3_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 3)
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank_4_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 4)
+        self.variables['income_rank4_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 4)
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
 
         val = df_zero(counterparty[(counterparty['income_amt_order'] == '前100%') & (counterparty['month'] == '汇总')]['trans_cnt'])
@@ -111,41 +111,41 @@ class GetVariableInDB(TransModuleProcessor):
         cm_6 = list(map(str, list(range(1, 7))))
         cm_12 = list(map(str, list(range(1, 13))))
 
-        self.variables['hit_loan_type_cnt_6_cm'] = loan_portrait[loan_portrait.month.isin(cm_6)]['loan_type'].nunique()
+        self.variables['hitloantype_cnt_6cm'] = loan_portrait[loan_portrait.month.isin(cm_6)]['loan_type'].nunique()
 
-        self.variables['private_income_amt_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+        self.variables['private_income_amt_12cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                    & (loan_portrait['loan_type'] == '民间借贷')][
             'loan_amt'].sum()
         val = loan_portrait[(loan_portrait.month.isin(cm_12)) & (loan_portrait['loan_type'] == '民间借贷')]['loan_cnt'].sum()
         if val > 0:
-            self.variables['private_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+            self.variables['private_income_mean_12cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                         & (loan_portrait['loan_type'] == '民间借贷')][
                                                               'loan_amt'].sum() / val
         else:
-            self.variables['private_income_mean_12_cm'] = ""
-        self.variables['pettyloan_income_amt_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+            self.variables['private_income_mean_12cm'] = ""
+        self.variables['pettyloan_income_amt_12cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                      & (loan_portrait['loan_type'] == '小贷')][
             'loan_amt'].sum()
 
         val = loan_portrait[(loan_portrait.month.isin(cm_12))& (loan_portrait['loan_type'] == '小贷')]['loan_cnt'].sum()
         if val > 0:
-            self.variables['pettyloan_income_mean_12_cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
+            self.variables['pettyloan_income_mean_12cm'] = loan_portrait[(loan_portrait.month.isin(cm_12))
                                                                           & (loan_portrait['loan_type'] == '小贷')][
                                                                 'loan_amt'].sum() / val
         else:
-            self.variables['pettyloan_income_mean_12_cm'] = ""
-        self.variables['finlease_expense_cnt_6_cm'] = loan_portrait[(loan_portrait.month.isin(cm_6))
+            self.variables['pettyloan_income_mean_12cm'] = ""
+        self.variables['finlease_expense_cnt_6cm'] = loan_portrait[(loan_portrait.month.isin(cm_6))
                                                                     & (loan_portrait['loan_type'] == '融资租赁')][
             'repay_cnt'].sum()
 
         val = loan_portrait[(loan_portrait.month.isin(cm_3)) & (loan_portrait['loan_type'] == '其他金融')]['loan_cnt'].sum()
         if val > 0:
-            self.variables['otherfin_income_mean_3_cm'] = loan_portrait[(loan_portrait.month.isin(cm_3))
+            self.variables['otherfin_income_mean_3cm'] = loan_portrait[(loan_portrait.month.isin(cm_3))
                                                                         & (loan_portrait['loan_type'] == '其他金融')][
                                                               'loan_amt'].sum() / val
         else:
-            self.variables['otherfin_income_mean_3_cm'] = ""
-        self.variables['all_loan_expense_cnt_3_cm'] = loan_portrait[loan_portrait.month.isin(cm_3)]['repay_cnt'].sum()
+            self.variables['otherfin_income_mean_3cm'] = ""
+        self.variables['allloantype_expense_cnt_3cm'] = loan_portrait[loan_portrait.month.isin(cm_3)]['repay_cnt'].sum()
 
     def _from_u_related_portrait(self):
         sql = """
