@@ -14,11 +14,15 @@ class JsonUnionTitle(TransFlow):
         sql1 = """
             SELECT ap.related_name AS relatedName ,
             ap.relationship AS relation,
-            ac.bank AS bankName,ac.account_no AS bankAccount,ac.start_time,ac.end_time
+            ac.bank AS bankName,ac.account_no AS bankAccount,
+            min(acc.start_time) as start_time, max(acc.end_time) as end_time
             FROM trans_apply ap
             left join trans_account ac
             on ap.account_id = ac.id
+            left join trans_account acc
+            on ac.account_no = acc.account_no
             where ap.report_req_no =  %(report_req_no)s  and  ap.account_id is not null
+            group by relatedName,relation,bankName,bankAccount
         """
 
         account_df = sql_to_df(sql=sql1,
@@ -37,7 +41,7 @@ class JsonUnionTitle(TransFlow):
             where report_req_no = %(report_req_no)s
         '''
         relation_df = sql_to_df(sql=sql2,
-                        params={"report_req_no": self.reqno})
+                        params={"report_req_no": self.reqno}).drop_duplicates()
 
         json_str = "{\"cusName\":\"" + self.cusName  \
                                 + "\",\"appAmt\":" + str(self.appAmt)  \

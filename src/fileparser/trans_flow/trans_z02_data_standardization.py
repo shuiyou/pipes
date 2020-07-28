@@ -67,7 +67,7 @@ class TransDataStandardization:
             if self._entire_row_values_match(df.loc[head, :]):
                 break
             else:
-                df.drop(head, asix=0, inplace=True)
+                df.drop(head, axis=0, inplace=True)
         df.reset_index(drop=True, inplace=True)
         self.trans_data = df
 
@@ -126,6 +126,8 @@ class TransDataStandardization:
             if time_cnt == 1 and amt_cnt == 2:
                 return True
         # 遍历完都没有找到不少于一个的时间格式,和不少于两个的金额格式则返回False
+        if time_cnt == 1 and amt_cnt == 2:
+            return True
         return False
 
     def standard(self):

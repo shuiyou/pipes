@@ -51,6 +51,8 @@ class SingleSummaryPortrait:
                                                  (not_sensitive_df.trans_amt > 0)]['trans_amt'].sum()
             normal_expense_amt = cost_df[cost_df.calendar_month == i + 1]['trans_amt'].sum()
             temp_df = flow_df[flow_df['calendar_month'] == i + 1]
+            if temp_df.shape[0] == 0:
+                continue
             temp_dict['account_id'] = self.account_id
             temp_dict['report_req_no'] = self.report_req_no
             temp_dict['month'] = str(i+1)
