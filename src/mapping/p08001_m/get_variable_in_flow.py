@@ -56,8 +56,8 @@ class GetVariableInFlow(TransModuleProcessor):
         income_std = nan_to_zero(trans_amt[trans_amt > 0].std())
         self.variables['mean_sigma_left'] = round(income_mean - income_std,4)
         self.variables['mean_sigma_right'] = round(income_mean + income_std,4)
-        self.variables['mean_2_sigma_left'] = round(income_mean - 2 * income_std,4)
-        self.variables['mean_2_sigma_right'] = round(income_mean + 2 * income_std,4)
+        self.variables['mean_2sigma_left'] = round(income_mean - 2 * income_std,4)
+        self.variables['mean_2sigma_right'] = round(income_mean + 2 * income_std,4)
 
     # 交易对手类
     def _opponent(self):
@@ -72,7 +72,7 @@ class GetVariableInFlow(TransModuleProcessor):
         self.variables['enterprise_3_income_amt'] = round(
             income_flow[income_flow['relationship'] == '借款人作为股东的企业']['trans_amt'].sum(),4)
         if len(expense_flow) > 0:
-            self.variables['enterprise_3_expense_cnt_prop'] = round(
+            self.variables['enterprise3_expense_cnt_proportion'] = round(
                 len(expense_flow[expense_flow['relationship'] == '借款人作为股东的企业']) / len(expense_flow),4)
             self.variables['all_relations_expense_cnt_prop'] = round(
                 len(expense_flow[pd.notnull(expense_flow['relationship'])]) / len(expense_flow),4)
