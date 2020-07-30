@@ -71,13 +71,14 @@ class TransactionTime:
     @staticmethod
     def _dttime_apply(time):
         # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
-        if time[0] == '2':
-            temp = ''.join([_ for _ in time if _.isdigit()]) + '000000'
+        temp = ''.join([_ for _ in time if _.isdigit()])
+        if temp[0] == '2':
+            temp += '000000'
             temp = temp[:14]
             result = datetime.datetime.strptime(temp, '%Y%m%d%H%M%S')
         # 首位是'4',形如'43562.125',表示'2019-04-07 03:00:00'
-        elif time[0] == '4':
-            temp = ''.join([_ for _ in time if _.isdigit()])
+        elif temp[0] == '4':
+            # temp = ''.join([_ for _ in time if _.isdigit()])
             date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
             date_str = datetime.datetime.strftime(date, '%Y%m%d')
             time_str = '000000'
@@ -94,11 +95,12 @@ class TransactionTime:
 
     @staticmethod
     def _date_apply(time):
-        if time[0] == '2':
-            temp = ''.join([_ for _ in time if _.isdigit()])
+        temp = ''.join([_ for _ in time if _.isdigit()])
+        if temp[0] == '2':
+            # temp = ''.join([_ for _ in time if _.isdigit()])
             result = temp[:8]
-        elif time[0] == '4':
-            temp = ''.join([_ for _ in time if _.isdigit()])
+        elif temp[0] == '4':
+            # temp = ''.join([_ for _ in time if _.isdigit()])
             date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
             result = datetime.datetime.strftime(date, '%Y%m%d')
         else:
