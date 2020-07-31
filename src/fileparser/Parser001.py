@@ -86,10 +86,8 @@ class Parser001(Parser):
             return transaction_time.resp
         # 计算查询间隔,交易间隔,导入间隔,查看三者是否满足要求,若不满足,则直接返回相应的回应报文
         transaction_time.time_interval_check()
-        # TODO 测试时临时关闭
-        """if not transaction_time.basic_status:
+        if not transaction_time.basic_status:
             return transaction_time.resp
-        """
 
         # 5.将4中得到的流水数据传入交易金额列处理类
         logger.info("%d-----------------------%s" % (5, '进行交易金额列校验'))
