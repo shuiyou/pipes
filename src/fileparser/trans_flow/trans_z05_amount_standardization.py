@@ -91,8 +91,7 @@ class TransactionAmt:
         length = len(self.amt_col)
         if length == 1:
             if tag:
-                if len(self.df.loc[(self.df['tag'] == -1) &
-                                   (self.df[self.amt_col[0]] > 0)]) == 0:
+                if self.df.loc[self.df['tag'] == -1][self.amt_col[0]].sum() < 0:
                     self.df['trans_amt'] = self.df[self.amt_col[0]]
                 else:
                     self.df['trans_amt'] = self.df['tag']*self.df[self.amt_col[0]]
@@ -104,7 +103,7 @@ class TransactionAmt:
         elif length == 2:
             if tag:
                 self.df['trans_amt'] = self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
-                if len(self.df.loc[self.df.trans_amt < 0]) == 0:
+                if self.df.loc[self.df['tag'] == -1]['trans_amt'].sum() >= 0:
                     self.df['trans_amt'] = self.df['tag'] * self.df['trans_amt']
             else:
                 if re.search(r'(借|出|支|往|Debit)', self.amt_col[0]):
