@@ -59,10 +59,10 @@ class GetVariableInDB(TransModuleProcessor):
         self.variables['q_4_interest_balance_prop'] = df_value(summary_portrait[summary_portrait['month'] == 'quarter4'][
             'interest_balance_proportion'])
 
-        val = summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum()
+        val = summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum()
         if val != 0:
             self.variables['income_net_rate_compare_2'] = \
-                round(summary_portrait[summary_portrait.month.isin(['2', '3', '4'])]['net_income_amt'].sum() / val,4)
+                round(summary_portrait[summary_portrait.month.isin(['5', '6', '7'])]['net_income_amt'].sum() / val,4)
         else:
             self.variables['income_net_rate_compare_2'] = ""
 
