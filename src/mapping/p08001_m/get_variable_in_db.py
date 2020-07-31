@@ -74,29 +74,29 @@ class GetVariableInDB(TransModuleProcessor):
         """
         counterparty = sql_to_df(sql=sql,
                                  params={"report_req_no": self.reqno})
-        self.variables['income_rank1_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 1)
+        self.variables['income_rank1_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == '1')
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank2_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 2)
+        self.variables['income_rank2_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == '2')
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank3_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 3)
+        self.variables['income_rank3_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == '3')
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
-        self.variables['income_rank4_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == 4)
+        self.variables['income_rank4_amt'] = df_value(counterparty[(counterparty['income_amt_order'] == '4')
                                                            & (counterparty['month'] == '汇总')]['trans_amt'])
 
         val = df_zero(counterparty[(counterparty['income_amt_order'] == '前100%') & (counterparty['month'] == '汇总')]['trans_cnt'])
         if val != 0:
-            self.variables['income_rank_2_cnt_prop'] = df_zero(counterparty[(counterparty['income_amt_order'] == 2)
+            self.variables['income_rank_2_cnt_prop'] = df_zero(counterparty[(counterparty['income_amt_order'] == '2')
                                                                     & (counterparty['month'] == '汇总')]['trans_cnt']) / val
         else:
             self.variables['income_rank_2_cnt_prop'] = ""
 
-        self.variables['expense_rank_6_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == 6)
+        self.variables['expense_rank_6_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == '6')
                                                                 & (counterparty['month'] == '汇总')]['trans_gap_avg'])
 
-        self.variables['income_rank_9_avg_gap'] = df_value(counterparty[(counterparty['income_amt_order'] == 9)
+        self.variables['income_rank_9_avg_gap'] = df_value(counterparty[(counterparty['income_amt_order'] == '9')
                                                                & (counterparty['month'] == '汇总')]['trans_gap_avg'])
 
-        self.variables['expense_rank_10_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == 10)
+        self.variables['expense_rank_10_avg_gap'] = df_value(counterparty[(counterparty['expense_amt_order'] == '10')
                                                                  & (counterparty['month'] == '汇总')]['trans_gap_avg'])
 
     def _from_u_loan_portrait(self):
