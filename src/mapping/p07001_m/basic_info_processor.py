@@ -236,7 +236,7 @@ class BasicInfoProcessor(ModuleProcessor):
         df = credit_loan_df.query('account_type in ["01", "02", "03"] '
                                   'and loan_type in ["03", "05", "06"] '
                                   'and loan_status == "04" '
-                                  'and expiry_date < end_date')
+                                  'and loan_status_time < end_date')
         self.variables["house_loan_pre_settle"] = 1 if not df.empty else 0
 
     # 担保金额是借款金额2倍
