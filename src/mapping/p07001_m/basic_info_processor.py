@@ -26,6 +26,7 @@ class BasicInfoProcessor(ModuleProcessor):
         self._extension_number()
         self._enforce_record()
         self._marriage_status()
+        self._credit_marriage_status()
         self._judgement_record()
         self._guarantee_amont()
         self._tax_record()
@@ -184,6 +185,16 @@ class BasicInfoProcessor(ModuleProcessor):
         count = credit_person_df.query('marriage_status == 3').shape[0]
 
         self.variables["marriage_status"] = 1 if count > 0 else 0
+
+    # 获取征信报告中的婚姻状态
+    def _credit_marriage_status(self):
+        credit_person_df = self.cached_data["pcredit_person_info"]
+        if credit_person_df.empty:
+            return
+        marriage_status = credit_person_df['marriage_status'].tolist()[0]
+        if marriage_status is None or pd.isna(marriage_status):
+            return
+        self.variables["credit_marriage_status"] = marriage_status
 
     # 民事判决记录数
     def _judgement_record(self):

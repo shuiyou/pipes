@@ -59,6 +59,7 @@ class T41001(Transformer):
             "loan_scured_five_b_level_abnormality_cnt": 0,  # 对外担保五级分类存在"关注"
             "unsettled_busLoan_total_cnt": 0,  # 未结清经营性贷款笔笔数
             "marriage_status": 0,  # 离婚
+            "credit_marriage_status": 99,  # 征信报告中的婚姻状态
             "judgement_record": 0,  # 民事判决记录数
             "loan_doubtful": 0,  # 疑似压贷笔数
             "loan_doubtful_org": [],  # 疑似压贷机构
