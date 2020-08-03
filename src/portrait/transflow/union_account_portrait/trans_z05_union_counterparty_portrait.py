@@ -153,6 +153,7 @@ class UnionCounterpartyPortrait:
                 total_months_dict['report_req_no'] = self.report_req_no
                 total_months_dict['month'] = '汇总'
                 total_months_dict['income_amt_order'] = '前%d%%' % (k * 100)
+                total_months_dict['trans_cnt'] = temp_income_df.shape[0]
                 total_months_dict['income_amt_proportion'] = temp_income_df['trans_amt'].sum() / total_income_amt if \
                     total_income_amt != 0 else 0
                 total_months_dict['create_time'] = create_time

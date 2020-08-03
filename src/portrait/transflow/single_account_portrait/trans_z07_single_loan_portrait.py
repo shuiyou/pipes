@@ -54,7 +54,13 @@ class SingleLoanPortrait:
                 temp_dict['loan_type'] = t
                 temp_dict['month'] = str(i)
                 temp_dict['loan_amt'] = temp_df[temp_df['trans_amt'] > 0]['trans_amt'].sum()
+                temp_dict['loan_cnt'] = temp_df.shape[0]
+                temp_loan_mean = temp_df[temp_df['trans_amt'] > 0]['trans_amt'].mean()
+                temp_dict['loan_mean'] = temp_loan_mean if pd.notnull(temp_loan_mean) else 0
                 temp_dict['repay_amt'] = temp_df[temp_df['trans_amt'] < 0]['trans_amt'].sum()
+                temp_dict['repay_cnt'] = temp_df.shape[0]
+                temp_repay_mean = temp_df[temp_df['trans_amt'] < 0]['trans_amt'].mean()
+                temp_dict['repay_mean'] = temp_repay_mean if pd.notnull(temp_repay_mean) else 0
                 temp_dict['create_time'] = create_time
                 temp_dict['update_time'] = create_time
 

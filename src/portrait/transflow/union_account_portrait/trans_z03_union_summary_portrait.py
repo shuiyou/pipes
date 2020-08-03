@@ -88,6 +88,8 @@ class UnionSummaryPortrait:
 
             interest_amt = single_u_df[single_u_df['month'] == value]['interest_amt'].sum()
             balance_amt = single_u_df[single_u_df['month'] == value]['balance_amt'].sum()
+            if balance_amt == 0:
+                continue
             interest_balance_proportion = interest_amt / balance_amt if balance_amt != 0 else 0
 
             temp_dict1['apply_no'] = self.app_no

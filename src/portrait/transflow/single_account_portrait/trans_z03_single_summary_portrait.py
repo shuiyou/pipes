@@ -107,6 +107,8 @@ class SingleSummaryPortrait:
             else:
                 start_date = year_ago
             balance_df = flow_df[(flow_df.trans_date >= start_date) & (flow_df.trans_date <= end_date)]
+            if balance_df.shape[0] == 0:
+                continue
             # balance_df.sort_values(by=['trans_date', 'trans_time'], ascending=True, inplace=True)
             balance_df['str_date'] = balance_df['trans_date'].apply(lambda x:
                                                                     x.date if type(x) == datetime.datetime else x)
