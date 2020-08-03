@@ -200,7 +200,7 @@ class LoanInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if (pd.isna(row.status) or not row.status.isdigit()) and row.repayment_amt == 0:
+            if (pd.isna(row.status) or not row.status.isdigit()) and (row.repayment_amt == 0 or pd.isna(row.repayment_amt)):
                 continue
             if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + 1
