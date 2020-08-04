@@ -56,7 +56,7 @@ class P07001(Generate):
                 subject.append(resp)
 
             self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
-
+            logger.info(self.response)
             logger.info("2. 征信报告，应答：%s", json.dumps(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
