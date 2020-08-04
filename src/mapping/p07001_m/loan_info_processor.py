@@ -177,7 +177,7 @@ class LoanInfoProcessor(ModuleProcessor):
                     final_count = final_count + 1
 
         self.variables["loan_doubtful"] = final_count
-        self.variables["loan_doubtful_org"] = loan_doubtful_org
+        self.variables["loan_doubtful_org"] = ",".join(loan_doubtful_org)
 
     # 贷款连续逾期2期次数
     def _loan_overdue_2times_cnt(self):
