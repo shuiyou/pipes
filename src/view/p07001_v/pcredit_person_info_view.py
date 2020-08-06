@@ -25,7 +25,12 @@ class PcreditPersonInfoView(ModuleProcessor):
         # 工作单位
         work_unit_list = profession_df.sort_values(by='no').loc[:, 'work_unit'].to_list()
         work_unit_list = [x for x in work_unit_list if x is not None and x != '--']
-        self.variables['work_unit'] = work_unit_list[0] if len(work_unit_list) > 0 else ''
+        work_unit = work_unit_list[0] if len(work_unit_list) > 0 else ''
+        self.variables['work_unit'] = work_unit
+        #与ccs客户关联企业进行匹配
+        param_work_unit = self.cached_data["basicWorkUnit"]
+        if work_unit not in param_work_unit:
+            self.variables['if_work_unit'] = 1
         # 配偶姓名
         self.variables["spouse_name"] = person_info_df.loc[0, 'spouse_name']
         # 配偶证件号
