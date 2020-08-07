@@ -52,11 +52,13 @@ class DataPreparedProcessor(ModuleProcessor):
         live_address = extra_param.get("liveAddress")
         spouse_name = extra_param.get("spouseName")
         spouse_id_no = extra_param.get("spouseIdNo")
+        work_unit = extra_param.get("workUnit")
 
         self.cached_data["basicMarryState"] = marry_state
         self.cached_data["basicPostalAddress"] = postal_address
         self.cached_data["basicHouseAddress"] = house_address
         self.cached_data["basicLiveAddress"] = live_address
+        self.cached_data["basicWorkUnit"] = work_unit
 
         self.cached_data["spouseName"] = spouse_name
         self.cached_data["spouseIdNo"] = spouse_id_no

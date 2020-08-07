@@ -282,7 +282,11 @@ class V41001(Transformer):
             "busi_org_balance_now_max": "",
             "busi_org_balance_now_min": "",
             "house_loan_pre_settle_org": [],
-            "house_loan_pre_settle_date": []
+            "house_loan_pre_settle_date": [],
+            "if_work_unit": 0,
+            "total_credit_used_rate": 0,
+            "total_credit_min_repay_cnt": 0,
+            "loan_doubtful_org": 0
         }
 
     def transform(self):
