@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from mapping.module_processor import ModuleProcessor
 from product.date_time_util import before_n_year_date, before_n_month_date, date_to_timestamp
 import numpy as np
@@ -139,7 +141,7 @@ class PcreditLoanView(ModuleProcessor):
                 # 信贷交易信息-资金压力解析-提示-已结清贷款机构名
                 self.variables["settle_account_org"] = loan_account_type_df_status03.loc[:, 'account_org'].tolist()
                 # 信贷交易信息-资金压力解析-提示-已结清贷款申请时间
-                self.variables['settle_loan_date'] = loan_account_type_df_status03.loc[:, 'loan_date'].tolist()
+                self.variables['settle_loan_date'] = loan_account_type_df_status03.loc[:, 'loan_date'].apply(lambda x: datetime.strftime(x, "%Y-%m-%d %H:%M:%S")).tolist()
                 # 信贷交易信息-资金压力解析-提示-结清时间
                 self.variables["settle_date"] = loan_account_type_df_status03.loc[:, 'loan_status_time'].apply(
                     lambda x: format_timestamp(x)).tolist()
