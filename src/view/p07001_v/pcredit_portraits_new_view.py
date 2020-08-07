@@ -149,9 +149,9 @@ class PcreditPortraitsNewView(ModuleProcessor):
                                                                   'undestory_semi_limit']].sum(), 2)
 
         # 信贷交易信息-资金压力解析-银行总余额
-        self.variables["total_bank_loan_balance"] = df.loc[
+        self.variables["total_bank_loan_balance"] = round(df.loc[
             0, ['nonRevolloan_balance', 'revolcredit_balance', 'revolloan_balance', 'undestroy_used_limit',
-                'undestory_semi_overdraft']].sum()
+                'undestory_semi_overdraft']].sum(), 2)
 
     def _util_filter_n_year_df(self, df, report_time, n):
         year_2, month_2 = before_n_year(report_time, n)
