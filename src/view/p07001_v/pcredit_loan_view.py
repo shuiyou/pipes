@@ -215,7 +215,6 @@ class PcreditLoanView(ModuleProcessor):
 
     def _get_credit_loan_variables(self, loan_credit_df, report_time_before_1_year, report_time_before_2_year,
                                    report_time_before_3_year,report_time):
-        loan_credit_df = loan_credit_df.sort_values(by='loan_date', ascending=False)
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构
         self.variables["credit_org"] = loan_credit_df.loc[:, 'account_org'].tolist()
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总-开户时间

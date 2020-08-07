@@ -1,4 +1,5 @@
 from mapping.module_processor import ModuleProcessor
+import pandas as pd
 
 
 # 个人基本信息
@@ -29,7 +30,7 @@ class PcreditPersonInfoView(ModuleProcessor):
         self.variables['work_unit'] = work_unit
         #与ccs客户关联企业进行匹配
         param_work_unit = self.cached_data["basicWorkUnit"]
-        if work_unit not in param_work_unit:
+        if pd.notnull(param_work_unit) and work_unit not in param_work_unit:
             self.variables['if_work_unit'] = 1
         # 配偶姓名
         self.variables["spouse_name"] = person_info_df.loc[0, 'spouse_name']
