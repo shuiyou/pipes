@@ -141,7 +141,7 @@ class PcreditLoanView(ModuleProcessor):
                 # 信贷交易信息-资金压力解析-提示-已结清贷款机构名
                 self.variables["settle_account_org"] = loan_account_type_df_status03.loc[:, 'account_org'].tolist()
                 # 信贷交易信息-资金压力解析-提示-已结清贷款申请时间
-                self.variables['settle_loan_date'] = loan_account_type_df_status03.loc[:, 'loan_date'].apply(lambda x: datetime.strftime(x, "%Y-%m-%d %H:%M:%S")).tolist()
+                self.variables['settle_loan_date'] = loan_account_type_df_status03.loc[:, 'loan_date'].apply(lambda x: datetime.strftime(x, "%Y-%m-%d")).tolist()
                 # 信贷交易信息-资金压力解析-提示-结清时间
                 self.variables["settle_date"] = loan_account_type_df_status03.loc[:, 'loan_status_time'].apply(
                     lambda x: format_timestamp(x)).tolist()
@@ -173,7 +173,9 @@ class PcreditLoanView(ModuleProcessor):
             total_credit_avg_used_6m = undestory_avg_use + undestory_semi_avg_overdraft
             self.variables['total_credit_avg_used_6m'] = total_credit_avg_used_6m
             if total_credit_card_limit > 0:
-                self.variables['total_credit_usage_rate'] = max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
+                total_credit_usage_rate= max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
+                self.variables['total_credit_usage_rate'] = total_credit_usage_rate
+                self.variables['total_credit_used_rate'] = total_credit_usage_rate
 
 
 
@@ -213,7 +215,6 @@ class PcreditLoanView(ModuleProcessor):
 
     def _get_credit_loan_variables(self, loan_credit_df, report_time_before_1_year, report_time_before_2_year,
                                    report_time_before_3_year,report_time):
-        loan_credit_df = loan_credit_df.sort_values(by='loan_date', ascending=False)
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构
         self.variables["credit_org"] = loan_credit_df.loc[:, 'account_org'].tolist()
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总-开户时间
@@ -240,7 +241,9 @@ class PcreditLoanView(ModuleProcessor):
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总发卡机构个数
         self.variables['credit_org_cnt'] = len(set(loan_credit_df.loc[:, 'account_org'].tolist()))
         # 信贷交易信息-贷记卡信息-贷记卡信息汇总最低还款张数
-        self.variables["credit_min_repay_cnt"] = loan_credit_df[loan_credit_df['credit_min_repay'] == "是"].shape[0]
+        credit_min_repay_cnt = loan_credit_df[loan_credit_df['credit_min_repay'] == "是"].shape[0]
+        self.variables["credit_min_repay_cnt"] = credit_min_repay_cnt
+        self.variables["total_credit_min_repay_cnt"] = credit_min_repay_cnt
         credit_limit_3, credit_cnt_3 = self._get_total_credit_limit_ny_ago(loan_credit_df, report_time_before_3_year,report_time_before_2_year)
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化3年前总额度
         self.variables["total_credit_limit_3y_ago"] = credit_limit_3
@@ -256,6 +259,7 @@ class PcreditLoanView(ModuleProcessor):
         self.variables["total_credit_limit_1y_ago"] = credit_limit_1
         # 信贷交易信息-贷记卡信息-贷记卡额度及张数变化1年前总张数
         self.variables["total_credit_cnt_1y_ago"] = credit_cnt_1
+        #贷记卡最低还款张数
 
     def _get_total_credit_limit_ny_ago(self, loan_credit_df, date1,date2):
         credit_limit, credit_cnt = 0, 0
