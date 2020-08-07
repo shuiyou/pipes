@@ -122,8 +122,11 @@ def get_credit_min_repay(df,repay_amount,amount_replay_amount):
 
 
 def test_trans_score():
-    value = 480-40*math.log(0.0001/(1-0.0001))
-
-    print(value)
+   value="aa"
+   target="aasssss"
+   if value not in target:
+       print("not")
+   else:
+       print("in")
 
 
