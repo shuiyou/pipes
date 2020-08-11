@@ -135,12 +135,12 @@ class PcreditLoanView(ModuleProcessor):
             self.variables["guar_type_balance_prop"] = replace_nan(guar_type_balance_prop_list)
             # 信贷交易信息-贷款信息-担保方式余额分布保证类最大金额
             ensure_max_principal = self._get_one_query_condition_max(loan_account_type_df, 'loan_guarantee_type',
-                                                                     ['03', '04', '07'],
+                                                                     ['3', '4', '7'],
                                                                      'loan_balance', 'max')
             self.variables["ensure_max_principal"] = ensure_max_principal
             # 信贷交易信息-贷款信息-担保方式余额分布抵押类最大金额
             mort_max_principal = self._get_one_query_condition_max(loan_account_type_df, 'loan_guarantee_type',
-                                                                   ['01', '02'],
+                                                                   ['1', '2'],
                                                                    'loan_balance', 'max')
             self.variables["mort_max_principal"] = mort_max_principal
             apply_amount = self.origin_data.get("applyAmo")
