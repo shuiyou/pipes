@@ -28,11 +28,31 @@ class PcreditLoanView(ModuleProcessor):
         self._get_loan_msg()
 
     def _get_loan_msg(self):
+        credit_info_df = self.cached_data.get("pcredit_info")
+        if credit_info_df is not None and not credit_info_df.empty:
+            undestroy_limit = self._check_is_null(credit_info_df.loc[0,'undestroy_limit'])
+            undestory_semi_limit = self._check_is_null(credit_info_df.loc[0,'undestory_semi_limit'])
+            undestory_used_limit = self._check_is_null(credit_info_df.loc[0, 'undestory_used_limit'])
+            undestory_semi_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_overdraft'])
+            undestory_avg_use = self._check_is_null(credit_info_df.loc[0, 'undestory_avg_use'])
+            undestory_semi_avg_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_avg_overdraft'])
+            total_credit_card_limit = undestroy_limit + undestory_semi_limit
+            self.variables['total_credit_card_limit'] = total_credit_card_limit
+            total_credit_quota_used = undestory_used_limit + undestory_semi_overdraft
+            self.variables['total_credit_quota_used'] = total_credit_quota_used
+            total_credit_avg_used_6m = undestory_avg_use + undestory_semi_avg_overdraft
+            self.variables['total_credit_avg_used_6m'] = total_credit_avg_used_6m
+            if total_credit_card_limit > 0:
+                total_credit_usage_rate= max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
+                self.variables['total_credit_usage_rate'] = total_credit_usage_rate
+                self.variables['total_credit_used_rate'] = total_credit_usage_rate
         loan_df = self.cached_data.get("pcredit_loan")
+        if loan_df is None or loan_df.empty:
+            return
         loan_df = loan_df[pd.notnull(loan_df['loan_date'])]
         loan_df['loan_date'] = loan_df['loan_date'].apply(lambda x: date_to_timestamp(x))
         credit_base_info_df = self.cached_data.get("credit_base_info")
-        credit_info_df = self.cached_data.get("pcredit_info")
+
         pcredit_acc_speculate_df = self.cached_data.get("pcredit_acc_speculate")
         pcredit_acc_speculate_df["year"] = pcredit_acc_speculate_df.repay_month.apply(lambda x: int(x[:4]))
         pcredit_acc_speculate_df["month"] = pcredit_acc_speculate_df.repay_month.apply(lambda x: int(x[5:]))
@@ -45,8 +65,7 @@ class PcreditLoanView(ModuleProcessor):
         report_time_before_6_month = before_n_month_date(report_time, 6)
         report_time_before_12_month = before_n_month_date(report_time, 12)
 
-        if loan_df.empty:
-            return
+
         # 经营、消费、按揭类贷款
         loan_account_type_df = loan_df[loan_df['account_type'].isin(['01', '02', '03'])]
         if not loan_account_type_df.empty:
@@ -75,9 +94,9 @@ class PcreditLoanView(ModuleProcessor):
                                                report_time_before_2_year, report_time_before_3_year,
                                                pcredit_acc_speculate_df)
 
-            gua_mort_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['01', '02'])]
-            gua_credit_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['03', '04', '07'])]
-            gua_com_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['05', '06'])]
+            gua_mort_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['1', '2'])]
+            gua_credit_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['3', '4', '7'])]
+            gua_com_df = loan_account_type_df[loan_account_type_df['loan_guarantee_type'].isin(['5', '6'])]
             # 信贷交易信息-贷款信息-担保方式余额分布-担保类型
             guar_type_list = []
             # 信贷交易信息-贷款信息-担保方式余额分布-目前余额
@@ -159,23 +178,7 @@ class PcreditLoanView(ModuleProcessor):
         if not loan_credit_df.empty:
             self._get_credit_loan_variables(loan_credit_df, report_time_before_1_year, report_time_before_2_year,
                                             report_time_before_3_year,report_time)
-        if not credit_info_df.empty:
-            undestroy_limit = self._check_is_null(credit_info_df.loc[0,'undestroy_limit'])
-            undestory_semi_limit = self._check_is_null(credit_info_df.loc[0,'undestory_semi_limit'])
-            undestory_used_limit = self._check_is_null(credit_info_df.loc[0, 'undestory_used_limit'])
-            undestory_semi_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_overdraft'])
-            undestory_avg_use = self._check_is_null(credit_info_df.loc[0, 'undestory_avg_use'])
-            undestory_semi_avg_overdraft = self._check_is_null(credit_info_df.loc[0, 'undestory_semi_avg_overdraft'])
-            total_credit_card_limit = undestroy_limit + undestory_semi_limit
-            self.variables['total_credit_card_limit'] = total_credit_card_limit
-            total_credit_quota_used = undestory_used_limit + undestory_semi_overdraft
-            self.variables['total_credit_quota_used'] = total_credit_quota_used
-            total_credit_avg_used_6m = undestory_avg_use + undestory_semi_avg_overdraft
-            self.variables['total_credit_avg_used_6m'] = total_credit_avg_used_6m
-            if total_credit_card_limit > 0:
-                total_credit_usage_rate= max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
-                self.variables['total_credit_usage_rate'] = total_credit_usage_rate
-                self.variables['total_credit_used_rate'] = total_credit_usage_rate
+
 
 
 
@@ -543,11 +546,14 @@ class PcreditLoanView(ModuleProcessor):
             loan_type_balance_list.append(loan_mor_balance)
             loan_type_cnt_list.append(loan_mor_df[loan_mor_df['loan_balance'] > 0].shape[0])
         loan_total_balance = loan_busi_balance + loan_con_balance + loan_mor_balance
-        loan_type_balance_prop_list.append(
+        if not loan_busi_df.empty:
+            loan_type_balance_prop_list.append(
             '%.2f' % (loan_busi_balance / loan_total_balance) if loan_total_balance > 0 else 0)
-        loan_type_balance_prop_list.append(
+        if not loan_con_df.empty:
+            loan_type_balance_prop_list.append(
             '%.2f' % (loan_con_balance / loan_total_balance) if loan_total_balance > 0 else 0)
-        loan_type_balance_prop_list.append(
+        if not loan_mor_df.empty:
+            loan_type_balance_prop_list.append(
             '%.2f' % (loan_mor_balance / loan_total_balance) if loan_total_balance > 0 else 0)
         self.variables["loan_type"] = loan_type_list
         self.variables["loan_type_balance"] = replace_nan(loan_type_balance_list)

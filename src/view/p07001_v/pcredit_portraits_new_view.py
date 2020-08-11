@@ -15,7 +15,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         credit_base_info_df = self.cached_data.get("credit_base_info")
         pcredit_info_df = self.cached_data.get("pcredit_info")
         report_time = None
-        if not credit_base_info_df.empty:
+        if credit_base_info_df is not None and not credit_base_info_df.empty:
             report_time = credit_base_info_df.loc[0, 'report_time']
         if pcredit_loan_df is not None and not pcredit_loan_df.empty:
             pcredit_loan_df_acc_type = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01', '02', '03'])]
