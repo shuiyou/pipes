@@ -11,6 +11,8 @@ class PcreditQueryRecordView(ModuleProcessor):
 
     def _get_query_record_msg(self):
         df = self.cached_data.get("pcredit_query_record")
+        if df is None or df.empty:
+            return
         df = df[pd.notnull(df['jhi_time'])]
         df['jhi_time'] = df['jhi_time'].apply(lambda x: date_to_timestamp(x))
         loan_df = self.cached_data.get("pcredit_loan")

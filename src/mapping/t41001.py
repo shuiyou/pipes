@@ -62,7 +62,7 @@ class T41001(Transformer):
             "credit_marriage_status": 99,  # 征信报告中的婚姻状态
             "judgement_record": 0,  # 民事判决记录数
             "loan_doubtful": 0,  # 疑似压贷笔数
-            "loan_doubtful_org": [],  # 疑似压贷机构
+            "loan_doubtful_org": '',  # 疑似压贷机构
             "guarantee_amont": 0,  # 对外担保金额
             "unsettled_loan_agency_number": 0,  # 未结清贷款机构数
             "unsettled_consume_total_amount": 0,  # 未结清消费性贷款总额
