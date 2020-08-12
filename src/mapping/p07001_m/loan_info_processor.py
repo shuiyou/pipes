@@ -175,7 +175,7 @@ class LoanInfoProcessor(ModuleProcessor):
             if first_amt and second_amt:
                 ratio = first_amt / second_amt
                 if ratio < 0.8:
-                    temp_name = re.sub('[^a-zA-Z]','',org_name)
+                    temp_name = re.sub('"','',org_name)
                     loan_doubtful_org.append(temp_name)
                     final_count = final_count + 1
 
