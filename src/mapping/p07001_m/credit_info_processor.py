@@ -90,7 +90,7 @@ class CreditInfoProcessor(ModuleProcessor):
             v2 = row.undestroy_limit + row.undestory_semi_limit
             if v2 > 0:
                 v1_satisfy |= (v1/v2) >= 0.8
-                self.variables['total_credit_used_rate'] = v1 / v2
+                self.variables['total_credit_used_rate'] = "%d%%" % (v1 / v2 * 100)
 
         df = credit_loan_df.query('account_type in ["04", "05"]')
         df = df.fillna(0)
