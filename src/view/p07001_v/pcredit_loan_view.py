@@ -45,7 +45,7 @@ class PcreditLoanView(ModuleProcessor):
             if total_credit_card_limit > 0:
                 total_credit_usage_rate= max(total_credit_quota_used,total_credit_avg_used_6m)/total_credit_card_limit
                 self.variables['total_credit_usage_rate'] = total_credit_usage_rate
-                self.variables['total_credit_used_rate'] = total_credit_usage_rate
+                self.variables['total_credit_used_rate'] = "%d%%" % (total_credit_usage_rate*100)
         loan_df = self.cached_data.get("pcredit_loan")
         if loan_df is None or loan_df.empty:
             return
