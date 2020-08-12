@@ -447,6 +447,10 @@ class PcreditAccSpeculateView(ModuleProcessor):
             # 信贷交易信息-贷款信息-经营性贷款银行融资机构个数及余额变化1年前最小余额
             self.variables["busi_org_balance_1y_ago_min"] = busi_loan_balance_min_before_1_year
         if pcredit_loan_df is not None and not pcredit_loan_df.empty:
+            pcredit_loan_type_df = pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01', '02', '03'])) &
+                                                   ((pcredit_loan_df['loan_type'].isin(['01', '07', '99'])) | (
+                                                           (pcredit_loan_df['loan_type'] == '04') & (
+                                                           pcredit_loan_df['loan_amount'] > 200000)))]
             # 信贷交易信息-贷款信息-经营性贷款银行融资机构个数及余额变化当前余额
             self.variables["busi_org_balance_now_max"] = pcredit_loan_type_df.loc[:, 'loan_balance'].sum()
             # 信贷交易信息-贷款信息-经营性贷款银行融资机构个数及余额变化当前余额
