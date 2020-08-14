@@ -36,6 +36,8 @@ class T41001(Transformer):
             "single_consume_overdue_2year_cnt": 0,  # 单笔消费性贷款近2年内最大逾期次数
             "loan_credit_query_3month_cnt": 0,  # 近三个月征信查询（贷款审批及贷记卡审批）次数
             "credit_overdrawn_2card": 0,  # 贷记卡总透支率达80%且存在2张贷记卡最低额还款
+            "total_credit_used_rate": 0,  # 总计贷记卡使用率
+            "total_credit_min_repay_cnt": 0,  # 贷记卡最低还款张数
             "credit_overdue_5year": 0,  # 总计贷记卡5年内逾期次数
             "loan_consume_overdue_5year": 0,  # 总计消费性贷款（含车贷、房贷、其他消费性贷款）5年内逾期次数
             "credit_max_overdue_2year": 0,  # 单张贷记卡近2年内最大逾期次数
@@ -57,8 +59,10 @@ class T41001(Transformer):
             "loan_scured_five_b_level_abnormality_cnt": 0,  # 对外担保五级分类存在"关注"
             "unsettled_busLoan_total_cnt": 0,  # 未结清经营性贷款笔笔数
             "marriage_status": 0,  # 离婚
+            "credit_marriage_status": 99,  # 征信报告中的婚姻状态
             "judgement_record": 0,  # 民事判决记录数
             "loan_doubtful": 0,  # 疑似压贷笔数
+            "loan_doubtful_org": '',  # 疑似压贷机构
             "guarantee_amont": 0,  # 对外担保金额
             "unsettled_loan_agency_number": 0,  # 未结清贷款机构数
             "unsettled_consume_total_amount": 0,  # 未结清消费性贷款总额

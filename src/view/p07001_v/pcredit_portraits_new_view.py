@@ -15,7 +15,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         credit_base_info_df = self.cached_data.get("credit_base_info")
         pcredit_info_df = self.cached_data.get("pcredit_info")
         report_time = None
-        if not credit_base_info_df.empty:
+        if credit_base_info_df is not None and not credit_base_info_df.empty:
             report_time = credit_base_info_df.loc[0, 'report_time']
         if pcredit_loan_df is not None and not pcredit_loan_df.empty:
             pcredit_loan_df_acc_type = pcredit_loan_df[pcredit_loan_df['account_type'].isin(['01', '02', '03'])]
@@ -149,9 +149,9 @@ class PcreditPortraitsNewView(ModuleProcessor):
                                                                   'undestory_semi_limit']].sum(), 2)
 
         # 信贷交易信息-资金压力解析-银行总余额
-        self.variables["total_bank_loan_balance"] = df.loc[
+        self.variables["total_bank_loan_balance"] = round(df.loc[
             0, ['nonRevolloan_balance', 'revolcredit_balance', 'revolloan_balance', 'undestroy_used_limit',
-                'undestory_semi_overdraft']].sum()
+                'undestory_semi_overdraft']].sum(), 2)
 
     def _util_filter_n_year_df(self, df, report_time, n):
         year_2, month_2 = before_n_year(report_time, n)

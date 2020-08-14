@@ -2,6 +2,8 @@
 # @Author : lixiaobo
 # @File : loan_info_processor.py 
 # @Software: PyCharm
+import re
+
 import pandas as pd
 
 from mapping.module_processor import ModuleProcessor
@@ -55,10 +57,13 @@ class LoanInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         df = query_record_df.query('reason in["01", "02"]').dropna(subset=["jhi_time"])
         count = 0
+        org_list = []
         if not df.empty:
             for index, row in df.iterrows():
                 if after_ref_date(row.jhi_time.year, row.jhi_time.month, report_time.year, report_time.month - 3):
-                    count = count + 1
+                    if row.operator not in org_list:
+                        count = count + 1
+                        org_list.append(row.operator)
         self.variables["loan_credit_query_3month_cnt"] = count
 
     # 总计消费性贷款（含车贷、房贷、其他消费性贷款）5年内逾期次数
@@ -150,6 +155,7 @@ class LoanInfoProcessor(ModuleProcessor):
         ignore_org_list = df.query('count >= 3')["account_org"].unique()
 
         all_org_list = loan_df.loc[:, "account_org"].unique()
+        loan_doubtful_org = []
 
         for org_name in all_org_list:
             if org_name in ignore_org_list:
@@ -169,9 +175,12 @@ class LoanInfoProcessor(ModuleProcessor):
             if first_amt and second_amt:
                 ratio = first_amt / second_amt
                 if ratio < 0.8:
+                    temp_name = re.sub('"','',org_name)
+                    loan_doubtful_org.append(temp_name)
                     final_count = final_count + 1
 
         self.variables["loan_doubtful"] = final_count
+        self.variables["loan_doubtful_org"] = ",".join(loan_doubtful_org)
 
     # 贷款连续逾期2期次数
     def _loan_overdue_2times_cnt(self):

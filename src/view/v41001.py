@@ -34,6 +34,7 @@ class V41001(Transformer):
             "phone": "",
             "marriage_status": "",
             "employment": "",
+            "work_unit": "",
             "communication_address": "",
             "residence_address": "",
             "live_address": "",
@@ -42,6 +43,7 @@ class V41001(Transformer):
             "mort_no_settle_loan_date": "",
             "spouse_name": "",
             "spouse_certificate_no": "",
+            "spouse_phone": "",
             "extension_number": "",
             "category": "",
             "default_type": [],
@@ -157,6 +159,7 @@ class V41001(Transformer):
             "repay_credit_12m_after": "",
             "average_repay_6m_before": "",
             "average_repay_12m_after": "",
+            "each_loan_account_org": "",
             "each_loan_date": "",
             "each_principal_amount": "",
             "each_interest_rate": "",
@@ -264,9 +267,10 @@ class V41001(Transformer):
             "busi_org_balance_3y_ago": "",
             "busi_org_cnt_now": "",
             "busi_org_balance_now": "",
-            "settle_account_org":"",
-            "settle_date":"",
-            "settle_loan_amount":"",
+            "settle_account_org": "",
+            "settle_loan_date": "",
+            "settle_date": "",
+            "settle_loan_amount": "",
             "busi_loan_balance_max": "",
             "busi_loan_balance_min": "",
             "busi_org_balance_3y_ago_max": "",
@@ -276,7 +280,13 @@ class V41001(Transformer):
             "busi_org_balance_1y_ago_max": "",
             "busi_org_balance_1y_ago_min": "",
             "busi_org_balance_now_max": "",
-            "busi_org_balance_now_min": ""
+            "busi_org_balance_now_min": "",
+            "house_loan_pre_settle_org": [],
+            "house_loan_pre_settle_date": [],
+            "if_work_unit": 0,
+            "total_credit_used_rate": 0,
+            "total_credit_min_repay_cnt": 0,
+            "loan_doubtful_org": 0
         }
 
     def transform(self):

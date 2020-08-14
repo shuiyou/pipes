@@ -26,6 +26,7 @@ class BasicInfoProcessor(ModuleProcessor):
         self._extension_number()
         self._enforce_record()
         self._marriage_status()
+        self._credit_marriage_status()
         self._judgement_record()
         self._guarantee_amont()
         self._tax_record()
@@ -185,6 +186,16 @@ class BasicInfoProcessor(ModuleProcessor):
 
         self.variables["marriage_status"] = 1 if count > 0 else 0
 
+    # 获取征信报告中的婚姻状态
+    def _credit_marriage_status(self):
+        credit_person_df = self.cached_data["pcredit_person_info"]
+        if credit_person_df.empty:
+            return
+        marriage_status = credit_person_df['marriage_status'].tolist()[0]
+        if marriage_status is None or pd.isna(marriage_status):
+            return
+        self.variables["credit_marriage_status"] = marriage_status
+
     # 民事判决记录数
     def _judgement_record(self):
         # count(pcredit_civil_judgments_record中report_id=report_id的记录)
@@ -236,7 +247,7 @@ class BasicInfoProcessor(ModuleProcessor):
         df = credit_loan_df.query('account_type in ["01", "02", "03"] '
                                   'and loan_type in ["03", "05", "06"] '
                                   'and loan_status == "04" '
-                                  'and expiry_date < end_date')
+                                  'and loan_status_time < end_date')
         self.variables["house_loan_pre_settle"] = 1 if not df.empty else 0
 
     # 担保金额是借款金额2倍
