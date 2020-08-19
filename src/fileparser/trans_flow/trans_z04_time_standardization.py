@@ -8,7 +8,8 @@ class TransactionTime:
     将流水文件中交易时间标准化
     author:汪腾飞
     created_time:20200630
-    updated_time_v1:
+    updated_time_v1:20200819找到时间列后不再进行排序,排序放到余额验真里面进行,且若交易时间列存在空值则用上面的值填充,
+            不再删除交易时间列含有部门空值的情况
     """
 
     def __init__(self, trans_data, col_mapping, title_param):
@@ -18,7 +19,7 @@ class TransactionTime:
         self.query_start = None
         self.query_end = None
         self.basic_status = True
-        self.col_list = []  # 需要排序的列
+        self.sort_list = []  # 需要排序的列
         self.resp = {
             "resCode": "0",
             "resMsg": "成功",
@@ -126,6 +127,7 @@ class TransactionTime:
             result = '000000'
         return result
 
+    # 交易时间排序方法,暂时不用20200819
     def _sort_trans_time(self):
         first_date = self.df.trans_time.to_list()[0]
         last_date = self.df.trans_time.to_list()[-1]
@@ -133,8 +135,8 @@ class TransactionTime:
             self.df['index'] = list(range(len(self.df)))
         else:
             self.df['index'] = list(range(len(self.df), 0, -1))
-        self.col_list.append('index')
-        self.df.sort_values(by=self.col_list, ascending=True, inplace=True)
+        self.sort_list.append('index')
+        self.df.sort_values(by=self.sort_list, ascending=True, inplace=True)
         self.df.drop(['index'], axis=1, inplace=True)
         self.df.reset_index(drop=True, inplace=True)
 
@@ -146,7 +148,7 @@ class TransactionTime:
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
             self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
-            self.col_list = [col]
+            self.sort_list = [col]
             # self.df.sort_values(by=col, ascending=True, inplace=True)
             # self.df.reset_index(drop=True, inplace=True)
         elif x2:
@@ -165,7 +167,7 @@ class TransactionTime:
         for col in res:
             if self._match_time_head(col, dttime_pat, 14):
                 self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
-                self.col_list = [col]
+                self.sort_list = [col]
                 # self.df.reset_index(drop=False, inplace=True)
                 # self.df.sort_values(by=[col, 'index'], ascending=True, inplace=True)
                 return
@@ -173,19 +175,19 @@ class TransactionTime:
             if self._match_time_head(col, date_pat, 8):
                 date_col = col
                 self.df[date_col] = self.df[date_col].astype(str).apply(self._date_apply)
-                self.col_list.append(date_col)
+                self.sort_list.append(date_col)
                 res.remove(col)
                 break
         for col in res:
             if self._match_time_head(col, time_pat, 6):
                 time_col = col
-                self.df[time_col] = self.df[time_col].astype(str).apply(self._time_apply)
-                self.col_list.append(time_col)
+                self.df[time_col] = self.df[time_col].fillna(method='ffill').astype(str).apply(self._time_apply)
+                self.sort_list.append(time_col)
                 break
             elif self._match_time_head(col, time_s_pat, 4):
                 time_col = col
-                self.df[time_col] = self.df[time_col].astype(str).apply(self._time_apply)
-                self.col_list.append(time_col)
+                self.df[time_col] = self.df[time_col].fillna(method='ffill').astype(str).apply(self._time_apply)
+                self.sort_list.append(time_col)
                 break
         if date_col != '' and time_col != '':
             self.df['trans_time'] = self.df[date_col] + self.df[time_col]
@@ -200,7 +202,10 @@ class TransactionTime:
         return
 
     def time_match(self):
-        res = self._notnull_cnt(self.time_col)
+        self.df.loc[:, self.time_col] = self.df.loc[:, self.time_col].replace('', None).fillna(method='ffill').\
+            fillna(method='bfill')
+        res = self.time_col
+        # res = self._notnull_cnt(self.time_col)
         length = len(res)
         if length == 0:
             self.basic_status = False
@@ -213,7 +218,8 @@ class TransactionTime:
                 self._one_col_match(res[0])
             else:
                 self._multi_col_match(res)
-            self._sort_trans_time()
+            # 排序放到余额验真里面做
+            # self._sort_trans_time()
         except ValueError as e:
             self.basic_status = False
             self.resp['resCode'] = '20'

@@ -1,10 +1,11 @@
 
 from openpyxl.utils import get_column_letter as colref
+from pyheaderfile import guess_type, Xlsx
+import datetime
 import openpyxl
 import pandas as pd
 import re
-
-from openpyxl.utils.exceptions import InvalidFileException
+import os
 
 from logger.logger_util import LoggerUtil
 
@@ -19,6 +20,7 @@ class TransProfile:
     author:汪腾飞
     created_time:20200630
     updated_time_v1:20200706,表头搜索到银行名将不再更改客户所填入参,而直接将该银行名存入account表中
+    updated_time_v2:20200817,读取其他类型流水文件,包括xls,csv, 无法体现户名,账户信息话术统一
     """
 
     def __init__(self, file, param):
@@ -58,14 +60,31 @@ class TransProfile:
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
-            self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持xlsx格式文件']
+            self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持csv,xls,xlsx格式文件']
             return
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
-        wb = openpyxl.load_workbook(self.file)
+        if str(self.file)[-4:] != 'xlsx':
+            xlsx = Xlsx()
+            temp = guess_type(self.file)
+            now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
+            file_name = '%d.xlsx' % (now_timestamp * 1000)
+            header_list = temp.header
+            length = len(header_list)
+            # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
+            temp.header = [header_list[i] if header_list[i] != '' else 'Title%d' % i for i in range(length)]
+            temp.name = file_name
+            # 将csv, xls文件都另存为xlsx文件
+            xlsx(temp)
+        else:
+            file_name = self.file
+        wb = openpyxl.load_workbook(file_name)
         ws = wb.worksheets[0]
         wb.close()
+        # 将刚刚另存为的文件删除
+        if os.path.exists(file_name):
+            os.remove(file_name)
         return ws
 
     # 搜索最多前30行(从第一行有数据的地方开始搜索),查找标题行所在行,若不存在标题行则返回-1
@@ -112,8 +131,8 @@ class TransProfile:
         elif self.title == self.minrow:
             self.resp['resCode'] = '0'
             self.resp['resMsg'] = '成功'
-            self.resp['data']['warningMsg'] = ['该流水中无法体现账户信息,请线下核实',
-                                               '该流水中无法体现户名信息,请线下核实']
+            self.resp['data']['warningMsg'] = ['该流水无法体现账户信息,请线下核实',
+                                               '该流水无法体现户名信息,请线下核实']
             return
         else:
             check_df = self._convert_to_dataframe(self.ws, self.minrow, self.mincol, self.title - 1,
