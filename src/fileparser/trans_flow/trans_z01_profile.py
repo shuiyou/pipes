@@ -65,6 +65,7 @@ class TransProfile:
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
+        new_file = False
         if str(self.file)[-4:] != 'xlsx':
             xlsx = Xlsx()
             temp = guess_type(self.file)
@@ -77,13 +78,14 @@ class TransProfile:
             temp.name = file_name
             # 将csv, xls文件都另存为xlsx文件
             xlsx(temp)
+            new_file = True
         else:
             file_name = self.file
         wb = openpyxl.load_workbook(file_name)
         ws = wb.worksheets[0]
         wb.close()
         # 将刚刚另存为的文件删除
-        if os.path.exists(file_name):
+        if os.path.exists(file_name) and new_file:
             os.remove(file_name)
         return ws
 
