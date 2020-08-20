@@ -76,7 +76,7 @@ class TransProfile:
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
-            temp.header = [header_list[i] if header_list[i] != '' else 'Title%d' % i for i in range(length)]
+            temp.header = [str(header_list[i]) if header_list[i] != '' else 'Title%d' % i for i in range(length)]
             temp.name = file_name
             # 将csv, xls文件都另存为xlsx文件
             xlsx(temp)
