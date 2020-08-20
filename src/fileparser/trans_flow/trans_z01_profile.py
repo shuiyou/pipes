@@ -1,6 +1,7 @@
+import inspect
 
 from openpyxl.utils import get_column_letter as colref
-from pyheaderfile import guess_type, Xlsx
+from pyheaderfile import guess_type, Xlsx, Xls, Csv
 import datetime
 import openpyxl
 import pandas as pd
@@ -68,9 +69,10 @@ class TransProfile:
         new_file = False
         if str(self.file)[-4:] != 'xlsx':
             xlsx = Xlsx()
-            temp = guess_type(str(self.file))
             now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
             file_name = '%d.xlsx' % (now_timestamp * 1000)
+
+            temp = self._guess_type(self.file, file_name)
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
@@ -326,3 +328,27 @@ class TransProfile:
         data = [[x.value for x in y[index_start:]] for y in rng[column_start:]]
         df = pd.DataFrame(data=data, index=rows, columns=cols)
         return df
+
+    def _guess_type(self, file, filename, **kwargs):
+        """ Utility function to call classes based on filename extension.
+        Just usefull if you are reading the file and don't know file extension.
+        You can pass kwargs and these args are passed to class only if they are
+        used in class.
+        """
+
+        extension = os.path.splitext(file.filename.replace('"', ""))[1]
+        case = {'.xls': Xls,
+                '.xlsx': Xlsx,
+                '.csv': Csv}
+        if extension and case.get(extension.lower()):
+            low_extension = extension.lower()
+            new_kwargs = dict()
+            class_name = case.get(low_extension)
+            class_kwargs = inspect.getargspec(class_name.__init__).args[1:]
+            for kwarg in kwargs:
+                if kwarg in class_kwargs:
+                    new_kwargs[kwarg] = kwargs[kwarg]
+            file.save(filename)
+            return case.get(low_extension)(filename, **new_kwargs)
+        else:
+            raise Exception('No extension found')
