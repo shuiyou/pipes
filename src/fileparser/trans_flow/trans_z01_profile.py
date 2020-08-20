@@ -66,8 +66,9 @@ class TransProfile:
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
+        logger.info("%s-----------------------%s" % (1, '_load_worksheet begin'))
         new_file = False
-        if str(self.file)[-4:] != 'xlsx':
+        if "xlsx" not in str(self.file.filename)[-5:]:
             xlsx = Xlsx()
             now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
             file_name = '%d.xlsx' % (now_timestamp * 1000)
@@ -76,10 +77,12 @@ class TransProfile:
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
-            temp.header = [str(header_list[i]) if header_list[i] != '' else 'Title%d' % i for i in range(length)]
+            temp.header = [header_list[i] if header_list[i] != '' and header_list[i] is not None else 'Title%d' % i for i in range(length)]
             temp.name = file_name
             # 将csv, xls文件都另存为xlsx文件
+            logger.info("%s-----------------------%s" % (2, '_load_worksheet xlsx'))
             xlsx(temp)
+            logger.info("%s-----------------------%s" % (3, '_load_worksheet xlsx end'))
             new_file = True
         else:
             file_name = self.file
@@ -87,8 +90,9 @@ class TransProfile:
         ws = wb.worksheets[0]
         wb.close()
         # 将刚刚另存为的文件删除
-        if os.path.exists(file_name) and new_file:
+        if new_file and os.path.exists(file_name):
             os.remove(file_name)
+        logger.info("%s-----------------------%s" % (4, '_load_worksheet end'))
         return ws
 
     # 搜索最多前30行(从第一行有数据的地方开始搜索),查找标题行所在行,若不存在标题行则返回-1
