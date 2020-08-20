@@ -68,7 +68,7 @@ class TransProfile:
         new_file = False
         if str(self.file)[-4:] != 'xlsx':
             xlsx = Xlsx()
-            temp = guess_type(self.file.filename)
+            temp = guess_type(str(self.file))
             now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
             file_name = '%d.xlsx' % (now_timestamp * 1000)
             header_list = temp.header
