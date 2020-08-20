@@ -84,12 +84,12 @@ class TransactionBalance:
                 remark = getattr(row, 'remark')
                 concat_str = trans_channel + trans_type + trans_use + remark
                 # 若某行备注是利息,且其值为负值则直接返回
-                if '利息' in concat_str and trans_amt < 0:
-                    self.basic_status = False
-                    self.resp['resCode'] = '22'
-                    self.resp['resMsg'] = '验真失败'
-                    self.resp['data']['warningMsg'] = ['该流水存在利息为负的行,该流水为假流水']
-                    return
+                # if re.search('(?<!还)利息|结息|入息|增值息|存息', concat_str) is not None and trans_amt < 0:
+                #     self.basic_status = False
+                #     self.resp['resCode'] = '22'
+                #     self.resp['resMsg'] = '验真失败'
+                #     self.resp['data']['warningMsg'] = ['该流水存在利息为负的行,该流水为假流水']
+                #     return
                 if float(decimal.Decimal(str(trans_amt)) + decimal.Decimal(str(last))) != trans_bal:
                     # 若某行不满足余额校验,但是该行属于冲正,抹账,退账,则将交易金额乘以-1重新验证一次,若通过则继续往下校验
                     if re.search('冲正|抹账|退账|抹帐|退帐', concat_str) is not None:
