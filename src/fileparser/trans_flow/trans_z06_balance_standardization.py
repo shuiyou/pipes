@@ -92,7 +92,7 @@ class TransactionBalance:
                 #     return
                 if float(decimal.Decimal(str(trans_amt)) + decimal.Decimal(str(last))) != trans_bal:
                     # 若某行不满足余额校验,但是该行属于冲正,抹账,退账,则将交易金额乘以-1重新验证一次,若通过则继续往下校验
-                    if re.search('冲正|抹账|退账|抹帐|退帐', concat_str) is not None:
+                    if re.search('冲正|抹账|退账|抹帐|退帐|冲帐|冲账', concat_str) is not None:
                         if float(decimal.Decimal(str(-trans_amt)) + decimal.Decimal(str(last))) == trans_bal:
                             df.loc[index, 'trans_amt'] = -trans_amt
                             last = trans_bal
