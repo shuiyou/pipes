@@ -232,8 +232,8 @@ class TransSingleLabel:
             # 手机号
             remark = temp_dict['remark']
             temp_dict['remark_type'] = remark
-            remark_num = re.sub(r'[^\u4e00-\u9fa5\d]', '', remark)
-            phone = re.search(r'1[3-9]\d{9}', remark_num)
+            remark_num = re.sub(r'[^\u4e00-\u9fa5\d+]', '', remark)
+            phone = re.search(r'(?<!\d)1[3-9]\d{9}(?!\d)|(?<=\D86)1[3-9]\d{9}(?!\d)', remark_num)
             if phone is not None:
                 temp_dict['phone'] = phone.group(0)
             # 与该账户名的关系
