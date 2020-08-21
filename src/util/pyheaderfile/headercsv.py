@@ -86,22 +86,26 @@ class Csv(PyHeaderFile):
             self.dialect = self.delimiters[0]
         self._file.seek(0)
 
-    def _open(self):
+    def _open(self, encoding="GBK"):
         # open the file and get header
-        if isinstance(self.name, str) or isinstance(self.name, unicode):
-            self._file = open(self.name, 'r', encoding="UTF-8")
-        else:
-            self._file = self.name
-        self._file.seek(0)
-        self._get_dialect()
-        if (sys.version_info > (3, 0)):
-            self.reader = self.csv.reader(self._file)
-        else:
-            self.reader = self.csv.reader(self._file, self.dialect,
-                                          encoding=self.encode, doublequote=True)
-        for i in range(0, self.header_line):
-            next(self.reader)
-        self.header = next(self.reader)
+        try:
+            if isinstance(self.name, str) or isinstance(self.name, unicode):
+                self._file = open(self.name, 'r', encoding=encoding)
+            else:
+                self._file = self.name
+            self._file.seek(0)
+            self._get_dialect()
+            if (sys.version_info > (3, 0)):
+                self.reader = self.csv.reader(self._file)
+            else:
+                self.reader = self.csv.reader(self._file, self.dialect,
+                                              encoding=self.encode, doublequote=True)
+            for i in range(0, self.header_line):
+                next(self.reader)
+            self.header = next(self.reader)
+        except:
+            if encoding != "UTF-8":
+                self._open(encoding="UTF-8")
 
     def _create(self):
         # create the file and write the header
