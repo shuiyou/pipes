@@ -89,7 +89,7 @@ class Csv(PyHeaderFile):
     def _open(self):
         # open the file and get header
         if isinstance(self.name, str) or isinstance(self.name, unicode):
-            self._file = open(self.name, 'r')
+            self._file = open(self.name, 'r', encoding="UTF-8")
         else:
             self._file = self.name
         self._file.seek(0)
