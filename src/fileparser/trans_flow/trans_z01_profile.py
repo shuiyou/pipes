@@ -68,12 +68,12 @@ class TransProfile:
     def _load_worksheet(self):
         logger.info("%s-----------------------%s" % (1, '_load_worksheet begin'))
         new_file = False
-        if "xlsx" not in str(self.file.filename)[-5:]:
+        if "xlsx" not in str(self.file)[-5:]:
             xlsx = Xlsx()
             now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
             file_name = '%d.xlsx' % (now_timestamp * 1000)
 
-            temp = self._guess_type(self.file, file_name)
+            temp = guess_type(self.file)
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
