@@ -1,7 +1,7 @@
 import inspect
 
 from openpyxl.utils import get_column_letter as colref
-from pyheaderfile import guess_type, Xlsx, Xls, Csv
+from util.pyheaderfile import Xlsx, Xls, Csv
 import datetime
 import openpyxl
 import pandas as pd
