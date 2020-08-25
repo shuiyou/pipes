@@ -49,6 +49,11 @@ def test_strategy_002(client):
     strategy_request(client, "002")
 
 
+# 一级企业决策
+def test_strategy_002_1(client):
+    strategy_request(client, "002_1")
+
+
 # 一级联合握手
 def test_shake_hand_p003(client):
     shake_hand_request(client, "003")

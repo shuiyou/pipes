@@ -12,22 +12,30 @@ STRATEGY_URL = os.getenv('STRATEGY_URL',
 
 EUREKA_SERVER = os.getenv('EUREKA_SERVER', 'http://192.168.1.27:8030/eureka/')
 
-# 通过环境变量配置不同部署环境的是数据库
-# GEARS_DB = {
-#     'user': os.getenv('DB_USER', 'gears_test'),
-#     'pw': os.getenv('DB_PW', 'bd3by68u'),
-#     'host': os.getenv('DB_HOST', '192.168.1.9'),
-#     'port': os.getenv('DB_PORT', 3360),
-#     'db': os.getenv('DB_NAME', 'gears_test'),
-# }
 
-# GEARS_DB = {
-#     'user': os.getenv('DB_USER', 'gears_test'),
-#     'pw': os.getenv('DB_PW', 'bd3by68u'),
-#     'host': os.getenv('DB_HOST', '192.168.1.9'),
-#     'port': os.getenv('DB_PORT', 3360),
-#     'db': os.getenv('DB_NAME', 'gears_test'),
-# }
+"""
+通过环境变量配置不同部署环境的是数据库
+"""
+
+"""
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'gears_test'),
+    'pw': os.getenv('DB_PW', 'bd3by68u'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_test'),
+}
+"""
+
+"""
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'gears_test'),
+    'pw': os.getenv('DB_PW', 'bd3by68u'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_test'),
+}
+"""
 
 """
 GEARS_DB = {
@@ -38,16 +46,17 @@ GEARS_DB = {
     'db': os.getenv('DB_NAME', 'gears_dev'),
 }
 """
+"""
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'gears_test'),
+    'pw': os.getenv('DB_PW', 'bd3by68u'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_test'),
+}
+"""
 
-# GEARS_DB = {
-#     'user': os.getenv('DB_USER', 'gears_test'),
-#     'pw': os.getenv('DB_PW', 'bd3by68u'),
-#     'host': os.getenv('DB_HOST', '192.168.1.9'),
-#     'port': os.getenv('DB_PORT', 3360),
-#     'db': os.getenv('DB_NAME', 'gears_test'),
-# }
-
-
+"""
 GEARS_DB = {
     'user': os.getenv('DB_USER', 'gears_external'),
     'pw': os.getenv('DB_PW', 'j83eckas'),
@@ -55,11 +64,12 @@ GEARS_DB = {
     'port': os.getenv('DB_PORT', 3360),
     'db': os.getenv('DB_NAME', 'gears_external'),
 }
+"""
 
-# GEARS_DB = {
-#     'user': os.getenv('DB_USER', 'pd_query'),
-#     'pw': os.getenv('DB_PW', '8dytjn3s'),
-#     'host': os.getenv('DB_HOST', 'trans.magfin.cn'),
-#     'port': os.getenv('DB_PORT', 6690),
-#     'db': os.getenv('DB_NAME', 'gears'),
-# }
+GEARS_DB = {
+    'user': os.getenv('DB_USER', 'pd_query'),
+    'pw': os.getenv('DB_PW', '8dytjn3s'),
+    'host': os.getenv('DB_HOST', 'trans.magfin.cn'),
+    'port': os.getenv('DB_PORT', 6690),
+    'db': os.getenv('DB_NAME', 'gears'),
+}
