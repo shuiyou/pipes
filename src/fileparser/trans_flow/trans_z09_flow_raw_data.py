@@ -13,9 +13,10 @@ class TransFlowRawData:
     author:汪腾飞
     created_time:20200706
     updated_time_v1:20200707新增是否有新增数据字段,若有则有所有后续操作,若无,则无后续操作
+    updated_time_v2:20200818添加commit的事务性,若发生错误则全部不提交
     """
 
-    def __init__(self, sql_db, param, title_param):
+    def __init__(self, sql_db, param, title_param, resp):
         self.df = None
         self.db = sql_db
         self.param = param
@@ -25,6 +26,7 @@ class TransFlowRawData:
         self.create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         # 是否有新增数据,若为True,则需要运行save_raw_data,若无则不需要
         self.new_data = True
+        self.resp = resp
 
     def remove_duplicate_data(self, data):
         """
@@ -84,8 +86,9 @@ class TransFlowRawData:
         temp_dict['create_time'] = self.create_time
         temp_dict['account_state'] = 1
         role = transform_class_str(temp_dict, 'TransAccount')
+        self.raw_list.append(role)
         self.db.session.add(role)
-        self.db.session.commit()
+        self.db.session.flush()
         return role.id
 
     def save_raw_data(self):
@@ -105,4 +108,11 @@ class TransFlowRawData:
             role = transform_class_str(temp_dict, 'TransFlow')
             self.raw_list.append(role)
         self.db.session.add_all(self.raw_list)
-        self.db.session.commit()
+        try:
+            self.db.session.commit()
+        except Exception as e:
+            self.db.session.rollback()
+            self.resp['resCode'] = '1'
+            self.resp['resMsg'] = '失败'
+            logger.info('导入数据库失败,失败原因:%s' % str(e))
+            self.resp['data']['warningMsg'] = ['导入数据库失败']

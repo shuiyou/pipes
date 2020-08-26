@@ -1,10 +1,12 @@
+import inspect
 
 from openpyxl.utils import get_column_letter as colref
+from util.pyheaderfile import Xlsx, Xls, Csv
+import datetime
 import openpyxl
 import pandas as pd
 import re
-
-from openpyxl.utils.exceptions import InvalidFileException
+import os
 
 from logger.logger_util import LoggerUtil
 
@@ -19,6 +21,7 @@ class TransProfile:
     author:汪腾飞
     created_time:20200630
     updated_time_v1:20200706,表头搜索到银行名将不再更改客户所填入参,而直接将该银行名存入account表中
+    updated_time_v2:20200817,读取其他类型流水文件,包括xls,csv, 无法体现户名,账户信息话术统一
     """
 
     def __init__(self, file, param):
@@ -58,14 +61,38 @@ class TransProfile:
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
-            self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持xlsx格式文件']
+            self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持csv,xls,xlsx格式文件']
             return
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):
-        wb = openpyxl.load_workbook(self.file)
+        logger.info("%s-----------------------%s" % (1, '_load_worksheet begin'))
+        new_file = False
+        if "xlsx" not in str(self.file.filename)[-5:]:
+            xlsx = Xlsx()
+            now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
+            file_name = '%d.xlsx' % (now_timestamp * 1000)
+
+            temp = self._guess_type(self.file, file_name)
+            header_list = temp.header
+            length = len(header_list)
+            # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
+            temp.header = [header_list[i] if header_list[i] != '' and header_list[i] is not None else 'Title%d' % i for i in range(length)]
+            temp.name = file_name
+            # 将csv, xls文件都另存为xlsx文件
+            logger.info("%s-----------------------%s" % (2, '_load_worksheet xlsx'))
+            xlsx(temp)
+            logger.info("%s-----------------------%s" % (3, '_load_worksheet xlsx end'))
+            new_file = True
+        else:
+            file_name = self.file
+        wb = openpyxl.load_workbook(file_name)
         ws = wb.worksheets[0]
         wb.close()
+        # 将刚刚另存为的文件删除
+        if new_file and os.path.exists(file_name):
+            os.remove(file_name)
+        logger.info("%s-----------------------%s" % (4, '_load_worksheet end'))
         return ws
 
     # 搜索最多前30行(从第一行有数据的地方开始搜索),查找标题行所在行,若不存在标题行则返回-1
@@ -112,8 +139,8 @@ class TransProfile:
         elif self.title == self.minrow:
             self.resp['resCode'] = '0'
             self.resp['resMsg'] = '成功'
-            self.resp['data']['warningMsg'] = ['该流水中无法体现账户信息,请线下核实',
-                                               '该流水中无法体现户名信息,请线下核实']
+            self.resp['data']['warningMsg'] = ['该流水无法体现账户信息,请线下核实',
+                                               '该流水无法体现户名信息,请线下核实']
             return
         else:
             check_df = self._convert_to_dataframe(self.ws, self.minrow, self.mincol, self.title - 1,
@@ -305,3 +332,27 @@ class TransProfile:
         data = [[x.value for x in y[index_start:]] for y in rng[column_start:]]
         df = pd.DataFrame(data=data, index=rows, columns=cols)
         return df
+
+    def _guess_type(self, file, filename, **kwargs):
+        """ Utility function to call classes based on filename extension.
+        Just usefull if you are reading the file and don't know file extension.
+        You can pass kwargs and these args are passed to class only if they are
+        used in class.
+        """
+
+        extension = os.path.splitext(file.filename.replace('"', ""))[1]
+        case = {'.xls': Xls,
+                '.xlsx': Xlsx,
+                '.csv': Csv}
+        if extension and case.get(extension.lower()):
+            low_extension = extension.lower()
+            new_kwargs = dict()
+            class_name = case.get(low_extension)
+            class_kwargs = inspect.getargspec(class_name.__init__).args[1:]
+            for kwarg in kwargs:
+                if kwarg in class_kwargs:
+                    new_kwargs[kwarg] = kwargs[kwarg]
+            file.save(filename)
+            return case.get(low_extension)(filename, **new_kwargs)
+        else:
+            raise Exception('No extension found')
