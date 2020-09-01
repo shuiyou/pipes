@@ -32,28 +32,38 @@ class PcreditPortraitsNewView(ModuleProcessor):
         if df.empty:
             return
         self.variables["loan_now_overdue_money"] = round(df.loc[:, 'overdue_amount'].sum(), 2)
-        df1 = df[(df['loan_type'].isin(['01', '07', '99'])) | ((df['loan_type'] == '04') & (df['loan_amount'] > 20000))]
+        df1 = df[pd.notnull(df['loan_amount'])]
+        df1 = df1[(df1['loan_type'].isin(['01', '07', '99','融资租赁'])) | ((df1['loan_type'] == '04') & (df1['loan_amount'] > 20000))]
         if not df1.empty:
-            self.variables["business_loan_overdue_money"] = round(df1.loc[:, 'overdue_amount'].sum(), 2)
+            repayment_df = self.cached_data.get("pcredit_repayment")
+            overdue_cnt_df = pd.merge(df1, repayment_df, left_on='id', right_on='record_id')
+            overdue_cnt_df = overdue_cnt_df[overdue_cnt_df['repayment_amt'] > overdue_cnt_df['loan_amount'] / 3]
+            self.variables["business_loan_overdue_money"] = round(overdue_cnt_df.loc[:, 'repayment_amt'].sum(), 2)
 
     def _get_loan_overdue__cnt(self, df, report_time):
         if df.empty:
             return
         repayment_df = self.cached_data.get("pcredit_repayment")
         repayment_df = repayment_df.drop(['id'], axis=1)
-        df_temp = df[
-            (df['loan_type'].isin(['01', '07', '99'])) | ((df['loan_type'] == '04') & (df['loan_amount'] > 20000))]
-        if not df_temp.empty:
-            overdue_cnt_df = pd.merge(df_temp, repayment_df, left_on='id', right_on='record_id')
-            overdue_cnt_df = overdue_cnt_df[overdue_cnt_df['status'] == '1']
+        df_temp = df[pd.notnull(df['loan_amount'])]
+        df_temp1 = df_temp[
+            (df_temp['loan_type'].isin(['01', '07', '99','融资租赁'])) | ((df_temp['loan_type'] == '04') & (df_temp['loan_amount'] > 20000))]
+        if not df_temp1.empty:
+            overdue_cnt_df = pd.merge(df_temp1, repayment_df, left_on='id', right_on='record_id')
+            overdue_cnt_df = overdue_cnt_df[overdue_cnt_df['repayment_amt'] > overdue_cnt_df['loan_amount']/3]
             if not overdue_cnt_df.empty:
                 self.variables["rhzx_business_loan_overdue_cnt"] = overdue_cnt_df['id'].unique().size
+            #loan_overdue_2times_cnt
+            df_temp2 = df_temp1[(df_temp1['repay_period'] > 0) | ((pd.notnull(df_temp1['loan_date'])) & (pd.notnull(df_temp1['loan_end_date'])))]
+            
+
+
 
         merge_df = pd.merge(df, repayment_df, left_on='id', right_on='record_id')
-
-        times_cnt_df = merge_df[merge_df['status'] == '2']
-        if not times_cnt_df.empty:
-            self.variables["loan_overdue_2times_cnt"] = times_cnt_df.shape[0]
+        #
+        # times_cnt_df = merge_df[merge_df['status'] == '2']
+        # if not times_cnt_df.empty:
+        #     self.variables["loan_overdue_2times_cnt"] = times_cnt_df.shape[0]
 
         if report_time is not None:
             # 征信不良信息-逾期信息-贷款当前逾期次数
