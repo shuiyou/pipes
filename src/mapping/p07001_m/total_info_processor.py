@@ -37,8 +37,8 @@ class TotalInfoProcessor(ModuleProcessor):
             count = 0
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 0) \
-                        or (pd.notna(row["status"]) and row["status"].isdigit()):
+                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 1000) \
+                        and (pd.notna(row["status"]) and row["status"].isdigit()):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["total_consume_loan_overdue_cnt_5y"] = count
@@ -50,9 +50,11 @@ class TotalInfoProcessor(ModuleProcessor):
         # 3.将2中所有结果加总
         credit_loan = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data["pcredit_repayment"]
-        account_type = ["01", "02", "03"]
-        loan_type = ["02", "03", "04", "05", "06"]
-        credit_loan = credit_loan.query('account_type in ' + str(account_type) + 'and loan_type in ' + str(loan_type))
+        # account_type = ["01", "02", "03"]
+        # loan_type = ["02", "03", "04", "05", "06"]
+        credit_loan = credit_loan.query('account_type in ["01", "02", "03"] '
+                                              'and (loan_type in ["02", "03", "05", "06"]'
+                                              ' or (loan_type == "04" and loan_amount <= 200000))')
 
         if credit_loan.empty or repayment_df.empty:
             return
@@ -62,7 +64,7 @@ class TotalInfoProcessor(ModuleProcessor):
             df = repayment_df.query('record_id == ' + str(loan.id))
             df = df.sort_values("id")
             split_by_duration_seq(df, val_lists)
-        final_result = sum(map(lambda x: 0 if pd.isna(x[-1]) else x[-1], val_lists))
+        final_result = sum(map(lambda x: 0 if pd.isna(x[-1]) and x[-1] <= 1000 else x[-1], val_lists))
         self.variables["total_consume_loan_overdue_money_5y"] = final_result
 
     # 银行授信总额

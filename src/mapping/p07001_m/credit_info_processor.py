@@ -52,7 +52,9 @@ class CreditInfoProcessor(ModuleProcessor):
             df = df.dropna(subset=["repayment_amt"])
             if not df.empty:
                 df = df.sort_values(by=['jhi_year', 'month'], ascending=False)
-                overdue_amt = overdue_amt + df.iloc[0].repayment_amt
+                repayment_amt = df.iloc[0].repayment_amt
+                if repayment_amt > 1000:
+                    overdue_amt = overdue_amt + repayment_amt
 
         self.variables["credit_now_overdue_money"] = overdue_amt
 
@@ -69,6 +71,7 @@ class CreditInfoProcessor(ModuleProcessor):
 
         credit_loan_df = credit_loan_df.query('account_type in ["04", "05"]')
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
+        repayment_df = repayment_df[repayment_df['repayment_amt'] > 1000]
         if not repayment_df.empty:
             status_list = []
             for index, row in repayment_df.iterrows():
@@ -241,7 +244,7 @@ class CreditInfoProcessor(ModuleProcessor):
         for row in repayment_df.itertuples():
             if (pd.isna(row.status) or not row.status.isdigit()) and (pd.isna(row.repayment_amt) or row.repayment_amt == 0):
                 continue
-            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
+            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1) and row.repayment_amt > 1000:
                 count = count + 1
 
         self.variables["credit_now_overdue_cnt"] = count
@@ -260,8 +263,7 @@ class CreditInfoProcessor(ModuleProcessor):
 
         # repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and (repayment_amt > 0 or status.str.isdigit())')
         repayment_df = repayment_df[(repayment_df.record_id.isin(list(loan_df.id))) &
-                                    ((repayment_df.repayment_amt > 0) |
-                                     (repayment_df.status.str.isdigit()))]
+                                    (repayment_df.repayment_amt > 1000)]
         count = repayment_df.shape[0]
         self.variables["credit_total_overdue_cnt"] = count
 

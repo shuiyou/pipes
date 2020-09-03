@@ -133,8 +133,7 @@ class PcreditPortraitsNewView(ModuleProcessor):
         # 征信不良信息-逾期信息-贷记卡当前逾期次数
         if report_time is not None:
             year, month = before_n_month(report_time, 1)
-            now_overdue_cnt_df = merge_df[(merge_df['jhi_year'] == year) & (merge_df['month'] == month) & ((
-                        merge_df['status'].str.isdigit() == True) | (merge_df['repayment_amt'] > 0))]
+            now_overdue_cnt_df = merge_df[(merge_df['jhi_year'] == year) & (merge_df['month'] == month) & (merge_df['repayment_amt'] > 1000)]
             if not now_overdue_cnt_df.empty:
                 self.variables["credit_now_overdue_cnt"] = now_overdue_cnt_df.shape[0]
         # 征信不良信息-逾期信息-贷记卡历史总逾期次数

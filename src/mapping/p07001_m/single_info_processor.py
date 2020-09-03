@@ -123,9 +123,9 @@ class SingleInfoProcessor(ModuleProcessor):
         # 2.对每一个id,count(pcredit_payment中record_id=id且status是数字且还款时间在report_time两年内的记录);
         # 3.从2中所有结果中选取最大值
         self._max_overdue_cacl(account_type=["01", "02", "03"], loan_type=["04"],
-                               var_name="single_consume_loan_overdue_cnt_2y")
+                               loan_amount=200000, var_name="single_consume_loan_overdue_cnt_2y")
 
-    def _max_overdue_cacl(self, account_type=None, loan_type=None, var_name=None, within_year=2):
+    def _max_overdue_cacl(self, account_type=None, loan_type=None, loan_amount=None, var_name=None, within_year=2):
         if not account_type and not loan_type:
             return
 
@@ -142,6 +142,9 @@ class SingleInfoProcessor(ModuleProcessor):
         elif loan_type:
             loan_df = loan_df.query('loan_type in ' + str(loan_type))
 
+        if loan_amount:
+            loan_df = loan_df[loan_df['loan_amount'] <= 20000]
+
         if loan_df.empty:
             return
 
@@ -151,8 +154,9 @@ class SingleInfoProcessor(ModuleProcessor):
         repayment_df = repayment_df[(repayment_df['jhi_year'] > report_time.year - within_year) &
                                     (repayment_df['month'] >= report_time.month) &
                                     (repayment_df['record_id'].isin(list(loan_df['id']))) &
-                                    ((repayment_df['repayment_amt'] > 0) |
-                                     (repayment_df['status'].str.isdigit()))]
+                                    (repayment_df['repayment_amt'] > 1000) &
+                                    (repayment_df['status'].str.isdigit())
+                                    ]
         if len(repayment_df) > 0:
             self.variables[var_name] = repayment_df.groupby(by='record_id').size().max()
         # if not repayment_df.empty:
