@@ -12,6 +12,24 @@ from mapping.module_processor import ModuleProcessor
 from product.date_time_util import after_ref_date, after_ref_date_1
 
 
+def get_repay_period_temp(loan_amount,repay_period,loan_date,loan_end_date):
+    if pd.isnull(repay_period) or pd.isna(repay_period):
+        year_start = loan_date.year
+        month_start = loan_date.month
+        day_start = loan_date.day
+        year_end = loan_end_date.year
+        month_end = loan_end_date.month
+        day_end = loan_end_date.day
+        if day_start >= day_end:
+            month_diff = (year_end - year_start) * 12 + month_end - month_start
+        else:
+            month_diff = (year_end - year_start) * 12 + month_end - month_start
+        return loan_amount / month_diff
+    else:
+        return loan_amount/repay_period
+
+
+
 class LoanInfoProcessor(ModuleProcessor):
     def process(self):
         self._loan_fiveLevel_a_level_cnt()
@@ -191,11 +209,42 @@ class LoanInfoProcessor(ModuleProcessor):
         # 3.2中所有结果加总
         loan_df = self.cached_data["pcredit_loan"]
         repayment_df = self.cached_data["pcredit_repayment"]
-        loan_df = loan_df.query('account_type in ["01", "02", "03"]')
+        loan_df = loan_df[(loan_df['account_type'].isin(['01','02','03'])) &
+                          ((loan_df['loan_type'].isin(['01','07','99'])) | ('融资租赁' in loan_df['loan_type']) | ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))) &
+                          ((loan_df['repay_period'] > 0) | ((pd.notnull(loan_df['loan_date'])) & (pd.notnull(loan_df['loan_end_date'])))) &
+                          (pd.notnull(loan_df['loan_amount']))]
         if loan_df.empty or repayment_df.empty:
             return
-        repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)) + ' and status == "2"')
-        self.variables["loan_overdue_2times_cnt"] = repayment_df.shape[0]
+        loan_df['repay_period_temp'] = loan_df.apply(lambda x:get_repay_period_temp(x['loan_amount'],x['repay_period'],x['loan_date'],x['loan_end_date']),axis=1)
+        df_temp = pd.merge(loan_df, repayment_df, left_on='id', right_on='record_id')
+        df_temp = df_temp[(df_temp['repayment_amt'] > df_temp['repay_period_temp']) & (df_temp['repayment_amt'] < df_temp['loan_amount']/3)]
+        if df_temp.empty:
+            return
+        df_temp = df_temp.loc[:,['record_id','jhi_year','month']]
+        group = df_temp.groupby(by='record_id')
+        month_list=[]
+        for index,df in group:
+            df = df.sort_values(by=['jhi_year','month'])
+            jhi_year_temp = 0
+            month_temp = 0
+            count = 0
+            count_list = []
+            for row in df.itertuples():
+                jhi_year = row.jhi_year
+                month = row.month
+                if jhi_year_temp == jhi_year and month_temp == month + 1:
+                    count = count + 1
+                elif jhi_year_temp > jhi_year and month == 1:
+                    count = count + 1
+                else:
+                    count_list.append(count)
+                    count = 0
+                jhi_year_temp = jhi_year
+                month_temp = month
+            month_list.append(max(count_list))
+
+        self.variables["loan_overdue_2times_cnt"] = max(month_list)
+
 
     # 贷款当前逾期次数
     def _loan_now_overdue_cnt(self):

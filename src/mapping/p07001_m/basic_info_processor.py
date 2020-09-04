@@ -12,6 +12,22 @@ from product.date_time_util import after_ref_date
 from util.id_card_info import GetInformation
 
 
+def get_repay_period_temp(loan_amount,repay_period,loan_date,loan_end_date):
+    if pd.isnull(repay_period) or pd.isna(repay_period):
+        year_start = loan_date.year
+        month_start = loan_date.month
+        day_start = loan_date.day
+        year_end = loan_end_date.year
+        month_end = loan_end_date.month
+        day_end = loan_end_date.day
+        if day_start >= day_end:
+            month_diff = (year_end - year_start) * 12 + month_end - month_start
+        else:
+            month_diff = (year_end - year_start) * 12 + month_end - month_start
+        return loan_amount / month_diff
+    else:
+        return loan_amount/repay_period
+
 class BasicInfoProcessor(ModuleProcessor):
 
     def process(self):
@@ -78,26 +94,47 @@ class BasicInfoProcessor(ModuleProcessor):
         1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))的id,
         2.对于每一个id,count(pcredit_payment中所有record_id=id且loan_repay_type包含"等额本息"且status是数字的记录)如果count>0则变量+1
         '''
-        credit_loan_df = self.cached_data.get("pcredit_loan")
-        repayment_df = self.cached_data.get("pcredit_repayment")
-        acc_speculate_df = self.cached_data.get("pcredit_acc_speculate")
-
-        if credit_loan_df.empty or repayment_df.empty or acc_speculate_df.empty:
+        loan_df = self.cached_data["pcredit_loan"]
+        repayment_df = self.cached_data["pcredit_repayment"]
+        loan_df = loan_df[(loan_df['account_type'].isin(['01', '02', '03'])) &
+                          ((loan_df['loan_type'].isin(['01', '07', '99'])) | ('融资租赁' in loan_df['loan_type']) | (
+                                      (loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))) &
+                          ((loan_df['repay_period'] > 0) | (
+                                      (pd.notnull(loan_df['loan_date'])) & (pd.notnull(loan_df['loan_end_date'])))) &
+                          (pd.notnull(loan_df['loan_amount']))]
+        if loan_df.empty or repayment_df.empty:
             return
-        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
-                                              '"99"] or (loan_type == "04" and loan_amount>200000)) ')
-
-        credit_loan_df = credit_loan_df.rename(columns={"id": "loan_id", "loan_repay_type": "loan_repay_type_temp"})
-        merged_df = pd.merge(credit_loan_df, acc_speculate_df, left_on="loan_id", right_on="record_id")
-        merged_df = merged_df.query('loan_repay_type in ["D_INTEREST"]')
-
-        repayment_df = repayment_df.query('record_id in ' + str(list(merged_df.loan_id)))
-
-        digit_status_list = [0]
-        for row in repayment_df.itertuples():
-            if pd.notna(row.status) and row.status.isdigit():
-                digit_status_list.append(int(row.status))
-        self.variables["business_loan_average_overdue_cnt"] = max(digit_status_list)
+        loan_df['repay_period_temp'] = loan_df.apply(
+            lambda x: get_repay_period_temp(x['loan_amount'], x['repay_period'], x['loan_date'], x['loan_end_date']),
+            axis=1)
+        df_temp = pd.merge(loan_df, repayment_df, left_on='id', right_on='record_id')
+        df_temp = df_temp[(df_temp['repayment_amt'] > df_temp['repay_period_temp']) & (
+                    df_temp['repayment_amt'] < df_temp['loan_amount'] / 3)]
+        if df_temp.empty:
+            return
+        df_temp = df_temp.loc[:, ['record_id', 'jhi_year', 'month']]
+        group = df_temp.groupby(by='record_id')
+        month_list = []
+        for index, df in group:
+            df = df.sort_values(by=['jhi_year', 'month'])
+            jhi_year_temp = 0
+            month_temp = 0
+            count = 0
+            count_list = []
+            for row in df.itertuples():
+                jhi_year = row.jhi_year
+                month = row.month
+                if jhi_year_temp == jhi_year and month_temp == month + 1:
+                    count = count + 1
+                elif jhi_year_temp > jhi_year and month == 1:
+                    count = count + 1
+                else:
+                    count_list.append(count)
+                    count = 0
+                jhi_year_temp = jhi_year
+                month_temp = month
+            month_list.append(max(count_list))
+        self.variables["business_loan_average_overdue_cnt"] = max(month_list)
 
     # 经营性贷款（经营性+个人消费大于20万+农户+其他）2年内最大连续逾期期数
     def _large_loan_2year_overdue_cnt(self):
