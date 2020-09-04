@@ -44,7 +44,8 @@ class T41001(Transformer):
             "unsettled_busLoan_agency_number": 0,  # 有经营性贷款在贷余额的合作机构数
             "loan_credit_small_loan_query_3month_cnt": 0,  # 近三个月小额贷款公司贷款审批查询次数
             "unsettled_consume_agency_cnt": 0,  # 未结清消费性贷款机构数
-            "divorce_40_female": 0,  # 年龄>=40,离异或者丧偶，女
+            "divorce_50_female": 0,  # 年龄>=50,离异或者丧偶，女
+            "divorce_55_male": 0,  # 年龄>55,离异,男
             "credit_fiveLevel_b_level_cnt": 0,  # 贷记卡五级分类存在“次级"
             "loan_fiveLevel_b_level_cnt": 0,  # 贷款五级分类存在"关注"
             "loan_scured_five_a_level_abnormality_cnt": 0,  # 对外担保五级分类存在“次级、可疑、损失”

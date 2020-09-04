@@ -382,10 +382,11 @@ class PcreditAccSpeculateView(ModuleProcessor):
 
         if pcredit_loan_df is not None and not pcredit_loan_df.empty and \
                 pcredit_acc_speculate_df is not None and not pcredit_acc_speculate_df.empty:
-            pcredit_loan_type_df = pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01', '02', '03'])) &
-                                                   ((pcredit_loan_df['loan_type'].isin(['01', '07', '99'])) | (
-                                                               (pcredit_loan_df['loan_type'] == '04') & (
-                                                                   pcredit_loan_df['loan_amount'] > 200000)))]
+            pcredit_loan_type_df = pcredit_loan_df[(pcredit_loan_df['account_type'].isin(['01', '02', '03'])) & (
+                    (pcredit_loan_df['loan_type'].isin(['01', '07', '99'])) | ('融资租赁' in pcredit_loan_df['loan_type']) | (
+                    (pcredit_loan_df['loan_type'] == '04') & (pcredit_loan_df['loan_amount'] > 200000))
+                 )]
+
             pcredit_acc_speculate_df_temp1 = pcredit_acc_speculate_df[(pcredit_acc_speculate_df['account_status'] == '1') |
                                                                       ((pcredit_acc_speculate_df[
                                                                             'account_status'] != '1') & (

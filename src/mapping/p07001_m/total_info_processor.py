@@ -37,8 +37,8 @@ class TotalInfoProcessor(ModuleProcessor):
             count = 0
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 1000) \
-                        and (pd.notna(row["status"]) and row["status"].isdigit()):
+                if pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 1000 \
+                        and pd.notna(row["status"]) and row["status"].isdigit():
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["total_consume_loan_overdue_cnt_5y"] = count

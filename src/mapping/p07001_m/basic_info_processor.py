@@ -22,7 +22,7 @@ class BasicInfoProcessor(ModuleProcessor):
         self._public_sum_count()
         self._business_loan_average_overdue_cnt()
         self._large_loan_2year_overdue_cnt()
-        self._divorce_40_female()
+        self._divorce_50_female()
         self._extension_number()
         self._enforce_record()
         self._marriage_status()
@@ -44,15 +44,20 @@ class BasicInfoProcessor(ModuleProcessor):
         if loan_df is None or loan_df.empty or repayment_df is None or repayment_df.empty:
             return
 
-        loan_df = loan_df.query('account_type in ["01", "02", "03"] and ((loan_type in '
-                                '["01", "07", "99"]) or (loan_type == "04" and loan_amount > 200000))')
+        loan_df = loan_df[(pd.notnull(loan_df['loan_amount'])) &
+                          (loan_df['account_type'].isin(['01', '02', '03'])) &
+                          (
+                                  (loan_df['loan_type'].isin(['01', '07', '99'])) | ('融资租赁' in loan_df['loan_type']) |
+                                  ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 20000))
+                          )
+                        ]
 
         if loan_df.empty:
             return
 
         count = 0
         for item_df in loan_df.itertuples():
-            df = repayment_df.query('record_id == ' + str(item_df.id) + ' and status == "1"')
+            df = repayment_df.query('record_id == ' + str(item_df.id) + ' and repayment_amt > ' + str(item_df.loan_amount/3))
             if not df.empty:
                 count = count + 1
         self.variables["rhzx_business_loan_overdue_cnt"] = count
@@ -107,21 +112,23 @@ class BasicInfoProcessor(ModuleProcessor):
         if credit_loan_df.empty or repayment_df.empty:
             return
 
-        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] and (loan_type in ["01", "07", '
-                                              '"99"] or (loan_type == "04" and loan_amount>200000))')
+        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01','02','03'])) &
+                                        ((credit_loan_df['loan_type'].isin(['01','07','99'])) | ('融资租赁' in credit_loan_df['loan_type']) |
+                                          ((credit_loan_df['loan_type'] == '04') & (credit_loan_df['loan_amount'] > 20000)))
+                                        ]
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
         report_time = self.cached_data["report_time"]
         if not repayment_df.empty:
             status_list = []
             for index, row in repayment_df.iterrows():
-                if pd.notna(row["status"]) and row["status"].isdigit():
+                if pd.notna(row["status"]) and row["status"].isdigit() and pd.notna(row['loan_amount']) and row['loan_amount'] > 0:
                     if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["large_loan_2year_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
 
-    # 年龄>=40,离异或者丧偶，女
-    def _divorce_40_female(self):
+    # 年龄>=50,离异或者丧偶，女
+    def _divorce_50_female(self):
         # 1.count(pcredit_person_info中report_id=report_id且sex=2且marriage_status=3,4的记录)
         # 2.count(ccs.cus_indiv中cus_name=name且indiv_sex=2且cert_code=certificate_no且marital_status=12,13的记录)
         # 3.从credit_base_info中找到report_id对应的certificate_no,用身份证号第7到14位出生日期算出年龄
@@ -130,17 +137,41 @@ class BasicInfoProcessor(ModuleProcessor):
         information = GetInformation(id_card_no)
         if information.get_sex() != 2:
             return
-        if information.get_age() < 40:
+        if information.get_age() < 50:
             return
 
         marry_state = self.cached_data.get("basicMarryState")
         if marry_state and marry_state in ["DIVORCE", "WIDOWHOOD"]:
-            self.variables["divorce_40_female"] = 1
+            self.variables["divorce_50_female"] = 1
             return
 
         credit_person_info = self.cached_data["pcredit_person_info"]
-        credit_person_info = credit_person_info.query('sex == "2" and marriage_status == "3"')
-        self.variables["divorce_40_female"] = 0 if credit_person_info.empty else 1
+        credit_person_info = credit_person_info[(credit_person_info['sex'] == '2') & (credit_person_info['marriage_status'].isin(['3','4']))]
+        self.variables["divorce_50_female"] = 0 if credit_person_info.empty else 1
+
+    #年龄>55,离异,男
+    def _divorce_55_male(self):
+        # 1.count(pcredit_person_info中report_id=report_id且sex = 1
+        # 且marriage_status = 3, 4的记录)
+        # 2.count(ccs.cus_indiv中cus_name = name且indiv_sex = 1
+        # 且cert_code = certificate_no且marital_status = 12, 13的记录)
+        # 3.从credit_base_info中找到report_id对应的certificate_no, 用身份证号第7到14位出生日期算出年龄
+        # 4.若(1中count + 2中count) > 0且3中年龄 > 55则变量 = 1, 否则 = 0
+        id_card_no = self.cached_data["id_card_no"]
+        information = GetInformation(id_card_no)
+        if information.get_sex() != 1:
+            return
+        if information.get_age() <= 55:
+            return
+
+        marry_state = self.cached_data.get("basicMarryState")
+        if marry_state and marry_state in ["DIVORCE"]:
+            self.variables["divorce_55_male"] = 1
+            return
+
+        credit_person_info = self.cached_data["pcredit_person_info"]
+        credit_person_info = credit_person_info[(credit_person_info['sex'] == '1') & (credit_person_info['marriage_status'] == '3')]
+        self.variables["divorce_55_male"] = 0 if credit_person_info.empty else 1
 
     # 展期笔数
     def _extension_number(self):
@@ -230,6 +261,13 @@ class BasicInfoProcessor(ModuleProcessor):
         credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
                                               'and (loan_type in ["01", "07", "99"] '
                                               'or (loan_type == "04" and loan_amount > 200000))')
+        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01', '02', '03'])) &
+                (
+                        (credit_loan_df['loan_type'].isin(['01', '07', '99'])) |
+                        ('融资租赁' in credit_loan_df['loan_type']) |
+                        ((credit_loan_df['loan_type'] == '04') & (
+                                credit_loan_df['04且loan_amount'] > 200000))
+                )]
         amt = credit_loan_df['overdue_amount'].sum()
         self.variables["business_loan_overdue_money"] = amt
 

@@ -28,6 +28,7 @@ class CreditInfoProcessor(ModuleProcessor):
         self._credit_status_legal_cnt()  # 贷记卡账户状态存在"司法追偿"
         self._credit_status_b_level_cnt()  # 贷记卡账户状态存在"银行止付、冻结"
 
+
     # 贷记卡五级分类存在“可疑、损失”
     def _credit_fiveLevel_a_level_cnt(self):
         df = self.cached_data.get("pcredit_loan")
@@ -124,7 +125,7 @@ class CreditInfoProcessor(ModuleProcessor):
         if not repayment_df.empty:
             count = 0
             for index, row in repayment_df.iterrows():
-                if pd.notna(row["status"]) and row["status"].isdigit():
+                if pd.notna(row["status"]) and row["status"].isdigit() and pd.notna(row['repayment_amt']) and row['repayment_amt'] > 1000:
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["credit_overdue_5year"] = count
@@ -149,7 +150,7 @@ class CreditInfoProcessor(ModuleProcessor):
                 continue
             count = 0
             for index, row in df.iterrows():
-                if row["status"] and row["status"].isdigit():
+                if row["status"] and row["status"].isdigit() and row['repayment_amt'] and row['repayment_amt'] > 1000:
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 2, report_time.month):
                         count = count + 1
             status_list.append(count)
@@ -242,9 +243,9 @@ class CreditInfoProcessor(ModuleProcessor):
         report_time = self.cached_data["report_time"]
         count = 0
         for row in repayment_df.itertuples():
-            if (pd.isna(row.status) or not row.status.isdigit()) and (pd.isna(row.repayment_amt) or row.repayment_amt == 0):
+            if pd.isna(row.status) or not row.status.isdigit() or pd.isna(row.repayment_amt) or row.repayment_amt <= 1000:
                 continue
-            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1) and row.repayment_amt > 1000:
+            if after_ref_date(row.jhi_year, row.month, report_time.year, report_time.month - 1):
                 count = count + 1
 
         self.variables["credit_now_overdue_cnt"] = count

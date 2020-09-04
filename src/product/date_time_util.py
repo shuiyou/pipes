@@ -6,16 +6,34 @@ import calendar
 from  datetime import datetime
 
 
-def after_ref_date(year, month, ref_year, ref_month):
+def after_ref_date(year, month, day,ref_year, ref_month, ref_day):
     if ref_month < 1:
         ref_month = 12 + ref_month
         ref_year = ref_year - 1
+
     if year > ref_year:
         return True
     elif year < ref_year:
         return False
     else:
         return ref_month <= month
+
+def after_ref_date_1(year, month, day,ref_year, ref_month, ref_day):
+    if ref_month < 1:
+        ref_month = 12 + ref_month
+        ref_year = ref_year - 1
+    max_days = calendar.monthrange(ref_year, ref_month)[1]
+    if ref_day > max_days:
+        ref_day = max_days
+    if year > ref_year:
+        return True
+    elif year < ref_year:
+        return False
+    else:
+        if ref_month < month:
+            return True
+        else:
+            return ref_day < day
 
 
 def before_n_month(date,n):

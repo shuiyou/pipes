@@ -21,10 +21,12 @@ class UnSettleInfoProcessor(ModuleProcessor):
         # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(account_type=04且loan_amount>200000))的account_org
         # 2.统计1中不同的account_org数目
         credit_loan_df = self.cached_data["pcredit_loan"]
-        credit_loan_df = credit_loan_df.query('account_type in["01", "02", "03"] and '
-                                              '(loan_type in ["01", "07", "99"] '
-                                              'or (account_type == "04" and loan_amount>200000))'
-                                              'and loan_balance > 0')
+        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01','02','03'])) &
+                                        (
+                                            (credit_loan_df['loan_type'].isin(['01','07','99'])) | ('融资租赁' in credit_loan_df['loan_type']) |
+                                            ((credit_loan_df['loan_type'] == '04') & (credit_loan_df['04且loan_amount'] > 200000))
+                                        ) &
+                                        (credit_loan_df['loan_balance'] > 0)]
         if credit_loan_df.empty:
             return
         count = credit_loan_df.dropna(subset=["account_org"])["account_org"].unique().size
@@ -56,9 +58,16 @@ class UnSettleInfoProcessor(ModuleProcessor):
     def _unsettled_busLoan_total_cnt(self):
         # count(pcredit_loan中report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))且loan_balance>0的记录)
         df = self.cached_data["pcredit_loan"]
-        df = df.query('account_type in ["01", "02", "03"] '
-                      'and (loan_type in ["01", "07","99"] or (loan_type == "04" and loan_amount > 200000))'
-                      ' and loan_balance > 0')
+
+        df = df[(df['account_type'].isin(['01', '02', '03'])) &
+                                        (
+                                                (df['loan_type'].isin(['01', '07', '99'])) | (
+                                                    '融资租赁' in df['loan_type']) |
+                                                ((df['loan_type'] == '04') & (
+                                                        df['04且loan_amount'] > 200000))
+                                        ) &
+                                        (df['loan_balance'] > 0)]
+
         self.variables["unsettled_busLoan_total_cnt"] = df.shape[0]
 
     # 未结清贷款机构数

@@ -9,7 +9,7 @@ import pandas as pd
 from mapping.module_processor import ModuleProcessor
 
 # loan开头相关的变量
-from product.date_time_util import after_ref_date
+from product.date_time_util import after_ref_date, after_ref_date_1
 
 
 class LoanInfoProcessor(ModuleProcessor):
@@ -60,7 +60,7 @@ class LoanInfoProcessor(ModuleProcessor):
         org_list = []
         if not df.empty:
             for index, row in df.iterrows():
-                if after_ref_date(row.jhi_time.year, row.jhi_time.month, report_time.year, report_time.month - 3):
+                if after_ref_date_1(row.jhi_time.year, row.jhi_time.month, row.jhi_time.day, report_time.year, report_time.month - 3, report_time.day):
                     if row.operator not in org_list:
                         count = count + 1
                         org_list.append(row.operator)
@@ -85,8 +85,8 @@ class LoanInfoProcessor(ModuleProcessor):
             count = 0
             report_time = self.cached_data["report_time"]
             for index, row in repayment_df.iterrows():
-                if (pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 0) \
-                        or (pd.notna(row["status"]) and row["status"].isdigit()):
+                if pd.notna(row["repayment_amt"]) and row["repayment_amt"] > 1000 \
+                        and (pd.notna(row["status"]) and row["status"].isdigit()):
                     if after_ref_date(row.jhi_year, row.month, report_time.year - 5, report_time.month):
                         count = count + 1
             self.variables["loan_consume_overdue_5year"] = count
@@ -138,10 +138,12 @@ class LoanInfoProcessor(ModuleProcessor):
         # 2.针对1中每一个不同account_org,统计该机构每个月放款笔数,若月最大放款笔数>=3,标记为随借随还机构,跳过
         # 3.2不满足条件2的话,该机构5年内放款笔数>=3,计算最新一笔贷款总额和次新一笔贷款总额的比值,如果比值小于0.8,则变量+1"
         loan_df = self.cached_data["pcredit_loan"]
-        loan_df = loan_df.query('account_type in ["01", "02", "03"] and '
-                                '(loan_type in ["01", "07", "99"] '
-                                'or (loan_type == "04" and loan_amount > 200000) '
-                                'or loan_guarantee_type == "3")')
+        loan_df = loan_df[(loan_df['account_type'].isin(['01','02','03'])) &
+                          (
+                                  ((loan_df['loan_type'].isin(['01','07','99'])) | ('融资租赁' in loan_df['loan_type']) | ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000)) ) |
+                                  (loan_df['guarantee_type'] == '3')
+                          )
+                        ]
 
         loan_df = loan_df.filter(items=["account_org", "loan_date", "loan_amount"])
         loan_df = loan_df[pd.notna(loan_df["loan_date"])]
@@ -245,6 +247,7 @@ class LoanInfoProcessor(ModuleProcessor):
             return
 
         repayment_df = repayment_df.query('record_id in ' + str(list(loan_df.id)))
+        repayment_df = repayment_df[(pd.notnull(repayment_df['repayment_amt'])) & (repayment_df['repayment_amt'] > 0)]
         status_series = repayment_df["status"]
         status_series = status_series.transform(lambda x: 0 if pd.isna(x) or not x.isdigit() else int(x))
         count = 0 if len(status_series) == 0 else status_series.max()
