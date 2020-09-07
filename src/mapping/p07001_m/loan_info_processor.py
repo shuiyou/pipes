@@ -215,14 +215,15 @@ class LoanInfoProcessor(ModuleProcessor):
                           (pd.notnull(loan_df['loan_amount']))]
         if loan_df.empty or repayment_df.empty:
             return
-        loan_df['repay_period_temp'] = loan_df.apply(lambda x:get_repay_period_temp(x['loan_amount'],x['repay_period'],x['loan_date'],x['loan_end_date']),axis=1)
+        loan_df['repay_period_temp'] = loan_df.apply(lambda x: get_repay_period_temp(x['loan_amount'], x['repay_period'], x['loan_date'], x['loan_end_date']), axis=1)
         df_temp = pd.merge(loan_df, repayment_df, left_on='id', right_on='record_id')
-        df_temp = df_temp[(df_temp['repayment_amt'] > df_temp['repay_period_temp']) & (df_temp['repayment_amt'] < df_temp['loan_amount']/3)]
+        df_temp = df_temp[(df_temp['repayment_amt'] > df_temp['repay_period_temp']) &
+                          (df_temp['repayment_amt'] < df_temp['loan_amount']/3)]
         if df_temp.empty:
             return
-        df_temp = df_temp.loc[:,['record_id','jhi_year','month']]
+        df_temp = df_temp.loc[:, ['record_id','jhi_year','month']]
         group = df_temp.groupby(by='record_id')
-        month_list=[]
+        month_list = []
         for index,df in group:
             df = df.sort_values(by=['jhi_year','month'])
             jhi_year_temp = 0
