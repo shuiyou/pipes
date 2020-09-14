@@ -8,7 +8,8 @@ class TransactionAmt:
     将流水文件中交易金额标准化
     author:汪腾飞
     created_time:20200630
-    updated_time_v1:
+    updated_time_v1:20200911,搜索标签列时,要同时包含进账关键字和出账关键字,避免只有一类关键字;去除金额列不符合要求的字符的时候
+        先删除空格,再删除负号结尾的字符
     """
 
     def __init__(self, trans_data, col_mapping):
@@ -33,7 +34,7 @@ class TransactionAmt:
             col = self.amt_col[index]
             temp = self.df[col].value_counts()
             index = ''.join([str(_) for _ in temp.index])
-            if len(temp) == 2 and re.search(r'[借贷往来出入取存收付]', index):
+            if len(temp) == 2 and re.search(r'[收入存贷进]|Credit', index) and re.search('[支出取借付]|Debit', index):
                 tag = col
                 self.df['tag'] = self.df[tag].astype(str).apply(lambda x: re.sub(r'.*[借出支往取付].*', '1', x)).\
                     apply(lambda x: 1 if x != '1' else -1)
@@ -52,8 +53,9 @@ class TransactionAmt:
         length = len(self.amt_col)
         for index in range(-length, 0):
             col = self.amt_col[index]
-            # 将每个金额列数据类型都替换为字符串,且将字符串中的非数字小数点负号替换为空,或者以负号结尾的数据替换为空
-            self.df[col] = self.df[col].fillna('').astype(str).apply(lambda x: re.sub(r'[^\d.-]|.*-$', '', x))
+            # 将每个金额列数据类型都替换为字符串,先将字符串中的空格都替换为空,再将字符串中的非数字小数点负号替换为空,或者以负号结尾的数据替换为空
+            self.df[col] = self.df[col].fillna('').astype(str).apply(lambda x: re.sub(r'[^\d.-]|.*-$',
+                                                                                      '', re.sub(r'\s', '', x)))
             # 若转化过后整列全都是空字符串则删除该列
             temp = self.df[col].value_counts()
             if len(temp) == 1 and temp.index[0] == '':
