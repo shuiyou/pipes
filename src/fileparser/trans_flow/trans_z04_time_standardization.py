@@ -10,6 +10,7 @@ class TransactionTime:
     created_time:20200630
     updated_time_v1:20200819找到时间列后不再进行排序,排序放到余额验真里面进行,且若交易时间列存在空值则用上面的值填充,
             不再删除交易时间列含有部门空值的情况
+    updated_time_v2:20200911,导入间隔校验时间扩充为45天,相应的导入失败提示也更改为45天
     """
 
     def __init__(self, trans_data, col_mapping, title_param):
@@ -249,7 +250,7 @@ class TransactionTime:
         trans_interval = (trans_max - trans_min).days
         import_interval = (datetime.datetime.now() - max_date).days
         y2 = trans_interval < 160
-        y3 = import_interval > 30
+        y3 = import_interval > 45
         if query_interval != -1:
             y1 = query_interval < 180
             if (y1 or y3) and (y2 or y3):
@@ -261,7 +262,7 @@ class TransactionTime:
                 if y2:
                     self.resp['data']['warningMsg'].append('交易间隔小于160天')
                 if y3:
-                    self.resp['data']['warningMsg'].append('导入间隔大于30天')
+                    self.resp['data']['warningMsg'].append('导入间隔大于45天')
         else:
             if y2 or y3:
                 self.basic_status = False
@@ -270,7 +271,7 @@ class TransactionTime:
                 if y2:
                     self.resp['data']['warningMsg'].append('交易间隔小于160天')
                 if y3:
-                    self.resp['data']['warningMsg'].append('导入间隔大于30天')
+                    self.resp['data']['warningMsg'].append('导入间隔大于45天')
         return
 
     # 可能不需要
