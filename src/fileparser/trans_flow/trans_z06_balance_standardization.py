@@ -11,6 +11,7 @@ class TransactionBalance:
     updated_time_v1:20200709,流水验真顺序为时间顺序
     updated_time_v2:20200818,进行流水验真时先按照原流水顺序验真,
         若不通过再根据时间顺序(排序方式分别按照日期顺序+时间顺序,日期顺序+时间逆序)
+    updated_time_v3:20200918,允许上传余额为负值的流水,依然需要识别形如“-      ”的数据
     """
 
     def __init__(self, trans_data, col_mapping, sort_list):
@@ -53,7 +54,7 @@ class TransactionBalance:
 
     def _one_col_match(self, col):
         self.df['account_balance'] = self.df[col].fillna('').astype(str). \
-                apply(lambda x: re.sub(r'[^\d.]', '', x)).replace('', '0').astype(float)
+                apply(lambda x: re.sub(r'[^\d.-]|.*-$|.+-.+', '', re.sub(r'\s', '', x))).replace('', '0').astype(float)
         return
 
     def balance_match(self):
