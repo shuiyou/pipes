@@ -54,7 +54,7 @@ class TransactionBalance:
 
     def _one_col_match(self, col):
         self.df['account_balance'] = self.df[col].fillna('').astype(str). \
-                apply(lambda x: re.sub(r'[^\d.-]|.*-$', '', re.sub(r'\s', '', x)).replace('', '0')).astype(float)
+                apply(lambda x: re.sub(r'[^\d.-]|.*-$|.+-.+', '', re.sub(r'\s', '', x))).replace('', '0').astype(float)
         return
 
     def balance_match(self):
