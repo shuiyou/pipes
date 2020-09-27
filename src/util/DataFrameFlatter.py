@@ -38,7 +38,7 @@ class DataFrameFlatter(object):
         for row in df.itertuples():
             row_index = row_index + 1
             if not fields:
-                fields = row._fields
+                fields = row.__getattribute__("_fields")
             for field in fields:
                 if field == self.v_name:
                     continue

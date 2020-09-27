@@ -14,12 +14,12 @@ pd.set_option('display.width',1000)
 
 def test_df_flatter():
     sql = '''
-            select * from info_stats ss left join info_stats_item ssi on ss.id = ssi.stats_id where user_name = "易胜进";
+            select * from info_stats ss left join info_stats_item ssi on ss.id = ssi.stats_id;
           '''
 
     df = sql_to_df(sql)
 
     dff = DataFrameFlatter(df, "stats_id", "field_name", "field_value")
     result = dff.flat_df()
-    print("-------------------------result-------------------------")
+    print("-------------------------FINISHED-------------------------")
     result.to_excel("flat_result.xlsx")
