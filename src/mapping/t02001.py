@@ -17,11 +17,10 @@ class T02001(Transformer):
         sql = """
             SELECT on_line_days FROM info_on_line_duration 
             WHERE unix_timestamp(NOW()) < unix_timestamp(expired_at)
-            AND user_name = %(user_name)s AND id_card_no = %(id_card_no)s AND phone=%(phone)s;
+            AND id_card_no = %(id_card_no)s AND phone=%(phone)s;
         """
         df = sql_to_df(sql=sql,
-                       params={"user_name": self.user_name,
-                               "id_card_no": self.id_card_no,
+                       params={"id_card_no": self.id_card_no,
                                "phone": self.phone})
         return df
 
