@@ -139,6 +139,11 @@ def test_get_data():
             resp.append(resp_dict)
     print(resp)
 
+def test_002():
+    data = {'借据编号': ['申请执行人dddd', '2'], '借据起期': [20190521, 20190521]}
+    df = pd.DataFrame(data=data)
+    print(~df['借据编号'].str.contains('原告|申请执行人|第三人'))
+
 
 
 

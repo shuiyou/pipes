@@ -49,7 +49,10 @@ def get_query_data(msg, query_user_type, query_strategy):
         idno = query_data.get("idno")
         user_type = query_data.get("userType")
         strategy = query_data.get("strategy")
-        if user_type == query_user_type and strategy == query_strategy:
+        if pd.notna(query_user_type) and user_type == query_user_type and strategy == query_strategy:
+            resp_dict = {"name": name, "id_card_no": idno}
+            resp.append(resp_dict)
+        if pd.isna(query_user_type) and strategy == query_strategy:
             resp_dict = {"name": name, "id_card_no": idno}
             resp.append(resp_dict)
     return resp
