@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import re
+
 from jsonpath import jsonpath
 import pandas as pd
 from file_utils.files import file_content
@@ -143,6 +145,12 @@ def test_002():
     data = {'借据编号': ['申请执行人dddd', '2'], '借据起期': [20190521, 20190521]}
     df = pd.DataFrame(data=data)
     print(~df['借据编号'].str.contains('原告|申请执行人|第三人'))
+
+def test_003():
+    data = "(0.24,0.333]"
+    print(type(re.findall(r"\((.+?)\," ,data)[0]))
+    print(float('-999') == -999)
+
 
 
 

@@ -76,7 +76,8 @@ class Fraud(Transformer):
 
     def _info_risk_cts_item(self):
         sql = '''
-            select * from info_risk_cts_item where risk_cts_id = (select id from info_risk_cts where mobile= %(mobile)s AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 )
+            select * from info_risk_cts_item where risk_cts_id = (
+            select id from info_risk_cts where mobile= %(mobile)s AND unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 )
         '''
         df = sql_to_df(sql=sql,
                        params={"mobile": self.phone})
