@@ -30,7 +30,8 @@ class T00000(Transformer):
             'base_type': 'PERSON',
             'base_phone': '',
             'product_code': '',
-            'base_marry_state': 'UNKNOWN'
+            'base_marry_state': 'UNKNOWN',
+            'strategy': "01",  # 是否过决策
         }
 
     def _base_black(self):
@@ -69,3 +70,13 @@ class T00000(Transformer):
                 marry_state = extra_param.get("marryState")
                 if marry_state:
                     self.variables["base_marry_state"] = marry_state
+
+            # 是否过决策
+            strategy = self.origin_data.get("strategy")
+            if strategy:
+                self.variables["strategy"] = strategy
+
+            # 学历
+            education = self.origin_data.get("education")
+            if education:
+                self.variables["education"] = education
