@@ -1,204 +1,213 @@
 {
     "strategyParam":{
-        "reqNo":"Q495224422932840448",
-        "stepReqNo":"S495224422958006272",
-        "productCode":"08001",
+        "appId": "0000000000",
+        "reqNo":"Q443160645282725888",
+        "stepReqNo":"S443160645366611968",
+        "productCode":"03002",
+        "industry":"主营行业代码",
         "queryData":[
             {
-                "id":41795,
+                "id":62468,
                 "parentId":0,
-                "name":"王伟芳",
-                "idno":"31011019630329202X",
-                "phone":"13501787722",
+                "name":"米娜",
+                "idno":"430602197802083520",
+                "phone":"15921664870",
                 "userType":"PERSONAL",
-                "authorStatus":"AUTHORIZED",
                 "fundratio":0,
-                "applyAmo":66600,
+                "applyAmo":0,
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历",
+                "baseType":"U_PER_SP_PERSONAL",
                 "relation":"SPOUSE",
                 "extraParam":{
-                    "accounts":[
-                        {
-                            "bankAccount":"6222620110014694302",
-                            "bankName":"建设银⾏"
-                        }
-                    ],
-                    "industry":"E20",
-                    "industryName":"xx⾏业",
-                    "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10",
-                    "seasonable":"1",
-                    "totalSalesLastYear":23232
-                }
+                    "marryState":"MARRIED"
+                },
+                "bizType":[
+                    "00001",
+                    "01001",
+                    "02001",
+                    "05001",
+                    "05002",
+                    "06001",
+                    "07001",
+                    "09001",
+                    "10001",
+                    "11001",
+                    "12001",
+                    "13001",
+                    "14001",
+                    "16001",
+                    "17001",
+                    "18001"
+                ],
+                "rules":[
+
+                ]
             },
             {
-                "id":41796,
+                "id":62469,
+                "parentId":62468,
+                "name":"上海知普信息科技有限公司",
+                "idno":"91310117688753982U",
+                "phone":"",
+                "userType":"COMPANY",
+                "fundratio":0.6,
+                "applyAmo":0,
+                "baseType":"U_PER_SP_CT_COMPANY",
+                "relation":"CONTROLLER",
+                "bizType":[
+                    "00001",
+                    "16002",
+                    "24001",
+                    "f0004",
+                    "f0005"
+                ],
+                "rules":[
+
+                ]
+            },
+            {
+                "id":62464,
                 "parentId":0,
-                "name":"陈成水",
-                "idno":"352201196909240038",
-                "phone":"15911989024",
+                "name":"蒋建碧",
+                "idno":"512926197012153829",
+                "phone":"15921664870",
                 "userType":"PERSONAL",
-                "authorStatus":"AUTHORIZED",
                 "fundratio":0,
-                "applyAmo":76600,
+                "applyAmo":0,
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历",
+                "extraParam":{
+                    "marryState":"MARRIED"
+                },
+                "baseType":"U_PERSONAL",
                 "relation":"MAIN",
-                "extraParam":{
-                    "accounts":[
-                        {
-                            "bankAccount":"6236682990000111311",
-                            "bankName":"工商银行"
-                        }
-                    ],
-                    "industry":"E20",
-                    "industryName":"xx⾏业",
-                    "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10",
-                    "seasonable":"1",
-                    "totalSalesLastYear":23232
-                }
-            },
-            {
-                "id":41797,
-                "parentId":41795,
-                "name":"北京科美源健康管理有限公司",
-                "idno":"91110105MA01JC0X4X",
-                "userType":"COMPANY",
-                "fundratio":0,
-                "applyAmo":0,
-                "relation":"LEGAL",
-                "extraParam":{
-                    "accounts":[
+                "bizType":[
+                    "00001",
+                    "01001",
+                    "02001",
+                    "05001",
+                    "05002",
+                    "06001",
+                    "07001",
+                    "09001",
+                    "10001",
+                    "11001",
+                    "12001",
+                    "13001",
+                    "14001",
+                    "16001",
+                    "17001",
+                    "18001"
+                ],
+                "rules":[
 
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
-            },
-            {
-                "id":41798,
-                "parentId":41795,
-                "name":"上海和善化妆品有限公司",
-                "idno":"91310000332390383G",
-                "userType":"COMPANY",
-                "fundratio":0.78,
-                "applyAmo":0,
-                "relation":"SHAREHOLDER",
-                "extraParam":{
-                    "accounts":[
-
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
-            },
-            {
-                "id":41799,
-                "parentId":41796,
-                "name":"宜昌宝如母婴护理有限公司",
-                "idno":"91420500MA48BHRY8N",
-                "userType":"COMPANY",
-                "fundratio":0.05,
-                "applyAmo":0,
-                "relation":"SHAREHOLDER",
-                "extraParam":{
-                    "accounts":[
-
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
-            },
-            {
-                "id":41800,
-                "parentId":41796,
-                "name":"上海铸建建筑装饰工程有限公司",
-                "idno":"91310116786731525T",
-                "userType":"COMPANY",
-                "fundratio":0.7,
-                "applyAmo":0,
-                "relation":"SHAREHOLDER",
-                "extraParam":{
-                    "accounts":[
-
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
-            },
-            {
-                "id":41801,
-                "parentId":41796,
-                "name":"泉州市维闽纳酒店管理有限公司",
-                "idno":"91350582MA33MTL678",
-                "userType":"COMPANY",
-                "fundratio":0,
-                "applyAmo":0,
-                "relation":"LEGAL",
-                "extraParam":{
-                    "accounts":[
-
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
-            },
-            {
-                "id":41802,
-                "parentId":41796,
-                "name":"深圳市万博特珠宝有限公司",
-                "idno":"91440300664167495T",
-                "userType":"COMPANY",
-                "fundratio":0,
-                "applyAmo":0,
-                "relation":"LEGAL",
-                "extraParam":{
-                    "accounts":[
-
-                    ],
-                    "industry":null,
-                    "industryName":null,
-                    "seasonOffMonth":null,
-                    "seasonOnMonth":null,
-                    "seasonable":null,
-                    "totalSalesLastYear":null
-                }
+                ]
             }
         ],
-        "preReportReqNo":"PR495224414825250816",
-        "single":true,
-        "outApplyNo":"IQP2020502400717008",
-        "applyAmt":7000000,
-        "renewLoans":false,
-        "historicalBiz":[
+        "preQueryData":[
             {
-                "outApplyNo":"8984324748939",
-                "loanDate":"2019-04-01"
+                "id":62468,
+                "parentId":0,
+                "name":"米娜",
+                "idno":"430602197802083520",
+                "phone":"15921664870",
+                "userType":"PERSONAL",
+                "fundratio":0,
+                "applyAmo":0,
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历",
+                "baseType":"U_PER_SP_PERSONAL",
+                "relation":"SPOUSE",
+                "extraParam":{
+                    "marryState":"MARRIED"
+                },
+                "bizType":[
+                    "00001",
+                    "01001",
+                    "02001",
+                    "05001",
+                    "05002",
+                    "06001",
+                    "07001",
+                    "09001",
+                    "10001",
+                    "11001",
+                    "12001",
+                    "13001",
+                    "14001",
+                    "16001",
+                    "17001",
+                    "18001"
+                ],
+                "rules":[
+
+                ]
             },
             {
-                "outApplyNo":"834894932578343",
-                "loanDate":"2020-03-31"
+                "id":62469,
+                "parentId":62468,
+                "name":"上海知普信息科技有限公司",
+                "idno":"91310117688753982U",
+                "phone":"",
+                "userType":"COMPANY",
+                "fundratio":0.6,
+                "applyAmo":0,
+                "baseType":"U_PER_SP_CT_COMPANY",
+                "relation":"CONTROLLER",
+                "bizType":[
+                    "00001",
+                    "16002",
+                    "24001",
+                    "f0004",
+                    "f0005"
+                ],
+                "rules":[
+
+                ]
+            },
+            {
+                "id":62464,
+                "parentId":0,
+                "name":"蒋建碧",
+                "idno":"512926197012153829",
+                "phone":"15921664870",
+                "userType":"PERSONAL",
+                "fundratio":0,
+                "applyAmo":0,
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历",
+                "extraParam":{
+                    "marryState":"MARRIED"
+                },
+                "baseType":"U_PERSONAL",
+                "relation":"MAIN",
+                "bizType":[
+                    "00001",
+                    "01001",
+                    "02001",
+                    "05001",
+                    "05002",
+                    "06001",
+                    "07001",
+                    "09001",
+                    "10001",
+                    "11001",
+                    "12001",
+                    "13001",
+                    "14001",
+                    "16001",
+                    "17001",
+                    "18001"
+                ],
+                "rules":[
+
+                ]
             }
         ],
-        "versionNo":"1.0"
+        "versionNo":"1.0",
+        "preBizDate":"2020-07-07 08:59:25",
+        "preReportReqNo":"PR477802944557907968"
     },
     "strategyResult":null
 }

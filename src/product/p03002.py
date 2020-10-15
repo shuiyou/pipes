@@ -287,6 +287,7 @@ class P03002(Generate):
         # 决策要求一直要加上00000，用户基础信息。
         variables["product_code"] = product_code
         variables['out_strategyBranch'] = '00000'
+        logger.info("variables:%s", variables)
         strategy_request = _build_request(req_no, product_code, variables=variables)
         # 调用决策引擎
         response = requests.post(STRATEGY_URL, json=strategy_request)
