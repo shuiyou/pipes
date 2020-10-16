@@ -60,6 +60,9 @@ class TransFlowRawData:
             data.reset_index(drop=True, inplace=True)
         if data.shape[0] == 0:
             self.new_data = False
+            self.resp['resCode'] = '23'
+            self.resp['resMsg'] = '文件重复'
+            self.resp['data']['warningMsg'] = ['该流水文件数据已存在于数据库,不再重复录入']
             logger.info('录入数据已存在于数据库,不再重复录入,cus_name: %s,   id_card_no: %s,     time:%s' %
                         (self.param.get('cusName'), self.param.get('idNo'), self.create_time))
         return data
