@@ -32,6 +32,8 @@ class T00000(Transformer):
             'product_code': '',
             'base_marry_state': 'UNKNOWN',
             'strategy': "01",  # 是否过决策
+            'education': '',  # 学历
+            'auth_status': 'AUTHORIZED',  # 授权状态
         }
 
     def _base_black(self):
@@ -80,3 +82,8 @@ class T00000(Transformer):
             education = self.origin_data.get("education")
             if education:
                 self.variables["education"] = education
+
+            # 授权状态
+            auth_status = self.origin_data.get("authStatus")
+            if auth_status:
+                self.variables["auth_status"] = auth_status
