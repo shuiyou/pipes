@@ -27,6 +27,7 @@ class T61001(Transformer):
         sql = '''
             select hit_type,field_name,field_value from info_stats_item where stats_id = (
                 select id from info_stats where user_name = %(user_name)s and id_card_no = %(id_card_no)s
+                and channel_api_no = '61001'
                 and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 
             )
         '''
