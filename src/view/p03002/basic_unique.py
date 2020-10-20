@@ -2,14 +2,14 @@ import datetime
 
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.mysql_reader import sql_to_df
 
 
 class BasicUnique(GroupedTransformer):
 
     def invoke_style(self) -> int:
-        return self.invoke_each
+        return invoke_each
 
     def group_name(self):
         return "basic"
@@ -38,13 +38,10 @@ class BasicUnique(GroupedTransformer):
         }
 
     def _info_com_bus_basic(self):
-        sql='''
-            SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s
-        '''
+        sql = '''SELECT id FROM info_com_bus_basic WHERE ent_name=%(user_name)s'''
         if pd.notna(self.id_card_no):
-            sql += ' AND credit_code = %(id_card_no)'
-        sql += '''AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc 
-        limit 1 '''
+            sql += ' and credit_code = %(id_card_no)s'
+        sql += ''' and unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc limit 1 '''
         df = sql_to_df(sql=sql,
                        params={"user_name": self.user_name,
                                "id_card_no": self.id_card_no})

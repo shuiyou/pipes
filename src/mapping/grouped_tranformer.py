@@ -17,7 +17,7 @@ class GroupedTransformer(Transformer):
 
     @abstractmethod
     def invoke_style(self) -> int:
-        pass
+        return 0
 
     @abstractmethod
     def group_name(self):

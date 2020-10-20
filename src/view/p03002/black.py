@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from file_utils.files import file_content
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_union
 from util.common_util import get_query_data
 from util.mysql_reader import sql_to_df
 
@@ -22,7 +22,7 @@ def trans_black_froz_time(begin,end):
 class Black(GroupedTransformer):
 
     def invoke_style(self) -> int:
-        return self.invoke_union
+        return invoke_union
 
     def group_name(self):
         return "black"

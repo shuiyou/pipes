@@ -1,7 +1,7 @@
 import pandas as pd
 from file_utils.files import file_content
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_union
 from util.common_util import get_query_data
 from util.mysql_reader import sql_to_df
 
@@ -26,7 +26,7 @@ def _info_com_bus_shareholder(user_name, id_card_no):
 class BasicUnion(GroupedTransformer):
 
     def invoke_style(self) -> int:
-        return self.invoke_union
+        return invoke_union
 
     def group_name(self):
         return "basic"

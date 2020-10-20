@@ -1,6 +1,6 @@
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.mysql_reader import sql_to_df
 
 
@@ -22,7 +22,7 @@ class Fraud(GroupedTransformer):
         return "fraud"
 
     def invoke_style(self) -> int:
-        return self.invoke_each
+        return invoke_each
 
     def __init__(self) -> None:
         super().__init__()
