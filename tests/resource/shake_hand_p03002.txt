@@ -3,7 +3,7 @@
     "stepReqNo":"S443160645366611968",
     "productCode":"03002",
     "industry":"主营行业代码",
-    "appId": "0000000000",
+    "appId":"0000000000",
     "queryData":[
         {
             "id":62465,
@@ -14,10 +14,10 @@
             "fundratio":0,
             "applyAmo":0,
             "relation":"LEGAL",
-            "strategy":"是否过策略，01-是，02-否",
-            "education":"学历",
             "extraParam":{
-                "marryState":"MARRIED"
+                "marryState":"MARRIED",
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历"
             }
         },
         {
@@ -31,10 +31,10 @@
             "fundratio":0,
             "applyAmo":0,
             "relation":"SPOUSE",
-            "strategy":"是否过策略，01-是，02-否",
-            "education":"学历",
             "extraParam":{
-                "marryState":"MARRIED"
+                "marryState":"MARRIED",
+                "strategy":"是否过策略, 01-是，02-否",
+                "education":"学历"
             }
         },
         {
@@ -47,10 +47,10 @@
             "fundratio":0.6,
             "applyAmo":0,
             "relation":"CONTROLLER",
-            "strategy":"是否过策略，01-是，02-否",
-            "education":"学历",
             "extraParam":{
-                "marryState":"MARRIED"
+                "marryState":"MARRIED",
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历"
             }
         },
         {
@@ -64,10 +64,10 @@
             "fundratio":0,
             "applyAmo":0,
             "relation":"MAIN",
-            "strategy":"是否过策略，01-是，02-否",
-            "education":"学历",
             "extraParam":{
-                "marryState":"MARRIED"
+                "marryState":"MARRIED",
+                "strategy":"是否过策略，01-是，02-否",
+                "education":"学历"
             }
         }
     ],

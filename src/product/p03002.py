@@ -2,6 +2,7 @@
 # @Author : lixiaobo
 # @File : p03002.py 
 # @Software: PyCharm
+import json
 import traceback
 
 import pandas as pd
@@ -257,7 +258,9 @@ class P03002(Generate):
         variables['out_strategyBranch'] = '00000'
         logger.info("variables:%s", variables)
 
-        resp_json = self.invoke_strategy(variables, product_code, req_no)
+        # TODO
+        # resp_json = self.invoke_strategy(variables, product_code, req_no)
+        resp_json = self._invoke_strategy_stub()
         biz_types, categories = _get_biz_types(resp_json)
         rules = _append_rules(biz_types)
 
@@ -269,3 +272,10 @@ class P03002(Generate):
         resp['categories'] = categories
 
         return resp
+
+    @staticmethod
+    def _invoke_strategy_stub():
+        resp = '''
+            {"StrategyOneResponse": {"Header": {"InquiryCode": "Q394106614698901504", "ProcessCode": "Level1_m", "OrganizationCode": "", "ProcessVersion": 94, "LayoutVersion": 20}, "Body": {"Application": {"Variables": {"out_strategyBranch": "00001,01001,02001,05001,05002,06001,07001,10001,11001,12001,13001,14001,16001,17001,18001,31001", "out_isQuery": "Y", "out_result": "A"}, "Categories": [{"Reason": {"Variables": {"out_decisionBranchCode": "AT001", "out_ReasonCode": "RY203"}}}]}}}}
+            '''
+        return json.loads(resp)
