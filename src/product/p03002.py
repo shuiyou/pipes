@@ -13,11 +13,13 @@ from jsonpath import jsonpath
 from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
+from mapping.grouped_tranformer import invoke_each, invoke_union
 from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
 from service.base_type_service_v2 import BaseTypeServiceV2
+from view.grouped_mapper_detail import view_variables_scheduler
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 
 logger = LoggerUtil().logger(__name__)
@@ -72,23 +74,29 @@ class P03002(Generate):
                 array, resp = self._strategy_hand(data, product_code, req_no)
                 subject.append(resp)
                 cache_array.append(array)
+                # 最后返回报告详情
+            common_detail = view_variables_scheduler(product_code, json_data,
+                                                     None, None, None, None, None,None, invoke_union)
+
             # 封装第二次调用参数
             variables = self._create_strategy_second_request(cache_array)
             strategy_resp = self.invoke_strategy(variables, product_code, req_no)
             score_to_int(strategy_resp)
             # 封装最终返回json
-            resp_end = self._create_strategy_resp(strategy_resp, variables, subject, json_data)
+            resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
             self.response = resp_end
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
     @staticmethod
-    def _create_strategy_resp(strategy_resp, variables, subject, json_data):
+    def _create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data):
         resp = {
             'strategyInputVariables': variables,
             'strategyResult': strategy_resp,
-            'subject': subject}
+            'commonDetail': common_detail,
+            'subject': subject
+        }
         keys = json_data.keys
         for key in keys:
             val = json_data.get(key)
@@ -199,7 +207,8 @@ class P03002(Generate):
         array["parentId"] = data.get("parentId")
         return array
 
-    def _get_json_path_value(self, strategy_resp, path):
+    @staticmethod
+    def _get_json_path_value(strategy_resp, path):
         res = jsonpath(strategy_resp, path)
         if isinstance(res, list) and len(res) > 0:
             return res[0]
@@ -211,26 +220,11 @@ class P03002(Generate):
                              resp, strategy_resp, user_name, user_type, variables):
         """
         每次循环后封装每个主体的resp信息
-        :param base_type:
-        :param biz_types:
-        :param data:
-        :param id_card_no:
-        :param out_decision_code:
-        :param phone:
-        :param product_code:
-        :param resp:
-        :param strategy_resp:
-        :param user_name:
-        :param user_type:
-        :param variables:
-        :return:
         """
-        data['bizType'] = biz_types
         data['strategyInputVariables'] = variables
-        # 最后返回报告详情
-        if STRATEGE_DONE in biz_types and user_type == "PERSONAL":
-            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
-                                                 base_type)
+        if STRATEGE_DONE in biz_types:
+            detail = view_variables_scheduler(product_code, None, user_name, id_card_no, phone, user_type, base_type,
+                                              data, invoke_each)
             resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)

@@ -1,6 +1,7 @@
-from mapping.tranformer import Transformer
-from util.mysql_reader import sql_to_df
 import pandas as pd
+
+from mapping.grouped_tranformer import GroupedTransformer
+from util.mysql_reader import sql_to_df
 
 
 def cts_match(df, params):
@@ -15,7 +16,13 @@ def get_factor_field_value(df, key):
         return 0
 
 
-class Fraud(Transformer):
+class Fraud(GroupedTransformer):
+
+    def group_name(self):
+        return "fraud"
+
+    def invoke_style(self) -> int:
+        return self.invoke_each
 
     def __init__(self) -> None:
         super().__init__()

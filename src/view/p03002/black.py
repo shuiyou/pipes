@@ -1,10 +1,9 @@
 import datetime
 
+import pandas as pd
 from file_utils.files import file_content
 
-from mapping.tranformer import Transformer
-import pandas as pd
-
+from mapping.grouped_tranformer import GroupedTransformer
 from util.common_util import get_query_data
 from util.mysql_reader import sql_to_df
 
@@ -19,7 +18,14 @@ def trans_black_froz_time(begin,end):
     else:
         return begin.strftime('%Y-%m-%d %H:%M:%S') + "-" + end.strftime('%Y-%m-%d %H:%M:%S')
 
-class Black(Transformer):
+
+class Black(GroupedTransformer):
+
+    def invoke_style(self) -> int:
+        return self.invoke_union
+
+    def group_name(self):
+        return "black"
 
     def __init__(self) -> None:
         super().__init__()
@@ -348,9 +354,6 @@ class Black(Transformer):
             self.variables['black_froz_thaw_date'] = frost_df['thaw_date'].to_list()
             self.variables['black_froz_invalid_date'] = frost_df['invalid_time'].to_list()
             self.variables['black_froz_invalid_reason'] = frost_df['invalid_reason'].to_list()
-
-
-
 
     def transform(self):
         self.clean_variables_court()

@@ -1,10 +1,18 @@
-from mapping.tranformer import Transformer
-from util.mysql_reader import sql_to_df
-import pandas as pd
 import datetime
 
+import pandas as pd
 
-class basicUnique(Transformer):
+from mapping.grouped_tranformer import GroupedTransformer
+from util.mysql_reader import sql_to_df
+
+
+class BasicUnique(GroupedTransformer):
+
+    def invoke_style(self) -> int:
+        return self.invoke_each
+
+    def group_name(self):
+        return "basic"
 
     def __init__(self) -> None:
         super().__init__()
@@ -42,7 +50,7 @@ class basicUnique(Transformer):
                                "id_card_no": self.id_card_no})
         return df
 
-    def _info_com_bus_face(self,id):
+    def _info_com_bus_face(self, id):
         sql = '''
             select * from info_com_bus_face where basic_id = %(id)s
         '''
@@ -63,7 +71,7 @@ class basicUnique(Transformer):
         open_from = "" if pd.isna(face_df.loc[0, 'open_from']) else datetime.datetime.strftime(face_df.loc[0, 'open_from'], "%Y-%m-%d, %H:%M:%S")
         open_to = "" if pd.isna(face_df.loc[0, 'open_to']) else datetime.datetime.strftime(face_df.loc[0, 'open_to'], "%Y-%m-%d, %H:%M:%S")
         self.variables['basic_ex_open_date_range'] = open_from + "-" + open_to
-        if self.strategy == '02':
+        if self.origin_data.get("extraParam").get("strategy") == '02':
             return
         self.variables['basic_ent_name'] = self.user_name
         self.variables['basic_fr_name'] = face_df.loc[0, 'fr_name']
@@ -78,8 +86,6 @@ class basicUnique(Transformer):
         self.variables['basic_ent_status'] = face_df.loc[0, 'ent_status']
         self.variables['basic_open_date_range'] = open_from + "-" + open_to
         self.variables['basic_share_ent_name'] = face_df.loc[0, 'ent_status']
-
-
 
     def transform(self):
         basic_df = self._info_com_bus_basic()

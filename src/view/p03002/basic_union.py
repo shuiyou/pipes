@@ -1,9 +1,9 @@
+import pandas as pd
 from file_utils.files import file_content
 
-from mapping.tranformer import Transformer
+from mapping.grouped_tranformer import GroupedTransformer
 from util.common_util import get_query_data
 from util.mysql_reader import sql_to_df
-import pandas as pd
 
 
 def _info_com_bus_shareholder(user_name, id_card_no):
@@ -23,7 +23,13 @@ def _info_com_bus_shareholder(user_name, id_card_no):
     return df
 
 
-class basicUnino(Transformer):
+class BasicUnion(GroupedTransformer):
+
+    def invoke_style(self) -> int:
+        return self.invoke_union
+
+    def group_name(self):
+        return "basic"
 
     def __init__(self) -> None:
         super().__init__()
