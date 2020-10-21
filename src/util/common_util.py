@@ -2,6 +2,7 @@ import json
 import traceback
 
 import pandas as pd
+from numpy import int64
 from jsonpath import jsonpath
 
 from logger.logger_util import LoggerUtil
@@ -37,7 +38,15 @@ def exception(describe):
 
 
 def replace_nan(values):
-    return [x if pd.notna(x) else 0 for x in values]
+    v_list = [x if pd.notna(x) else 0 for x in values]
+    result = []
+    for v in v_list:
+        if isinstance(v, int64):
+            result.append(int(str(v)))
+        else:
+            result.append(v)
+
+    return result
 
 
 def get_query_data(msg, query_user_type, query_strategy):
