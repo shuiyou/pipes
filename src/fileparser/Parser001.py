@@ -97,9 +97,19 @@ class Parser001(Parser):
         if not transaction_amt.basic_status:
             return transaction_amt.resp
 
+        # 7.将6中得到的流水数据传入交易对手相关信息列处理类
+        logger.info("%d-----------------------%s" % (7, '进行交易对手信息列处理'))
+        opponent_info = OpponentInfo(transaction_amt.df, trans_basic.col_mapping)
+        opponent_info.opponent_info_match()
+
+        # 8.将7中得到的流水数据传入其他交易信息列处理类
+        logger.info("%d-----------------------%s" % (8, '进行其他交易信息列处理'))
+        other_info = TransactionOtherInfo(opponent_info.df, trans_basic.col_mapping)
+        other_info.trans_info_match()
+
         # 6.将5中得到的流水数据传入交易余额列处理类
         logger.info("%d-----------------------%s" % (6, '进行交易余额列校验'))
-        transaction_bal = TransactionBalance(transaction_amt.df, trans_basic.col_mapping)
+        transaction_bal = TransactionBalance(other_info.df, trans_basic.col_mapping, transaction_time.sort_list)
         # 将交易余额列转化为标准金额,若出现转化错误则直接返回相应的回应报文
         transaction_bal.balance_match()
         if not transaction_bal.basic_status:
@@ -109,22 +119,12 @@ class Parser001(Parser):
         if not transaction_bal.basic_status:
             return transaction_bal.resp
 
-        # 7.将6中得到的流水数据传入交易对手相关信息列处理类
-        logger.info("%d-----------------------%s" % (7, '进行交易对手信息列处理'))
-        opponent_info = OpponentInfo(transaction_bal.df, trans_basic.col_mapping)
-        opponent_info.opponent_info_match()
-
-        # 8.将7中得到的流水数据传入其他交易信息列处理类
-        logger.info("%d-----------------------%s" % (8, '进行其他交易信息列处理'))
-        other_info = TransactionOtherInfo(opponent_info.df, trans_basic.col_mapping)
-        other_info.trans_info_match()
-
         # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
         logger.info("%d-----------------------%s" % (9, '进行数据落库'))
-        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params)
-        raw_data.df = raw_data.remove_duplicate_data(other_info.df)
+        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params, trans_profile.resp)
+        raw_data.df = raw_data.remove_duplicate_data(transaction_bal.df)
         # 若没有新增数据将不进行落库操作
         if raw_data.new_data:
             raw_data.save_raw_data()
 
-        return trans_profile.resp
+        return raw_data.resp

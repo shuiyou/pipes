@@ -7,7 +7,7 @@ class OpponentInfo:
     将流水文件中所有交易对手相关信息(交易对手姓名,交易对手账号,交易对手开户行)标准化
     author:汪腾飞
     created_time:20200630
-    updated_time_v1:
+    updated_time_v1:20200818,去除所有列中无意义字符
     """
 
     def __init__(self, trans_data, col_mapping):
@@ -51,18 +51,20 @@ class OpponentInfo:
     def _opinfo_match(self, opponent_info, col_name):
         self._remove_opinfo_col(opponent_info)
         length = len(self.col_mapping[opponent_info])
+        comp = re.compile(r'[\s^-]')
+        self.df[self.col_mapping[opponent_info]] = self.df[self.col_mapping[opponent_info]].fillna('').astype(str)
         if length == 1:
-            self.df[col_name] = self.df[self.col_mapping[opponent_info][0]]
+            self.df[col_name] = self.df[self.col_mapping[opponent_info][0]].apply(lambda x: re.sub(comp, '', x))
         elif length == 2:
             neg = self.col_mapping[opponent_info][0]
             pos = self.col_mapping[opponent_info][1]
             for i in self.df.index:
                 if self.df.loc[i, 'trans_amt'] > 0:
-                    self.df.loc[i, col_name] = self.df.loc[i, neg]
+                    self.df.loc[i, col_name] = re.sub(comp, '', self.df.loc[i, neg])
                 else:
-                    self.df.loc[i, col_name] = self.df.loc[i, pos]
+                    self.df.loc[i, col_name] = re.sub(comp, '', self.df.loc[i, pos])
         elif length > 3:
-            self.df[col_name] = self.df[self.col_mapping[opponent_info][0]]
+            self.df[col_name] = self.df[self.col_mapping[opponent_info][0]].apply(lambda x: re.sub(comp, '', x))
         else:
             self.df[col_name] = ''
         return

@@ -49,7 +49,8 @@ class UnSettleInfoProcessor(ModuleProcessor):
         # 2.统计1中不同account_org的数目
         credit_loan_df = self.cached_data["pcredit_loan"]
         credit_loan_df = credit_loan_df.query('account_type in ["04", "05"] and loan_status != "07"')
-        self.variables["uncancelled_credit_organization_number"] = credit_loan_df.shape[0]
+        org_list = list(set(credit_loan_df['account_org'].to_list()))
+        self.variables["uncancelled_credit_organization_number"] = len(org_list)
 
     # 未结清经营性贷款笔笔数
     def _unsettled_busLoan_total_cnt(self):

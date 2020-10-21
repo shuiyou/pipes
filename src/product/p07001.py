@@ -9,6 +9,7 @@ import traceback
 import requests
 from flask import request
 from jsonpath import jsonpath
+from pymysql import Timestamp
 
 from config import STRATEGY_URL
 from exceptions import ServerException
@@ -56,7 +57,8 @@ class P07001(Generate):
                 subject.append(resp)
 
             self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
-
+            self.echo_var_type("ROOT", self.response)
+            logger.info(self.response)
             logger.info("2. 征信报告，应答：%s", json.dumps(self.response))
         except Exception as err:
             logger.error(traceback.format_exc())
@@ -139,3 +141,16 @@ class P07001(Generate):
             return "U_COMPANY"
         else:
             raise ServerException(code=400, description="不识别的用户类型:" + user_type)
+
+    def echo_var_type(self, key, val):
+        if isinstance(val, list):
+            for v in val:
+                self.echo_var_type(key, v)
+        elif isinstance(val, dict):
+            for k in val:
+                v = val.get(k)
+                self.echo_var_type(k, v)
+        elif isinstance(val, Timestamp):
+            print(key, "-----------------NOT SUPPORT-------------------------", val)
+
+
