@@ -4,15 +4,15 @@
 # @Software: PyCharm
 
 
-import pandas as pd
+import json
+
+import jsonpath
 import numpy as np
+import pandas as pd
 
 from mapping.grouped_tranformer import GroupedTransformer
-from mapping.tranformer import Transformer
+from util.DataFrameFlatter import DataFrameFlatter
 from util.mysql_reader import sql_to_df
-from util.dataframe_flatter import DataFrameFlatter
-import jsonpath
-import json
 
 
 class Owner(GroupedTransformer):
