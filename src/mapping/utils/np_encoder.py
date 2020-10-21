@@ -4,16 +4,16 @@
 # @Software: PyCharm
 import json
 
-from pandas.tests.extension.numpy_.test_numpy_nested import np
+from numpy import integer, floating, ndarray
 
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.integer):
+        if isinstance(obj, integer):
             return int(obj)
-        elif isinstance(obj, np.floating):
+        elif isinstance(obj, floating):
             return float(obj)
-        elif isinstance(obj, np.ndarray):
+        elif isinstance(obj, ndarray):
             return obj.tolist()
         else:
             return super(NpEncoder, self).default(obj)
