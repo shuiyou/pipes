@@ -59,7 +59,7 @@ class P07001(Generate):
                 subject.append(resp)
 
             self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
-            self.echo_var_type(None, None, self.response)
+            # self.echo_var_type(None, None, self.response)
             logger.info(self.response)
             logger.info("2. 征信报告，应答：%s", json.dumps(self.response, cls=NpEncoder))
         except Exception as err:
@@ -173,4 +173,3 @@ class P07001(Generate):
                     parent[key] = int(str(val))
         except Exception as e:
             logger.error(str(e))
-
