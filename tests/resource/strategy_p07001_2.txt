@@ -1,29 +1,33 @@
 {
     "strategyParam":{
-        "reqNo":"Q464882996357529600",
-        "stepReqNo":"S464882996374306816",
+        "appId":"0000000000",
+        "reqNo":"Q516244816204562432",
+        "stepReqNo":"S516244816233922560",
         "productCode":"07001",
         "queryData":[
             {
-                "id":29977,
+                "id":281412,
                 "parentId":0,
-                "name":"谷成应",
-                "idno":"342201197006098010",
-                "phone":"13305571222",
+                "name":"何志岗",
+                "idno":"511122197312150718",
+                "phone":"15183307777",
                 "userType":"PERSONAL",
-                "applyAmo":10000,
                 "relation":"MAIN",
                 "extraParam":{
-                    "houseAddress":"安徽省宿州市墉桥区蒿沟乡灰苗路2-091号",
-                    "liveAddress":"安徽省宿州市墉桥区香林丽景湾小区25栋1004室",
-                    "marryState":"MARRIED",
-                    "postalAddress":"安徽省宿州市墉桥区香林丽景湾小区25栋1004室",
-                    "spouseIdNo":"342201197604010429",
-                    "spouseName":"邵静"
+                    "workUnit":null,
+                    "postalAddress":null,
+                    "liveAddress":null,
+                    "spousePhone":null,
+                    "spouseIdNo":null,
+                    "spouseName":null,
+                    "marryState":null,
+                    "houseAddress":null
                 }
             }
         ],
-        "preReportReqNo":"47832748273423436022",
+        "preReportReqNo":"Q516247398054526976",
+        "single":false,
+        "renewLoans":false,
         "versionNo":"1.0"
     },
     "strategyResult":null
