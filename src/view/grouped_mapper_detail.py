@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import traceback
 
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
@@ -43,6 +44,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
         logger.error(">>> translate error: " + str(err))
         if no_data_repository:
             cached_data.clear()
+        logger.error(traceback.format_exc())
         raise ServerException(code=500, description=str(err))
 
     if no_data_repository:

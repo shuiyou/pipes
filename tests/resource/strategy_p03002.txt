@@ -15,12 +15,12 @@
                 "userType":"PERSONAL",
                 "fundratio":0,
                 "applyAmo":0,
-                "strategy":"是否过策略，01-是，02-否",
-                "education":"学历",
                 "baseType":"U_PER_SP_PERSONAL",
                 "relation":"SPOUSE",
                 "extraParam":{
-                    "marryState":"MARRIED"
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
                 },
                 "bizType":[
                     "00001",
@@ -64,7 +64,12 @@
                 ],
                 "rules":[
 
-                ]
+                ],
+                "extraParam":{
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
+                }
             },
             {
                 "id":62464,
@@ -78,7 +83,9 @@
                 "strategy":"是否过策略，01-是，02-否",
                 "education":"学历",
                 "extraParam":{
-                    "marryState":"MARRIED"
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
                 },
                 "baseType":"U_PERSONAL",
                 "relation":"MAIN",
@@ -115,12 +122,12 @@
                 "userType":"PERSONAL",
                 "fundratio":0,
                 "applyAmo":0,
-                "strategy":"是否过策略，01-是，02-否",
-                "education":"学历",
                 "baseType":"U_PER_SP_PERSONAL",
                 "relation":"SPOUSE",
                 "extraParam":{
-                    "marryState":"MARRIED"
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
                 },
                 "bizType":[
                     "00001",
@@ -164,7 +171,12 @@
                 ],
                 "rules":[
 
-                ]
+                ],
+                "extraParam":{
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
+                }
             },
             {
                 "id":62464,
@@ -178,7 +190,9 @@
                 "strategy":"是否过策略，01-是，02-否",
                 "education":"学历",
                 "extraParam":{
-                    "marryState":"MARRIED"
+                    "marryState":"MARRIED",
+                    "strategy":"是否过策略，01-是，02-否",
+                    "education":"学历"
                 },
                 "baseType":"U_PERSONAL",
                 "relation":"MAIN",

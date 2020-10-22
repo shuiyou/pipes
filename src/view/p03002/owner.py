@@ -10,7 +10,7 @@ import jsonpath
 import numpy as np
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.DataFrameFlatter import DataFrameFlatter
 from util.mysql_reader import sql_to_df
 
@@ -21,10 +21,10 @@ class Owner(GroupedTransformer):
     """
 
     def invoke_style(self) -> int:
-        pass
+        return invoke_each
 
     def group_name(self):
-        pass
+        return "owner"
 
     def __init__(self) -> None:
         super().__init__()

@@ -100,12 +100,6 @@ class P03002(Generate):
             'commonDetail': common_detail,
             'subject': subject
         }
-        keys = json_data.keys
-        for key in keys:
-            val = json_data.get(key)
-            if val and (isinstance(val, int) and isinstance(val, str)):
-                resp[key] = val
-
         return resp
 
     @staticmethod
@@ -116,9 +110,8 @@ class P03002(Generate):
         """
         df = pd.DataFrame(cache_array)
         # 取前10行数据
-        df_person = df.query('userType=="PERSONAL" && strategy=="01"') \
-            .sort_values(by=["fundratio"], ascending=False) \
-            .sort_values(by=["order"], ascending=True)
+        df_person = df.query('userType=="PERSONAL" and strategy=="01"') \
+            .sort_values(by=["fundratio"], ascending=False)
 
         # 删除重复的数据
         df_person.drop_duplicates(subset=["name", "idno"], inplace=True)
@@ -161,8 +154,8 @@ class P03002(Generate):
         origin_input.update(variables)
 
         # TODO
-        # strategy_resp = self.invoke_strategy(origin_input, product_code, req_no)
-        strategy_resp = self._invoke_strategy_stub()
+        strategy_resp = self.invoke_strategy(origin_input, product_code, req_no)
+        # strategy_resp = self._invoke_strategy_stub()
         score_to_int(strategy_resp)
         biz_types, categories = _get_biz_types(strategy_resp)
 
@@ -176,6 +169,7 @@ class P03002(Generate):
     @staticmethod
     def invoke_strategy(variables, product_code, req_no):
         strategy_request = _build_request(req_no, product_code, variables)
+        logger.info("strategy_request:%s", strategy_request)
         strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
         logger.debug("strategy_response%s", strategy_response)
         if strategy_response.status_code != 200:
@@ -191,7 +185,8 @@ class P03002(Generate):
         array = {
             'name': user_name,
             'idno': data.get('idno'),
-            'userType': user_type
+            'userType': user_type,
+            'strategy': data.get("extraParam").get("strategy")
         }
         if fundratio is None or fundratio == '':
             array['fundratio'] = 0.00
@@ -260,8 +255,8 @@ class P03002(Generate):
         logger.info("variables:%s", variables)
 
         # TODO
-        # resp_json = self.invoke_strategy(variables, product_code, req_no)
-        resp_json = self._invoke_strategy_stub()
+        resp_json = self.invoke_strategy(variables, product_code, req_no)
+        # resp_json = self._invoke_strategy_stub()
         biz_types, categories = _get_biz_types(resp_json)
         rules = _append_rules(biz_types)
 

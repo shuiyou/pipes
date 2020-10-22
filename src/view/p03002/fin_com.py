@@ -9,7 +9,7 @@ import json
 import jsonpath
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.mysql_reader import sql_to_df
 
 
@@ -19,10 +19,10 @@ class FinCom(GroupedTransformer):
     """
 
     def invoke_style(self) -> int:
-        pass
+        return invoke_each
 
     def group_name(self):
-        pass
+        return "finCom"
 
     def __init__(self) -> None:
         super().__init__()

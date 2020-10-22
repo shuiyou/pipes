@@ -12,7 +12,6 @@ class GroupedTransformer(Transformer):
 
     def __init__(self) -> None:
         super().__init__()
-        self.group_name = "-"
         self.full_msg = None
 
     @abstractmethod
