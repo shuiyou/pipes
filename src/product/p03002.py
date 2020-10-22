@@ -20,7 +20,7 @@ from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
 from service.base_type_service_v2 import BaseTypeServiceV2
 from view.grouped_mapper_detail import view_variables_scheduler
-from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
+from view.mapper_detail import STRATEGE_DONE
 
 logger = LoggerUtil().logger(__name__)
 
@@ -130,12 +130,12 @@ class P03002(Generate):
         person_index = 0
         for index, row in df_person.iterrows():
             person_index = person_index + 1
-            variables['score_p' + str(person_index)] = row['score_black']
-            variables['score_fraud_p' + str(person_index)] = row['score_credit']
-            variables['score_owner_p' + str(person_index)] = row['score_debit']
-            variables['score_bus_p' + str(person_index)] = row['score_fraud']
-            variables['score_black_p' + str(person_index)] = row['score_fraud']
-            variables['score_fin_p' + str(person_index)] = row['score']
+            variables['score_p' + str(person_index)] = row['score']
+            variables['score_fraud_p' + str(person_index)] = row['score_fraud']
+            variables['score_owner_p' + str(person_index)] = row['score_owner']
+            variables['score_bus_p' + str(person_index)] = row['score_bus']
+            variables['score_black_p' + str(person_index)] = row['score_black']
+            variables['score_fin_p' + str(person_index)] = row['score_fin']
             variables['model_pred_p' + str(person_index)] = row['model_pred']
         variables['base_type'] = 'UNION'
         return variables
