@@ -136,6 +136,7 @@ class P03002(Generate):
             variables['score_bus_p' + str(person_index)] = row['score_fraud']
             variables['score_black_p' + str(person_index)] = row['score_fraud']
             variables['score_fin_p' + str(person_index)] = row['score']
+            variables['model_pred_p' + str(person_index)] = row['model_pred']
         variables['base_type'] = 'UNION'
         return variables
 
@@ -208,6 +209,7 @@ class P03002(Generate):
         array['score_fraud'] = self._get_json_path_value(strategy_resp, '$..score_fraud')
         array['score_bus'] = self._get_json_path_value(strategy_resp, '$..score_bus')
         array['score'] = self._get_json_path_value(strategy_resp, '$..score')
+        array['model_pred'] = self._get_json_path_value(strategy_resp, '$..model_pred')
         array["id"] = data.get("id")
         array["parentId"] = data.get("parentId")
         return array
