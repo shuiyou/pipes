@@ -217,7 +217,7 @@ class FinCom(GroupedTransformer):
                 idx = idx | i
             self.variables['fin_alt_cnt'] += df[idx].shape[0]
             if df[idx].shape[0] > 0:
-                self.variables['fin_alt_name'].append(df['ent_name'].drop_duplicates())
+                self.variables['fin_alt_name'] = df['ent_name'].drop_duplicates().to_list()
                 self.variables['fin_alt_item'] += df[idx]['alt_item'].to_list()
                 self.variables['fin_alt_date'] += df[idx]['alt_date'].map(
                     lambda x: x.strftime('%Y-%m-%d')).to_list()
