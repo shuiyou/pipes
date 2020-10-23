@@ -1,11 +1,19 @@
 import pandas as pd
+import numpy as np
 
 from mapping.tranformer import Transformer, subtract_datetime_col
 from util.mysql_reader import sql_to_df
 
+
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
+
+def month_clac(x):
+    for i in range(25):
+        days = (pd.datetime.now() - pd.DateOffset(months=i)) - x
+        if days.days <= 0:
+            return i
 
 class T13001(Transformer):
     """
@@ -33,6 +41,13 @@ class T13001(Transformer):
             'sms_max_owe_6m': 0,  # 短信核查_近6个月内欠款金额最大等级
             'sms_app_cnt_3m': 0,  # 短信核查_近三个月内申请总次数
             'sms_loan_cnt_3m': 0,  # 短信核查_近三个月内放款总次数
+            'hd_regi_p2p_3m': 0,
+            'hd_loan_non_bank_6m': 0,
+            'hd_loan_month_std_24m': 0,
+            'hd_apply_month_std_12m': 0,
+            'hd_loan_month_std_12m': 0,
+            'hd_regi_non_bank_3m': 0,
+            'hd_loan_total_weight_amt_9m': 0
         }
 
     ## 获取目标数据集1
@@ -403,6 +418,101 @@ class T13001(Transformer):
 
         self.variables["sms_loan_cnt_3m"] = df.iloc[0].total_count
 
+    # 读取华道数据 info_sms 读取sms_id数据主键
+    def _load_info_sms_id(self, dict_in) -> int:
+        sql = """
+           SELECT *
+           FROM info_sms WHERE user_name = %(name)s
+           and id_card_no = %(idno)s
+           and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+        """
+        df = sql_to_df(sql=sql, params={"name": dict_in['name'], "idno": dict_in['idno']})
+        if df is not None and len(df) > 0:
+            df.sort_values(by=['expired_at'], ascending=False, inplace=True)
+            return int(df['sms_id'].iloc[0])
+
+    # 读取 info_sms_loan 数据
+    def _load_info_sms_loan_df(self, id) -> pd.DataFrame:
+        sql = """
+               SELECT *
+               FROM info_sms_loan
+               WHERE sms_id = %(id)s;
+        """
+        info_sms_loan_df = sql_to_df(sql=sql, params={"id": id})
+        if info_sms_loan_df is not None and len(info_sms_loan_df) > 0:
+            return info_sms_loan_df
+        return None
+
+    # 计算 info_sms_loan 相关字段
+    def _info_sms_loan1(self, df=None):
+        if df is not None and len(df) > 0:
+            df1 = df[
+                (df['platform_type'] == "NON_BANK") & (
+                            df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=6))]
+            self.variables['hd_loan_non_bank_6m'] += df1.shape[0]
+
+            df2 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=24))]
+            df2['month'] = df2['loan_time'].map(month_clac())
+            self.variables['hd_loan_month_std_24m'] = np.round(np.std(df2.groupby(by='month').id.count()), 4)
+
+            df3 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=12))]
+            df3['month'] = df3['loan_time'].map(month_clac())
+            self.variables['hd_loan_month_std_12m'] = np.round(np.std(df3.groupby(by='month').id.count()), 4)
+
+            df4 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=9))]
+            reset_dir = {
+                '0W～0.2W': 1000,
+                '0.2W～0.5W': 3500,
+                '0.5W～1W': 7500,
+                '1W～3W': 20000,
+                '3W～5W': 40000,
+                '5W～10W': 75000,
+                '10W以上': 100000
+            }
+            df4['loan_amount'] = df['loan_amount'].map(reset_dir)
+
+            self.variables['fin_mort_name'] += df['loan_amount'].sum()
+
+    # 读取 info_sms_loan_platform 数据
+    def _load_info_sms_loan_platform_df(self, id) -> pd.DataFrame:
+        sql = """
+               SELECT *
+               FROM info_sms_loan_platform
+               WHERE sms_id = %(id)s;
+        """
+        info_sms_loan_platform_df = sql_to_df(sql=sql, params={"id": id})
+        if info_sms_loan_platform_df is not None and len(info_sms_loan_platform_df) > 0:
+            return info_sms_loan_platform_df
+        return None
+
+    # 计算 info_sms_loan_platform 相关字段
+    def _info_platform(self, df=None):
+        if df is not None and len(df) > 0:
+            self.variables['hd_regi_p2p_3m'] = len(df[(df['register_time'] > pd.datetime.now() - pd.DateOffset(
+                months=3)) & (df['platform_type'] == "P2P")])
+            self.variables['hd_regi_non_bank_3m'] = len(
+                df[(df['register_time'] > pd.datetime.now() - pd.DateOffset(months=3)) & (
+                            df['platform_type'] == "NON_BANK")])
+
+    # 读取 info_sms_loan_apply 数据
+    def _load_info_sms_loan_apply_df(self, id) -> pd.DataFrame:
+        sql = """
+               SELECT *
+               FROM info_sms_loan_apply
+               WHERE sms_id = %(id)s;
+        """
+        info_sms_loan_apply_df = sql_to_df(sql=sql, params={"id": id})
+        if info_sms_loan_apply_df is not None and len(info_sms_loan_apply_df) > 0:
+            return info_sms_loan_apply_df
+        return None
+
+    # 计算 info_sms_loan_apply 相关字段
+    def _info_apply(self, df=None):
+        if df is not None and len(df) > 0:
+            df2 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=12))]
+            df2['month'] = df2['loan_time'].map(month_clac())
+            self.variables['hd_apply_month_std_12m'] = np.round(np.std(df2.groupby(by='month').id.count()), 4)
+
     ##  执行变量转换
     def transform(self):
         platform_df = self._info_sms_loan_platform()
@@ -427,3 +537,17 @@ class T13001(Transformer):
         self._sms_max_owe_6m(debt)
         self._sms_app_cnt_3m()
         self._sms_loan_cnt_3m()
+
+        each = self.origin_data
+        sms_id = self._load_info_sms_id(each)
+
+        df = self._load_info_sms_loan_df(sms_id)
+        self._info_sms_loan1(df)
+
+        df = self._load_info_sms_loan_platform_df(sms_id)
+        self._info_platform(df)
+
+        df = self._load_info_sms_loan_apply_df(sms_id)
+        self._info_apply(df)
+
+
