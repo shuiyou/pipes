@@ -52,3 +52,6 @@ class T33001(Transformer):
         self.variables['yf_trans_fail_3m_cnt'] = int(get_filed_value(df, 'general_info', 'day90'))
         self.variables['yf_small_loan_guar_org_cnt'] = int(get_filed_value(df, 'general_info', 'loan_guarantee_total'))
         self.variables['yf_consume_fin_org_cnt'] = int(get_filed_value(df, 'general_info', 'consumer_finance_total'))
+
+    def transform(self):
+        self.clean_variables()

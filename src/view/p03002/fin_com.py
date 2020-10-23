@@ -9,7 +9,7 @@ import json
 import jsonpath
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer, invoke_each
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each, invoke_union
 from util.mysql_reader import sql_to_df
 
 
@@ -19,7 +19,7 @@ class FinCom(GroupedTransformer):
     """
 
     def invoke_style(self) -> int:
-        return invoke_each
+        return invoke_union
 
     def group_name(self):
         return "finCom"
@@ -249,7 +249,7 @@ class FinCom(GroupedTransformer):
             self.variables['fin_cancle_date'] += df['can_date'].to_list()
 
     def transform(self):
-        query_list = self._jsonpath_load(self.query_json)
+        query_list = self._jsonpath_load(self.full_msg)
         com_list = []
         for each in query_list:
             if each['baseType'].upper() == 'COMPANY':

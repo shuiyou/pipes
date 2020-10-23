@@ -379,7 +379,7 @@ class Owner(GroupedTransformer):
         self.variables['owner_age'] = base + remainder
 
     def transform(self):
-        query_list = self._jsonpath_load(self.query_json)
+        query_list = self._jsonpath_load(self.full_msg)
         for each in query_list:
             risk_subject_id = self._load_info_com_bus_basic_id(each)
 

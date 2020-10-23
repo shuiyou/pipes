@@ -9,7 +9,7 @@ import jsonpath
 import numpy as np
 import pandas as pd
 
-from mapping.grouped_tranformer import GroupedTransformer, invoke_each
+from mapping.grouped_tranformer import GroupedTransformer, invoke_each, invoke_union
 from util.mysql_reader import sql_to_df
 
 
@@ -567,7 +567,7 @@ class Fin(GroupedTransformer):
 
 
     def transform(self):
-        query_list = self._jsonpath_load(self.query_json)
+        query_list = self._jsonpath_load(self.full_msg)
         for each in query_list:
             if each['baseType'].upper() == 'PERSONAL':
                 df = self._load_detail_info_data_df(each)
