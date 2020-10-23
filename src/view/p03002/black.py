@@ -311,7 +311,7 @@ class Black(GroupedTransformer):
 
 
     def clean_variables_bus(self):
-        msg = file_content("./resource", "unin_level1_001.json")
+        msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
         resp = get_query_data(msg, 'COMPANY', '01')
         ids = []
         basic_dict = {"id":[],"ent_name":[]}
@@ -320,10 +320,10 @@ class Black(GroupedTransformer):
             id_card_no = i.get("id_card_no")
             court_df = self._info_com_bus_basic(user_name, id_card_no)
             if not court_df.empty:
-                ids.append(court_df.loc[0, 'id'])
-                basic_dict['id'] = court_df.loc[0, 'id']
-                basic_dict['ent_name'] = court_df.loc[0, 'ent_name']
-        basic_df = pd.DataFrame(data=basic_dict)
+                ids.append(int(court_df.loc[0, 'id']))
+                basic_dict['id'].append(court_df.loc[0, 'id'])
+                basic_dict['ent_name'].append(court_df.loc[0, 'ent_name'])
+        basic_df = pd.DataFrame(basic_dict)
         illegal_df = self._info_com_bus_illegal(ids)
         frost_df = self._info_com_bus_shares_frost(ids)
 
