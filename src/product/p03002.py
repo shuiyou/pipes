@@ -87,6 +87,7 @@ class P03002(Generate):
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
+            logger.info("response:%s", json.dumps(resp_end))
             self.response = resp_end
         except Exception as err:
             logger.error(traceback.format_exc())
