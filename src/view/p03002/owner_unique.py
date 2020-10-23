@@ -217,10 +217,28 @@ class Owner(GroupedTransformer):
             'name'].to_list()
         self.variables['owner_list_style'] = ['罪犯及嫌疑人'] * len(df1['name']) + ['失信老赖'] * len(
             df2['name']) + ['限制高消费'] * len(df3['name']) + ['限制出入境'] * len(df4['name'])
-        self.variables['owner_list_detail'] = (df1['case_no'] + df1['trial_result']).to_list() + (
-                df2['execute_case_no'] + df2['execute_content']).to_list() + (
-                                                      df3['execute_case_no'] + df3['execute_content']).to_list() + (
-                                                      df4['execute_no'] + df4['execute_content']).to_list()
+
+        result = []
+        self._collect_series(result, df1, "case_no", "trial_result")
+        self._collect_series(result, df2, "execute_case_no", "execute_content")
+        self._collect_series(result, df3, "execute_case_no", "execute_content")
+        self._collect_series(result, df4, "execute_no", "execute_content")
+
+        self.variables['owner_list_detail'] = result
+
+    @staticmethod
+    def _collect_series(result_list, df, *args):
+        if df is None or df.empty:
+            return
+
+        result = None
+        for i, arg in enumerate(args):
+            if i == 0:
+                result = df[arg]
+            else:
+                result = result + df[arg]
+        for v in result:
+            result_list.append(v)
 
     # 计算 jg_v5 相关字段
     def _owner_app(self, df_in):
@@ -379,22 +397,21 @@ class Owner(GroupedTransformer):
         self.variables['owner_age'] = base + remainder
 
     def transform(self):
-        query_list = self._jsonpath_load(self.full_msg)
-        for each in query_list:
-            risk_subject_id = self._load_info_com_bus_basic_id(each)
+        each = self.origin_data
+        risk_subject_id = self._load_info_com_bus_basic_id(each)
 
-            if each['baseType'].upper() == 'PERSONAL':
-                jg_id = self._load_info_audience_tag_id(each)
-                df = self._load_info_audience_tag_item_df(jg_id)
-                self._owner_app(df)
+        if each['baseType'].upper() == 'PERSONAL':
+            jg_id = self._load_info_audience_tag_id(each)
+            df = self._load_info_audience_tag_item_df(jg_id)
+            self._owner_app(df)
 
-            elif each['baseType'].upper() == "COMPANY":
-                df = self._load_info_court_tax_arrears_df(risk_subject_id)
-                self._owner_tax(df)
+        elif each['baseType'].upper() == "COMPANY":
+            df = self._load_info_court_tax_arrears_df(risk_subject_id)
+            self._owner_tax(df)
 
-            df1 = self._load_info_court_criminal_suspect_df(risk_subject_id)
-            df2 = self._load_info_court_deadbeat_df(risk_subject_id)
-            df3 = self._load_info_court_limit_hignspending_df(risk_subject_id)
-            df4 = self._load_info_court_limited_entry_exit_df(risk_subject_id)
-            self._owner_list(df1, df2, df3, df4)
+        df1 = self._load_info_court_criminal_suspect_df(risk_subject_id)
+        df2 = self._load_info_court_deadbeat_df(risk_subject_id)
+        df3 = self._load_info_court_limit_hignspending_df(risk_subject_id)
+        df4 = self._load_info_court_limited_entry_exit_df(risk_subject_id)
+        self._owner_list(df1, df2, df3, df4)
 

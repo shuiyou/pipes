@@ -60,14 +60,13 @@ class Bus(GroupedTransformer):
             'bus_invest_form': []
         }
 
-    def _jsonpath_load(self, json_str) -> list:
+    def _jsonpath_load(self, json_dic) -> list:
         """
         :param str: json串
         :return list: 返回字典列表，包含类型和相关数据数据
         """
-        json_dic = json.loads(json_str)
         res = list()
-        for i in jsonpath.jsonpath(json_dic, "$.queryData[*]"):
+        for i in jsonpath.jsonpath(json_dic, "$..queryData[*]"):
             t = dict()
             t['baseType'] = i.get('userType')
             t['name'] = i.get('name')
@@ -182,10 +181,7 @@ class Bus(GroupedTransformer):
             self.variables['bus_invest_proportion'] += df['funded_ratio'].to_list()
             self.variables['bus_invest_form'] += df['con_form'].to_list()
 
-
-
     def transform(self):
-
         query_list = self._jsonpath_load(self.full_msg)
         for each in query_list:
             if each['baseType'].upper() == 'PERSONAL':

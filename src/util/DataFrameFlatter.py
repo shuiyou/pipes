@@ -11,9 +11,6 @@ class DataFrameFlatter(object):
     k_name 属性字段名
     v_name 属性值字段名
     """
-    def __init__(self):
-        print("default")
-
     def __init__(self, origin_df, g_name, k_name, v_name):
         self.origin_df = origin_df
         self.g_name = g_name

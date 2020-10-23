@@ -564,27 +564,24 @@ class Fin(GroupedTransformer):
                 self.variables['fin_hd_apply_24m_amt'] = np.round(df_24m['overdue_money'].sum() / 1e5, 2)
                 self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['overdue_money'].mean() / 1e5, 2)
 
-
-
     def transform(self):
-        query_list = self._jsonpath_load(self.full_msg)
-        for each in query_list:
-            if each['baseType'].upper() == 'PERSONAL':
-                df = self._load_detail_info_data_df(each)
-                self._info_oth_loan_summary(df)
+        each = self.origin_data
+        if each['baseType'].upper() == 'PERSONAL':
+            df = self._load_detail_info_data_df(each)
+            self._info_oth_loan_summary(df)
 
-                sms_id = self._load_sms_id()
+            sms_id = self._load_sms_id()
 
-                df = self._load_info_sms_loan_platform_df(sms_id)
-                self._info_sms_loan_platform(df)
+            df = self._load_info_sms_loan_platform_df(sms_id)
+            self._info_sms_loan_platform(df)
 
-                df = self._load_info_sms_loan_apply_df(sms_id)
-                self._info_sms_loan_apply(df)
+            df = self._load_info_sms_loan_apply_df(sms_id)
+            self._info_sms_loan_apply(df)
 
-                df = self._load_info_sms_loan_df(sms_id)
-                self._info_sms_loan(df)
+            df = self._load_info_sms_loan_df(sms_id)
+            self._info_sms_loan(df)
 
-                df = self._load_info_sms_overdue_platform_df(sms_id)
-                self._info_sms_overdue_platform(df)
+            df = self._load_info_sms_overdue_platform_df(sms_id)
+            self._info_sms_overdue_platform(df)
 
 

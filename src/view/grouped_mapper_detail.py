@@ -50,7 +50,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
     if no_data_repository:
         cached_data.clear()
     if len(variables) > 0:
-        extension_variables(variables)
+        # extension_variables(variables)
         # 转换类型，这样解决toJson的问题
         fix_cannot_to_json(variables)
     return variables

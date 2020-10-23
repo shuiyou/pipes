@@ -50,8 +50,7 @@ def replace_nan(values):
 
 
 def get_query_data(msg, query_user_type, query_strategy):
-    data = json.loads(msg)
-    query_data_list = jsonpath(data, '$..queryData[*]')
+    query_data_list = jsonpath(msg, '$..queryData[*]')
     resp = []
     for query_data in query_data_list:
         name = query_data.get("name")

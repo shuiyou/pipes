@@ -22,7 +22,7 @@ class FinCom(GroupedTransformer):
         return invoke_union
 
     def group_name(self):
-        return "finCom"
+        return "fin"
 
     def __init__(self) -> None:
         super().__init__()
@@ -61,14 +61,13 @@ class FinCom(GroupedTransformer):
         }
 
     # 解析传入的json串
-    def _jsonpath_load(self, json_str) -> list:
+    def _jsonpath_load(self, json_dic) -> list:
         """
         :param str: json串
         :return list: 返回字典列表，包含类型和相关数据数据
         """
-        json_dic = json.loads(json_str)
         res = list()
-        for i in jsonpath.jsonpath(json_dic, "$.queryData[*]"):
+        for i in jsonpath.jsonpath(json_dic, "$..queryData[*]"):
             t = dict()
             t['baseType'] = i.get('userType')
             t['name'] = i.get('name')

@@ -1,7 +1,6 @@
 import datetime
 
 import pandas as pd
-from file_utils.files import file_content
 
 from mapping.grouped_tranformer import GroupedTransformer, invoke_union
 from util.common_util import get_query_data
@@ -189,10 +188,8 @@ class Black(GroupedTransformer):
                        params={"ids": ids})
         return df
 
-
     def clean_variables_court(self):
-        msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
-        resp = get_query_data(msg, None, '01')
+        resp = get_query_data(self.full_msg, None, '01')
         ids = []
         for i in resp:
             user_name = i.get("name")
@@ -201,6 +198,8 @@ class Black(GroupedTransformer):
             if not court_df.empty:
                 ids.append(int(court_df.loc[0,'id']))
 
+        if len(ids) == 0:
+            return
         suspect_df = self._info_court_criminal_suspect(ids)
         deadbeat_df = self._info_court_deadbeat(ids)
         hign_df = self._info_court_limit_hignspending(ids)
@@ -308,11 +307,8 @@ class Black(GroupedTransformer):
                 self.variables['black_illegal_datetime'] = violation_df2['specific_date'].to_list()
                 self.variables['black_illegal_case_no'] = violation_df2['case_no'].to_list()
 
-
-
     def clean_variables_bus(self):
-        msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
-        resp = get_query_data(msg, 'COMPANY', '01')
+        resp = get_query_data(self.full_msg, 'COMPANY', '01')
         ids = []
         basic_dict = {"id":[],"ent_name":[]}
         for i in resp:
@@ -323,10 +319,14 @@ class Black(GroupedTransformer):
                 ids.append(int(court_df.loc[0, 'id']))
                 basic_dict['id'].append(court_df.loc[0, 'id'])
                 basic_dict['ent_name'].append(court_df.loc[0, 'ent_name'])
-        basic_df = pd.DataFrame(basic_dict)
+
+        if len(ids) == 0:
+            return
+
         illegal_df = self._info_com_bus_illegal(ids)
         frost_df = self._info_com_bus_shares_frost(ids)
 
+        basic_df = pd.DataFrame(basic_dict)
         if not illegal_df.empty:
             self.variables['black_legel_cnt'] = illegal_df.shape[0]
             merge_df = pd.merge(illegal_df,basic_df,left_on='basic_id',right_on='id',how='left')
