@@ -90,7 +90,7 @@ class P03002(Generate):
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
             echo_var_type(None, None, resp_end)
-            logger.info("response:%s", json.dumps(resp_end))
+            logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
             self.response = resp_end
         except Exception as err:
             logger.error(traceback.format_exc())
