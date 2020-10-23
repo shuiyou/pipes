@@ -40,5 +40,6 @@ def echo_var_type(parent, key, val):
                 parent[key] = int(str(val))
         elif isinstance(val, Series):
             logger.warn(str(key) + "----------------Series not support----------------" + str(val))
+            parent[key] = val.to_list()
     except Exception as e:
         logger.error(str(e))
