@@ -5,6 +5,7 @@
 import json
 
 from numpy import integer, floating, ndarray
+from pandas import Series
 
 
 class NpEncoder(json.JSONEncoder):
@@ -15,5 +16,7 @@ class NpEncoder(json.JSONEncoder):
             return float(obj)
         elif isinstance(obj, ndarray):
             return obj.tolist()
+        elif isinstance(obj, Series):
+            return obj.to_list()
         else:
             return super(NpEncoder, self).default(obj)
