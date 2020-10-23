@@ -52,13 +52,12 @@ class BasicUnique(GroupedTransformer):
             select * from info_com_bus_face where basic_id = %(id)s
         '''
         df = sql_to_df(sql=sql,
-                       params={"user_name": self.user_name,
-                               "id_card_no": self.id_card_no})
+                       params={"id": id})
         return df
 
     def clean_variables_face(self, basic_df):
         id = basic_df.loc[0, 'id']
-        face_df = self._info_com_bus_face(id)
+        face_df = self._info_com_bus_face(int(id))
         if face_df.empty:
             return
         self.variables['basic_ex_ent_name'] = self.user_name

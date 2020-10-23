@@ -47,3 +47,6 @@ class T32001(Transformer):
         self.variables['yf_non_bank_apply_org_cnt'] = int(get_filed_value(df, 'app_unbank_counts'))
         self.variables['yf_loan_org_24m_cnt'] = float(get_filed_value(df, 'loan_platform_month24'))
 
+    def transform(self):
+        self.clean_variables()
+

@@ -11,12 +11,15 @@ def _info_com_bus_shareholder(user_name, id_card_no):
            SELECT a.ent_name,b.share_holder_name,b.share_holder_type,b.sub_conam,b.funded_ratio,b.con_date,b.con_form,c.ratio,c.quantity
             FROM info_com_bus_basic a LEFT JOIN info_com_bus_shareholder b on a.id = b.basic_id
             LEFT JOIN info_com_bus_top c on a.id = b.basic_id
-            where a.ent_name = %(user_name)s
+            where a.ent_name = %(user_name)s and a.credit_code = %(id_card_no)s 
+            and a.channel_api_no='24001' 
+            AND unix_timestamp(NOW()) < unix_timestamp(a.expired_at) 
+            order by a.id desc limit 1
        '''
-    if pd.notna(id_card_no):
-        sql += ' and a.credit_code = %(id_card_no)'
-    sql += '''AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc 
-          limit 1 '''
+    # if pd.notna(id_card_no):
+    #     sql += ' and a.credit_code = %(id_card_no)s'
+    # sql += ''' AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc
+    #       limit 1 '''
     df = sql_to_df(sql=sql,
                    params={"user_name": user_name,
                            "id_card_no": id_card_no})
@@ -46,8 +49,9 @@ class BasicUnion(GroupedTransformer):
         }
 
     def clean_variables_shareholder(self):
-        msg = file_content("./resource", "unin_level1_001.json")
-        resp = get_query_data(msg, 'COMPANY', '01')
+        # msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
+        # resp = get_query_data(msg, 'COMPANY', '01')
+        resp = get_query_data(self.full_msg, 'COMPANY', '01')
         df = None
         for i in resp:
             user_name = i.get("name")
@@ -57,6 +61,8 @@ class BasicUnion(GroupedTransformer):
                 df = pd.concat(df, df_shareholder)
             if df is None and not df_shareholder.empty:
                 df = df_shareholder
+        if df is None:
+            return
         df = df.sort_values(by='funded_ratio', ascending=False)
         self.variables['basic_share_ent_name'] = df['ent_name'].to_list()
         self.variables['basic_share_holder_name'] = df['share_holder_name'].to_list()

@@ -97,12 +97,12 @@ class Black(GroupedTransformer):
                                "id_card_no": id_card_no})
         return df
 
-    def _info_court_criminal_suspect(self,ids):
+    def _info_court_criminal_suspect(self, id_list):
         sql = '''
             select * from info_court_criminal_suspect where court_id in %(ids)s
         '''
         df = sql_to_df(sql=sql,
-                       params={"ids": ids})
+                       params={"ids": id_list})
         return df
 
     def _info_court_deadbeat(self,ids):
@@ -191,7 +191,7 @@ class Black(GroupedTransformer):
 
 
     def clean_variables_court(self):
-        msg = file_content("./resource", "unin_level1_001.json")
+        msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
         resp = get_query_data(msg, None, '01')
         ids = []
         for i in resp:
@@ -199,7 +199,7 @@ class Black(GroupedTransformer):
             id_card_no = i.get("id_card_no")
             court_df = self._info_court(user_name, id_card_no)
             if not court_df.empty:
-                ids.append(court_df.loc[0,'id'])
+                ids.append(int(court_df.loc[0,'id']))
 
         suspect_df = self._info_court_criminal_suspect(ids)
         deadbeat_df = self._info_court_deadbeat(ids)
