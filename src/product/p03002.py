@@ -20,6 +20,7 @@ from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
 from service.base_type_service_v2 import BaseTypeServiceV2
+from util.type_converter import echo_var_type
 from view.grouped_mapper_detail import view_variables_scheduler
 from view.mapper_detail import STRATEGE_DONE
 
@@ -88,7 +89,8 @@ class P03002(Generate):
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
-            logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
+            echo_var_type(None, None, resp_end)
+            logger.info("response:%s", json.dumps(resp_end))
             self.response = resp_end
         except Exception as err:
             logger.error(traceback.format_exc())
