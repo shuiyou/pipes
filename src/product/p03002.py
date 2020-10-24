@@ -231,7 +231,7 @@ class P03002(Generate):
         if STRATEGE_DONE in biz_types:
             detail = view_variables_scheduler(product_code, None, user_name, id_card_no, phone, user_type, base_type,
                                               data, invoke_each)
-            resp['reportDetail'] = [detail]
+            resp['reportDetail'] = detail
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp
