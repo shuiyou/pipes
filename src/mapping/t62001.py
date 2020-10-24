@@ -10,10 +10,10 @@ def get_left_field_value(df, key):
     if not df_temp.empty:
         value = df_temp['field_value'].to_list()[0]
         if pd.notna(value):
-            value = re.findall(r"\((.+?)\,", value)[0]
-            if float(value) == -999 or float(value) == -1111:
+            if value == '-999' or value == '-1111':
                 return 0
             else:
+                value = re.findall(r"\d+\.?\d*", value)[0]
                 return float(value)
         else:
             return 0
