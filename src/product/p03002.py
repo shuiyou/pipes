@@ -83,9 +83,7 @@ class P03002(Generate):
             # 封装第二次调用参数
             variables = self._create_strategy_second_request(cache_array)
 
-            # TODO
-            # strategy_resp = self.invoke_strategy(variables, product_code, req_no)
-            strategy_resp = self._invoke_strategy_stub()
+            strategy_resp = self.invoke_strategy(variables, product_code, req_no)
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
@@ -134,6 +132,7 @@ class P03002(Generate):
             variables['score_black_p' + str(person_index)] = row['score_black']
             variables['score_fin_p' + str(person_index)] = row['score_fin']
             variables['model_pred_p' + str(person_index)] = row['model_pred']
+            variables['td_pred_p' + str(person_index)] = row['td_pred']
         variables['base_type'] = 'UNION'
         return variables
 
@@ -153,13 +152,11 @@ class P03002(Generate):
         origin_input = data.get('strategyInputVariables')
         if origin_input is None:
             origin_input = {}
-        origin_input['out_strategyBranch'] = ','.join(codes)
+        origin_input['out_strategyBranch'] = ','.join(filter(lambda e: e != "00000", codes))
         # 合并新的转换变量
         origin_input.update(variables)
 
-        # TODO
         strategy_resp = self.invoke_strategy(origin_input, product_code, req_no)
-        # strategy_resp = self._invoke_strategy_stub()
         score_to_int(strategy_resp)
         biz_types, categories = _get_biz_types(strategy_resp)
 
@@ -209,6 +206,7 @@ class P03002(Generate):
         array['score_bus'] = self._get_json_path_value(strategy_resp, '$..score_bus')
         array['score'] = self._get_json_path_value(strategy_resp, '$..score')
         array['model_pred'] = self._get_json_path_value(strategy_resp, '$..model_pred')
+        array['td_pred'] = self._get_json_path_value(strategy_resp, '$..td_pred')
         array["id"] = data.get("id")
         array["parentId"] = data.get("parentId")
         return array
@@ -231,7 +229,7 @@ class P03002(Generate):
         if STRATEGE_DONE in biz_types:
             detail = view_variables_scheduler(product_code, None, user_name, id_card_no, phone, user_type, base_type,
                                               data, invoke_each)
-            resp['reportDetail'] = [detail]
+            resp['reportDetail'] = detail
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp
@@ -258,9 +256,7 @@ class P03002(Generate):
         variables['out_strategyBranch'] = '00000'
         logger.info("variables:%s", variables)
 
-        # TODO
         resp_json = self.invoke_strategy(variables, product_code, req_no)
-        # resp_json = self._invoke_strategy_stub()
         biz_types, categories = _get_biz_types(resp_json)
         rules = _append_rules(biz_types)
 
@@ -272,17 +268,3 @@ class P03002(Generate):
         resp['categories'] = categories
 
         return resp
-
-    @staticmethod
-    def _invoke_shake_hand_stub():
-        resp = '''
-            {"StrategyOneResponse": {"Header": {"InquiryCode": "Q394106614698901504", "ProcessCode": "Level1_m", "OrganizationCode": "", "ProcessVersion": 94, "LayoutVersion": 20}, "Body": {"Application": {"Variables": {"out_strategyBranch": "00001,01001,02001,05001,05002,06001,07001,10001,11001,12001,13001,14001,16001,17001,18001,31001", "out_isQuery": "Y", "out_result": "A"}, "Categories": [{"Reason": {"Variables": {"out_decisionBranchCode": "AT001", "out_ReasonCode": "RY203"}}}]}}}}
-            '''
-        return json.loads(resp)
-
-    @staticmethod
-    def _invoke_strategy_stub():
-        resp = '''
-            {"StrategyOneResponse": {"Header": {"InquiryCode": "Q412316320361775104", "ProcessCode": "Level1_m", "OrganizationCode": "", "ProcessVersion": 94, "LayoutVersion": 20}, "Body": {"Application": {"Variables": {"out_strategyBranch": "fffff", "out_isQuery": "N", "score_fraud": 100, "score_debit": 31.84, "score_credit": 85, "score_black": 100, "score": 100, "SCORE_GE_RAW": 74, "out_result": "A", "level": "高", "level_black": "高", "level_credit": "高", "level_debit": "中", "level_fraud": "高", "l_m_critical_score": 30, "m_h_critical_score": 70}, "Categories": [{"Reason": {"Variables": {"out_decisionBranchCode": "J002", "out_ReasonCode": "RR205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "J004", "out_ReasonCode": "RR205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "J007", "out_ReasonCode": "RR206"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "J008", "out_ReasonCode": "RR206"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT002", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT003", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT006", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT008", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT010", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "S001", "out_ReasonCode": "RR205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "F001", "out_ReasonCode": "RR401"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "HT002", "out_ReasonCode": "RY101"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "HT007", "out_ReasonCode": "RY202"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "HT027", "out_ReasonCode": "RY501"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "HT032", "out_ReasonCode": "RY501"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "HT037", "out_ReasonCode": "RY205"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "MT004", "out_ReasonCode": "RY103"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "NT001", "out_ReasonCode": "RY501"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "WT001", "out_ReasonCode": "RY301"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "WT002", "out_ReasonCode": "RY301"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "JT012", "out_ReasonCode": "RR201"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZM001", "out_ReasonCode": "RR209"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZM002", "out_ReasonCode": "RR403"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZM004", "out_ReasonCode": "RR503"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZM006", "out_ReasonCode": "RR601"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZT003", "out_ReasonCode": "RY104"}}}]}}}}
-            '''
-        return json.loads(resp)
