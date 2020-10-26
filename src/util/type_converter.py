@@ -42,3 +42,38 @@ def echo_var_type(parent, key, val):
             logger.warn(str(key) + "----------------Series not support----------------" + str(val))
     except Exception as e:
         logger.error(str(e))
+
+
+def format_var(parent, key, index, val):
+    try:
+        if isinstance(val, list):
+            i = -1
+            for v in val:
+                i = i + 1
+                format_var(val, key, i, v)
+        elif isinstance(val, dict):
+            for k, v in val.items():
+                format_var(val, k, -1, v)
+        elif isinstance(val, Timestamp):
+            logger.warn(str(key) + "----------------Timestamp----------------" + str(val))
+            if isinstance(parent, list):
+                parent.pop(index)
+                parent.insert(index, val.strftime("%Y-%m-%d %H:%M:%S"))
+            elif isinstance(parent, dict):
+                parent[key] = val.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(val, int64):
+            logger.warn(str(key) + "----------------int64----------------" + str(val))
+            if isinstance(parent, list):
+                parent.pop(index)
+                parent.insert(index, int(str(val)))
+            elif isinstance(parent, dict):
+                parent[key] = int(str(val))
+        elif isinstance(val, Series):
+            logger.warn(str(key) + "----------------Series----------------" + str(val))
+            if isinstance(parent, list):
+                parent.pop(index)
+                parent.insert(index, val.to_list())
+            elif isinstance(parent, dict):
+                parent[key] = val.to_list()
+    except Exception as e:
+        logger.error(str(e))
