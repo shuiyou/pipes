@@ -400,14 +400,16 @@ class Owner(GroupedTransformer):
         each = self.origin_data
         risk_subject_id = self._load_info_com_bus_basic_id(each)
 
-        if each['baseType'].upper() == 'PERSONAL':
+        if "PERSONAL" in each['baseType'].upper():
             jg_id = self._load_info_audience_tag_id(each)
             df = self._load_info_audience_tag_item_df(jg_id)
-            self._owner_app(df)
+            if df:
+                self._owner_app(df)
 
-        elif each['baseType'].upper() == "COMPANY":
+        elif "COMPANY" in each['baseType'].upper():
             df = self._load_info_court_tax_arrears_df(risk_subject_id)
-            self._owner_tax(df)
+            if df:
+                self._owner_tax(df)
 
         df1 = self._load_info_court_criminal_suspect_df(risk_subject_id)
         df2 = self._load_info_court_deadbeat_df(risk_subject_id)

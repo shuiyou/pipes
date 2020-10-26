@@ -566,7 +566,7 @@ class Fin(GroupedTransformer):
 
     def transform(self):
         each = self.origin_data
-        if each['baseType'].upper() == 'PERSONAL':
+        if "PERSONAL" in each['baseType'].upper():
             df = self._load_detail_info_data_df(each)
             self._info_oth_loan_summary(df)
 

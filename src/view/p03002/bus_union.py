@@ -184,9 +184,7 @@ class Bus(GroupedTransformer):
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
         for each in query_list:
-            if each['baseType'].upper() == 'PERSONAL':
-                continue
-            else:
+            if "PERSONAL" not in each['baseType'].upper():
                 com_id = self._load_info_com_bus_basic_id(each)
 
                 df = self._load_info_com_bus_exception_df(com_id)

@@ -251,7 +251,7 @@ class FinCom(GroupedTransformer):
         query_list = self._jsonpath_load(self.full_msg)
         com_list = []
         for each in query_list:
-            if each['baseType'].upper() == 'COMPANY':
+            if "COMPANY" in each['baseType'].upper():
                 com_list.append(each)
         com_id_list = []
         for each in com_list:
