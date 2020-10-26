@@ -1,3 +1,5 @@
+import json
+
 from file_utils.files import file_content
 
 from view.p03002.basic_union import BasicUnion
@@ -5,5 +7,6 @@ from view.p03002.basic_union import BasicUnion
 
 def test_001():
     ps = BasicUnion()
-    ps.run(user_name="上海语诺工程装饰材料有限公司",id_card_no="91310114774792910B",origin_data={"extraParam":{"strategy":"01"}})
+    ps.full_msg = json.loads(file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json"))
+    ps.run()
     print(ps.variables)
