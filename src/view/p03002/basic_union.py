@@ -49,8 +49,6 @@ class BasicUnion(GroupedTransformer):
         }
 
     def clean_variables_shareholder(self):
-        # msg = file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json")
-        # resp = get_query_data(msg, 'COMPANY', '01')
         resp = get_query_data(self.full_msg, 'COMPANY', '01')
         df = None
         for i in resp:

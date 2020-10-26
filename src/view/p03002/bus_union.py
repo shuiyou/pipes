@@ -72,6 +72,7 @@ class Bus(GroupedTransformer):
             t['name'] = i.get('name')
             t['idno'] = i.get('idno')
             t['phone'] = i.get('phone')
+            t['strategy'] = i.get('extraParam')['strategy']
             res.append(t)
         return res
 
@@ -82,6 +83,7 @@ class Bus(GroupedTransformer):
                SELECT *
                FROM info_com_bus_basic WHERE ent_name = %(ent_name)s
                and credit_code = %(credit_code)s
+               and channel_api_no = '24001'
                and unix_timestamp(NOW()) < unix_timestamp(expired_at);
             """
             df = sql_to_df(sql=sql, params={"ent_name": dict_in['name'], "credit_code": dict_in['idno']})
@@ -184,7 +186,7 @@ class Bus(GroupedTransformer):
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
         for each in query_list:
-            if "PERSONAL" not in each['baseType'].upper():
+            if "PERSONAL" not in each['baseType'].upper() and each['strategy'] == '01':
                 com_id = self._load_info_com_bus_basic_id(each)
 
                 df = self._load_info_com_bus_exception_df(com_id)
