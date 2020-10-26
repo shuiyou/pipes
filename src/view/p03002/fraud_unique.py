@@ -286,7 +286,7 @@ class Fraud(GroupedTransformer):
             self.variables['fraud_trace_act_night_area'] = round(cts_lbs_010 / float(10), 1)
 
     def transform(self):
-        if 'company' in self.base_type:
+        if 'COMPANY' in self.base_type:
             return
         self.clean_variables_cts()
         self.clean_variables_factor()
