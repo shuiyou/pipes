@@ -2,9 +2,9 @@
 # @Author : lixiaobo
 # @File : owner.py.py 
 # @Software: PyCharm
-
-
+import datetime
 import json
+import re
 
 import jsonpath
 import numpy as np
@@ -13,6 +13,7 @@ import pandas as pd
 from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.DataFrameFlatter import DataFrameFlatter
 from util.mysql_reader import sql_to_df
+from util.common_util import get_query_data, get_all_related_company
 
 
 class Owner(GroupedTransformer):
@@ -33,8 +34,13 @@ class Owner(GroupedTransformer):
             'owner_tax_cnt': 0,
             'owner_list_cnt': 0,
             'owner_app_cnt': 0,
+            'owner_age': 0,
+            'owner_resistence': '',
+            'owner_marriage_status': '',
+            'owner_education': '',
+            'owner_criminal_score_level': '',
             'owner_list_name': [],
-            'owner_list_style': [],
+            'owner_list_type': [],
             'owner_list_detail': [],
             'owner_job_year': 0,
             'owner_major_job_year': 0,
@@ -64,25 +70,117 @@ class Owner(GroupedTransformer):
             'owner_app_loan_p2p': 0,
             'owner_app_loan_platform': 0
         }
+        self.person_list = get_query_data(self.full_msg, 'PERSONAL', '01')
+        self.company_list = get_query_data(self.full_msg, 'COMPANY', '01')
+        self.per_type = get_all_related_company(self.full_msg)
 
-    def _jsonpath_load(self, json_str) -> list:
-        """
-        :param str: json串
-        :return list: 返回字典列表，包含类型和相关数据数据
-        """
-        json_dic = json.loads(json_str)
-        res = list()
-        for i in jsonpath.jsonpath(json_dic, "$.queryData[*]"):
-            t = dict()
-            t['baseType'] = i.get('userType')
-            t['name'] = i.get('name')
-            t['idno'] = i.get('idno')
-            t['phone'] = i.get('phone')
-            res.append(t)
-        return res
+    # @staticmethod
+    # def _jsonpath_load(json_str) -> list:
+    #     """
+    #     :param json_str: json串
+    #     :return list: 返回字典列表，包含类型和相关数据数据
+    #     """
+    #     json_dic = json.loads(json_str)
+    #     res = list()
+    #     for i in jsonpath.jsonpath(json_dic, "$.queryData[*]"):
+    #         t = dict()
+    #         t['baseType'] = i.get('userType')
+    #         t['name'] = i.get('name')
+    #         t['idno'] = i.get('idno')
+    #         t['phone'] = i.get('phone')
+    #         res.append(t)
+    #     return res
 
+    # 获取对应主体及主体的关联企业对应的info_court中的court_id
+    def _info_court_id(self, idno):
+        input_info = self.per_type.get(idno)
+        if input_info is not None:
+            # unique_name = input_info['name']
+            unique_idno = input_info['idno']
+            unique_idno_str = ','.join(unique_idno)
+            sql = """
+                select id 
+                from info_court 
+                where unique_id_no in (%(unique_id_no)s) 
+                and unix_timestamp(NOW()) < unix_timestamp(expired_at)"""
+            df = sql_to_df(sql=sql, params={'unique_id_no': unique_idno_str})
+            if df is not None and df.shape[0] > 0:
+                return df['id'].to_list()
+        return []
+
+    # 获取对应主体及主体关联企业对应的所有欠税信息
+    def _info_court_tax_arrears(self, id_list):
+        if len(id_list) > 0:
+            court_id_list = ','.join([str(x) for x in id_list])
+            sql = """
+                select *
+                from info_court_tax_arrears
+                where court_id in (%(court_id)s)
+            """
+            df = sql_to_df(sql=sql, params={'court_id': court_id_list})
+            if df.shape[0] > 0:
+                self.variables['owner_tax_cnt'] = df.shape[0]
+                df.sort_values(by='taxes_time', ascending=False, inplace=True)
+                self.variables['owner_tax_name'] = df['name'].to_list()
+                self.variables['owner_tax_amt'] = df['taxes'].to_list()
+                self.variables['owner_tax_type'] = df['taxes_type'].to_list()
+                self.variables['owner_tax_date'] = df['taxes_time'].to_list()
+
+    # 获取个人基本信息
+    def _indiv_base_info(self, idno):
+        idno = str(idno)
+        now = datetime.datetime.now()
+        self.variables['owner_age'] = now.year - int(idno[6:10]) + \
+            (now.month - int(idno[10:12]) + (now.day - int(idno[12:14])) // 100) // 100
+        self.variables['owner_resistence'] = idno[:6]
+        for index in self.person_list:
+            temp_id = self.person_list[index].get('idno')
+            if str(temp_id) == idno:
+                self.variables['owner_marriage_status'] = self.person_list[index].get('marry_state')
+                self.variables['owner_education'] = self.person_list[index].get('education')
+                break
+
+    # 不良记录条数和详情
+    def _info_bad_behavior_record(self, idno):
+        court_sql = """
+            select id 
+            from info_court 
+            where unique_id_no = %(unique_id_no)s and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+            order by id desc limit 1
+        """
+        court_df = sql_to_df(sql=court_sql, params={'unique_id_no': str(idno)})
+        if court_df is not None and court_df.shape[0] > 0:
+            court_id = court_df['id'].to_list()[0]
+            behavior_sql = """
+                select name, '罪犯及嫌疑人' as type, case_no as case_no, criminal_reason as detail 
+                from info_court_criminal_suspect where court_id = %(court_id)s
+                union all 
+                select name, '失信老赖' as type, execute_case_no as case_no, execute_content as detail 
+                from info_court_deadbeat where court_id = %(court_id)s and execute_status != '已结案'
+                union all 
+                select name, '限制高消费' as type, execute_case_no as case_no, execute_content as detail 
+                from info_court_limit_hignspending where court_id = %(court_id)s
+                union all 
+                select name, '限制出入境' as type, execute_no as case_no, execute_content as detail 
+                from info_court_limited_entry_exit where court_id = %(court_id)s
+            """
+            df = sql_to_df(sql=behavior_sql, params={'court_id': court_id})
+            if df is not None and df.shape[0] > 0:
+                self.variables['owner_list_cnt'] = df.shape[0]
+                self.variables['owner_list_name'] = df['name'].to_list()
+                self.variables['owner_list_type'] = df['type'].to_list()
+                self.variables['owner_list_case_no'] = df['case_no'].to_list()
+                self.variables['owner_list_detail'] = df['detail'].apply(lambda x: re.sub(r'\s', '', x)).to_list()
+
+    # 获取每个主体的从业年限和主营业年限
+    def _info_operation_period(self):
+        main_indu = self.full_msg['strategyParam'].get('industry')
+        if main_indu is not None:
+            pass
+
+    @staticmethod
     # 读取 info_court 读取risk_subject_id主键
-    def _load_info_com_bus_basic_id(self, dict_in) -> int:
+    def _load_info_com_bus_basic_id(dict_in) -> int:
         if len(dict_in['idno']) != 0:
             sql = """
                SELECT *
@@ -104,8 +202,9 @@ class Owner(GroupedTransformer):
             if df is not None and len(df) > 0:
                 df.sort_values(by=['expired_at'], ascending=False, inplace=True)
                 return int(df['id'].iloc[0])
-        return None
+        return 0
 
+    @staticmethod
     # 读取 info_audience_tag 主键数据
     def _load_info_audience_tag_id(self, dict_in) -> int:
         sql = """               
@@ -116,7 +215,7 @@ class Owner(GroupedTransformer):
         if info_audience_tag_df is not None and len(info_audience_tag_df) > 0:
             info_audience_tag_df.sort_values(by=['expired_at'], ascending=False, inplace=True)
             return int(info_audience_tag_df['id'].iloc[0])
-        return None
+        return 0
 
     # 读取 info_court_tax_arrears 数据
     def _load_info_court_tax_arrears_df(self, id) -> pd.DataFrame:
@@ -399,6 +498,7 @@ class Owner(GroupedTransformer):
     def transform(self):
         each = self.origin_data
         strategy = self.origin_data.get("extraParam")['strategy']
+        # resp = get_query_data(self.full_msg, 'COMPANY', '01')
         id = self._load_info_com_bus_basic_id(each)
 
         if "PERSONAL" in each['baseType'].upper() and strategy == '01':

@@ -57,10 +57,53 @@ def get_query_data(msg, query_user_type, query_strategy):
         idno = query_data.get("idno")
         user_type = query_data.get("userType")
         strategy = query_data.get("extraParam")['strategy']
+        education = query_data.get("extraParam")['education']
+        mar_status = query_data.get('extraParam')['marryState']
         if pd.notna(query_user_type) and user_type == query_user_type and strategy == query_strategy:
-            resp_dict = {"name": name, "id_card_no": idno}
+            resp_dict = {"name": name, "id_card_no": idno, 'education': education, 'marry_state': mar_status}
             resp.append(resp_dict)
         if pd.isna(query_user_type) and strategy == query_strategy:
             resp_dict = {"name": name, "id_card_no": idno}
             resp.append(resp_dict)
     return resp
+
+
+def get_all_related_company(msg):
+    query_data_list = jsonpath(msg, '$..queryData[*]')
+    per_type = dict()
+    resp = dict()
+    for query_data in query_data_list:
+        name = query_data.get("name")
+        idno = query_data.get("idno")
+        user_type = query_data.get("userType")
+        base_type = query_data.get("baseType")
+        strategy = query_data.get("extraParam")['strategy']
+        if user_type == 'PERSONAL' and strategy == '01':
+            resp[idno] = {'name': [name], 'idno': [idno]}
+            if base_type == 'U_PERSONAL':
+                per_type['main'] = idno
+            elif 'SPOUSE' in base_type:
+                per_type['spouse'] = idno
+            elif 'CONTROLLER' in base_type:
+                per_type['controller'] = idno
+            # else:
+            #     per_type[base_type] = idno
+    for query_data in query_data_list:
+        name = query_data.get("name")
+        idno = query_data.get("idno")
+        user_type = query_data.get("userType")
+        base_type = query_data.get("baseType")
+        strategy = query_data.get("extraParam")['strategy']
+        if user_type == 'COMPANY' and strategy == '01':
+            if 'CT' in base_type:
+                temp_code = per_type.get('controller')
+            elif 'SP' in base_type:
+                temp_code = per_type.get('spouse')
+            else:
+                temp_code = per_type.get('main')
+            if temp_code is not None:
+                resp[temp_code]['name'].append(name)
+                resp[temp_code]['idno'].append(idno)
+    return per_type
+
+
