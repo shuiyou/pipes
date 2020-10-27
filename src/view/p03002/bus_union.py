@@ -178,7 +178,7 @@ class Bus(GroupedTransformer):
             self.variables['bus_invest_capital'] += df['reg_cap'].to_list()
             self.variables['bus_invest_status'] += df['ent_status'].to_list()
             self.variables['bus_invest_date'] += df['es_date'].apply(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['bus_invest_com_cnt'] += df['pinv_amount'].to_list()
             self.variables['bus_invest_proportion'] += df['funded_ratio'].to_list()
             self.variables['bus_invest_form'] += df['con_form'].to_list()
