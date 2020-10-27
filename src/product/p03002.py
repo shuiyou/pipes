@@ -20,7 +20,7 @@ from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
 from service.base_type_service_v2 import BaseTypeServiceV2
-from util.type_converter import echo_var_type
+from util.type_converter import format_var
 from view.grouped_mapper_detail import view_variables_scheduler
 from view.mapper_detail import STRATEGE_DONE
 
@@ -73,7 +73,7 @@ class P03002(Generate):
             cache_array = []
             # 遍历query_data_array调用strategy
             for data in query_data_array:
-                array, resp = self._strategy_hand(data, product_code, req_no)
+                array, resp = self._strategy_hand(json_data, data, product_code, req_no)
                 subject.append(resp)
                 cache_array.append(array)
                 # 最后返回报告详情
@@ -87,7 +87,7 @@ class P03002(Generate):
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
-            echo_var_type(None, None, resp_end)
+            format_var(None, None, -1, resp_end)
             logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
             self.response = resp_end
         except Exception as err:
@@ -136,7 +136,7 @@ class P03002(Generate):
         variables['base_type'] = 'UNION'
         return variables
 
-    def _strategy_hand(self, data, product_code, req_no):
+    def _strategy_hand(self, json_data, data, product_code, req_no):
         user_name = data.get('name')
         id_card_no = data.get('idno')
         phone = data.get('phone')
@@ -161,7 +161,7 @@ class P03002(Generate):
         biz_types, categories = _get_biz_types(strategy_resp)
 
         resp = {}
-        self._calc_view_variables(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
+        self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone, product_code,
                                   resp, strategy_resp, user_name, user_type, variables)
         array = self._get_strategy_second_array(data, fund_ratio, relation, strategy_resp, user_name, user_type,
                                                 variables)
@@ -220,14 +220,14 @@ class P03002(Generate):
             return 0
 
     @staticmethod
-    def _calc_view_variables(base_type, biz_types, data, id_card_no, out_decision_code, phone, product_code,
+    def _calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone, product_code,
                              resp, strategy_resp, user_name, user_type, variables):
         """
         每次循环后封装每个主体的resp信息
         """
         data['strategyInputVariables'] = variables
         if STRATEGE_DONE in biz_types:
-            detail = view_variables_scheduler(product_code, None, user_name, id_card_no, phone, user_type, base_type,
+            detail = view_variables_scheduler(product_code, json_data, user_name, id_card_no, phone, user_type, base_type,
                                               data, invoke_each)
             resp['reportDetail'] = detail
         # 处理关联人

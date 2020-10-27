@@ -452,11 +452,11 @@ class T13001(Transformer):
             self.variables['hd_loan_non_bank_6m'] += df1.shape[0]
 
             df2 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=24))]
-            df2['month'] = df2['loan_time'].map(month_clac())
+            df2['month'] = df2['loan_time'].map(month_clac)
             self.variables['hd_loan_month_std_24m'] = np.round(np.std(df2.groupby(by='month').id.count()), 4)
 
             df3 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=12))]
-            df3['month'] = df3['loan_time'].map(month_clac())
+            df3['month'] = df3['loan_time'].map(month_clac)
             self.variables['hd_loan_month_std_12m'] = np.round(np.std(df3.groupby(by='month').id.count()), 4)
 
             df4 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=9))]
@@ -510,7 +510,7 @@ class T13001(Transformer):
     def _info_apply(self, df=None):
         if df is not None and len(df) > 0:
             df2 = df[(df['loan_time'] > pd.datetime.now() - pd.DateOffset(months=12))]
-            df2['month'] = df2['loan_time'].map(month_clac())
+            df2['month'] = df2['loan_time'].map(month_clac)
             self.variables['hd_apply_month_std_12m'] = np.round(np.std(df2.groupby(by='month').id.count()), 4)
 
     ##  执行变量转换

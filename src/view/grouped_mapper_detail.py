@@ -5,7 +5,7 @@ from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.grouped_tranformer import invoke_each
 from mapping.tranformer import fix_cannot_to_json
-from view.mapper_detail import extension_variables, get_product_transformers
+from view.mapper_detail import get_product_transformers
 
 logger = LoggerUtil().logger(__name__)
 
@@ -28,8 +28,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
         if view_transformers and len(view_transformers) > 0:
             filtered_view_trans = filter(lambda x: x.invoke_style() & invoke_style > 0, view_transformers)
             for product_view_tran in filtered_view_trans:
-                if product_view_tran.union_invoke():
-                    product_view_tran.full_msg = full_msg
+                product_view_tran.full_msg = full_msg
                 trans_result = product_view_tran.run(user_name=user_name,
                                                      id_card_no=id_card_no,
                                                      phone=phone,
