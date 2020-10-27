@@ -93,7 +93,7 @@ class Owner(GroupedTransformer):
             df = sql_to_df(sql=sql, params={"unique_name": dict_in['name'], "unique_id_no": dict_in['idno']})
             if df is not None and len(df) > 0:
                 df.sort_values(by=['expired_at'], ascending=False, inplace=True)
-                return int(df['risk_subject_id'].iloc[0])
+                return int(df['id'].iloc[0])
         else:
             sql = """
                SELECT *
@@ -103,7 +103,7 @@ class Owner(GroupedTransformer):
             df = sql_to_df(sql=sql, params={"ent_name": dict_in['name']})
             if df is not None and len(df) > 0:
                 df.sort_values(by=['expired_at'], ascending=False, inplace=True)
-                return int(df['risk_subject_id'].iloc[0])
+                return int(df['id'].iloc[0])
         return None
 
     # 读取 info_audience_tag 主键数据
@@ -121,7 +121,7 @@ class Owner(GroupedTransformer):
     # 读取 info_court_tax_arrears 数据
     def _load_info_court_tax_arrears_df(self, id) -> pd.DataFrame:
         sql = """
-               SELECT * FROM info_court_tax_arrears WHERE risk_subject_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+               SELECT * FROM info_court_tax_arrears WHERE court_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
         """
         info_court_tax_arrears_df = sql_to_df(sql=sql, params={"id": id})
         if info_court_tax_arrears_df is not None and len(info_court_tax_arrears_df) > 0:
@@ -131,7 +131,7 @@ class Owner(GroupedTransformer):
     # 读取 info_court_criminal_suspect 数据
     def _load_info_court_criminal_suspect_df(self, id) -> pd.DataFrame:
         sql = """
-                SELECT * FROM info_court_criminal_suspect WHERE risk_subject_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+                SELECT * FROM info_court_criminal_suspect WHERE court_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
         """
         info_court_criminal_suspect_df = sql_to_df(sql=sql, params={"id": id})
         if info_court_criminal_suspect_df is not None and len(info_court_criminal_suspect_df) > 0:
@@ -143,7 +143,7 @@ class Owner(GroupedTransformer):
     # 读取 info_court_deadbeat 数据
     def _load_info_court_deadbeat_df(self, id) -> pd.DataFrame:
         sql = """
-                SELECT * FROM info_court_deadbeat WHERE risk_subject_id = %(id)s and execute_status <> "已结案" and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+                SELECT * FROM info_court_deadbeat WHERE court_id = %(id)s and execute_status <> "已结案" and unix_timestamp(NOW()) < unix_timestamp(expired_at);
         """
         info_court_deadbeat_df = sql_to_df(sql=sql, params={"id": id})
         if info_court_deadbeat_df is not None and len(info_court_deadbeat_df) > 0:
@@ -155,7 +155,7 @@ class Owner(GroupedTransformer):
     # 读取 info_court_limit_hignspending 数据
     def _load_info_court_limit_hignspending_df(self, id) -> pd.DataFrame:
         sql = """
-                SELECT * FROM info_court_limit_hignspending WHERE risk_subject_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+                SELECT * FROM info_court_limit_hignspending WHERE court_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
         """
         info_court_limit_hignspending_df = sql_to_df(sql=sql, params={"id": id})
         if info_court_limit_hignspending_df is not None and len(info_court_limit_hignspending_df) > 0:
@@ -167,7 +167,7 @@ class Owner(GroupedTransformer):
     # 读取 info_court_limited_entry_exit 数据
     def _load_info_court_limited_entry_exit_df(self, id) -> pd.DataFrame:
         sql = """
-                SELECT * FROM info_court_limited_entry_exit WHERE risk_subject_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
+                SELECT * FROM info_court_limited_entry_exit WHERE court_id = %(id)s and unix_timestamp(NOW()) < unix_timestamp(expired_at);
         """
         info_info_court_limited_entry_exit_df = sql_to_df(sql=sql, params={"id": id})
         if info_info_court_limited_entry_exit_df is not None and len(info_info_court_limited_entry_exit_df) > 0:
@@ -398,22 +398,23 @@ class Owner(GroupedTransformer):
 
     def transform(self):
         each = self.origin_data
-        risk_subject_id = self._load_info_com_bus_basic_id(each)
+        strategy = self.origin_data.get("extraParam")['strategy']
+        id = self._load_info_com_bus_basic_id(each)
 
-        if "PERSONAL" in each['baseType'].upper():
+        if "PERSONAL" in each['baseType'].upper() and strategy == '01':
             jg_id = self._load_info_audience_tag_id(each)
             df = self._load_info_audience_tag_item_df(jg_id)
             if df:
                 self._owner_app(df)
 
-        elif "COMPANY" in each['baseType'].upper():
-            df = self._load_info_court_tax_arrears_df(risk_subject_id)
+        elif "COMPANY" in each['baseType'].upper() and strategy == '01':
+            df = self._load_info_court_tax_arrears_df(id)
             if df:
                 self._owner_tax(df)
 
-        df1 = self._load_info_court_criminal_suspect_df(risk_subject_id)
-        df2 = self._load_info_court_deadbeat_df(risk_subject_id)
-        df3 = self._load_info_court_limit_hignspending_df(risk_subject_id)
-        df4 = self._load_info_court_limited_entry_exit_df(risk_subject_id)
+        df1 = self._load_info_court_criminal_suspect_df(id)
+        df2 = self._load_info_court_deadbeat_df(id)
+        df3 = self._load_info_court_limit_hignspending_df(id)
+        df4 = self._load_info_court_limited_entry_exit_df(id)
         self._owner_list(df1, df2, df3, df4)
 
