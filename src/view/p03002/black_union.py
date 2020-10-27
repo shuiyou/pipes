@@ -5,6 +5,7 @@ import pandas as pd
 from mapping.grouped_tranformer import GroupedTransformer, invoke_union
 from util.common_util import get_query_data
 from util.mysql_reader import sql_to_df
+import time
 
 
 def trans_black_froz_time(begin,end):
@@ -16,6 +17,14 @@ def trans_black_froz_time(begin,end):
         return begin.strftime('%Y-%m-%d %H:%M:%S') + "-" + "/"
     else:
         return begin.strftime('%Y-%m-%d %H:%M:%S') + "-" + end.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def get_diff_days(x):
+    date = datetime.datetime.now() - pd.to_datetime(x)
+    diff = date.days
+    if diff < 0:
+        return -diff
+    return diff
 
 
 class Black(GroupedTransformer):
@@ -134,6 +143,8 @@ class Black(GroupedTransformer):
                '''
         df = sql_to_df(sql=sql,
                        params={"ids": ids})
+        if not df.empty:
+            df['diff_day'] = df.apply(lambda x : get_diff_days(x['specific_date']),axis=1)
         return df
 
     def _info_court_judicative_pape(self,ids):
@@ -142,6 +153,8 @@ class Black(GroupedTransformer):
                       '''
         df = sql_to_df(sql=sql,
                        params={"ids": ids})
+        if not df.empty:
+            df['diff_day'] = df.apply(lambda x : get_diff_days(x['closed_time']),axis=1)
         return df
 
     def _info_court_excute_public(self,ids):
@@ -254,7 +267,9 @@ class Black(GroupedTransformer):
 
         #black_overt_cnt
         if not process_df.empty:
-            process_df1 = process_df[(pd.notna(process_df.case_no)) & ((datetime.datetime.now() - process_df.specific_date).days in range(-180,180))].drop_duplicates()
+            process_df1 = process_df[(pd.notna(process_df.case_no)) & (
+                   process_df.diff_day < 180
+            )].drop_duplicates()
             if not process_df1.empty:
                 self.variables['black_overt_cnt'] = process_df1.shape[0]
                 process_df2 = process_df1.sort_values(by='specific_date',ascending=False)
@@ -270,7 +285,9 @@ class Black(GroupedTransformer):
 
         #black_judge_cnt
         if not pape_df.empty:
-            pape_df1 = pape_df[(~pape_df.legal_status.str.contains('原告|申请执行人|第三人')) & ((datetime.datetime.now() - pape_df.closed_time).days in range(0,730))]
+            pape_df1 = pape_df[(~pape_df.legal_status.str.contains('原告|申请执行人|第三人')) & (
+                    pape_df.diff_day < 730)
+            ]
             if not pape_df1.empty:
                 self.variables['black_judge_cnt'] = pape_df1.shape[0]
                 pape_df2 = pape_df1.sort_values(by='closed_time', ascending=False)
@@ -289,7 +306,7 @@ class Black(GroupedTransformer):
                 self.variables['black_exec_cnt'] = public_df1.shape[0]
                 public_df2 = public_df1.sort_values(by='filing_time',ascending=False)
                 self.variables['black_exec_name'] = public_df2['name'].to_list()
-                self.variables['black_exec_authority'] = public_df2['execute_courte'].to_list()
+                self.variables['black_exec_authority'] = public_df2['execute_court'].to_list()
                 self.variables['black_exec_case_no'] = public_df2['execute_case_no'].to_list()
                 self.variables['black_exec_date'] = public_df2['filing_time'].to_list()
                 self.variables['black_exec_content'] = public_df2['execute_content'].to_list()
