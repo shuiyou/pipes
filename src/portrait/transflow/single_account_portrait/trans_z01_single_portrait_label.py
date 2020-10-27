@@ -73,7 +73,8 @@ class TransSingleLabel:
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '担保'
         self.df.loc[(self.df['concat_str'].str.contains('保理')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '保理'
-        self.df.loc[(self.df['concat_str'].str.contains('小额贷|小贷|企业贷|典当|互联网信息咨询')) &
+        self.df.loc[~(self.df['concat_str'].str.contains('小额贷记来账')) &
+                    (self.df['concat_str'].str.contains('小额贷|小贷|企业贷|典当|互联网信息咨询')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '小贷'
         self.df.loc[
             (self.df['concat_str'].str.contains('信托|小微|信贷.*过渡户|过渡户.*信贷|财务.*公司|公司.*财务|资金互助社|金融.*公司|公司.*金融|经济合作社')) &
