@@ -151,7 +151,7 @@ class Bus(GroupedTransformer):
             self.variables['bus_abnormal_org'] += df['org_name_in'].to_list()
             self.variables['bus_abnormal_clear_cause'] += df['result_out'].to_list()
             self.variables['bus_abnormal_clear_date'] += df['date_out'].apply(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['bus_abnormal_clear_org'] += df['org_name_out'].to_list()
 
     # 计算 bus_change 相关字段
@@ -161,7 +161,7 @@ class Bus(GroupedTransformer):
             self.variables['bus_change_record_cnt'] += len(df)
             self.variables['bus_change_category'] += df['alt_item'].to_list()
             self.variables['bus_change_date'] += df['alt_date'].apply(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['bus_change_content_before'] += df['alt_be'].to_list()
             self.variables['bus_change_content_after'] += df['alt_af'].to_list()
 
@@ -178,7 +178,7 @@ class Bus(GroupedTransformer):
             self.variables['bus_invest_capital'] += df['reg_cap'].to_list()
             self.variables['bus_invest_status'] += df['ent_status'].to_list()
             self.variables['bus_invest_date'] += df['es_date'].apply(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['bus_invest_com_cnt'] += df['pinv_amount'].to_list()
             self.variables['bus_invest_proportion'] += df['funded_ratio'].to_list()
             self.variables['bus_invest_form'] += df['con_form'].to_list()

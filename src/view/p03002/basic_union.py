@@ -56,7 +56,7 @@ class BasicUnion(GroupedTransformer):
             id_card_no = i.get("id_card_no")
             df_shareholder = _info_com_bus_shareholder(user_name, id_card_no)
             if not df_shareholder.empty and df is not None:
-                df = pd.concat(df, df_shareholder)
+                df = pd.concat([df, df_shareholder])
             if df is None and not df_shareholder.empty:
                 df = df_shareholder
         if df is None:
