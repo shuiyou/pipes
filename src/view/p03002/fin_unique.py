@@ -27,37 +27,6 @@ class Fin(GroupedTransformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'fin_mort_cnt': 0,
-            'fin_impawn_cnt': 0,
-            'fin_alt_cnt': 0,
-            'fin_multi_cnt': 0,
-            'fin_mort_name': [],
-            'fin_mort_to_name': [],
-            'fin_mort_reg_no': [],
-            'fin_mort_reg_date': [],
-            'fin_mort_status': [],
-            'fin_mort_reg_org': [],
-            'fin_mab_guar_amt': [],
-            'fin_mab_guar_type': [],
-            'fin_pef_date_range': [],
-            'fin_gua_name': [],
-            'fin_gua_own': [],
-            'fin_gua_des': [],
-            'fin_cancle_date': [],
-            'fin_impawn_name': [],
-            'fin_impawn_role': [],
-            'fin_impawn_equity_no': [],
-            'fin_impawn_pled_gor': [],
-            'fin_impawn_am': [],
-            'fin_impawn_org': [],
-            'fin_impawn_state': [],
-            'fin_impawn_equple_date': [],
-            'fin_impawn_pub_date': [],
-            'fin_alt_name': [],
-            'fin_alt_item': [],
-            'fin_alt_date': [],
-            'fin_alt_be': [],
-            'fin_alt_af': [],
             'fin_qh_p2p_category_12m_cnt': 0,
             'fin_qh_small_loan_category_12m_cnt': 0,
             'fin_qh_insure_category_12m_cnt': 0,
@@ -452,29 +421,29 @@ class Fin(GroupedTransformer):
             if df_3m is not None and len(df_3m) > 0:
                 self.variables['fin_hd_apply_3m_cnt'] = len(df_3m)
                 self.variables['fin_hd_apply_3m_org_cnt'] = len(df_3m['platform_code'].unique())
-                self.variables['fin_hd_apply_3m_amt'] = np.round(df_3m['apply_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_3m_avg_amt'] = np.round(df_3m['apply_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_3m_amt'] = df_3m['apply_amount'].sum()
+                self.variables['fin_hd_apply_3m_avg_amt'] = np.round(df_3m['apply_amount'].mean(), 2)
 
             df_6m = df[df['apply_time'] >= current_datetime - pd.offsets.DateOffset(months=6)]
             if df_6m is not None and len(df_6m) > 0:
                 self.variables['fin_hd_apply_6m_cnt'] = len(df_6m)
                 self.variables['fin_hd_apply_6m_org_cnt'] = len(df_6m['platform_code'].unique())
-                self.variables['fin_hd_apply_6m_amt'] = np.round(df_6m['apply_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_6m_avg_amt'] = np.round(df_6m['apply_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_6m_amt'] = df_6m['apply_amount'].sum()
+                self.variables['fin_hd_apply_6m_avg_amt'] = np.round(df_6m['apply_amount'].mean(), 2)
 
             df_12m = df[df['apply_time'] >= current_datetime - pd.offsets.DateOffset(months=12)]
             if df_12m is not None and len(df_12m) > 0:
                 self.variables['fin_hd_apply_12m_cnt'] = len(df_12m)
                 self.variables['fin_hd_apply_12m_org_cnt'] = len(df_12m['platform_code'].unique())
-                self.variables['fin_hd_apply_12m_amt'] = np.round(df_12m['apply_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_12m_avg_amt'] = np.round(df_12m['apply_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_12m_amt'] = df_12m['apply_amount'].sum()
+                self.variables['fin_hd_apply_12m_avg_amt'] = np.round(df_12m['apply_amount'].mean(), 2)
 
             df_24m = df[df['apply_time'] >= current_datetime - pd.offsets.DateOffset(months=24)]
             if df_24m is not None and len(df_24m) > 0:
                 self.variables['fin_hd_apply_24m_cnt'] = len(df_24m)
                 self.variables['fin_hd_apply_24m_org_cnt'] = len(df_24m['platform_code'].unique())
-                self.variables['fin_hd_apply_24m_amt'] = np.round(df_24m['apply_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['apply_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_24m_amt'] = df_24m['apply_amount'].sum()
+                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['apply_amount'].mean(), 2)
 
     # 计算 info_sms_loan 相关字段
     def _info_sms_loan(self, df=None):
@@ -496,29 +465,29 @@ class Fin(GroupedTransformer):
             if df_3m is not None and len(df_3m) > 0:
                 self.variables['fin_hd_loan_3m_cnt'] = len(df_3m)
                 self.variables['fin_hd_loan_3m_org_cnt'] = len(df_3m['platform_code'].unique())
-                self.variables['fin_hd_loan_3m_amt'] = np.round(df_3m['loan_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_loan_3m_avg_amt'] = np.round(df_3m['loan_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_loan_3m_amt'] = df_3m['loan_amount'].sum()
+                self.variables['fin_hd_loan_3m_avg_amt'] = np.round(df_3m['loan_amount'].mean(), 2)
 
             df_6m = df[df['loan_time'] >= current_datetime - pd.offsets.DateOffset(months=6)]
             if df_6m is not None and len(df_6m) > 0:
                 self.variables['fin_hd_loan_6m_cnt'] = len(df_6m)
                 self.variables['fin_hd_loan_6m_org_cnt'] = len(df_6m['platform_code'].unique())
-                self.variables['fin_hd_loan_6m_amt'] = np.round(df_6m['loan_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_loan_6m_avg_amt'] = np.round(df_6m['loan_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_loan_6m_amt'] = df_6m['loan_amount'].sum()
+                self.variables['fin_hd_loan_6m_avg_amt'] = np.round(df_6m['loan_amount'].mean(), 2)
 
             df_12m = df[df['loan_time'] >= current_datetime - pd.offsets.DateOffset(months=12)]
             if df_12m is not None and len(df_12m) > 0:
                 self.variables['fin_hd_loan_12m_cnt'] = len(df_12m)
                 self.variables['fin_hd_loan_12m_org_cnt'] = len(df_12m['platform_code'].unique())
-                self.variables['fin_hd_loan_12m_amt'] = np.round(df_12m['loan_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_loan_12m_avg_amt'] = np.round(df_12m['loan_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_loan_12m_amt'] = df_12m['loan_amount'].sum()
+                self.variables['fin_hd_loan_12m_avg_amt'] = np.round(df_12m['loan_amount'].mean(), 2)
 
             df_24m = df[df['loan_time'] >= current_datetime - pd.offsets.DateOffset(months=24)]
             if df_24m is not None and len(df_24m) > 0:
                 self.variables['fin_hd_apply_24m_cnt'] = len(df_24m)
                 self.variables['fin_hd_apply_24m_org_cnt'] = len(df_24m['platform_code'].unique())
-                self.variables['fin_hd_apply_24m_amt'] = np.round(df_24m['loan_amount'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['loan_amount'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_24m_amt'] = df_24m['loan_amount'].sum()
+                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['loan_amount'].mean(), 2)
 
     # 计算 info_sms_overdue_platform 相关字段
     def _info_sms_overdue_platform(self, df=None):
@@ -540,33 +509,34 @@ class Fin(GroupedTransformer):
             if df_3m is not None and len(df_3m) > 0:
                 self.variables['fin_hd_overdue_3m_cnt'] = len(df_3m)
                 self.variables['fin_hd_overdue_3m_org_cnt'] = len(df_3m['platform_code'].unique())
-                self.variables['fin_hd_overdue_3m_amt'] = np.round(df_3m['overdue_money'].sum() / 1e5, 2)
-                self.variables['fin_hd_overdue_3m_avg_amt'] = np.round(df_3m['overdue_money'].mean() / 1e5, 2)
+                self.variables['fin_hd_overdue_3m_amt'] = df_3m['overdue_money'].sum()
+                self.variables['fin_hd_overdue_3m_avg_amt'] = np.round(df_3m['overdue_money'].mean(), 2)
 
             df_6m = df[df['overdue_time'] >= current_datetime - pd.offsets.DateOffset(months=6)]
             if df_6m is not None and len(df_6m) > 0:
                 self.variables['fin_hd_overdue_6m_cnt'] = len(df_6m)
                 self.variables['fin_hd_overdue_6m_org_cnt'] = len(df_6m['platform_code'].unique())
-                self.variables['fin_hd_overdue_6m_amt'] = np.round(df_6m['overdue_money'].sum() / 1e5, 2)
-                self.variables['fin_hd_overdue_6m_avg_amt'] = np.round(df_6m['overdue_money'].mean() / 1e5, 2)
+                self.variables['fin_hd_overdue_6m_amt'] = df_6m['overdue_money'].sum()
+                self.variables['fin_hd_overdue_6m_avg_amt'] = np.round(df_6m['overdue_money'].mean(), 2)
 
             df_12m = df[df['overdue_time'] >= current_datetime - pd.offsets.DateOffset(months=12)]
             if df_12m is not None and len(df_12m) > 0:
                 self.variables['fin_hd_overdue_12m_cnt'] = len(df_12m)
                 self.variables['fin_hd_overdue_12m_org_cnt'] = len(df_12m['platform_code'].unique())
-                self.variables['fin_hd_overdue_12m_amt'] = np.round(df_12m['overdue_money'].sum() / 1e5, 2)
-                self.variables['fin_hd_overdue_12m_avg_amt'] = np.round(df_12m['overdue_money'].mean() / 1e5, 2)
+                self.variables['fin_hd_overdue_12m_amt'] = df_12m['overdue_money'].sum()
+                self.variables['fin_hd_overdue_12m_avg_amt'] = np.round(df_12m['overdue_money'].mean(), 2)
 
             df_24m = df[df['overdue_time'] >= current_datetime - pd.offsets.DateOffset(months=24)]
             if df_24m is not None and len(df_24m) > 0:
                 self.variables['fin_hd_apply_24m_cnt'] = len(df_24m)
                 self.variables['fin_hd_apply_24m_org_cnt'] = len(df_24m['platform_code'].unique())
-                self.variables['fin_hd_apply_24m_amt'] = np.round(df_24m['overdue_money'].sum() / 1e5, 2)
-                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['overdue_money'].mean() / 1e5, 2)
+                self.variables['fin_hd_apply_24m_amt'] = df_24m['overdue_money'].sum()
+                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['overdue_money'].mean(), 2)
 
     def transform(self):
         each = self.origin_data
-        if "PERSONAL" in each['baseType'].upper():
+        strategy = self.origin_data.get("extraParam")['strategy']
+        if "PERSONAL" in each['baseType'].upper() and strategy == '01':
             df = self._load_detail_info_data_df(each)
             self._info_oth_loan_summary(df)
 
