@@ -44,6 +44,7 @@ class Fin(GroupedTransformer):
             'fin_qh_other_car_category_12m_cnt': 0,
             'fin_qh_other_tru_category_12m_cnt': 0,
             'fin_qh_other_thr_category_12m_cnt': 0,
+            'fin_qh_other_oth_category_12m_cnt':0,
             'fin_qh_inc_3_6_org_cnt': 0,
             'fin_qh_dec_3_6_org_cnt': 0,
             'fin_qh_inc_6_12_org_cnt': 0,
@@ -264,6 +265,7 @@ class Fin(GroupedTransformer):
             self.variables['fin_qh_other_car_category_12m_cnt'] = len(df_12m[df_12m['industryCode'] == "CAR"])
             self.variables['fin_qh_other_tru_category_12m_cnt'] = len(df_12m[df_12m['industryCode'] == "TRU"])
             self.variables['fin_qh_other_thr_category_12m_cnt'] = len(df_12m[df_12m['industryCode'] == "THR"])
+            self.variables['fin_qh_other_oth_category_12m_cnt'] = len(df_12m[df_12m['industryCode'] == "OTH"])
 
             var1_g3m = \
                 df[df['dateUpdated'] >= (current_datetime - pd.offsets.DateOffset(months=3))][
