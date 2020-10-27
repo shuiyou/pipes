@@ -63,7 +63,8 @@ class BasicInfoProcessor(ModuleProcessor):
         loan_df = loan_df[(pd.notnull(loan_df['loan_amount'])) &
                           (loan_df['account_type'].isin(['01', '02', '03'])) &
                           (
-                                  (loan_df['loan_type'].isin(['01', '07', '99'])) | ('融资租赁' in loan_df['loan_type']) |
+                                  (loan_df['loan_type'].isin(['01', '07', '99'])) |
+                                  (loan_df['loan_type'].str.contains('融资租赁')) |
                                   ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 20000))
                           )
                         ]
@@ -90,51 +91,57 @@ class BasicInfoProcessor(ModuleProcessor):
 
     # 还款方式为等额本息分期偿还的经营性贷款最大连续逾期期数
     def _business_loan_average_overdue_cnt(self):
-        '''
-        1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))的id,
-        2.对于每一个id,count(pcredit_payment中所有record_id=id且loan_repay_type包含"等额本息"且status是数字的记录)如果count>0则变量+1
-        '''
-        loan_df = self.cached_data["pcredit_loan"]
-        repayment_df = self.cached_data["pcredit_repayment"]
-        loan_df = loan_df[(loan_df['account_type'].isin(['01', '02', '03'])) &
-                          ((loan_df['loan_type'].isin(['01', '07', '99'])) | ('融资租赁' in loan_df['loan_type']) | (
-                                      (loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))) &
-                          ((loan_df['repay_period'] > 0) | (
-                                      (pd.notnull(loan_df['loan_date'])) & (pd.notnull(loan_df['loan_end_date'])))) &
-                          (pd.notnull(loan_df['loan_amount']))]
-        if loan_df.empty or repayment_df.empty:
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者包含"融资租赁"或者(loan_type=04且loan_amount>200000))且(repay_period>0或者(loan_date非空且loan_end_date非空))且loan_amount非空的记录,
+        # 2.对于每一条记录,计算loan_amount/repay_period(若repay_period为空则计算loan_end_date和loan_date之间间隔的月份数当做repay_period,间隔月份数对月对日且向上取整)
+        # 3.对于2中每一个id,从pcredit_repayment中选取所有record_id=id且repayment_amt>2中对应的loan_amount/repay_period且repayment_amt<loan_amount/3的记录
+        # 4.取3中每一个id对应的记录中最大连续月份数
+        # 5.取4中所有最大连续月份的最大值
+        df = self.cached_data["pcredit_loan"]
+        overdue_df = self.cached_data["pcredit_repayment"]
+        loan_df = df[(pd.notna(df['repay_period'])) |
+                     ((pd.notna(df['loan_date'])) &
+                      (pd.notna(df['loan_end_date'])))]
+        if loan_df.shape[0] == 0:
+            self.variables["business_loan_average_overdue_cnt"] = 0
             return
-        loan_df['repay_period_temp'] = loan_df.apply(
-            lambda x: get_repay_period_temp(x['loan_amount'], x['repay_period'], x['loan_date'], x['loan_end_date']),
-            axis=1)
-        df_temp = pd.merge(loan_df, repayment_df, left_on='id', right_on='record_id')
-        df_temp = df_temp[(df_temp['repayment_amt'] > df_temp['repay_period_temp']) & (
-                    df_temp['repayment_amt'] < df_temp['loan_amount'] / 3)]
-        if df_temp.empty:
+        loan_df['loan_date'] = loan_df['loan_date'].apply(pd.to_datetime)
+        loan_df['loan_end_date'] = loan_df['loan_end_date'].apply(pd.to_datetime)
+        loan_df['repay_period'] = loan_df.apply(
+            lambda x: x['repay_period'] if pd.notna(x['repay_period']) else
+            (x['loan_end_date'].year - x['loan_date'].year) * 12 + x['loan_end_date'].month - x['loan_date'].month
+            + (x['loan_end_date'].day - x['loan_date'].day - 1) // 100 + 1, axis=1)
+        loan_df['avg_loan_amount'] = loan_df.apply(
+            lambda x: x['loan_amount'] / x['repay_period'] if pd.notna(x['repay_period']) else None, axis=1)
+        loan_overdue_df = overdue_df[overdue_df['record_id'].isin(list(set(loan_df['id'].tolist())))]
+        loan_overdue_df = pd.merge(loan_overdue_df, loan_df[['id', 'avg_loan_amount']], how='left',
+                                   left_on='record_id', right_on='id', sort=False)
+        temp_overdue_df = loan_overdue_df[(loan_overdue_df['repayment_amt'] > loan_overdue_df['avg_loan_amount']) &
+                                          (loan_overdue_df['repayment_amt'] < loan_overdue_df['loan_amount'] / 3)]
+        if temp_overdue_df.shape[0] == 0:
+            self.variables["business_loan_average_overdue_cnt"] = 0
             return
-        df_temp = df_temp.loc[:, ['record_id', 'jhi_year', 'month']]
-        group = df_temp.groupby(by='record_id')
-        month_list = []
-        for index, df in group:
-            df = df.sort_values(by=['jhi_year', 'month'])
-            jhi_year_temp = 0
-            month_temp = 0
-            count = 0
-            count_list = []
-            for row in df.itertuples():
-                jhi_year = row.jhi_year
-                month = row.month
-                if jhi_year_temp == jhi_year and month_temp == month + 1:
-                    count = count + 1
-                elif jhi_year_temp > jhi_year and month == 1:
-                    count = count + 1
+        temp_overdue_df.reset_index(drop=True, inplace=True)
+        temp_overdue_df.loc[0, 'conti_month'] = 1
+        if temp_overdue_df.shape[0] > 1:
+            last_repayment_year = temp_overdue_df.loc[0, 'jhi_year']
+            last_repayment_month = temp_overdue_df.loc[0, 'month']
+            last_record_id = temp_overdue_df.loc[0, 'record_id']
+            for index in temp_overdue_df.index[1:]:
+                this_repayment_year = temp_overdue_df.loc[index, 'jhi_year']
+                this_repayment_month = temp_overdue_df.loc[index, 'month']
+                this_record_id = temp_overdue_df.loc[index, 'record_id']
+                if this_record_id == last_record_id and \
+                        abs((int(this_repayment_year) - int(last_repayment_year)) * 12 -
+                            int(this_repayment_month) + int(last_repayment_month)) == 1:
+                    temp_overdue_df.loc[index, 'conti_month'] = temp_overdue_df.loc[index - 1, 'conti_month'] + 1
                 else:
-                    count_list.append(count)
-                    count = 0
-                jhi_year_temp = jhi_year
-                month_temp = month
-            month_list.append(max(count_list))
-        self.variables["business_loan_average_overdue_cnt"] = max(month_list)
+                    temp_overdue_df.loc[index, 'conti_month'] = 1
+                last_repayment_year = this_repayment_year
+                last_repayment_month = this_repayment_month
+                last_record_id = this_record_id
+        business_loan_average_overdue_cnt = temp_overdue_df['conti_month'].nunique()
+
+        self.variables["business_loan_average_overdue_cnt"] = business_loan_average_overdue_cnt
 
     # 经营性贷款（经营性+个人消费大于20万+农户+其他）2年内最大连续逾期期数
     def _large_loan_2year_overdue_cnt(self):
@@ -149,9 +156,11 @@ class BasicInfoProcessor(ModuleProcessor):
         if credit_loan_df.empty or repayment_df.empty:
             return
 
-        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01','02','03'])) &
-                                        ((credit_loan_df['loan_type'].isin(['01','07','99'])) | ('融资租赁' in credit_loan_df['loan_type']) |
-                                          ((credit_loan_df['loan_type'] == '04') & (credit_loan_df['loan_amount'] > 20000)))
+        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01', '02', '03'])) &
+                                        ((credit_loan_df['loan_type'].isin(['01', '07', '99'])) |
+                                         (credit_loan_df['loan_type'].str.contains('融资租赁')) |
+                                         ((credit_loan_df['loan_type'] == '04') &
+                                          (credit_loan_df['loan_amount'] > 20000)))
                                         ]
 
         repayment_df = repayment_df.query('record_id in ' + str(list(credit_loan_df.id)))
@@ -293,19 +302,30 @@ class BasicInfoProcessor(ModuleProcessor):
 
     # 经营性贷款逾期金额
     def _business_loan_overdue_money(self):
-        # 从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者(loan_type=04且loan_amount>200000))的overdue_amount加总
-        credit_loan_df = self.cached_data["pcredit_loan"]
-        credit_loan_df = credit_loan_df.query('account_type in ["01", "02", "03"] '
-                                              'and (loan_type in ["01", "07", "99"] '
-                                              'or (loan_type == "04" and loan_amount > 200000))')
-        credit_loan_df = credit_loan_df[(credit_loan_df['account_type'].isin(['01', '02', '03'])) &
-                (
-                        (credit_loan_df['loan_type'].isin(['01', '07', '99'])) |
-                        ('融资租赁' in credit_loan_df['loan_type']) |
-                        ((credit_loan_df['loan_type'] == '04') & (
-                                credit_loan_df['04且loan_amount'] > 200000))
-                )]
-        amt = credit_loan_df['overdue_amount'].sum()
+        # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者包含"融资租赁"或者(loan_type=04且loan_amount>200000))且loan_amount非空的记录,
+        # 2.对于每一条记录,计算loan_amount/3
+        # 3.对于2中每一个id,max(pcredit_repayment中所有record_id=id且repayment_amt>2中对应的loan_amount/3的repayment_amt)
+        # 4.将3中所有结果加总起来
+        loan_df = self.cached_data["pcredit_loan"]
+        pcredit_repayment = self.cached_data['pcredit_repayment']
+        busi_loan = loan_df[((loan_df['loan_type'].isin(['01', '07', '99'])) |
+                             (loan_df['loan_type'].str.contains('融资租赁'))) |
+                            ((loan_df['loan_type'] == '04') &
+                             (loan_df['loan_amount'] > 200000)) &
+                            (pd.notna(loan_df['loan_amount']))]
+        if busi_loan.shape[0] == 0:
+            amt = 0
+        else:
+            busi_loan_overdue = pcredit_repayment[
+                pcredit_repayment['record_id'].isin(list(set(busi_loan['id'].to_list())))]
+            if busi_loan_overdue.shape[0] == 0:
+                amt = 0
+            else:
+                busi_loan_overdue = pd.merge(busi_loan_overdue, loan_df[['id', 'loan_amount']], how='left',
+                                             left_on='record_id', right_on='id', sort=False)
+                amt = busi_loan_overdue[
+                    busi_loan_overdue['repayment_amt'] > busi_loan_overdue['loan_amount'] / 3
+                ]['repayment_amt'].sum()
         self.variables["business_loan_overdue_money"] = amt
 
     # 名下无贷款无贷记卡
