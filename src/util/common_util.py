@@ -59,8 +59,10 @@ def get_query_data(msg, query_user_type, query_strategy):
         strategy = query_data.get("extraParam")['strategy']
         education = query_data.get("extraParam")['education']
         mar_status = query_data.get('extraParam')['marryState']
+        phone = query_data.get("phone")
         if pd.notna(query_user_type) and user_type == query_user_type and strategy == query_strategy:
-            resp_dict = {"name": name, "id_card_no": idno, 'education': education, 'marry_state': mar_status}
+            resp_dict = {"name": name, "id_card_no": idno, 'phone': phone,
+                         'education': education, 'marry_state': mar_status}
             resp.append(resp_dict)
         if pd.isna(query_user_type) and strategy == query_strategy:
             resp_dict = {"name": name, "id_card_no": idno}
@@ -78,8 +80,9 @@ def get_all_related_company(msg):
         user_type = query_data.get("userType")
         base_type = query_data.get("baseType")
         strategy = query_data.get("extraParam")['strategy']
+        industry = query_data.get("extraParam")['industry']
         if user_type == 'PERSONAL' and strategy == '01':
-            resp[idno] = {'name': [name], 'idno': [idno]}
+            resp[idno] = {'name': [name], 'idno': [idno], 'industry': [industry]}
             if base_type == 'U_PERSONAL':
                 per_type['main'] = idno
             elif 'SPOUSE' in base_type:
@@ -94,16 +97,19 @@ def get_all_related_company(msg):
         user_type = query_data.get("userType")
         base_type = query_data.get("baseType")
         strategy = query_data.get("extraParam")['strategy']
+        industry = query_data.get("extraParam")['industry']
+        temp_code = None
         if user_type == 'COMPANY' and strategy == '01':
-            if 'CT' in base_type:
-                temp_code = per_type.get('controller')
-            elif 'SP' in base_type:
+            if 'SP' in base_type:
                 temp_code = per_type.get('spouse')
-            else:
+            if 'CT' in base_type and temp_code is None:
+                temp_code = per_type.get('controller')
+            if temp_code is None:
                 temp_code = per_type.get('main')
             if temp_code is not None:
                 resp[temp_code]['name'].append(name)
                 resp[temp_code]['idno'].append(idno)
+                resp[temp_code]['industry'].append(industry)
     return per_type
 
 
