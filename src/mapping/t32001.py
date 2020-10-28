@@ -21,7 +21,8 @@ class T32001(Transformer):
             'yf_overdue_org_cnt': 0,
             'yf_overdue_cnt': 0,
             'yf_non_bank_apply_org_cnt': 0,
-            'yf_loan_org_24m_cnt': 0
+            'yf_loan_org_24m_cnt': 0,
+            'reg_unbank_history_day': 0
         }
 
     def _info_loan_statistics_item(self):
@@ -41,11 +42,12 @@ class T32001(Transformer):
         df = self._info_loan_statistics_item()
         if df.empty:
             return
-        self.variables['yf_bank_min_loan_max_interval_days'] = float(get_filed_value(df, 'loan_bank_small_money_history_day'))
+        self.variables['yf_bank_min_loan_max_interval_days'] = int(get_filed_value(df, 'loan_bank_small_money_history_day'))
         self.variables['yf_overdue_org_cnt'] = int(get_filed_value(df, 'arrearage_platform_counts'))
         self.variables['yf_overdue_cnt'] = int(get_filed_value(df, 'arrearage_counts'))
         self.variables['yf_non_bank_apply_org_cnt'] = int(get_filed_value(df, 'app_unbank_counts'))
-        self.variables['yf_loan_org_24m_cnt'] = float(get_filed_value(df, 'loan_platform_month24'))
+        self.variables['yf_loan_org_24m_cnt'] = int(get_filed_value(df, 'loan_platform_month24'))
+        self.variables['reg_unbank_history_day'] = int(get_filed_value(df, 'reg_unbank_history_day'))
 
     def transform(self):
         self.clean_variables()

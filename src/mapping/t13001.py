@@ -73,7 +73,7 @@ class T13001(Transformer):
         self.variables['hd_regi_p2p_3m'] = df[(df['month_from_now'] < 3) &
                                               (df['platform_type'] == 'P2P')].shape[0]
         if pd.notna(regi_month_interval_max_2m):
-            self.variables['regi_month_interval_max_2m'] = regi_month_interval_max_2m
+            self.variables['regi_month_interval_max_2m'] = int(regi_month_interval_max_2m)
 
     def _info_apply_data(self):
         sql = """
