@@ -110,6 +110,6 @@ def get_all_related_company(msg):
                 resp[temp_code]['name'].append(name)
                 resp[temp_code]['idno'].append(idno)
                 resp[temp_code]['industry'].append(industry)
-    return per_type
+    return resp
 
 

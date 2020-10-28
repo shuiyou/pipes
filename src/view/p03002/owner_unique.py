@@ -75,29 +75,30 @@ class Owner(GroupedTransformer):
         input_info = self.per_type.get(idno)
         if input_info is not None:
             unique_idno = input_info['idno']
-            unique_idno_str = ','.join(unique_idno)
+            unique_idno_str = '"' + '","'.join(unique_idno) + '"'
             sql = """
                 select id 
                 from info_court 
-                where unique_id_no in (%(unique_id_no)s) 
-                and unix_timestamp(NOW()) < unix_timestamp(expired_at)"""
-            df = sql_to_df(sql=sql, params={'unique_id_no': unique_idno_str})
+                where unique_id_no in (%s) 
+                and unix_timestamp(NOW()) < unix_timestamp(expired_at)
+                """ % unique_idno_str
+            df = sql_to_df(sql=sql)
             if df is not None and df.shape[0] > 0:
                 id_list = df['id'].to_list()
                 court_id_list = ','.join([str(x) for x in id_list])
                 sql = """
                     select *
                     from info_court_tax_arrears
-                    where court_id in (%(court_id)s)
-                """
-                df = sql_to_df(sql=sql, params={'court_id': court_id_list})
+                    where court_id in (%s)
+                """ % court_id_list
+                df = sql_to_df(sql=sql)
                 if df.shape[0] > 0:
                     self.variables['owner_tax_cnt'] = df.shape[0]
                     df.sort_values(by='taxes_time', ascending=False, inplace=True)
                     self.variables['owner_tax_name'] = df['name'].to_list()
                     self.variables['owner_tax_amt'] = df['taxes'].to_list()
                     self.variables['owner_tax_type'] = df['taxes_type'].to_list()
-                    self.variables['owner_tax_date'] = df['taxes_time'].to_list()
+                    self.variables['owner_tax_date'] = df['taxes_time'].apply(str).to_list()
 
     # 获取个人基本信息
     def _indiv_base_info(self, idno):
@@ -126,8 +127,11 @@ class Owner(GroupedTransformer):
         if df.shape[0] == 0:
             return
         score = df['score'].to_list()[0]
-        if score is not None and score.isdigit():
+        try:
             score = float(score)
+        except ValueError:
+            score = None
+        if score is not None:
             if score > 60:
                 level = "A"
             elif score == 60:
@@ -176,18 +180,18 @@ class Owner(GroupedTransformer):
         if main_indu is not None:
             temp_idno = self.per_type.get(idno)
             if temp_idno is not None:
-                code_str = ','.join(temp_idno['idno'])
+                code_str = '"' + '","'.join(temp_idno['idno']) + '"'
                 sql = """
                     select * 
                     from info_com_bus_face 
                     where basic_id in (
                         select id 
                         from info_com_bus_basic 
-                        where credit_code in (%(credit_code)s) 
+                        where credit_code in (%s) 
                         and unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     )
-                """
-                df = sql_to_df(sql=sql, params={'credit_code': code_str})
+                """ % code_str
+                df = sql_to_df(sql=sql)
                 df = df[pd.notna(df['es_date'])]
                 if df.shape[0] == 0:
                     return
@@ -291,11 +295,6 @@ class Owner(GroupedTransformer):
         id_no = self.id_card_no
         base_type = self.base_type
         phone = self.phone
-        # for index in self.person_list:
-        #     temp_id = index.get('idno')
-        #     if str(temp_id) == id_no:
-        #         phone = self.person_list[temp_id].get('phone')
-        #         break
         if "PERSONAL" in base_type:
             self._indiv_base_info(id_no)
             self._info_court_id(id_no)
