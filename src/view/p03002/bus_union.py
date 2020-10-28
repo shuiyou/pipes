@@ -28,7 +28,7 @@ class Bus(GroupedTransformer):
         super().__init__()
         self.variables = {
             'bus_industry_cnt': 0,
-            'bus_abnormal_cnt': 0,
+            'bus_abnomal_cnt': 0,
             'bus_change_record_cnt': 0,
             'bus_invest_cnt': 0,
             'bus_industry_ent_name': [],
@@ -143,7 +143,7 @@ class Bus(GroupedTransformer):
     def _bus_abnormal(self, df=None):
         if df is not None and len(df) > 0:
             df = df.drop_duplicates().sort_values(by=['ent_name', 'date_in'])
-            self.variables['bus_abnormal_cnt'] += len(df)
+            self.variables['bus_abnomal_cnt'] += len(df)
             self.variables['bus_abnormal_name'] += df['ent_name'].to_list()
             self.variables['bus_abnormal_cause'] += df['result_in'].to_list()
             self.variables['bus_abnormal_date'] += df['date_in'].apply(

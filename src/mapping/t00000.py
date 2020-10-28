@@ -3,6 +3,7 @@ import datetime
 from mapping.tranformer import Transformer
 from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
+import pandas as pd
 
 
 # 婚姻状态取值如下：
@@ -34,6 +35,8 @@ class T00000(Transformer):
             'strategy': "01",  # 是否过决策
             'education': '',  # 学历
             'auth_status': 'AUTHORIZED',  # 授权状态
+            'base_idno_4':'',
+            'base_idno_6':''
         }
 
     def _base_black(self):
@@ -62,6 +65,8 @@ class T00000(Transformer):
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+            self.variables['base_idno_4'] = self.id_card_no[0:4]
+            self.variables['base_idno_6'] = self.id_card_no[0:6]
 
         if self.origin_data:
             apply_amount = self.origin_data.get("applyAmo")
@@ -87,3 +92,4 @@ class T00000(Transformer):
             auth_status = self.origin_data.get("authStatus")
             if auth_status:
                 self.variables["auth_status"] = auth_status
+
