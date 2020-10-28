@@ -174,7 +174,7 @@ class FinCom(GroupedTransformer):
             self.variables['fin_mort_cnt'] += len(df)
             self.variables['fin_mort_name'] += df['mort_gager'].to_list()
             self.variables['fin_mort_reg_no'] += df['mort_reg_no'].to_list()
-            self.variables['fin_mort_reg_date'] += df['reg_date'].map(lambda x: x.strftime('%Y-%m-%d')).to_list()
+            self.variables['fin_mort_reg_date'] += df['reg_date'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['fin_mort_status'] += df['mort_status'].to_list()
             self.variables['fin_mort_reg_org'] += df['reg_org'].to_list()
 
@@ -191,9 +191,9 @@ class FinCom(GroupedTransformer):
             self.variables['fin_impawn_org'] += df['imp_org'].to_list()
             self.variables['fin_impawn_state'] += df['imp_exe_state'].to_list()
             self.variables['fin_impawn_equple_date'] += df['imp_equple_date'].map(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['fin_impawn_pub_date'] += df['imp_pub_date'].map(
-                lambda x: x.strftime('%Y-%m-%d')).to_list()
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
 
     # 计算 fin_alt 相关字段
     def _fin_alt(self, df=None):
@@ -220,7 +220,7 @@ class FinCom(GroupedTransformer):
                 self.variables['fin_alt_name'] = df['ent_name'].drop_duplicates().to_list()
                 self.variables['fin_alt_item'] += df[idx]['alt_item'].to_list()
                 self.variables['fin_alt_date'] += df[idx]['alt_date'].map(
-                    lambda x: x.strftime('%Y-%m-%d')).to_list()
+                    lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
                 self.variables['fin_alt_be'] += df[idx]['alt_be'].to_list()
                 self.variables['fin_alt_af'] += df[idx]['alt_af'].to_list()
 
@@ -230,8 +230,8 @@ class FinCom(GroupedTransformer):
             df = df.iloc[:, :12].drop_duplicates().sort_values(by=['mort_gage', 'reg_date'], ascending=False)
             self.variables['mab_guar_amt'] += df['mab_guar_amt'].to_list()
             self.variables['mab_guar_type'] += df['mab_guar_type'].to_list()
-            self.variables['fin_pef_date_range'] += (df['pef_per_from'].map(lambda x: x.strftime('%Y-%m-%d')) + " - " + \
-                                                    df['pef_per_to'].map(lambda x: x.strftime('%Y-%m-%d'))).to_list()
+            self.variables['fin_pef_date_range'] += (df['pef_per_from'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')) + " - " + \
+                                                    df['pef_per_to'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d'))).to_list()
 
     # 计算 fin_cancle_date 字段
     def _fin_gua(self, df=None):
