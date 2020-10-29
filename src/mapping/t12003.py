@@ -9,7 +9,8 @@ def check(df, key1, key2):
     else:
         return 0
 
-class T61002(Transformer):
+
+class T12003(Transformer):
     """
        白骑士特殊识别
     """
@@ -50,7 +51,6 @@ class T61002(Transformer):
         self.variables['bqs_cross_equip_risk'] = check(df, 'secondType', '60002')
         self.variables['bqs_model_middle_risk'] = check(df, 'secondType', '61001')
         self.variables['bqs_model_high_risk'] = check(df, 'secondType', '61002')
-
 
     def transform(self):
         self.clean_variables()
