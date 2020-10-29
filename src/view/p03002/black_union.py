@@ -358,7 +358,7 @@ class Black(GroupedTransformer):
 
         if not frost_df.empty:
             self.variables['black_froz_cnt'] = frost_df.shape[0]
-            frost_df['black_froz_time'] = frost_df.apply(lambda x:trans_black_froz_time(x['froz_from'],x['froz_to']))
+            frost_df['black_froz_time'] = frost_df.apply(lambda x:trans_black_froz_time(x['froz_from'],x['froz_to']), axis=1)
             self.variables['black_froz_name'] = frost_df['froz_ent'].to_list()
             self.variables['black_froz_role'] = frost_df['jhi_role'].to_list()
             self.variables['black_froz_status'] = frost_df['judicial_froz_state'].to_list()
