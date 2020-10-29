@@ -5,7 +5,7 @@ from util.mysql_reader import sql_to_df
 
 
 def cts_match(df, params):
-    return df[df['field_name'].isin(params)]
+    return df[df['field_name'].isin(params)].reset_index()
 
 
 def get_factor_field_value(df, key):
@@ -14,6 +14,10 @@ def get_factor_field_value(df, key):
         return float(df_temp['field_value'].to_list()[0])
     else:
         return 0
+
+
+def str_int(df):
+    return int(float(df.loc[0, 'field_value']))
 
 
 class Fraud(GroupedTransformer):
@@ -131,39 +135,42 @@ class Fraud(GroupedTransformer):
         self.variables['fraud_invest_app_60_90_score'] = get_factor_field_value(df, 'FIN_Investing_all_2M_3M')
         self.variables['fraud_bank_credit_card_30d_score'] = get_factor_field_value(df, 'FIN_Bank_Creditcard_all_0M_1M')
         self.variables['fraud_bank_internet_30d_score'] = get_factor_field_value(df, 'FIN_Bank_Type_Internet_all_0M_1M')
-        self.variables['fraud_bank_sharehold_30d_score'] = get_factor_field_value(df, 'FIN_Bank_Type_Sharehold_all_0M_1M')
+        self.variables['fraud_bank_sharehold_30d_score'] = get_factor_field_value(df,
+                                                                                  'FIN_Bank_Type_Sharehold_all_0M_1M')
         self.variables['fraud_bank_state_30d_score'] = get_factor_field_value(df,
-                                                                                  'FIN_Bank_Type_StateCommercial_all_0M_1M')
+                                                                              'FIN_Bank_Type_StateCommercial_all_0M_1M')
         self.variables['fraud_bank_rural_30d_score'] = get_factor_field_value(df,
                                                                               'FIN_Bank_Type_Rural_all_0M_1M')
         self.variables['fraud_bank_urban_30d_score'] = get_factor_field_value(df,
                                                                               'FIN_Bank_Type_Urban_all_0M_1M')
         self.variables['fraud_loan_car_30d_score'] = get_factor_field_value(df,
-                                                                              'FIN_Loan_Car_all_0M_1M')
+                                                                            'FIN_Loan_Car_all_0M_1M')
         self.variables['fraud_loan_cash_30d_score'] = get_factor_field_value(df,
-                                                                            'FIN_Loan_Cash_all_0M_1M')
+                                                                             'FIN_Loan_Cash_all_0M_1M')
         self.variables['fraud_loan_consumer_30d_score'] = get_factor_field_value(df,
-                                                                             'FIN_Loan_Consumer_all_0M_1M')
+                                                                                 'FIN_Loan_Consumer_all_0M_1M')
         self.variables['fraud_loan_credit_card_30d_score'] = get_factor_field_value(df,
-                                                                                 'FIN_Loan_CreditCard_all_0M_1M')
+                                                                                    'FIN_Loan_CreditCard_all_0M_1M')
         self.variables['fraud_loan_house_30d_score'] = get_factor_field_value(df,
-                                                                                    'FIN_Loan_House_all_0M_1M')
+                                                                              'FIN_Loan_House_all_0M_1M')
         self.variables['fraud_loan_mortgage_30d_score'] = get_factor_field_value(df,
-                                                                              'FIN_Loan_Mortgage_all_0M_1M')
+                                                                                 'FIN_Loan_Mortgage_all_0M_1M')
         self.variables['fraud_loan_other_30d_score'] = get_factor_field_value(df,
-                                                                                 'FIN_Loan_Other_all_0M_1M')
+                                                                              'FIN_Loan_Other_all_0M_1M')
         self.variables['fraud_loan_p2p_30d_score'] = get_factor_field_value(df,
-                                                                              'FIN_Loan_P2P_all_0M_1M')
+                                                                            'FIN_Loan_P2P_all_0M_1M')
         self.variables['fraud_loan_platform_30d_score'] = get_factor_field_value(df,
-                                                                            'FIN_Loan_Plantform_all_0M_1M')
+                                                                                 'FIN_Loan_Plantform_all_0M_1M')
         self.variables['fraud_loan_small_30d_score'] = get_factor_field_value(df,
-                                                                                 'FIN_Loan_Small_all_0M_1M')
+                                                                              'FIN_Loan_Small_all_0M_1M')
 
         df_temp = df[df['field_name'].isin(['FIN_Bank_Type_Commercial_all_0M_1M', 'FIN_Bank_Type_Foreign_all_0M_1M',
                                             'FIN_Bank_Type_ShareCommercial_all_0M_1M', 'FIN_Bank_Type_Town_all_0M_1M',
-                                            'FIN_Bank_Type_TownCredit_all_0M_1M', 'FIN_Bank_Type_Industrial_all_0M_1M'])]
+                                            'FIN_Bank_Type_TownCredit_all_0M_1M',
+                                            'FIN_Bank_Type_Industrial_all_0M_1M'])]
         if not df_temp.empty:
-            df_temp['field_value_1'] = df_temp.apply(lambda x:0 if pd.isna(x['field_value']) else float(x['field_value']))
+            df_temp['field_value_1'] = df_temp.apply(
+                lambda x: 0 if pd.isna(x['field_value']) else float(x['field_value']))
             self.variables['fraud_bank_other_30d_score'] = df_temp['field_value_1'].sum()
 
     def clean_variables_cts(self):
@@ -183,37 +190,37 @@ class Fraud(GroupedTransformer):
         self.variables['fraud_msg_cnt'] = df_temp.shape[0] if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_014'])
-        self.variables['fraud_trace_city_180_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_city_180_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_021'])
-        self.variables['fraud_trace_city_30_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_city_30_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_007'])
-        self.variables['fraud_trace_city_15_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_city_15_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_001'])
-        self.variables['fraud_trace_wifi_15_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_wifi_15_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_023'])
-        self.variables['fraud_trace_wifi_60_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_wifi_60_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_028'])
-        self.variables['fraud_trace_wifi_90_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_wifi_90_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_043'])
-        self.variables['fraud_trace_wifi_9_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_trace_wifi_9_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_msg_002'])
-        self.variables['fraud_msg_fin_1_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_msg_fin_1_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_msg_006'])
-        self.variables['fraud_msg_loan_3_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_msg_loan_3_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_msg_018'])
-        self.variables['fraud_msg_fin_9_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_msg_fin_9_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_msg_017'])
-        self.variables['fraud_msg_loan_9_cnt'] = int(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
+        self.variables['fraud_msg_loan_9_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_app_032'])
         cts_app_032 = float(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
