@@ -20,6 +20,22 @@ def get_left_field_value(df, key):
     else:
         return 0
 
+
+def get_left_field_value1(df, key):
+    df_temp = df[df['field_origin_name'] == key]
+    if not df_temp.empty:
+        value = df_temp['field_value'].to_list()[0]
+        if pd.notna(value):
+            if value == '-999' or value == '-1111':
+                return float(value)
+            else:
+                value = re.findall(r"\d+\.?\d*", value)[0]
+                return float(value)
+        else:
+            return 0
+    else:
+        return 0
+
 def get_field_value(df, key):
     df_temp = df[df['field_origin_name'] == key]
     if not df_temp.empty:
@@ -78,15 +94,15 @@ class T62001(Transformer):
                                                                                   'm_cnt_partner_all_Imbank_90day')
         self.variables['i_cnt_partner_all_P2pweb_90day'] = get_left_field_value(df,
                                                                                 'i_cnt_partner_all_P2pweb_90day')
-        self.variables['i_cnt_partner_all_Imbank_180day'] = get_field_value(df,
+        self.variables['i_cnt_partner_all_Imbank_180day'] = get_left_field_value1(df,
                                                                                 'i_cnt_partner_all_Imbank_180day')
-        self.variables['m_max_cnt_partner_daily_all_Unconsumerfinance_365day'] = get_field_value(df,
+        self.variables['m_max_cnt_partner_daily_all_Unconsumerfinance_365day'] = get_left_field_value1(df,
                                                                             'm_max_cnt_partner_daily_all_Unconsumerfinance_365day')
-        self.variables['m_ratio_cnt_grp_id_Loan_all_all'] = get_field_value(df,
+        self.variables['m_ratio_cnt_grp_id_Loan_all_all'] = get_left_field_value1(df,
                                                                             'field_origin_name=m_ratio_cnt_grp_id_Loan_all_all')
-        self.variables['m_length_first_last_all_Imbank_60day'] = get_field_value(df,
+        self.variables['m_length_first_last_all_Imbank_60day'] = get_left_field_value1(df,
                                                                             'm_length_first_last_all_Imbank_60day')
-        self.variables['i_length_first_last_all_Imbank_365day'] = get_field_value(df,
+        self.variables['i_length_first_last_all_Imbank_365day'] = get_left_field_value1(df,
                                                                                  'i_length_first_last_all_Imbank_365day')
 
     def transform(self):
