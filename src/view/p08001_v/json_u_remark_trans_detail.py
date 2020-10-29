@@ -24,6 +24,8 @@ class JsonUnionRemarkTransDetail(TransFlow):
         flow_df = sql_to_df(sql=sql1,
                             params={"report_req_no": self.reqno})
 
+        flow_df['account_no'] = flow_df['account_no'].str[:4] + "***" + flow_df['account_no'].str[-4:]
+
         sql2 = """
             select *
             from trans_u_remark_portrait
