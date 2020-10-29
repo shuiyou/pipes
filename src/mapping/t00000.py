@@ -72,24 +72,27 @@ class T00000(Transformer):
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 self.variables["base_apply_amo"] = apply_amount
+
+            # 授权状态
+            auth_status = self.origin_data.get("authStatus")
+            if auth_status:
+                self.variables["auth_status"] = auth_status
+
             extra_param = self.origin_data.get("extraParam")
             if extra_param:
                 marry_state = extra_param.get("marryState")
                 if marry_state:
                     self.variables["base_marry_state"] = marry_state
 
-            # 是否过决策
-            strategy = self.origin_data.get("strategy")
-            if strategy:
-                self.variables["strategy"] = strategy
+                # 是否过决策
+                strategy = extra_param.get("strategy")
+                if strategy:
+                    self.variables["strategy"] = strategy
 
-            # 学历
-            education = self.origin_data.get("education")
-            if education:
-                self.variables["education"] = education
+                # 学历
+                education = extra_param.get("education")
+                if education:
+                    self.variables["education"] = education
 
-            # 授权状态
-            auth_status = self.origin_data.get("authStatus")
-            if auth_status:
-                self.variables["auth_status"] = auth_status
+
 
