@@ -8,7 +8,7 @@ class T36001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'jgv5_hbm20': None
+            'jgv5_hbm20': 0
         }
 
     def _info_jg_v5(self):
