@@ -86,6 +86,7 @@ class PcreditLoanView(ModuleProcessor):
                                             report_time_before_6_month)
 
             loan_type_df = loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01', '07', '99'])) |
+                                                (loan_account_type_df['loan_type'].str.contains('融资租赁')) |
                                                 ((loan_account_type_df['loan_type'] == '04') & (
                                                             loan_account_type_df['loan_amount'] > 200000))]
             if not loan_type_df.empty:
@@ -521,9 +522,11 @@ class PcreditLoanView(ModuleProcessor):
         loan_type_cnt_list = []
         # 信贷交易信息-贷款信息-贷款类型余额分布-余额占比
         loan_type_balance_prop_list = []
-        loan_busi_df = loan_account_type_df[(loan_account_type_df['loan_type'].isin(['01', '07', '99']))
-                                            | ((loan_account_type_df['loan_type'] == '04') & (
-                loan_account_type_df['loan_amount'] > 200000))]
+        loan_busi_df = loan_account_type_df[
+            (loan_account_type_df['loan_type'].isin(['01', '07', '99'])) |
+            (loan_account_type_df['loan_type'].str.contains('融资租赁')) |
+            ((loan_account_type_df['loan_type'] == '04') &
+             (loan_account_type_df['loan_amount'] > 200000))]
         loan_con_df = loan_account_type_df[
             (loan_account_type_df['loan_type'] == '04') & (loan_account_type_df['loan_amount'] <= 200000)]
         loan_mor_df = loan_account_type_df[loan_account_type_df['loan_type'].isin(['03', '05', '06'])]
