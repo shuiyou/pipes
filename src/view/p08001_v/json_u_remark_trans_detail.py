@@ -25,7 +25,7 @@ class JsonUnionRemarkTransDetail(TransFlow):
                             params={"report_req_no": self.reqno})
 
         flow_df['account_no'] = flow_df['account_no'].fillna("").astype(str)
-        flow_df['account_no'] = flow_df['account_no'].str[:4] + "***" + flow_df['account_no'].str[-4:]
+        flow_df['account_no'] = flow_df['account_no'].apply( lambda x: self.flow_account_clean(x))
 
         sql2 = """
             select *
