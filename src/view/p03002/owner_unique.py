@@ -64,8 +64,7 @@ class Owner(GroupedTransformer):
             'owner_app_loan_cash': 0,
             'owner_app_loan_house': 0,
             'owner_app_loan_p2p': 0,
-            'owner_app_loan_platform': 0,
-            'jgv5_hbm20': None
+            'owner_app_loan_platform': 0
         }
         self.person_list = None
         self.company_list = None
@@ -288,14 +287,6 @@ class Owner(GroupedTransformer):
                 lambda x: re.search(r'(?<=score=).*?(?=,)', x).group())
             temp_df['field_value'] = temp_df['field_value'].fillna(0).apply(float)
             self.variables[k] = round(temp_df['field_value'].mean() * 100, 1)
-        hbm_df = jg_df[(jg_df['field_name'] == 'GBM_HBM_S') &
-                       (jg_df['field_value'].str.contains('购物狂'))]
-        if hbm_df.shape[0] == 0:
-            return
-        hbm_df['field_value'] = hbm_df['field_value'].apply(
-            lambda x: re.search(r'(?<=购物狂, value=).*?(?=})', x).group())
-        hbm_df['field_value'] = hbm_df['field_value'].fillna(0).apply(float)
-        self.variables['jgv5_hbm20'] = hbm_df['field_value'].to_list()[0]
 
     def transform(self):
         self.person_list = get_query_data(self.full_msg, 'PERSONAL', '01')
