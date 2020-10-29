@@ -1,12 +1,12 @@
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
-import pandas as pd
 
 
 def get_filed_value(df, key):
     df_temp = df[df['field_name'] == key]
     if not df_temp.empty:
-        return df_temp['field_value'].to_list()[0]
+        v = df_temp['field_value'].to_list()[0]
+        return v if v and v != "" else 0
     else:
         return 0
 
