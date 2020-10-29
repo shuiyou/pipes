@@ -54,8 +54,9 @@ class LoanInfoProcessor(ModuleProcessor):
     def _loan_credit_query_3month_cnt(self):
         # count(pcredit_query_record中report_id=report_id且记录时间在report_time三个月内且=01,02的记录)
         query_record_df = self.cached_data["pcredit_query_record"]
+        query_record_df['jhi_time'] = pd.to_datetime(query_record_df['jhi_time'])
 
-        report_time = self.cached_data["report_time"]
+        report_time = pd.to_datetime(self.cached_data["report_time"])
         df = query_record_df[
             (query_record_df['jhi_time'] > report_time - offsets.DateOffset(months=3)) &
             ((query_record_df['reason'].isin(['01', '02', '08'])) |
@@ -140,7 +141,7 @@ class LoanInfoProcessor(ModuleProcessor):
                                   ((loan_df['loan_type'].isin(['01','07','99'])) |
                                    (loan_df['loan_type'].str.contains('融资租赁')) |
                                    ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))) |
-                                  (loan_df['guarantee_type'] == '3')
+                                  (loan_df['loan_guarantee_type'] == '3')
                           )
                         ]
 
@@ -207,7 +208,7 @@ class LoanInfoProcessor(ModuleProcessor):
         loan_df['avg_loan_amount'] = loan_df.apply(
             lambda x: x['loan_amount'] / x['repay_period'] if pd.notna(x['repay_period']) else None, axis=1)
         loan_overdue_df = overdue_df[overdue_df['record_id'].isin(list(set(loan_df['id'].tolist())))]
-        loan_overdue_df = pd.merge(loan_overdue_df, loan_df[['id', 'avg_loan_amount']], how='left',
+        loan_overdue_df = pd.merge(loan_overdue_df, loan_df[['id', 'loan_amount', 'avg_loan_amount']], how='left',
                                    left_on='record_id', right_on='id', sort=False)
         temp_overdue_df = loan_overdue_df[(loan_overdue_df['repayment_amt'] > loan_overdue_df['avg_loan_amount']) &
                                           (loan_overdue_df['repayment_amt'] < loan_overdue_df['loan_amount'] / 3)]

@@ -25,7 +25,7 @@ class UnSettleInfoProcessor(ModuleProcessor):
                                         (
                                             (credit_loan_df['loan_type'].isin(['01','07','99'])) |
                                             (credit_loan_df['loan_type'].str.contains('融资租赁')) |
-                                            ((credit_loan_df['loan_type'] == '04') & (credit_loan_df['04且loan_amount'] > 200000))
+                                            ((credit_loan_df['loan_type'] == '04') & (credit_loan_df['loan_amount'] > 200000))
                                         ) &
                                         (credit_loan_df['loan_balance'] > 0)]
         if credit_loan_df.empty:
@@ -65,7 +65,7 @@ class UnSettleInfoProcessor(ModuleProcessor):
                                                 (df['loan_type'].isin(['01', '07', '99'])) |
                                                 (df['loan_type'].str.contains('融资租赁')) |
                                                 ((df['loan_type'] == '04') & (
-                                                        df['04且loan_amount'] > 200000))
+                                                        df['loan_amount'] > 200000))
                                         ) &
                                         (df['loan_balance'] > 0)]
 

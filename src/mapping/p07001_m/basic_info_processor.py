@@ -113,7 +113,7 @@ class BasicInfoProcessor(ModuleProcessor):
         loan_df['avg_loan_amount'] = loan_df.apply(
             lambda x: x['loan_amount'] / x['repay_period'] if pd.notna(x['repay_period']) else None, axis=1)
         loan_overdue_df = overdue_df[overdue_df['record_id'].isin(list(set(loan_df['id'].tolist())))]
-        loan_overdue_df = pd.merge(loan_overdue_df, loan_df[['id', 'avg_loan_amount']], how='left',
+        loan_overdue_df = pd.merge(loan_overdue_df, loan_df[['id', 'loan_amount', 'avg_loan_amount']], how='left',
                                    left_on='record_id', right_on='id', sort=False)
         temp_overdue_df = loan_overdue_df[(loan_overdue_df['repayment_amt'] > loan_overdue_df['avg_loan_amount']) &
                                           (loan_overdue_df['repayment_amt'] < loan_overdue_df['loan_amount'] / 3)]
@@ -168,7 +168,8 @@ class BasicInfoProcessor(ModuleProcessor):
         if not repayment_df.empty:
             status_list = []
             for index, row in repayment_df.iterrows():
-                if pd.notna(row["status"]) and row["status"].isdigit() and pd.notna(row['loan_amount']) and row['loan_amount'] > 0:
+                if pd.notna(row["status"]) and row["status"].isdigit() and \
+                        pd.notna(row['repayment_amt']) and row['repayment_amt'] > 0:
                     if after_ref_date(row.jhi_year, row.month, report_time.year-2, report_time.month):
                         status_list.append(int(row["status"]))
             self.variables["large_loan_2year_overdue_cnt"] = 0 if len(status_list) == 0 else max(status_list)
