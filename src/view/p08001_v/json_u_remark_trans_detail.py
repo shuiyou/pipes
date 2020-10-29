@@ -24,6 +24,7 @@ class JsonUnionRemarkTransDetail(TransFlow):
         flow_df = sql_to_df(sql=sql1,
                             params={"report_req_no": self.reqno})
 
+        flow_df['account_no'] = flow_df['account_no'].fillna("").astype(str)
         flow_df['account_no'] = flow_df['account_no'].str[:4] + "***" + flow_df['account_no'].str[-4:]
 
         sql2 = """
