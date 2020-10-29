@@ -46,7 +46,7 @@ def get_field_value(df, key):
 
 
 
-class T62001(Transformer):
+class T17003(Transformer):
     """
     同盾模型
     """

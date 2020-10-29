@@ -142,14 +142,19 @@ def test_get_data():
     print(resp)
 
 def test_002():
-    data = {'借据编号': ['申请执行人dddd', '2'], '借据起期': [20190521, 20190521]}
+    data = {'借据编号': [pd.isna(), '233333'], '借据起期': [20190521, 20190521]}
     df = pd.DataFrame(data=data)
-    print(df[df['借据编号']])
+    # df['借据编号'] = df['借据编号'].str[:8]
+    print(df['借据编号'])
 
 def test_003():
     data = "(0.24,0.333]"
     print(type(re.findall(r"\((.+?)\," ,data)[0]))
     print(float('-999') == -999)
+
+def test_004():
+    idno = '320681198807233019'
+    print(idno[0:4])
 
 
 
