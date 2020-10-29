@@ -27,7 +27,7 @@ class T32001(Transformer):
 
     def _info_loan_statistics_item(self):
         sql = '''
-            select field_name,field_value from info_risk_backtracking_item where loan_statistics_id = (
+            select field_name,field_value from info_risk_backtracking_item where risk_backtracking_id = (
                 select id from info_risk_backtracking where user_name = %(user_name)s AND id_card_no = %(id_card_no)s 
                 AND unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     ORDER BY id DESC LIMIT 1
