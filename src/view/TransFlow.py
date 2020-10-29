@@ -48,3 +48,14 @@ class TransFlow(ModuleProcessor):
 
             if i["relation"] == "GUARANTOR":
                 self.guarantor_list.append(i["name"])
+
+
+    def flow_account_clean(self, account_no):
+        l = len(account_no)
+        if l >= 11 :
+            return account_no[:4] + "***" + account_no[-4:]
+        elif l >= 7:
+            return "***" + account_no[-4:]
+        # 7位以内的未脱敏处理， 一般不会出现此类银行卡号
+        else:
+            return account_no
