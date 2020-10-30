@@ -16,10 +16,6 @@ def _info_com_bus_shareholder(user_name, id_card_no):
             AND unix_timestamp(NOW()) < unix_timestamp(a.expired_at) 
             order by a.id desc limit 1
        '''
-    # if pd.notna(id_card_no):
-    #     sql += ' and a.credit_code = %(id_card_no)s'
-    # sql += ''' AND unix_timestamp(NOW()) < unix_timestamp(expired_at) and channel_api_no='24001' order by id desc
-    #       limit 1 '''
     df = sql_to_df(sql=sql,
                    params={"user_name": user_name,
                            "id_card_no": id_card_no})
