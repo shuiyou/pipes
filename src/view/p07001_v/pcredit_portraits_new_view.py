@@ -33,9 +33,10 @@ class PcreditPortraitsNewView(ModuleProcessor):
             return
         self.variables["loan_now_overdue_money"] = round(df.loc[:, 'overdue_amount'].sum(), 2)
         df1 = df[pd.notnull(df['loan_amount'])]
-        df1 = df1[(df1['loan_type'].isin(['01', '07', '99'])) |
-                  (df1['loan_type'].str.contains('融资租赁')) |
-                  ((df1['loan_type'] == '04') & (df1['loan_amount'] > 20000))]
+        df1 = df1[(((df1['loan_type'].isin(['01', '07', '99'])) |
+                    (df1['loan_type'].str.contains('融资租赁'))) &
+                   (df1['loan_amount'] >= 10000)) |
+                  ((df1['loan_type'] == '04') & (df1['loan_amount'] > 200000))]
         if not df1.empty:
             repayment_df = self.cached_data.get("pcredit_repayment")
             overdue_cnt_df = pd.merge(df1, repayment_df, left_on='id', right_on='record_id')

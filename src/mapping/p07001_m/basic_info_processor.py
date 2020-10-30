@@ -63,9 +63,10 @@ class BasicInfoProcessor(ModuleProcessor):
         loan_df = loan_df[(pd.notnull(loan_df['loan_amount'])) &
                           (loan_df['account_type'].isin(['01', '02', '03'])) &
                           (
-                                  (loan_df['loan_type'].isin(['01', '07', '99'])) |
-                                  (loan_df['loan_type'].str.contains('融资租赁')) |
-                                  ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 20000))
+                              (((loan_df['loan_type'].isin(['01', '07', '99'])) |
+                                (loan_df['loan_type'].str.contains('融资租赁'))) &
+                               (loan_df['loan_amount'] >= 10000)) |
+                              ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))
                           )
                         ]
 
@@ -309,8 +310,9 @@ class BasicInfoProcessor(ModuleProcessor):
         # 4.将3中所有结果加总起来
         loan_df = self.cached_data["pcredit_loan"]
         pcredit_repayment = self.cached_data['pcredit_repayment']
-        busi_loan = loan_df[((loan_df['loan_type'].isin(['01', '07', '99'])) |
-                             (loan_df['loan_type'].str.contains('融资租赁'))) |
+        busi_loan = loan_df[(((loan_df['loan_type'].isin(['01', '07', '99'])) |
+                              (loan_df['loan_type'].str.contains('融资租赁'))) &
+                             (loan_df['loan_amount'] >= 10000)) |
                             ((loan_df['loan_type'] == '04') &
                              (loan_df['loan_amount'] > 200000)) &
                             (pd.notna(loan_df['loan_amount']))]
