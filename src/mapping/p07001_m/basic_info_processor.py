@@ -66,7 +66,7 @@ class BasicInfoProcessor(ModuleProcessor):
                               (((loan_df['loan_type'].isin(['01', '07', '99'])) |
                                 (loan_df['loan_type'].str.contains('融资租赁'))) &
                                (loan_df['loan_amount'] >= 10000)) |
-                              ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 20000))
+                              ((loan_df['loan_type'] == '04') & (loan_df['loan_amount'] > 200000))
                           )
                         ]
 
