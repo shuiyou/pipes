@@ -32,11 +32,11 @@ class T13001(Transformer):
         sql = """
             select sms_id, create_time
             from info_sms
-            where id_card_no = %s 
+            where id_card_no = %(id_no)s 
             and unix_timestamp(NOW()) < unix_timestamp(expired_at)
             order by id desc limit 1
-        """ % str(id_no)
-        df = sql_to_df(sql=sql)
+        """
+        df = sql_to_df(sql=sql,params={"id_no": str(id_no)})
         if df.shape[0] == 0:
             return '', None
         sms_id = str(df['sms_id'].to_list()[0])
@@ -61,9 +61,10 @@ class T13001(Transformer):
         sql = """
             select * 
             from info_sms_loan_platform
-            where sms_id = %s and register_time > %s
-        """ % (self.sms_id, self.two_years_ago)
-        df = sql_to_df(sql=sql)
+            where sms_id = %(sms_id)s and register_time > %(two_years_ago)s
+        """
+        df = sql_to_df(sql=sql,params={"sms_id": self.sms_id,
+                                       "two_years_ago":self.two_years_ago})
         if df.shape[0] == 0:
             return
         df = self.datediff(df, 'register_time', self.end_date)
@@ -79,9 +80,10 @@ class T13001(Transformer):
         sql = """
             select *
             from info_sms_loan_apply
-            where sms_id = %s and apply_time > %s
-        """ % (self.sms_id, self.two_years_ago)
-        df = sql_to_df(sql=sql)
+            where sms_id = %(sms_id)s and apply_time > %(two_years_ago)s
+        """
+        df = sql_to_df(sql=sql,params={"sms_id": self.sms_id,
+                                       "two_years_ago":self.two_years_ago})
         if df.shape[0] == 0:
             return
         df = self.datediff(df, 'apply_time', self.end_date)
@@ -94,9 +96,10 @@ class T13001(Transformer):
         sql = """
             select * 
             from info_sms_loan
-            where sms_id = %s and loan_time > %s
-        """ % (self.sms_id, self.two_years_ago)
-        df = sql_to_df(sql=sql)
+            where sms_id = %(sms_id)s and loan_time > %(two_years_ago)s
+        """
+        df = sql_to_df(sql=sql,params={"sms_id": self.sms_id,
+                                       "two_years_ago": self.two_years_ago})
         if df.shape[0] == 0:
             return
         df = self.datediff(df, 'loan_time', self.end_date)
