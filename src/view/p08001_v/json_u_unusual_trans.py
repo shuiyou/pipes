@@ -13,7 +13,7 @@ class JsonUnionUnusualTrans(TransFlow):
 
     def read_u_unusual_in_u_flow(self):
         sql = """
-            select trans_date as trans_time,
+            select concat(trans_date," ",trans_time) as trans_time,
             bank,account_no,opponent_name,trans_amt,remark,unusual_trans_type
             from trans_u_flow_portrait
             where report_req_no = %(report_req_no)s
@@ -27,7 +27,7 @@ class JsonUnionUnusualTrans(TransFlow):
             "博彩娱乐风险": "博彩娱乐",
             "案件纠纷风险": "案件纠纷",
             "身体健康风险": "医院|保险理赔",
-            "不良嗜好风险": "夜间交易",
+            "夜间交易风险": "夜间交易",
             "民间借贷风险": "民间借贷",
             "贷款逾期风险": "逾期",
             "投资风险-收购": "收购",
@@ -51,6 +51,9 @@ class JsonUnionUnusualTrans(TransFlow):
 
         for risk in unusual_dict:
             temp_df = df[df['unusual_trans_type'].str.contains(unusual_dict[risk])].drop(columns=['unusual_trans_type'])
+            if not temp_df.empty:
+                temp_df['account_no'] = temp_df['account_no'].fillna("").astype(str)
+                temp_df['account_no'] = temp_df['account_no'].apply( lambda x : self.flow_account_clean(x))
             json_str += f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
 
         self.variables["异常交易风险"] = json.loads("{" + json_str[:-1] + "}")

@@ -11,7 +11,7 @@ class JsonSingleUnusualTrans(TransFlow):
 
     def read_unusual_in_flow(self):
         sql = """
-            select trans_date as trans_time,
+            select concat(trans_date," ",trans_time) as trans_time,
             opponent_name,trans_amt,remark,unusual_trans_type
             from trans_flow_portrait
             where account_id = %(account_id)s and report_req_no = %(report_req_no)s
@@ -29,7 +29,7 @@ class JsonSingleUnusualTrans(TransFlow):
             "博彩娱乐风险": "博彩娱乐",
             "案件纠纷风险": "案件纠纷",
             "身体健康风险": "医院|保险理赔",
-            "不良嗜好风险": "夜间交易",
+            "夜间交易风险": "夜间交易",
             "民间借贷风险": "民间借贷",
             "贷款逾期风险": "逾期",
             "投资风险-收购": "收购",

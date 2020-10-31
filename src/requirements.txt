@@ -1,4 +1,4 @@
--i https://mirrors.aliyun.com/pypi/simple
+-i https://pypi.douban.com/simple/
 Flask==1.0.3
 gunicorn==19.7.1
 numpy==1.16.3

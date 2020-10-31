@@ -3,7 +3,8 @@
 # @File : date_time_util.py 
 # @Software: PyCharm
 import calendar
-from  datetime import datetime
+from datetime import datetime
+from pandas.tseries import offsets
 
 
 def after_ref_date(year, month, ref_year, ref_month):
@@ -43,38 +44,41 @@ def before_n_month_date(source_date,n):
     """
     获取date前n个月的日期
     """
-    year = source_date.year
-    month = source_date.month
-    day = source_date.day
-    if month - n > 0:
-        target_year = year
-        target_month = month - n
-    else:
-        target_year = year - 1
-        target_month = 12 + month - n
-    max_days = calendar.monthrange(target_year, target_month)[1]
-    if day > max_days:
-        day = max_days
-
-    target_date = source_date.replace(target_year, target_month, day)
+    # year = source_date.year
+    # month = source_date.month
+    # day = source_date.day
+    # if month - n > 0:
+    #     target_year = year
+    #     target_month = month - n
+    # else:
+    #     target_year = year - 1
+    #     target_month = 12 + month - n
+    # max_days = calendar.monthrange(target_year, target_month)[1]
+    # if day > max_days:
+    #     day = max_days
+    #
+    # target_date = source_date.replace(target_year, target_month, day)
+    target_date = source_date - offsets.DateOffset(months=n)
     return target_date
 
 
 def after_n_month_date(date,n):
-    year = date.year
-    month = date.month
-    day = date.day
-    if month+n < 13:
-        target_year = year
-        target_month = month + n
-    else:
-        target_year = year+1
-        target_month = month + n - 12
-
-    max_days = calendar.monthrange(target_year, target_month)[1]
-    if day > max_days:
-        day = max_days
-    return date.replace(target_year, target_month, day)
+    # year = date.year
+    # month = date.month
+    # day = date.day
+    # if month+n < 13:
+    #     target_year = year
+    #     target_month = month + n
+    # else:
+    #     target_year = year+1
+    #     target_month = month + n - 12
+    #
+    # max_days = calendar.monthrange(target_year, target_month)[1]
+    # if day > max_days:
+    #     day = max_days
+    # return date.replace(target_year, target_month, day)
+    target_date = date + offsets.DateOffset(months=n)
+    return target_date
 
 
 def before_n_year_date(date, n):
