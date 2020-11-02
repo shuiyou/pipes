@@ -170,7 +170,7 @@ class Fraud(GroupedTransformer):
                                             'FIN_Bank_Type_Industrial_all_0M_1M'])]
         if not df_temp.empty:
             df_temp['field_value_1'] = df_temp.apply(
-                lambda x: 0 if pd.isna(x['field_value']) else float(x['field_value']))
+                lambda x: 0 if pd.isna(x['field_value']) else float(x['field_value']), axis=1)
             self.variables['fraud_bank_other_30d_score'] = df_temp['field_value_1'].sum()
 
     def clean_variables_cts(self):
