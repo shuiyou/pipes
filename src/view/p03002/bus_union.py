@@ -184,6 +184,17 @@ class Bus(GroupedTransformer):
             self.variables['bus_invest_proportion'] += df['funded_ratio'].to_list()
             self.variables['bus_invest_form'] += df['con_form'].to_list()
 
+    def _get_industry_name(self, industry):
+        sql = '''
+            select cn_name from tree_dic where opt_type="STD_GB_4754-2011" and en_name=%(industry)s order by id desc limit 1
+        '''
+        df = sql_to_df(sql=sql, params={"industry":industry})
+        if not df.empty:
+            return df.loc[0, 'cn_name']
+        else:
+            return ''
+
+
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
         industry = self.full_msg.get('strategyParam').get('industry') if self.full_msg.get('strategyParam') is not None else ''
@@ -199,7 +210,7 @@ class Bus(GroupedTransformer):
 
                 df = self._load_info_com_bus_entinvitem_df(com_id)
                 self._bus_invest(df)
-        self.variables['bus_industry_industry'] = ''
+        self.variables['bus_industry_industry'] = self._get_industry_name(industry)
         self.variables['bus_industry_grade'] = get_industry_risk_level(industry[:4])
         self.variables['bus_industry_hint'] = get_industry_risk_tips(industry)
 

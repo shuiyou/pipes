@@ -133,6 +133,14 @@ class P03002(Generate):
             variables['score_fin_p' + str(person_index)] = row['score_fin']
             variables['model_pred_p' + str(person_index)] = row['model_pred']
             variables['td_pred_p' + str(person_index)] = row['td_pred']
+        # 公司作为入参参与报告分
+        df_company = df.query('userType=="COMPANY" and strategy=="01"')
+        logger.info("-------df_company\n%s", df_company)
+        company_index = 0
+        for index, row in df_company.iterrows():
+            company_index = company_index + 1
+            variables['score_c' + str(company_index)] = row['score']
+            variables['model_pred_c' + str(company_index)] = row['model_pred']
         variables['base_type'] = 'UNION'
         return variables
 
