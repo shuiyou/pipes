@@ -187,6 +187,7 @@ class Bus(GroupedTransformer):
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
         industry = self.full_msg.get['strategyParam']['industry']
+        industry_name = self.full_msg.get['strategyParam']['industryName']
         for each in query_list:
             if "PERSONAL" not in each['baseType'].upper() and each['strategy'] == '01':
                 com_id = self._load_info_com_bus_basic_id(each)
@@ -199,7 +200,7 @@ class Bus(GroupedTransformer):
 
                 df = self._load_info_com_bus_entinvitem_df(com_id)
                 self._bus_invest(df)
-        self.variables['bus_industry_industry'] = ""
+        self.variables['bus_industry_industry'] = industry_name
         self.variables['bus_industry_grade'] = get_industry_risk_level(industry[:4])
         self.variables['bus_industry_hint'] = get_industry_risk_tips(industry)
 
