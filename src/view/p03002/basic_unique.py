@@ -80,7 +80,7 @@ class BasicUnique(GroupedTransformer):
         self.variables['basic_credit_code'] = self.id_card_no
         self.variables['basic_reg_cap'] = face_df.loc[0, 'reg_cap']
         self.variables['basic_ent_status'] = face_df.loc[0, 'ent_status']
-        self.variables['basic_open_date_range'] = open_from + "-" + open_to
+        self.variables['basic_open_date_range'] = open_from + "至" + open_to
         self.variables['basic_share_ent_name'] = face_df.loc[0, 'ent_status']
 
     def transform(self):

@@ -12,11 +12,11 @@ def trans_black_froz_time(begin,end):
     if pd.isna(begin) and pd.isna(end):
         return "/"
     elif pd.isna(begin) and pd.notna(end):
-        return "/" + "-" + end.strftime('%Y-%m-%d %H:%M:%S')
+        return "/" + "至" + end.strftime('%Y-%m-%d %H:%M:%S')
     elif pd.notna(begin) and pd.isna(end):
-        return begin.strftime('%Y-%m-%d %H:%M:%S') + "-" + "/"
+        return begin.strftime('%Y-%m-%d %H:%M:%S') + "至" + "/"
     else:
-        return begin.strftime('%Y-%m-%d %H:%M:%S') + "-" + end.strftime('%Y-%m-%d %H:%M:%S')
+        return begin.strftime('%Y-%m-%d %H:%M:%S') + "至" + end.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def get_diff_days(x):
