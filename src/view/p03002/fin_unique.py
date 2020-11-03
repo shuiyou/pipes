@@ -324,7 +324,7 @@ class Fin(GroupedTransformer):
             self.variables['fin_qh_other_category_3m_cnt'] = len(
                 df_3m[df_3m['industryCode'].isin(['INS', 'ASM', 'INV', 'CRF', 'FAC', 'CAR', 'TRU', 'THR'])])
 
-            df_6m = df[df['dateUpdated'] >= current_datetime - pd.offsets.DateOffset(months=3)]
+            df_6m = df[df['dateUpdated'] >= current_datetime - pd.offsets.DateOffset(months=6)]
             self.variables['fin_qh_p2p_category_6m_cnt'] = len(df_6m[df_6m['industryCode'] == "P2P"])
             self.variables['fin_qh_small_loan_category_6m_cnt'] = len(df_6m[df_6m['industryCode'] == "MCL"])
             self.variables['fin_qh_insure_category_6m_cnt'] = len(df_6m[df_6m['industryCode'] == "FGC"])
@@ -335,7 +335,7 @@ class Fin(GroupedTransformer):
             self.variables['fin_qh_other_category_6m_cnt'] = len(
                 df_6m[df_6m['industryCode'].isin(['INS', 'ASM', 'INV', 'CRF', 'FAC', 'CAR', 'TRU', 'THR'])])
 
-            df_9m = df[df['dateUpdated'] >= current_datetime - pd.offsets.DateOffset(months=3)]
+            df_9m = df[df['dateUpdated'] >= current_datetime - pd.offsets.DateOffset(months=9)]
             self.variables['fin_qh_p2p_category_9m_cnt'] = len(df_9m[df_9m['industryCode'] == "P2P"])
             self.variables['fin_qh_small_loan_category_9m_cnt'] = len(df_9m[df_9m['industryCode'] == "MCL"])
             self.variables['fin_qh_insure_category_9m_cnt'] = len(df_9m[df_9m['industryCode'] == "FGC"])
