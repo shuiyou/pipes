@@ -79,19 +79,19 @@ class Owner(GroupedTransformer):
             sql = """
                 select id 
                 from info_court 
-                where unique_id_no in (%s) 
+                where unique_id_no in %(unique_idno_str)s 
                 and unix_timestamp(NOW()) < unix_timestamp(expired_at)
-                """ % unique_idno_str
-            df = sql_to_df(sql=sql)
+                """
+            df = sql_to_df(sql=sql,params={"unique_idno_str":unique_idno_str})
             if df is not None and df.shape[0] > 0:
                 id_list = df['id'].to_list()
                 court_id_list = ','.join([str(x) for x in id_list])
                 sql = """
                     select *
                     from info_court_tax_arrears
-                    where court_id in (%s)
-                """ % court_id_list
-                df = sql_to_df(sql=sql)
+                    where court_id in %(court_id_list)s
+                """
+                df = sql_to_df(sql=sql,params={"court_id_list":court_id_list})
                 if df.shape[0] > 0:
                     self.variables['owner_tax_cnt'] = df.shape[0]
                     df.sort_values(by='taxes_time', ascending=False, inplace=True)
@@ -187,11 +187,11 @@ class Owner(GroupedTransformer):
                     where basic_id in (
                         select id 
                         from info_com_bus_basic 
-                        where credit_code in (%s) 
+                        where credit_code in %(code_str)s
                         and unix_timestamp(NOW()) < unix_timestamp(expired_at)
                     )
-                """ % code_str
-                df = sql_to_df(sql=sql)
+                """
+                df = sql_to_df(sql=sql,params={"code_str":code_str})
                 df = df[pd.notna(df['es_date'])]
                 if df.shape[0] == 0:
                     return
