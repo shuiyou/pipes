@@ -124,6 +124,9 @@ class P03002(Generate):
         variables = {}
         person_index = 0
         for index, row in df_person.iterrows():
+            if row["phantomRelation"]:
+                continue
+
             person_index = person_index + 1
             variables['score_p' + str(person_index)] = row['score']
             variables['score_fraud_p' + str(person_index)] = row['score_fraud']
@@ -138,6 +141,9 @@ class P03002(Generate):
         logger.info("-------df_company\n%s", df_company)
         company_index = 0
         for index, row in df_company.iterrows():
+            if row["phantomRelation"]:
+                continue
+
             company_index = company_index + 1
             variables['score_c' + str(company_index)] = row['score']
             variables['model_pred_c' + str(company_index)] = row['model_pred']
@@ -195,7 +201,8 @@ class P03002(Generate):
             'name': user_name,
             'idno': data.get('idno'),
             'userType': user_type,
-            'strategy': data.get("extraParam").get("strategy")
+            'strategy': data.get("extraParam").get("strategy"),
+            'phantomRelation': data.get("extraParam").get("phantomRelation")
         }
         if fundratio is None or fundratio == '':
             array['fundratio'] = 0.00
