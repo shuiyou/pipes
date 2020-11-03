@@ -17,7 +17,7 @@ def to_string(obj):
 
 
 def format_timestamp(obj):
-    if obj is not None:
+    if obj is not None and pd.notna(obj):
         return obj.strftime('%Y-%m-%d')
     else:
         return ''
