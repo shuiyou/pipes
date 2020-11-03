@@ -210,9 +210,10 @@ class Bus(GroupedTransformer):
 
                 df = self._load_info_com_bus_entinvitem_df(com_id)
                 self._bus_invest(df)
-        self.variables['bus_industry_industry'] = self._get_industry_name(industry)
-        self.variables['bus_industry_grade'] = get_industry_risk_level(industry[:4])
-        self.variables['bus_industry_hint'] = get_industry_risk_tips(industry)
+        if industry is not None:
+            self.variables['bus_industry_industry'] = self._get_industry_name(industry)
+            self.variables['bus_industry_grade'] = get_industry_risk_level(industry[:4])
+            self.variables['bus_industry_hint'] = get_industry_risk_tips(industry)
 
 
 
