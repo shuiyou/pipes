@@ -60,7 +60,6 @@ class BasicUnique(GroupedTransformer):
         face_df = self._info_com_bus_face(int(id))
         if face_df.empty:
             return
-        self.variables['basic_ex_ent_name'] = self.user_name
         self.variables['basic_ex_industry_phyname'] = face_df.loc[0, 'industry_phyname']
         self.variables['basic_ex_ent_status'] = face_df.loc[0, 'ent_status']
         self.variables['basic_ex_reg_cap'] = face_df.loc[0, 'reg_cap']
@@ -69,7 +68,6 @@ class BasicUnique(GroupedTransformer):
         self.variables['basic_ex_open_date_range'] = open_from + "至" + open_to
         if self.origin_data.get("extraParam").get("strategy") == '02':
             return
-        self.variables['basic_ent_name'] = self.user_name
         self.variables['basic_fr_name'] = face_df.loc[0, 'fr_name']
         self.variables['basic_es_date'] = "" if pd.isna(face_df.loc[0, 'es_date']) else datetime.datetime.strftime(face_df.loc[0, 'es_date'], "%Y-%m-%d, %H:%M:%S")
         self.variables['basic_appr_date'] = "" if pd.isna(face_df.loc[0, 'appr_date']) else datetime.datetime.strftime(face_df.loc[0, 'appr_date'], "%Y-%m-%d, %H:%M:%S")
@@ -84,6 +82,8 @@ class BasicUnique(GroupedTransformer):
         self.variables['basic_share_ent_name'] = face_df.loc[0, 'ent_status']
 
     def transform(self):
+        self.variables['basic_ex_ent_name'] = self.user_name
+        self.variables['basic_ent_name'] = self.user_name
         basic_df = self._info_com_bus_basic()
         if basic_df.empty:
             return

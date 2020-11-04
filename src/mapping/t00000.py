@@ -29,6 +29,7 @@ class T00000(Transformer):
             'base_age': 0,
             'base_black': 0,
             'base_type': 'PERSON',
+            'user_type': '',
             'base_phone': '',
             'product_code': '',
             'base_marry_state': 'UNKNOWN',
@@ -60,6 +61,7 @@ class T00000(Transformer):
             self.variables['base_type'] = self.base_type
         else:
             self.variables['base_type'] = self.user_type
+        self.variables['user_type'] = self.user_type
         self._base_black()
         if self.user_type == 'PERSONAL' and self.id_card_no is not None:
             information = GetInformation(self.id_card_no)
