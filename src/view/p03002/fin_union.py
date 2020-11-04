@@ -120,7 +120,7 @@ class FinCom(GroupedTransformer):
         sql = """
                SELECT *
                FROM info_com_bus_shares_impawn
-               WHERE basic_id = (%(id_list)s) and imp_exe_state = '有效';
+               WHERE basic_id in (%(id_list)s) and imp_exe_state = '有效';
         """
         info_com_bus_shares_impawn_df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
         if info_com_bus_shares_impawn_df is not None and len(info_com_bus_shares_impawn_df) > 0:
