@@ -401,12 +401,19 @@ class T24001(Transformer):
 
     # 计算工商核查_现在是否有经营异常信息
     def _com_bus_exception(self, df=None):
-        df1 = df.dropna(subset=['result_out'],how='any')
-        df2 = df.query('result_out == ""')
-        if len(df) != len(df1):
+        # df1 = df.dropna(subset=['result_out'],how='any')
+        # df2 = df.query('result_out == ""')
+        if df is None or df.shape[0] == 0:
+            return
+        df_out = df[((pd.isna(df['result_out'])) | (df['result_out'].apply(lambda x: str(x).strip()) == '')) &
+                    ((pd.isna(df['date_out'])) | (df['date_out'].apply(lambda x: str(x).strip()) == '')) &
+                    (~df['result_in'].str.contains('年报|年度报告'))]
+        if df_out.shape[0] > 0:
             self.variables['com_bus_exception'] = 1
-        if len(df2) > 0:
-            self.variables['com_bus_exception'] = 1
+        # if len(df) != len(df1):
+        #     self.variables['com_bus_exception'] = 1
+        # if len(df2) > 0:
+        #     self.variables['com_bus_exception'] = 1
 
     # 计算工商核查_经营异常原因
     @exception('purpose= 工商核查&author=gulongwei')
