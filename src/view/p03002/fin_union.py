@@ -174,7 +174,8 @@ class FinCom(GroupedTransformer):
             self.variables['fin_mort_cnt'] += len(df)
             self.variables['fin_mort_name'] += df['mort_gager'].to_list()
             self.variables['fin_mort_reg_no'] += df['mort_reg_no'].to_list()
-            self.variables['fin_mort_reg_date'] += df['reg_date'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
+            self.variables['fin_mort_reg_date'] += df['reg_date'].map(
+                lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['fin_mort_status'] += df['mort_status'].to_list()
             self.variables['fin_mort_reg_org'] += df['reg_org'].to_list()
 
@@ -197,32 +198,24 @@ class FinCom(GroupedTransformer):
 
     # 计算 fin_alt 相关字段
     def _fin_alt(self, df=None):
-        if df is not None and len(df) > 0:
-            df = df.drop_duplicates().sort_values(by=['alt_date'], ascending=False)
-            target_fileds = ['股东变更',
-                             '股权和公证书',
-                             '股权转让信息',
-                             '负责人变更',
-                             '投资人\(股权\)变更',
-                             '投资人信息变更',
-                             '投资人及出资信息',
-                             '投资人变更',
-                             '投资人（股权内部转让）备案',
-                             '投资人（股权）变更',
-                             '投资人（股权）备案',
-                             '投资总额变更']
-            found = [df['alt_item'].str.contains(x) for x in target_fileds]
-            idx = found[0]
-            for i in found:
-                idx = idx | i
-            self.variables['fin_alt_cnt'] += df[idx].shape[0]
-            if df[idx].shape[0] > 0:
-                self.variables['fin_alt_name'] = df['ent_name'].drop_duplicates().to_list()
-                self.variables['fin_alt_item'] += df[idx]['alt_item'].to_list()
-                self.variables['fin_alt_date'] += df[idx]['alt_date'].map(
-                    lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
-                self.variables['fin_alt_be'] += df[idx]['alt_be'].to_list()
-                self.variables['fin_alt_af'] += df[idx]['alt_af'].to_list()
+        if df.empty:
+            return
+
+        target_fileds = '股东变更|股权和公证书|股权转让信息|' \
+                        '负责人变更|投资人\(股权\)变更|投资人信息变更|' \
+                        '投资人及出资信息|投资人变更|投资人（股权内部转让）备案|' \
+                        '投资人（股权）变更|投资人（股权）备案|投资总额变更'
+        df_temp = df[df['alt_item'].str.contains(target_fileds)]
+        if df_temp.empty:
+            return
+        df_temp = df_temp.sort_values(by=['ent_name', 'alt_date'], ascending=False)
+        self.variables['fin_alt_cnt'] = df_temp.shape[0]
+        self.variables['fin_alt_name'] = df_temp['ent_name'].to_list()
+        self.variables['fin_alt_item'] = df_temp['alt_item'].to_list()
+        self.variables['fin_alt_date'] = df_temp['alt_date'].to_list()
+        self.variables['fin_alt_be'] = df_temp['alt_be'].to_list()
+        self.variables['fin_alt_af'] = df_temp['alt_af'].to_list()
+
 
     # 计算 info_com_bus_mort_registe 相关字段
     def _fin_mab(self, df=None):
@@ -230,8 +223,9 @@ class FinCom(GroupedTransformer):
             df = df.iloc[:, :12].drop_duplicates().sort_values(by=['mort_gage', 'reg_date'], ascending=False)
             self.variables['mab_guar_amt'] += df['mab_guar_amt'].to_list()
             self.variables['mab_guar_type'] += df['mab_guar_type'].to_list()
-            self.variables['fin_pef_date_range'] += (df['pef_per_from'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')) + " - " + \
-                                                    df['pef_per_to'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d'))).to_list()
+            self.variables['fin_pef_date_range'] += (
+                        df['pef_per_from'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')) + " - " + \
+                        df['pef_per_to'].map(lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d'))).to_list()
 
     # 计算 fin_cancle_date 字段
     def _fin_gua(self, df=None):
@@ -275,4 +269,3 @@ class FinCom(GroupedTransformer):
 
         df = self._load_info_com_bus_mort_cancel_df(com_id_list)
         self._fin_cancle(df)
-
