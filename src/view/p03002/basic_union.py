@@ -8,13 +8,15 @@ from util.mysql_reader import sql_to_df
 
 def _info_com_bus_shareholder(user_name, id_card_no):
     sql = '''
-           SELECT a.ent_name,b.share_holder_name,b.share_holder_type,b.sub_conam,b.funded_ratio,b.con_date,b.con_form,c.ratio,c.quantity
-            FROM info_com_bus_basic a LEFT JOIN info_com_bus_shareholder b on a.id = b.basic_id
-            LEFT JOIN info_com_bus_top c on a.id = b.basic_id
-            where a.ent_name = %(user_name)s and a.credit_code = %(id_card_no)s 
-            and a.channel_api_no='24001' 
-            AND unix_timestamp(NOW()) < unix_timestamp(a.expired_at) 
-            order by a.id desc limit 1
+            SELECT a.ent_name,b.share_holder_name,b.share_holder_type,b.sub_conam,b.funded_ratio,b.con_date,b.con_form
+            FROM info_com_bus_shareholder b, info_com_bus_basic a
+            where a.id = (
+                SELECT id FROM info_com_bus_basic where ent_name = %(user_name)s 
+                and credit_code = %(id_card_no)s 
+                and a.channel_api_no='24001' 
+                AND unix_timestamp(NOW()) < unix_timestamp(a.expired_at)  order by id desc limit 1
+            )
+            and b.basic_id = a.id
        '''
     df = sql_to_df(sql=sql,
                    params={"user_name": user_name,
@@ -62,8 +64,6 @@ class BasicUnion(GroupedTransformer):
         self.variables['basic_share_holder_name'] = df['share_holder_name'].to_list()
         self.variables['basic_share_holder_type'] = df['share_holder_type'].to_list()
         self.variables['basic_share_sub_conam'] = df['sub_conam'].to_list()
-        self.variables['basic_share_ratio'] = df['ratio'].to_list()
-        self.variables['basic_share_quantity'] = df['quantity'].to_list()
         self.variables['basic_share_funded_ratio'] = df['funded_ratio'].to_list()
         self.variables['basic_share_con_date'] = df['con_date'].to_list()
         self.variables['basic_share_con_form'] = df['con_form'].to_list()
