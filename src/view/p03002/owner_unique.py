@@ -11,6 +11,31 @@ from util.mysql_reader import sql_to_df
 from util.common_util import get_query_data, get_all_related_company
 
 
+def translate_marry_state(marry_state):
+    if marry_state == 'MARRIED':
+        return "已婚"
+    elif marry_state == 'UNMARRIED':
+        return "未婚"
+    elif marry_state == 'MARRIAGE':
+        return "初婚"
+    elif marry_state == 'REMARRIAGE':
+        return "再婚"
+    elif marry_state == 'REMARRY':
+        return "复婚"
+    elif marry_state == 'WIDOWED':
+        return "丧偶"
+    elif marry_state == 'DIVORCE':
+        return "离婚"
+    elif marry_state == 'NO_DESC':
+        return "未说明的婚姻状况"
+    elif marry_state == 'SINGLE':
+        return "单身"
+    elif marry_state == 'UNKNOWN':
+        return "未知"
+    else:
+        return "未说明的婚姻状况"
+
+
 class Owner(GroupedTransformer):
     """
     企业主分析_owner
@@ -105,12 +130,12 @@ class Owner(GroupedTransformer):
         idno = str(idno)
         now = datetime.datetime.now()
         self.variables['owner_age'] = now.year - int(idno[6:10]) + \
-            (now.month - int(idno[10:12]) + (now.day - int(idno[12:14])) // 100) // 100
+                                      (now.month - int(idno[10:12]) + (now.day - int(idno[12:14])) // 100) // 100
         self.variables['owner_resistence'] = idno[:6]
         for index in self.person_list:
             temp_id = index.get('id_card_no')
             if str(temp_id) == idno:
-                self.variables['owner_marriage_status'] = index.get('marry_state')
+                self.variables['owner_marriage_status'] = translate_marry_state(index.get('marry_state'))
                 self.variables['owner_education'] = index.get('education')
                 break
 
