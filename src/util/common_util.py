@@ -223,7 +223,7 @@ def get_industry_risk_tips(industry_code):
         resp_list.append("6、如果客户经营非连锁品牌的低端宾馆或一般旅馆，请谨慎授信。")
         resp_list.append("7、如果客户不参与名下所有占股酒店的实际经营，请谨慎授信。")
     elif industry_code in ['F5124']:
-        resp_list.append("1、请关注客户的资质完备情况，酒店行业基本资质证件含《营业执照》、《消防证》、《特种行业许可证》、《卫生许可证齐全》，且证件地址需与酒店地址一致。")
+        resp_list.append("1、请关注客户的资质完备情况，肉类批发行业基本资质证件含《营业执照》、《食品流通许可证齐全》。")
         resp_list.append("2、请关注产品市场价格波动风险。")
         resp_list.append("3、请关注应收账款质量和账期长短，该行业普遍存在应收账款坏账风险和账期不稳定情况。")
         resp_list.append("4、请关注客户的存货周转率与同行业同类型产品相比是否过低。")
