@@ -301,7 +301,7 @@ class Black(GroupedTransformer):
 
         #black_exec_cnt
         if not public_df.empty:
-            public_df1 = public_df[~public_df.execute_content.str.contains("已结案")]
+            public_df1 = public_df[~public_df.execute_status.str.contains("已结案")].drop_duplicates(subset=['execute_case_no'])
             if not public_df1.empty:
                 self.variables['black_exec_cnt'] = public_df1.shape[0]
                 public_df2 = public_df1.sort_values(by='filing_time',ascending=False)
