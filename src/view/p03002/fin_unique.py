@@ -486,10 +486,10 @@ class Fin(GroupedTransformer):
 
             df_24m = df[df['loan_time'] >= current_datetime - pd.offsets.DateOffset(months=24)]
             if df_24m is not None and len(df_24m) > 0:
-                self.variables['fin_hd_apply_24m_cnt'] = len(df_24m)
-                self.variables['fin_hd_apply_24m_org_cnt'] = len(df_24m['platform_code'].unique())
-                self.variables['fin_hd_apply_24m_amt'] = df_24m['loan_amount'].sum()
-                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['loan_amount'].mean(), 2)
+                self.variables['fin_hd_loan_24m_cnt'] = len(df_24m)
+                self.variables['fin_hd_loan_24m_org_cnt'] = len(df_24m['platform_code'].unique())
+                self.variables['fin_hd_loan_24m_amt'] = df_24m['loan_amount'].sum()
+                self.variables['fin_hd_loan_24m_avg_amt'] = np.round(df_24m['loan_amount'].mean(), 2)
 
     # 计算 info_sms_overdue_platform 相关字段
     def _info_sms_overdue_platform(self, df=None):
@@ -530,10 +530,10 @@ class Fin(GroupedTransformer):
 
             df_24m = df[df['overdue_time'] >= current_datetime - pd.offsets.DateOffset(months=24)]
             if df_24m is not None and len(df_24m) > 0:
-                self.variables['fin_hd_apply_24m_cnt'] = len(df_24m)
-                self.variables['fin_hd_apply_24m_org_cnt'] = len(df_24m['platform_code'].unique())
-                self.variables['fin_hd_apply_24m_amt'] = df_24m['overdue_money'].sum()
-                self.variables['fin_hd_apply_24m_avg_amt'] = np.round(df_24m['overdue_money'].mean(), 2)
+                self.variables['fin_hd_overdue_24m_cnt'] = len(df_24m)
+                self.variables['fin_hd_overdue_24m_org_cnt'] = len(df_24m['platform_code'].unique())
+                self.variables['fin_hd_overdue_24m_amt'] = df_24m['overdue_money'].sum()
+                self.variables['fin_hd_overdue_24m_avg_amt'] = np.round(df_24m['overdue_money'].mean(), 2)
 
     def transform(self):
         each = self.origin_data

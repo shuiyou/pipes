@@ -108,10 +108,10 @@ class Owner(GroupedTransformer):
             (now.month - int(idno[10:12]) + (now.day - int(idno[12:14])) // 100) // 100
         self.variables['owner_resistence'] = idno[:6]
         for index in self.person_list:
-            temp_id = index.get('idno')
+            temp_id = index.get('id_card_no')
             if str(temp_id) == idno:
-                self.variables['owner_marriage_status'] = self.person_list[index].get('marry_state')
-                self.variables['owner_education'] = self.person_list[index].get('education')
+                self.variables['owner_marriage_status'] = index.get('marry_state')
+                self.variables['owner_education'] = index.get('education')
                 break
 
     # 获取个人公安重点评分
