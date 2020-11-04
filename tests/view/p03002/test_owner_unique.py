@@ -1,7 +1,12 @@
+import json
+
+from file_utils.files import file_content
+
 from view.p03002.owner_unique import Owner
 
 
 def test_001():
     ps = Owner()
-    ps.run(user_name="江西鼎信日用品有限公司",id_card_no="91360121MA38JRU16A",origin_data={"extraParam":{"strategy":"01"},"user_name":"江西鼎信日用品有限公司","id_card_no":"91360121MA38JRU16A","baseType":"U_PER_SP_SH_M_COMPANY"})
+    ps.full_msg = json.loads(file_content(r"C:/workspace/pipes/tests/resource", "unin_level1_001.json"))
+    ps.run(user_name="刘烈",id_card_no="360302197812104511",base_type="U_PERSONAL",origin_data={"extraParam":{"strategy":"01","education":"本科","marryState":"MARRIED"}})
     print(ps.variables)
