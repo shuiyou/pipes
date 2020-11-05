@@ -303,15 +303,17 @@ class Owner(GroupedTransformer):
         jg_df = sql_to_df(sql=sql, params={'mobile': mobile})
         if jg_df.shape[0] == 0:
             return
-        self.variables['owner_app_cnt'] = 1
+        cnt = 0
         for k, v in jg_mapping.items():
             temp_df = jg_df[jg_df['field_name'].isin(v)]
             if temp_df.shape[0] == 0:
                 continue
+            cnt += 1
             temp_df['field_value'] = temp_df['field_value'].apply(
                 lambda x: re.search(r'(?<=score=).*?(?=,)', x).group())
             temp_df['field_value'] = temp_df['field_value'].fillna(0).apply(float)
             self.variables[k] = round(temp_df['field_value'].mean() * 100, 1)
+        self.variables['owner_app_cnt'] = 1 if cnt > 0 else 0
 
     def transform(self):
         self.person_list = get_query_data(self.full_msg, 'PERSONAL', '01')

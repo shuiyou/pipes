@@ -85,9 +85,9 @@ def get_all_related_company(msg):
             resp[idno] = {'name': [name], 'idno': [idno], 'industry': [industry]}
             if base_type == 'U_PERSONAL':
                 per_type['main'] = idno
-            elif 'SPOUSE' in base_type:
+            elif 'SP' in base_type:
                 per_type['spouse'] = idno
-            elif 'CONTROLLER' in base_type:
+            elif 'CT' in base_type:
                 per_type['controller'] = idno
             # else:
             #     per_type[base_type] = idno
