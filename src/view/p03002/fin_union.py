@@ -128,7 +128,7 @@ class FinCom(GroupedTransformer):
     def _load_info_com_bus_alter_df(self, id_list):
         sql = '''
             SELECT b.ent_name,a.alt_item,a.alt_date,a.alt_be,a.alt_af FROM info_com_bus_alter a LEFT JOIN info_com_bus_basic b on a.basic_id = b.id 
-			 where a.basic_id in (3393,3446)
+			 where a.basic_id in %(id_list)s
         '''
         df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
