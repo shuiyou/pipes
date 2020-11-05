@@ -59,10 +59,11 @@ def get_query_data(msg, query_user_type, query_strategy):
         strategy = query_data.get("extraParam")['strategy']
         education = query_data.get("extraParam")['education']
         mar_status = query_data.get('extraParam')['marryState']
+        priority = query_data.get('extraParam')['priority']
         phone = query_data.get("phone")
         if pd.notna(query_user_type) and user_type == query_user_type and strategy == query_strategy:
             resp_dict = {"name": name, "id_card_no": idno, 'phone': phone,
-                         'education': education, 'marry_state': mar_status}
+                         'education': education, 'marry_state': mar_status, 'priority':priority}
             resp.append(resp_dict)
         if pd.isna(query_user_type) and strategy == query_strategy:
             resp_dict = {"name": name, "id_card_no": idno}

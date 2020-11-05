@@ -52,14 +52,16 @@ class BasicUnion(GroupedTransformer):
         for i in resp:
             user_name = i.get("name")
             id_card_no = i.get("id_card_no")
+            priority = i.get("priority")
             df_shareholder = _info_com_bus_shareholder(user_name, id_card_no)
+            df_shareholder['priority'] = priority
             if not df_shareholder.empty and df is not None:
                 df = pd.concat([df, df_shareholder])
             if df is None and not df_shareholder.empty:
                 df = df_shareholder
         if df is None:
             return
-        df = df.sort_values(by='funded_ratio', ascending=False)
+        df = df.sort_values(by=['priority', 'ent_name', 'funded_ratio'], ascending=False)
         self.variables['basic_share_ent_name'] = df['ent_name'].to_list()
         self.variables['basic_share_holder_name'] = df['share_holder_name'].to_list()
         self.variables['basic_share_holder_type'] = df['share_holder_type'].to_list()

@@ -142,10 +142,10 @@ def test_get_data():
     print(resp)
 
 def test_002():
-    data = {'借据编号': [pd.isna(), '233333'], '借据起期': [20190521, 20190521]}
+    data = {'借据编号': ['yyy777', '233333'], '借据起期': [20190521, 20190521]}
     df = pd.DataFrame(data=data)
-    # df['借据编号'] = df['借据编号'].str[:8]
-    print(df['借据编号'])
+    df['priority'] = 1
+    print(df)
 
 def test_003():
     data = "(0.24,0.333]"
