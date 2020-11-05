@@ -108,9 +108,9 @@ class FinCom(GroupedTransformer):
         sql = """
                SELECT *
                FROM info_com_bus_mort_basic
-               WHERE basic_id in (%(id_list)s)  and jhi_role = '抵押人' and mort_status = '有效';
+               WHERE basic_id in %(id_list)s and jhi_role = '抵押人' and mort_status = '有效';
         """
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
 
@@ -119,43 +119,54 @@ class FinCom(GroupedTransformer):
         sql = """
                SELECT *
                FROM info_com_bus_shares_impawn
-               WHERE basic_id in (%(id_list)s) and imp_exe_state = '有效';
+               WHERE basic_id in %(id_list)s and imp_exe_state = '有效';
         """
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
     # 读取 info_com_bus_alter 数据
     def _load_info_com_bus_alter_df(self, id_list):
-        sql = """
-        SELECT * FROM info_com_bus_alter  WHERE basic_id in (%(id_list)s);
-        """
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        sql = '''
+            SELECT b.ent_name,a.alt_item,a.alt_date,a.alt_be,a.alt_af FROM info_com_bus_alter a LEFT JOIN info_com_bus_basic b on a.basic_id = b.id 
+			 where a.basic_id in (3393,3446)
+        '''
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
     # 读取 info_com_bus_mort_registe 数据
     def _load_info_com_bus_mort_registe_df(self, id_list):
         sql = '''
             SELECT b.mort_gager,b.reg_date,a.mab_guar_amt,a.mab_guar_type,a.pef_per_from,a.pef_per_to FROM info_com_bus_mort_registe a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
-			where b.basic_id in (%(id_list)s) and b.jhi_role = '抵押人' and b.mort_status = '有效'
+			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效'
         '''
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
     # 读取 info_com_bus_mort_collateral 数据
     def _load_info_com_bus_mort_collateral_df(self, id_list):
         sql = '''
             SELECT b.mort_gager,b.reg_date,a.gua_name,a.gua_own,a.gua_des FROM info_com_bus_mort_collateral a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
-			where b.basic_id in (%(id_list)s) and b.jhi_role = '抵押人' and b.mort_status = '有效';
+			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
         '''
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
     # 读取 info_com_bus_mort_cancel 数据
     def _load_info_com_bus_mort_cancel_df(self, id_list):
-        sql = """
-        SELECT * FROM info_com_bus_mort_cancel as a LEFT JOIN info_com_bus_mort_basic as b on a.mort_id = b.basic_id where a.mort_id in (%(id_list)s) and b.jhi_role = '抵押人' and b.mort_status = '有效';
-        """
-        df = sql_to_df(sql=sql, params={"id_list": ",".join(id_list)})
+        sql = '''
+            SELECT b.mort_gager,b.reg_date,a.can_date FROM info_com_bus_mort_cancel a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
+        '''
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
+        return df
+
+    # 读取 info_com_bus_mort_holder 数据
+    def _load_info_com_bus_mort_holder_df(self, id_list):
+        sql = '''
+            SELECT b.mort_gager,b.reg_date,a.mort_org FROM info_com_bus_mort_holder a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+            where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
+        '''
+        df = sql_to_df(sql=sql, params={"id_list": id_list})
         return df
 
     # 计算 fin_mort 相关字段
@@ -229,8 +240,14 @@ class FinCom(GroupedTransformer):
     # 计算 fin_cancle_date 相关字段
     def _fin_cancle(self, df=None):
         if not df.empty:
-            df = df.iloc[:, :12].drop_duplicates().sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
             self.variables['fin_cancle_date'] += df['can_date'].to_list()
+
+    # 计算 fin_cancle_date 相关字段
+    def _fin_holder(self, df=None):
+        if not df.empty:
+            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            self.variables['fin_mort_to_name'] += df['mort_org'].to_list()
 
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
@@ -240,7 +257,7 @@ class FinCom(GroupedTransformer):
                 com_list.append(each)
         com_id_list = []
         for each in com_list:
-            id = str(self._load_info_com_bus_basic_id(each))
+            id = int(self._load_info_com_bus_basic_id(each))
             com_id_list.append(id)
 
         df = self._load_info_com_bus_mort_basic_df(com_id_list)
@@ -260,3 +277,6 @@ class FinCom(GroupedTransformer):
 
         df = self._load_info_com_bus_mort_cancel_df(com_id_list)
         self._fin_cancle(df)
+
+        df = self._load_info_com_bus_mort_holder_df(com_id_list)
+        self._fin_holder(df)
