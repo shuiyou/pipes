@@ -257,8 +257,9 @@ class FinCom(GroupedTransformer):
                 com_list.append(each)
         com_id_list = []
         for each in com_list:
-            id = int(self._load_info_com_bus_basic_id(each))
-            com_id_list.append(id)
+            item = self._load_info_com_bus_basic_id(each)
+            if item:
+                com_id_list.append(int(item))
 
         df = self._load_info_com_bus_mort_basic_df(com_id_list)
         self._fin_mort(df)
