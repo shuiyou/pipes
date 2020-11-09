@@ -36,8 +36,9 @@ class T00000(Transformer):
             'strategy': "01",  # 是否过决策
             'education': '',  # 学历
             'auth_status': 'AUTHORIZED',  # 授权状态
-            'base_idno_4':'',
-            'base_idno_6':''
+            'base_idno_4': '',
+            'base_idno_6': '',
+            'base_industry': ''
         }
 
     def _base_black(self):
@@ -83,8 +84,11 @@ class T00000(Transformer):
             extra_param = self.origin_data.get("extraParam")
             if extra_param:
                 marry_state = extra_param.get("marryState")
+                industry = extra_param.get('industry')
                 if marry_state:
                     self.variables["base_marry_state"] = marry_state
+                if industry:
+                    self.variables["base_industry"] = industry
 
                 # 是否过决策
                 strategy = extra_param.get("strategy")
