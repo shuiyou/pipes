@@ -157,6 +157,16 @@ def test_004():
     print(idno[0:4])
 
 
+def test_score_to_int():
+    strategy_resp = json.loads('{"StrategyOneResponse": {"Header": {"InquiryCode": "Q523137740502630400", "ProcessCode": "CREDIT_REP", "OrganizationCode": "", "ProcessVersion": 12, "LayoutVersion": 8}, "Body": {"Application": {"Variables": {"out_result": "T", "out_strategyBranch": "fffff", "y_pred": 0.085, "score": 510, "risk_conclusion": "高风险，需特批", "score_level": "C-"}, "Categories": [{"Reason": {"Variables": {"out_decisionBranchCode": "ZX029"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX030"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX031"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX035"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX041"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX001"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX007"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX013"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX019"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX014"}}}]}}}}')
+    resp_variables = jsonpath(strategy_resp, '$..Application.Variables')
+    if resp_variables is not None:
+        variables_ = resp_variables[0]
+        for key, value in variables_.items():
+            if key.startswith('score') & ~key.endswith('level'):
+                variables_[key] = int(round(value))
+
+
 
 
 
