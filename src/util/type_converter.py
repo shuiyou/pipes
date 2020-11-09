@@ -2,6 +2,7 @@
 # @Author : lixiaobo
 # @File : type_converter.py 
 # @Software: PyCharm
+import pandas as pd
 from numpy import int64
 from pandas import Series
 from pymysql import Timestamp
@@ -56,11 +57,19 @@ def format_var(parent, key, index, val):
                 format_var(val, k, -1, v)
         elif isinstance(val, Timestamp):
             logger.warn(str(key) + "----------------Timestamp----------------" + str(val))
-            if isinstance(parent, list):
-                parent.pop(index)
-                parent.insert(index, val.strftime("%Y-%m-%d %H:%M:%S"))
-            elif isinstance(parent, dict):
-                parent[key] = val.strftime("%Y-%m-%d %H:%M:%S")
+            if pd.isna(val):
+                logger.warn(str(key) + "----------------NaT----------------" + str(val))
+                if isinstance(parent, list):
+                    parent.pop(index)
+                    parent.insert(index, "")
+                elif isinstance(parent, dict):
+                    parent[key] = ""
+            else:
+                if isinstance(parent, list):
+                    parent.pop(index)
+                    parent.insert(index, val.strftime("%Y-%m-%d %H:%M:%S"))
+                elif isinstance(parent, dict):
+                    parent[key] = val.strftime("%Y-%m-%d %H:%M:%S")
         elif isinstance(val, int64):
             logger.warn(str(key) + "----------------int64----------------" + str(val))
             if isinstance(parent, list):
