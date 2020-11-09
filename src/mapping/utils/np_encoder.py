@@ -21,5 +21,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.to_list()
         elif pd.notna(obj) and isinstance(obj, Timestamp):
             return obj.strftime("%Y-%m-%d %H:%M:%S")
+        elif pd.isna(obj):
+            return ""
         else:
             return super(NpEncoder, self).default(obj)
