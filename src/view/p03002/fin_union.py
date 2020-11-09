@@ -263,24 +263,24 @@ class FinCom(GroupedTransformer):
             item = self._load_info_com_bus_basic_id(each)
             if item:
                 com_id_list.append(int(item))
+        if len(com_id_list) > 0:
+            df = self._load_info_com_bus_mort_basic_df(com_id_list)
+            self._fin_mort(df)
 
-        df = self._load_info_com_bus_mort_basic_df(com_id_list)
-        self._fin_mort(df)
+            df = self._load_info_com_bus_shares_impawn_df(com_id_list)
+            self._fin_impawn(df)
 
-        df = self._load_info_com_bus_shares_impawn_df(com_id_list)
-        self._fin_impawn(df)
+            df = self._load_info_com_bus_alter_df(com_id_list)
+            self._fin_alt(df)
 
-        df = self._load_info_com_bus_alter_df(com_id_list)
-        self._fin_alt(df)
+            df = self._load_info_com_bus_mort_registe_df(com_id_list)
+            self._fin_mab(df)
 
-        df = self._load_info_com_bus_mort_registe_df(com_id_list)
-        self._fin_mab(df)
+            df = self._load_info_com_bus_mort_collateral_df(com_id_list)
+            self._fin_gua(df)
 
-        df = self._load_info_com_bus_mort_collateral_df(com_id_list)
-        self._fin_gua(df)
+            df = self._load_info_com_bus_mort_cancel_df(com_id_list)
+            self._fin_cancle(df)
 
-        df = self._load_info_com_bus_mort_cancel_df(com_id_list)
-        self._fin_cancle(df)
-
-        df = self._load_info_com_bus_mort_holder_df(com_id_list)
-        self._fin_holder(df)
+            df = self._load_info_com_bus_mort_holder_df(com_id_list)
+            self._fin_holder(df)
