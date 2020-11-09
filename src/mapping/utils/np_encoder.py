@@ -7,7 +7,7 @@ import json
 from numpy import integer, floating, ndarray
 from pandas import Series
 from pymysql import Timestamp
-
+import pandas as pd
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -19,7 +19,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, Series):
             return obj.to_list()
-        elif obj and isinstance(obj, Timestamp):
+        elif pd.notna(obj) and isinstance(obj, Timestamp):
             return obj.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return super(NpEncoder, self).default(obj)
