@@ -11,6 +11,7 @@ import pandas as pd
 
 from mapping.grouped_tranformer import GroupedTransformer, invoke_each, invoke_union
 from util.mysql_reader import sql_to_df
+from util.common_util import get_query_data
 
 
 class FinCom(GroupedTransformer):
@@ -252,6 +253,8 @@ class FinCom(GroupedTransformer):
     def transform(self):
         query_list = self._jsonpath_load(self.full_msg)
         com_list = []
+        person_list = get_query_data(self.full_msg, 'PERSONAL', '01')
+        self.variables['fin_multi_cnt'] = len(person_list)
         for each in query_list:
             if "COMPANY" in each['baseType'].upper():
                 com_list.append(each)
