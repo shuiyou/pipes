@@ -19,7 +19,7 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, Series):
             return obj.to_list()
-        elif isinstance(obj, Timestamp):
+        elif obj and isinstance(obj, Timestamp):
             return obj.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return super(NpEncoder, self).default(obj)
