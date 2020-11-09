@@ -17,6 +17,7 @@ def _info_com_bus_shareholder(user_name, id_card_no):
                 AND unix_timestamp(NOW()) < unix_timestamp(a.expired_at)  order by id desc limit 1
             )
             and b.basic_id = a.id
+            and b.funded_ratio is not null
        '''
     df = sql_to_df(sql=sql,
                    params={"user_name": user_name,
