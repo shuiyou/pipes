@@ -10,7 +10,8 @@ product_code_process_dict = {
     "07001": "CREDIT_REP",    # 征信报告
     "07002": "CREDIT_REP",     # 征信拦截
     "08001": "TRANS_FLOW",     # 流水报告
-    "08002": "TRANS_FLOW"      # 流水拦截
+    "08002": "TRANS_FLOW",      # 流水拦截
+    "03002": "LEVEL_ONE",  # 新版一级联合报告
 }
 
 # 在这个dict里针对不同的产品设置他的详情字段转换
