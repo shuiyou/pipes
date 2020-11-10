@@ -203,8 +203,9 @@ class Fraud(GroupedTransformer):
         self.variables['fraud_act_cnt'] = 1 if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_msg_002', 'cts_msg_006', 'cts_msg_018', 'cts_msg_017'])
-        df_temp['count'] = df_temp.apply(lambda x:int(float(x['field_value'])),axis=1)
-        self.variables['fraud_msg_cnt'] = df_temp[df_temp['count'] > 0].shape[0] if not df_temp.empty else 0
+        if not df_temp.empty:
+            df_temp['count'] = df_temp.apply(lambda x:int(float(x['field_value'])),axis=1)
+            self.variables['fraud_msg_cnt'] = df_temp[df_temp['count'] > 0].shape[0] if not df_temp.empty else 0
 
         df_temp = cts_match(df, ['cts_lbs_014'])
         self.variables['fraud_trace_city_180_cnt'] = str_int(df_temp) if not df_temp.empty else 0
