@@ -141,7 +141,7 @@ class P03002(Generate):
         logger.info("-------df_company\n%s", df_company)
         company_index = 0
         for index, row in df_company.iterrows():
-            if row["phantomRelation"]:
+            if row["phantomRelation"] or row['score'] <= 0:
                 continue
 
             company_index = company_index + 1
