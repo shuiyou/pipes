@@ -94,6 +94,11 @@ def test_shake_hand_06001(client):
     shake_hand_request(client, "06001")
 
 
+# ---------------------------新版一级联合报告握手---------------------------
+def test_shake_hand_03002(client):
+    shake_hand_request(client, "03002")
+
+
 # 贷后报告决策调用
 def test_strategy_06001(client):
     strategy_request(client, "06001")
@@ -142,3 +147,8 @@ def test_strategy_08001_1(client):
 # 流水报告决策请求
 def test_strategy_08001_2(client):
     strategy_request(client, "08001_2")
+
+
+# ---------------------------新版一级联合报告---------------------------
+def test_strategy_03002(client):
+    strategy_request(client, "03002")

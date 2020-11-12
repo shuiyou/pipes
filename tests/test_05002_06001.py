@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-import pandas as pd
+import re
 
+from jsonpath import jsonpath
+import pandas as pd
+from file_utils.files import file_content
 
 from mapping.t05001 import T05001
 from mapping.t05002 import T05002
@@ -121,12 +124,49 @@ def get_credit_min_repay(df,repay_amount,amount_replay_amount):
     return ['否','是'][df[repay_amount]*2>df[amount_replay_amount]]
 
 
-def test_trans_score():
-   value="aa"
-   target="aasssss"
-   if value not in target:
-       print("not")
-   else:
-       print("in")
+def test_get_data():
+    msg = file_content("./resource", "unin_level1_001.json")
+    data = json.loads(msg)
+    query_data_list = jsonpath(data, '$..queryData[*]')
+    resp = []
+    for query_data in query_data_list:
+        name = query_data.get("name")
+        idno = query_data.get("idno")
+        user_type = query_data.get("userType")
+        print(user_type)
+        strategy = query_data.get("strategy")
+        print(strategy)
+        if user_type == 'COMPANY' and strategy == '01':
+            resp_dict = {"name": name, "idno": idno}
+            resp.append(resp_dict)
+    print(resp)
+
+def test_002():
+    data = {'借据编号': ['yyy777', '233333'], '借据起期': [20190521, 20190521]}
+    df = pd.DataFrame(data=data)
+    df['priority'] = 1
+    print(df)
+
+def test_003():
+    data = "(0.24,0.333]"
+    print(type(re.findall(r"\((.+?)\," ,data)[0]))
+    print(float('-999') == -999)
+
+def test_004():
+    idno = '320681198807233019'
+    print(idno[0:4])
+
+
+def test_score_to_int():
+    strategy_resp = json.loads('{"StrategyOneResponse": {"Header": {"InquiryCode": "Q523137740502630400", "ProcessCode": "CREDIT_REP", "OrganizationCode": "", "ProcessVersion": 12, "LayoutVersion": 8}, "Body": {"Application": {"Variables": {"out_result": "T", "out_strategyBranch": "fffff", "y_pred": 0.085, "score": 510, "risk_conclusion": "高风险，需特批", "score_level": "C-"}, "Categories": [{"Reason": {"Variables": {"out_decisionBranchCode": "ZX029"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX030"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX031"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX035"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX041"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX001"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX007"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX013"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX019"}}}, {"Reason": {"Variables": {"out_decisionBranchCode": "ZX014"}}}]}}}}')
+    resp_variables = jsonpath(strategy_resp, '$..Application.Variables')
+    if resp_variables is not None:
+        variables_ = resp_variables[0]
+        for key, value in variables_.items():
+            if key.startswith('score') & ~key.endswith('level'):
+                variables_[key] = int(round(value))
+
+
+
 
 

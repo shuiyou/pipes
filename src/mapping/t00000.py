@@ -3,6 +3,7 @@ import datetime
 from mapping.tranformer import Transformer
 from util.id_card_info import GetInformation
 from util.mysql_reader import sql_to_df
+import pandas as pd
 
 
 # 婚姻状态取值如下：
@@ -28,9 +29,16 @@ class T00000(Transformer):
             'base_age': 0,
             'base_black': 0,
             'base_type': 'PERSON',
+            'user_type': '',
             'base_phone': '',
             'product_code': '',
-            'base_marry_state': 'UNKNOWN'
+            'base_marry_state': 'UNKNOWN',
+            'strategy': "01",  # 是否过决策
+            'education': '',  # 学历
+            'auth_status': 'AUTHORIZED',  # 授权状态
+            'base_idno_4': '',
+            'base_idno_6': '',
+            'base_industry': ''
         }
 
     def _base_black(self):
@@ -54,18 +62,43 @@ class T00000(Transformer):
             self.variables['base_type'] = self.base_type
         else:
             self.variables['base_type'] = self.user_type
+        self.variables['user_type'] = self.user_type
         self._base_black()
         if self.user_type == 'PERSONAL' and self.id_card_no is not None:
             information = GetInformation(self.id_card_no)
             self.variables['base_gender'] = information.get_sex()
             self.variables['base_age'] = information.get_age()
+            self.variables['base_idno_4'] = self.id_card_no[0:4]
+            self.variables['base_idno_6'] = self.id_card_no[0:6]
 
         if self.origin_data:
             apply_amount = self.origin_data.get("applyAmo")
             if apply_amount:
                 self.variables["base_apply_amo"] = apply_amount
+
+            # 授权状态
+            auth_status = self.origin_data.get("authStatus")
+            if auth_status:
+                self.variables["auth_status"] = auth_status
+
             extra_param = self.origin_data.get("extraParam")
             if extra_param:
                 marry_state = extra_param.get("marryState")
+                industry = extra_param.get('industry')
                 if marry_state:
                     self.variables["base_marry_state"] = marry_state
+                if industry:
+                    self.variables["base_industry"] = industry
+
+                # 是否过决策
+                strategy = extra_param.get("strategy")
+                if strategy:
+                    self.variables["strategy"] = strategy
+
+                # 学历
+                education = extra_param.get("education")
+                if education:
+                    self.variables["education"] = education
+
+
+

@@ -3,12 +3,14 @@ import importlib
 
 # from app import logger
 import pkgutil
+import traceback
 from inspect import getmembers, isclass
 
 import numpy
 
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
+from mapping.grouped_tranformer import GroupedTransformer
 from mapping.tranformer import Transformer, fix_cannot_to_json
 from product.p_config import product_code_view_dict
 
@@ -211,10 +213,12 @@ def get_product_transformers(product_code):
             if is_pkg:
                 continue
             module = importlib.import_module(name)
-            object_list = [value() for (_, value) in getmembers(module) if isclass(value) and value != Transformer]
+            object_list = [value() for (m_name, value) in getmembers(module) if isclass(value)
+                           and issubclass(value, GroupedTransformer)]
             transformer_list.extend(object_list)
         return transformer_list
     except Exception as e:
         logger.error(str(e))
+        logger.error(traceback.format_exc())
     return []
 
