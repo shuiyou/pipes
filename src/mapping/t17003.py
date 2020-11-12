@@ -87,7 +87,7 @@ class T17003(Transformer):
         self.variables['i_cnt_partner_all_Imbank_90day'] = get_left_field_value(df,
                                                                                 'i_cnt_partner_all_Imbank_90day')
         self.variables['i_std_cnt_10daypartner_all_Imbank_90day'] = get_left_field_value(df,
-                                                                                         'i_std_cnt_10daypartner_all_Imbank_90day')
+                                                                                         'i_std_cnt_10daypartner_all_Imbank;_90day')
         self.variables['m_cnt_partner_all_finance_180day'] = get_left_field_value(df,
                                                                                   'm_cnt_partner_all_finance_180day')
         self.variables['m_cnt_partner_all_Imbank_90day'] = get_left_field_value(df,
