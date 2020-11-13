@@ -24,7 +24,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
     no_data_repository = data_repository is None
     cached_data = {} if no_data_repository else data_repository
     try:
-        view_transformers = get_product_transformers(product_code)
+        view_transformers = get_product_transformers(product_code, True)
         if view_transformers and len(view_transformers) > 0:
             filtered_view_trans = filter(lambda x: x.invoke_style() & invoke_style > 0, view_transformers)
             for product_view_tran in filtered_view_trans:

@@ -128,7 +128,8 @@ def round_max(max_arr, median_arr=None, ratio=0.3):
     ))
 
 
-def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,base_type=None, origin_data=None, data_repository=None):
+def translate_for_report_detail(product_code, user_name=None, id_card_no=None, phone=None, user_type=None,
+                                base_type=None, origin_data=None, data_repository=None):
     """
     处理后的结果作为决策需要的变量。
     :return: 一个dict对象包含产品所需要的变量
@@ -199,7 +200,7 @@ def get_transformer(code) -> Transformer:
 
 
 # 获取指定产品的view的transformers
-def get_product_transformers(product_code):
+def get_product_transformers(product_code, grouped=False):
     pkg = None
     try:
         pkg = importlib.import_module("view.p" + product_code)
@@ -213,12 +214,14 @@ def get_product_transformers(product_code):
             if is_pkg:
                 continue
             module = importlib.import_module(name)
-            object_list = [value() for (m_name, value) in getmembers(module) if isclass(value)
-                           and issubclass(value, GroupedTransformer)]
+            if grouped:
+                object_list = [value() for (m_name, value) in getmembers(module) if isclass(value)
+                               and issubclass(value, GroupedTransformer)]
+            else:
+                object_list = [value() for (_, value) in getmembers(module) if isclass(value) and value != Transformer]
             transformer_list.extend(object_list)
         return transformer_list
     except Exception as e:
         logger.error(str(e))
         logger.error(traceback.format_exc())
     return []
-
