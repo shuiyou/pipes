@@ -200,7 +200,7 @@ def get_transformer(code) -> Transformer:
 
 
 # 获取指定产品的view的transformers
-def get_product_transformers(product_code, group_transformer=False):
+def get_product_transformers(product_code, grouped=False):
     pkg = None
     try:
         pkg = importlib.import_module("view.p" + product_code)
@@ -214,7 +214,7 @@ def get_product_transformers(product_code, group_transformer=False):
             if is_pkg:
                 continue
             module = importlib.import_module(name)
-            if group_transformer:
+            if grouped:
                 object_list = [value() for (m_name, value) in getmembers(module) if isclass(value)
                                and issubclass(value, GroupedTransformer)]
             else:
