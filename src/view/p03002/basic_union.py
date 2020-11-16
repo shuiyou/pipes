@@ -1,8 +1,10 @@
+import datetime
+
 import pandas as pd
 from file_utils.files import file_content
 
 from mapping.grouped_tranformer import GroupedTransformer, invoke_union
-from util.common_util import get_query_data
+from util.common_util import get_query_data, logger
 from util.mysql_reader import sql_to_df
 
 
@@ -50,16 +52,23 @@ class BasicUnion(GroupedTransformer):
     def clean_variables_shareholder(self):
         resp = get_query_data(self.full_msg, 'COMPANY', '01')
         df = None
+        logger.info("basic_union--start---")
+        t1 = datetime.datetime.now()
         for i in resp:
             user_name = i.get("name")
             id_card_no = i.get("id_card_no")
             priority = i.get("priority")
+            t3 = datetime.datetime.now()
             df_shareholder = _info_com_bus_shareholder(user_name, id_card_no)
+            t4 = datetime.datetime.now()
+            logger.info(user_name + "---basic_union_query---" + str((t4 - t3).seconds))
             df_shareholder['priority'] = priority
             if not df_shareholder.empty and df is not None:
                 df = pd.concat([df, df_shareholder])
             if df is None and not df_shareholder.empty:
                 df = df_shareholder
+        t2 = datetime.datetime.now()
+        logger.info("basic_union---end----" + str((t2-t1).seconds))
         if df is None:
             return
         df = df.sort_values(by=['priority', 'ent_name', 'funded_ratio'], ascending=False)
@@ -72,4 +81,8 @@ class BasicUnion(GroupedTransformer):
         self.variables['basic_share_con_form'] = df['con_form'].to_list()
 
     def transform(self):
+        t1 = datetime.datetime.now()
         self.clean_variables_shareholder()
+        t2 = datetime.datetime.now()
+        logger.info('basic_union_total----'+str((t2 - t1).seconds))
+
