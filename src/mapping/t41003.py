@@ -10,25 +10,29 @@ class T41003(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-           "care_industry": 0,
+            "care_industry": 0,
             "keep_year": 0,
             "abnorm_status": 0,
             "on_loan_cnt": 0,
             "on_loan_prop": 0,
-            "app_cnt_recent_year": 0,
+            "app_cnt_recent": 0,
             "asset_dispose_amt": 0,
             "advance_amt": 0,
             "overdue_prin": 0,
             "overdue_interest": 0,
             "history_prin_overdue": 0,
-            "bad_loan": 0,
-            "care_loan": 0,
-            "postpone": 0,
-            "bad_rr": 0,
-            "care_rr": 0,
-            "bad_d": 0,
-            "care_d": 0,
-            "risk_case_cnt": 0
+            "bad_loan_cnt": 0,
+            "care_loan_cnt": 0,
+            "loan_detail":"正常",
+            "postpone_cnt": 0,
+            "bad_rr_cnt": 0,
+            "care_rr_cnt": 0,
+            "rr_detail":"正常",
+            "bad_done_cnt": 0,
+            "care_done_cnt": 0,
+            "settled_detail":"正常",
+            "risk_case_cnt": 0,
+            "case_detail":""
         }
 
 

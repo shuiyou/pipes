@@ -39,4 +39,8 @@ class EcFinPress(GroupedTransformer):
         }
 
     def transform(self):
-        pass
+        info_outline = self.cached_data['ecredit_info_outline']
+        self.variables['first_loan_year'] = info_outline.ix[0,'first_loan_year']
+        self.variables['history_loan_cnt'] = info_outline.ix[0, 'loan_org_num']
+        self.variables['on_loan_cnt'] = info_outline.ix[0, 'remain_loan_org_num']
+        self.variables['first_rr_year'] = info_outline.ix[0, 'first_repay_duty_year']
