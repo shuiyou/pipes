@@ -26,3 +26,7 @@ class SettledTable(GroupedTransformer):
 
     def transform(self):
         pass
+        # loan_data = self.cached_data["ecredit_loan"][['account_org','amount','loan_date','end_date',
+        #                                               'category','last_payment_type']]
+        # loan_data.groupby('account_org').agg({'amount':['count','sum','max','min'],
+        #                                       'loan_date':['min','max']})
