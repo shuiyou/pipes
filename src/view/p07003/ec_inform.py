@@ -84,8 +84,8 @@ class EcInform(GroupedTransformer):
 
         df = pd.concat([df,table1,table2,table3,table4],ignore_index=True)
 
-        self.variables['related_name'] = df['related_name']
-        self.variables['relation'] = df['relation']
-        self.variables['id_code'] = df['id_code']
-        self.variables['update_date'] = df['update_date']
-        self.variables['remark'] = df['remark']
+        self.variables['related_name'] = df['related_name'].tolist()
+        self.variables['relation'] = df['relation'].tolist()
+        self.variables['id_code'] = df['id_code'].tolist()
+        self.variables['update_date'] = df['update_date'].tolist()
+        self.variables['remark'] = df['remark'].tolist()

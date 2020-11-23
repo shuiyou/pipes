@@ -9,7 +9,7 @@ class UnsettledPie(GroupedTransformer):
     def group_name(self):
         return "unsettled_pie"
 
-    def __init__(self) -> None:
+    def __init__(self, df = None) -> None:
         super().__init__()
         self.variables = {
             "debt_bal": 0,
@@ -23,6 +23,10 @@ class UnsettledPie(GroupedTransformer):
             "bus_pie_debt_prop": [],
             "amt_pie": []
         }
+        self.df = df
+
 
     def transform(self):
-        pass
+
+        df = self.df
+
