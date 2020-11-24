@@ -25,7 +25,7 @@ class SettledTable(GroupedTransformer):
         }
 
     def transform(self):
-        pass
+
         loan_total = self.cached_data["ecredit_loan"][['id','account_org','amount','loan_date','end_date',
                                                       'category','last_payment_type']]
         loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")]
@@ -33,24 +33,24 @@ class SettledTable(GroupedTransformer):
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
-                                                       'loan_date':['min','max']}).reset_index()
-        group1.set_axis(['account_org', 'coop_cnt', 'grant_total',
+                                                       'loan_date':['min','max']})
+        group1.set_axis(['coop_cnt', 'grant_total',
                          'grant_max', 'grant_min',
                          'first_coop_date', 'finish_coop_date'],
                            axis='columns',
                            inplace=True)
 
         group2 = loan_data.drop(columns = 'id').sort_values( by = ['account_org','loan_date'] ,ascending = [True,False]  )\
-            .drop_duplicates(subset = 'account_org',keep='first')[['account_org','last_payment_type','category']]
+            .drop_duplicates(subset = 'account_org',keep='first')[['account_org','last_payment_type','category']].set_index('account_org')
 
         group3 = pd.merge(loan_data[['id']],
                        self.cached_data["ecredit_histor_perfo"],
                        how='left',
                        left_on='id',
-                       right_on='loan_id').groupby('account_org')['overdue_amt'].agg('sum').reset_index()
+                       right_on='loan_id').groupby('account_org')['overdue_amt'].agg('sum')
         group3['overdue_amt'] = group3.overdue_amt.apply( lambda x : "是" if x > 0 else None)
 
-        df = pd.concat( [group1 , group2 , group3] ,axis=1)
+        df = pd.concat( [group1 , group2 , group3] ,axis=1).reset_index()
         df.rename(columns = { 'account_org' : 'inst',
                               'overdue_amt' : 'overdued',
                               'last_payment_type':'last_repay_form'},
