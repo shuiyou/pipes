@@ -69,3 +69,21 @@ class UnsettledPie(GroupedTransformer):
         self.variables["bus_pie_debt_prop"] = list(
             np.array(bus_pie_debt_bal) / self.variables["debt_bal"]
         )
+
+
+        bins = [0,50,100,200,500,1000,10e8]
+        bin_name = ['below50', '50to100', '100to200', '200to500', '500to1000', 'above1000']
+        data['bin']  = pd.cut(data.grant_amt,bins,labels= False)
+        data['bin'] = data.bin.apply(lambda x : bin_name[x])
+        amt_pie = []
+
+        for col in bin_name:
+            temp_dict = {}
+            temp_df = data[(data.bin == col)][['grant_amt','bin']]
+            temp_dict['amt_pie_amt_range'] = col
+            temp_dict['amt_pie_cnt'] = temp_df.shape[0]
+            temp_dict['amt_pie_debt_prop'] = temp_df.shape[0] / data.shape[0]
+            temp_dict['remark'] = temp_df.groupby('grant_amt')['bin'].agg({'remark_cnt':'count'}).reset_index().to_dict(orient='list')
+            amt_pie.append(temp_dict)
+
+        self.variables["amt_pie"] = amt_pie
