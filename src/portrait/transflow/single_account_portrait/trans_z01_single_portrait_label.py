@@ -25,6 +25,7 @@ class TransSingleLabel:
         self.user_name = trans_flow.user_name
         self.create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         self.label_list = []
+        self.spouse_name = 'None'
 
     def process(self):
         if self.df is None:
@@ -45,13 +46,12 @@ class TransSingleLabel:
         """
         length = len(self.query_data_array)
         self.relation_dict = dict()
-        self.spouse_name = 'None'
         for i in range(length):
             temp = self.query_data_array[i]
             base_type_detail = base_type_mapping.get(temp['baseTypeDetail'])
             self.relation_dict[temp['name']] = base_type_detail
             if base_type_detail in ['借款人配偶', '借款企业实际控制人配偶']:
-                self.spouse_name = temp['name']
+                self.spouse_name = str(temp['name'])
 
     def _loan_type_label(self):
         """
