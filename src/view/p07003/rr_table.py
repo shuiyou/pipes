@@ -57,7 +57,7 @@ class RrTable(GroupedTransformer):
                           columns= col_list)
 
         repay_duty1 = self.cached_data["ecredit_repay_duty_biz"][['account_org','duty_type','biz_type','duty_amt',
-                                                                     'blanace','biz_date','end_date','category',
+                                                                     'balance','biz_date','end_date','category',
                                                                      'surplus_repay_period','overdue_amt',
                                                                      'overdue_principal','debt_status']]
         rename_rr1 = {
@@ -65,7 +65,7 @@ class RrTable(GroupedTransformer):
             'duty_type':'r_type',
             'biz_type':'bus_type',
             'duty_amt':'r_amt',
-            'blanace':'r_bal',
+            'balance':'r_bal',
             'biz_date':'start_date',
             'end_date':'due_date',
             'surplus_repay_period':'left_m_cnt',
@@ -78,7 +78,7 @@ class RrTable(GroupedTransformer):
         repay_duty1['guar_type'] = "除贴现外其他业务"
 
         repay_duty2  = self.cached_data["ecredit_repay_duty_discount"][['account_org','account_type','duty_type',
-                                                                        'biz_type','duty_amt','blanace','category',
+                                                                        'biz_type','duty_amt','balance','category',
                                                                         'overdue_amt','overdue_principal']]
         rename_rr2 = {
             'account_org':'inst_name',
@@ -86,7 +86,7 @@ class RrTable(GroupedTransformer):
             'duty_type':'r_type',
             'biz_type':'bus_type',
             'duty_amt':'r_amt',
-            'blanace':'r_bal',
+            'balance':'r_bal',
             'overdue_principal':'overdue_prin'
         }
         repay_duty2.rename( columns = rename_rr2,

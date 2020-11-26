@@ -38,7 +38,7 @@ class StrategyInputProcessor(ModuleProcessor):
         if industry in risk_industy_list:
             self.variables["care_industry"] = 1
         if launch_year is not None:
-            self.variables["keep_year"] =  datetime.datetime.now().year - launch_year
+            self.variables["keep_year"] =  datetime.datetime.now().year - int(launch_year)
         if life_status == "非正常营业":
             self.variables["abnorm_status"] = 1
 
@@ -52,11 +52,11 @@ class StrategyInputProcessor(ModuleProcessor):
     def assets_info(self):
 
         df = self.cached_data.get("ecredit_assets_outline")
-
-        self.variables["asset_dispose_amt"] = df.ix[0,'dispose_blanace']
-        self.variables["advance_amt"] = df.ix[0,'advance_blanace']
-        self.variables["overdue_prin"] = df.ix[0,'overdue_principal']
-        self.variables["overdue_interest"] = df.ix[0,'overdue_interest']
+        if not df.empty:
+            self.variables["asset_dispose_amt"] = df.ix[0,'dispose_blanace']
+            self.variables["advance_amt"] = df.ix[0,'advance_blanace']
+            self.variables["overdue_prin"] = df.ix[0,'overdue_principal']
+            self.variables["overdue_interest"] = df.ix[0,'overdue_interest']
 
 
     def loan_detail_info(self):
@@ -72,7 +72,8 @@ class StrategyInputProcessor(ModuleProcessor):
         bal2 =df2[(df2.settle_status.str.contains("未结清"))
                 &(df2.biz_type.str.contains("贴现"))][['balance']].sum()
 
-        self.variables["on_loan_prop"]  = (bal1 + bal2) / self.cached_data["mamage_amt"]
+        if self.cached_data["mamage_amt"] is not None:
+            self.variables["on_loan_prop"]  = (bal1 + bal2) / self.cached_data["mamage_amt"]
 
 
         risk_2 = df1[(df1.settle_status.str.contains("未结清|被追偿"))
@@ -112,7 +113,7 @@ class StrategyInputProcessor(ModuleProcessor):
                                               &(df1.special_briefgv.str.contains("展期"))].shape[0]
 
         self.variables["app_cnt_recent"]  = df1[(~df1.account_type.str.contains("贴现")
-                            &( datetime.datetime.now() - df1.loan_date  <=  pd.Timedelta(days=365*3)))].shape[0]
+                            &( datetime.datetime.now().date() - df1.loan_date  <=  pd.Timedelta(days=365*3)))].shape[0]
 
 
         # 已结清部分
@@ -223,4 +224,4 @@ class StrategyInputProcessor(ModuleProcessor):
 
         self.variables["risk_case_cnt"]  = df1[df1.case_subject.isin(loan_case_list)].shape[0] + \
                             df2[(df2.case_subject.isin(loan_case_list))
-                                &(df2.case_status.str.contains("失信|限制"))]
+                                &(df2.case_status.str.contains("失信|限制"))].shape[0]

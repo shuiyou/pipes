@@ -60,9 +60,10 @@ class EcFinPress(GroupedTransformer):
         self.variables['first_rr_year'] = info_outline.ix[0, 'first_repay_duty_year']
 
         uncleared_outline = self.cached_data['ecredit_uncleared_outline']
-        self.variables['loan_total_bal'] = info_outline.ix[0, 'loan_bal'] - \
-            uncleared_outline[(uncleared_outline.loan_type == "贴现")
-                              &(uncleared_outline.status_type == "合计")]['balance'].values[0]
+
+        self.variables['loan_total_bal'] = info_outline.ix[0, 'loan_bal'] - uncleared_outline[(uncleared_outline.loan_type == "贴现")
+                              &(uncleared_outline.status_type == "合计")].balance.sum()
+
 
         open_df = open_data.fillna(0)
         open_df['deposit_rate_c'] = 1 - open_df['deposit_rate']
@@ -77,6 +78,10 @@ class EcFinPress(GroupedTransformer):
 
         loan_data['end_date'] = pd.to_datetime(loan_data['end_date'])
         open_data['end_date'] = pd.to_datetime(open_data['end_date'])
+        loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
+        loan_data['end_date_month'] = loan_data.end_date.apply(lambda x: x.strftime("%Y-%m"))
+        open_data['end_date_month'] = open_data.end_date.apply(lambda x: x.strftime("%Y-%m"))
+        loan_data['loan_date_month'] = loan_data.loan_date.apply(lambda x: x.strftime("%Y-%m") )
 
         report_date = pd.to_datetime(self.cached_data["report_time"])
         temp_month = report_date.replace(day=1)
@@ -89,13 +94,13 @@ class EcFinPress(GroupedTransformer):
         for i in range(1,6):
             temp_month =  temp_month - timedelta(days=1)
             last_6_month.append(temp_month.strftime("%Y-%m"))
-            loan_due_amt.append(loan_data[loan_data.end_date.strftime("%Y-%m") == temp_month.strftime("%Y-%m")].amount.sum())
-            open_due_amt.append(open_data[open_data.end_date.strftime("%Y-%m") == temp_month.strftime("%Y-%m")].amount.sum())
-            loan_flow.append(loan_data[(loan_data.loan_date<=temp_month)
-                                       &(loan_data.end_date>temp_month)].balance.sum())
-            open_flow.append(open_data[(open_data.loan_date<=temp_month)
-                                       &(open_data.end_date>temp_month)].balance.sum())
-            add_issuance.append(loan_data[loan_data.loan_date.strftime("%Y-%m") == temp_month.strftime("%Y-%m")].amount.sum())
+            loan_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
+            open_due_amt.append(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
+            loan_flow.append(loan_data[(loan_data.loan_date<=temp_month.date())
+                                       &(loan_data.end_date>temp_month.date())].balance.sum())
+            open_flow.append(open_data[(open_data.loan_date<=temp_month.date())
+                                       &(open_data.end_date>temp_month.date())].balance.sum())
+            add_issuance.append(loan_data[loan_data.loan_date_month == temp_month.strftime("%Y-%m")].amount.sum())
 
             temp_month = temp_month.replace(day = 1)
 
@@ -106,8 +111,8 @@ class EcFinPress(GroupedTransformer):
         open_f_due_amt = []
         for i in range(1,12):
             future_12_month.append(temp_month.strftime("%Y-%m"))
-            loan_f_due_amt.append(loan_data[loan_data.end_date.strftime("%Y-%m") == temp_month.strftime("%Y-%m")].amount.sum())
-            open_f_due_amt.append(open_data[open_data.end_date.strftime("%Y-%m") == temp_month.strftime("%Y-%m")].amount.sum())
+            loan_f_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
+            open_f_due_amt.append(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
             temp_month = temp_month.replace( day = m_r(temp_month.year,temp_month.month)[1]) + timedelta(days=1)
 
 
@@ -141,16 +146,22 @@ class EcFinPress(GroupedTransformer):
                          inplace = True)
         info_outline = self.cached_data["ecredit_info_outline"]
         assets_outline = self.cached_data["ecredit_assets_outline"]
+        uncleared_outline = self.cached_data["ecredit_uncleared_outline"]
+
+        if not assets_outline.empty:
+            account_num_now = uncleared_outline.ix[0, 'account_num']  \
+                              + assets_outline.ix[0,'dispose_account_num'] \
+                              + assets_outline.ix[0,'advance_account_num']
+        else:
+            account_num_now = uncleared_outline.ix[0, 'account_num']
 
         debt_df = pd.concat([pd.DataFrame(data=["截止报告日",
                                                 info_outline.ix[0,'loan_bal'],
+                                                account_num_now,
                                                 info_outline.ix[0,'loan_special_mentioned_bal'],
-                                                info_outline.ix[0,'loan_non_performing_bal'],
-                                                info_outline.ix[0, 'account_num']
-                                                + assets_outline.ix[0,'dispose_account_num']
-                                                + assets_outline.ix[0,'advance_account_num']
+                                                info_outline.ix[0,'loan_non_performing_bal']
                                                 ],
-                                          columns=debt_cols),
+                                          index=debt_cols).T,
                              debt_df],
                             ignore_index=True)
         debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
@@ -159,6 +170,9 @@ class EcFinPress(GroupedTransformer):
         temp_df = pd.concat([ loan_data[['account_org','loan_date','end_date']],
                            open_data[['account_org','loan_date','end_date']] ],
                           ignore_index= True)
+        temp_df['loan_date'] = pd.to_datetime(temp_df['loan_date'])
+        temp_df['end_date'] = pd.to_datetime(temp_df['end_date'])
+
         inst_cnt = []
         for i in debt_df.history_debt_month.tolist():
             if i == "截止报告日":

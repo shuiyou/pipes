@@ -77,7 +77,8 @@ class EcPublicInform(GroupedTransformer):
         self.variables["handle_remark"] = df.handle_remark.tolist()
 
         house_fund = self.cached_data["ecredit_house_fund"]
-        self.variables["staff_size"] = house_fund.ix[0,"staff_num"]
-        self.variables["pay_status"] = house_fund.ix[0,"pay_status"]
-        self.variables["arrears"] = house_fund.ix[0,"arrearage_amt"]
-        self.variables["recent_pay_date"] = house_fund.ix[0,"last_date"]
+        if not house_fund.empty:
+            self.variables["staff_size"] = house_fund.ix[0,"staff_num"]
+            self.variables["pay_status"] = house_fund.ix[0,"pay_status"]
+            self.variables["arrears"] = house_fund.ix[0,"arrearage_amt"]
+            self.variables["recent_pay_date"] = house_fund.ix[0,"last_date"]

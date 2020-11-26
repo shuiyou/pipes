@@ -26,9 +26,9 @@ class SettledTable(GroupedTransformer):
 
     def transform(self):
 
-        loan_total = self.cached_data["ecredit_loan"][['id','account_org','amount','loan_date','end_date',
+        loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','loan_date','end_date',
                                                       'category','last_payment_type']]
-        loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")]
+        loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")].drop(columns='settle_status')
 
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
 
@@ -47,7 +47,7 @@ class SettledTable(GroupedTransformer):
                        self.cached_data["ecredit_histor_perfo"],
                        how='left',
                        left_on='id',
-                       right_on='loan_id').groupby('account_org')['overdue_amt'].agg('sum')
+                       right_on='loan_id').groupby('account_org')['overdue_amt'].agg('sum').to_frame()
         group3['overdue_amt'] = group3.overdue_amt.apply( lambda x : "是" if x > 0 else None)
 
         df = pd.concat( [group1 , group2 , group3] ,axis=1).reset_index()
