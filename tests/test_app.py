@@ -152,3 +152,9 @@ def test_strategy_08001_2(client):
 # ---------------------------新版一级联合报告---------------------------
 def test_strategy_03002(client):
     strategy_request(client, "03002")
+
+
+
+
+def test_strategy_07003(client):
+    strategy_request(client, "07003")
