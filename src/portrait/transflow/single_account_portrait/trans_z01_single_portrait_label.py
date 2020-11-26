@@ -45,7 +45,7 @@ class TransSingleLabel:
         """
         length = len(self.query_data_array)
         self.relation_dict = dict()
-        self.spouse_name = None
+        self.spouse_name = 'None'
         for i in range(length):
             temp = self.query_data_array[i]
             base_type_detail = base_type_mapping.get(temp['baseTypeDetail'])
