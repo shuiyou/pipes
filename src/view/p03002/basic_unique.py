@@ -64,7 +64,8 @@ class BasicUnique(GroupedTransformer):
         self.variables['basic_ex_reg_cap'] = face_df.loc[0, 'reg_cap']
         open_from = "" if pd.isna(face_df.loc[0, 'open_from']) else datetime.datetime.strftime(face_df.loc[0, 'open_from'], "%Y-%m-%d, %H:%M:%S")
         open_to = "" if pd.isna(face_df.loc[0, 'open_to']) else datetime.datetime.strftime(face_df.loc[0, 'open_to'], "%Y-%m-%d, %H:%M:%S")
-        self.variables['basic_ex_open_date_range'] = open_from + "至" + open_to
+        self.variables['basic_ex_open_date_range'] = datetime.datetime.now().year - int(open_from[:4]) \
+            if open_from != '' else 0
         if self.origin_data.get("extraParam").get("strategy") == '02':
             return
         self.variables['basic_fr_name'] = face_df.loc[0, 'fr_name']

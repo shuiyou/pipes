@@ -44,10 +44,12 @@ class Fraud(GroupedTransformer):
             'fraud_trace_wifi_60_cnt': 0,
             'fraud_trace_wifi_90_cnt': 0,
             'fraud_trace_wifi_9_cnt': 0,
+            'fraud_risk_conclusion': '客户近期到访城市数及WIFI连接数量相对正常。',
             'fraud_trace_act_day_avg_area': 0.5,
             'fraud_trace_act_night_avg_area': 0.5,
             'fraud_trace_act_day_area': 0,
             'fraud_trace_act_night_area': 0,
+            'activity_risk_conclusion': '客户活动范围相对正常。',
             'fraud_bank_app_0_30_score': 0,
             'fraud_bank_app_30_60_score': 0,
             'fraud_bank_app_60_90_score': 0,
@@ -104,10 +106,12 @@ class Fraud(GroupedTransformer):
             'fraud_fin_app_unistall_60_avg_ratio': 0.23,
             'fraud_fin_app_unistall_30_avg_ratio': 0.19,
             'fraud_fin_app_unistall_15_avg_ratio': 0.153,
+            'fin_risk_conclusion': '客户近期金融类APP使用相对正常。',
             'fraud_msg_fin_1_cnt': 0,
             'fraud_msg_loan_3_cnt': 0,
             'fraud_msg_fin_9_cnt': 0,
-            'fraud_msg_loan_9_cnt': 0
+            'fraud_msg_loan_9_cnt': 0,
+            'msg_risks_conclusion': '客户近期金融类短信接收相对正常。'
         }
 
     def _info_risk_cts_item(self):
@@ -134,6 +138,7 @@ class Fraud(GroupedTransformer):
         df = self._info_risk_factor_item()
         if df.empty:
             return
+        fin_risk_conclusion = []
         self.variables['fraud_bank_app_0_30_score'] = get_factor_field_value(df, 'FIN_Bank_all_0M_1M')
         self.variables['fraud_bank_app_30_60_score'] = get_factor_field_value(df, 'FIN_Bank_all_1M_2M')
         self.variables['fraud_bank_app_60_90_score'] = get_factor_field_value(df, 'FIN_Bank_all_2M_3M')
@@ -189,6 +194,21 @@ class Fraud(GroupedTransformer):
                 lambda x: 0 if pd.isna(x['field_value']) else float(x['field_value']), axis=1)
             self.variables['fraud_bank_other_30d_score'] = df_temp['field_value_1'].sum()
 
+        if self.variables['fraud_bank_app_0_30_score'] > 9.5 or self.variables['fraud_bank_app_30_60_score'] > 9.5 or \
+                self.variables['fraud_bank_app_60_90_score'] > 12.5:
+            fin_risk_conclusion.append('客户近期银行类APP使用强度过高, 请关注客户银行类机构多头信贷风险。')
+        if self.variables['fraud_loan_app_0_30_score'] > 3.5 or self.variables['fraud_loan_app_30_60_score'] > 8.5 or \
+                self.variables['fraud_loan_app_60_90_score'] > 3.5 or \
+                self.variables['fraud_pay_app_0_30_score'] > 2.5 or \
+                self.variables['fraud_pay_app_60_90_score'] > 2.5 or \
+                self.variables['fraud_invest_app_30_60_score'] > 3.5 or \
+                self.variables['fraud_fintool_app_60_90_score'] > 2.5 or \
+                self.variables['fraud_fintool_app_30_60_score'] > 1.5 or \
+                self.variables['fraud_fintool_app_0_30_score'] > 1.5:
+            fin_risk_conclusion.append('客户近期非银行类APP使用强度过高, 请关注客户非银行机构隐形负债风险。')
+        if len(fin_risk_conclusion) > 0:
+            self.variables['fin_risk_conclusion'] = ''.join(fin_risk_conclusion)
+
     def clean_variables_cts(self):
         df = self._info_risk_cts_item()
         if df.empty:
@@ -204,9 +224,10 @@ class Fraud(GroupedTransformer):
 
         df_temp = cts_match(df, ['cts_msg_002', 'cts_msg_006', 'cts_msg_018', 'cts_msg_017'])
         if not df_temp.empty:
-            df_temp['count'] = df_temp.apply(lambda x:int(float(x['field_value'])),axis=1)
+            df_temp['count'] = df_temp.apply(lambda x: int(float(x['field_value'])), axis=1)
             self.variables['fraud_msg_cnt'] = df_temp[df_temp['count'] > 0].shape[0] if not df_temp.empty else 0
 
+        fraud_risk_conclusion = []
         df_temp = cts_match(df, ['cts_lbs_014'])
         self.variables['fraud_trace_city_180_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
@@ -228,6 +249,15 @@ class Fraud(GroupedTransformer):
         df_temp = cts_match(df, ['cts_lbs_043'])
         self.variables['fraud_trace_wifi_9_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
+        if self.variables['fraud_trace_city_180_cnt'] > 18.5 or self.variables['fraud_trace_city_30_cnt'] > 6 or \
+                self.variables['fraud_trace_city_15_cnt'] > 4:
+            fraud_risk_conclusion.append('客户近期到访城市数过多')
+        if self.variables['fraud_trace_wifi_15_cnt'] > 17.5 or \
+                self.variables['fraud_trace_wifi_60_cnt'] > 218 or self.variables['fraud_trace_wifi_90_cnt'] > 271.5:
+            fraud_risk_conclusion.append("客户近期WIFI连接数量过多")
+        if len(fraud_risk_conclusion) > 0:
+            self.variables['fraud_risk_conclusion'] = '且'.join(fraud_risk_conclusion) + ', 请关注客户欺诈风险。'
+
         df_temp = cts_match(df, ['cts_msg_002'])
         self.variables['fraud_msg_fin_1_cnt'] = str_int(df_temp) if not df_temp.empty else 0
 
@@ -239,6 +269,10 @@ class Fraud(GroupedTransformer):
 
         df_temp = cts_match(df, ['cts_msg_017'])
         self.variables['fraud_msg_loan_9_cnt'] = str_int(df_temp) if not df_temp.empty else 0
+
+        if self.variables['fraud_msg_fin_1_cnt'] > 9.5 or self.variables['fraud_msg_loan_3_cnt'] >= 5 or \
+                self.variables['fraud_msg_fin_9_cnt'] > 71.5 or self.variables['fraud_msg_loan_9_cnt'] > 42.5:
+            self.variables['msg_risk_conclusion'] = '客户近期金融类短信接收数量过多, 请关注客户多头信贷风险。'
 
         df_temp = cts_match(df, ['cts_app_032'])
         cts_app_032 = float(df_temp.loc[0, 'field_value']) if not df_temp.empty else 0
@@ -309,6 +343,14 @@ class Fraud(GroupedTransformer):
             elif cts_lbs_010 > 10:
                 cts_lbs_010 = 10
             self.variables['fraud_trace_act_night_area'] = round(cts_lbs_010 / float(10), 1)
+
+        activity_risk_conclusion = []
+        if self.variables['fraud_trace_act_day_area'] > 0.5186:
+            activity_risk_conclusion.append('客户白天活动范围半径过大, 请关注客户多头信贷风险。')
+        if self.variables['fraud_trace_act_night_area'] > 0.5019:
+            activity_risk_conclusion.append('客户夜间活动范围半径过大, 请关注客户不良嗜好风险。')
+        if len(activity_risk_conclusion) > 0:
+            self.variables['activity_risk_conclusion'] = ''.join(activity_risk_conclusion)
 
     def transform(self):
         strategy = self.origin_data.get("extraParam")['strategy']
