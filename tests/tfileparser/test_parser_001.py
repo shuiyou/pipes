@@ -20,10 +20,10 @@ param_0718 = {
     'bankName': "xx银行",
 }
 
-file = r"../resource/trans_flow/许保财公司流水.xlsx"
+file = r"../resource/trans_flow/test20201126.xlsx"
 param = {
     'bankAccount': '6228450438020639272',
-    'cusName': '娄超',
+    'cusName': '娄远超',
     'idNo': '666666888888'
 }
 

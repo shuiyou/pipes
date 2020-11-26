@@ -1,6 +1,8 @@
 
 from portrait.transflow.single_account_portrait.trans_flow import transform_class_str
 from portrait.transflow.single_account_portrait.trans_mapping import base_type_mapping
+from fileparser.trans_flow.trans_config import UNSTABLE_DENSITY, UNUSUAL_TRANS_AMT, MIN_PRIVATE_LENDING, \
+    MIN_CONTI_MONTHS, MAX_INTERVAL_DAYS
 import pandas as pd
 import datetime
 import re
@@ -11,7 +13,7 @@ class TransSingleLabel:
     单账户标签画像表清洗并落库
     author:汪腾飞
     created_time:20200706
-    updated_time_v1:
+    updated_time_v1:20201125,夜间交易风险和家庭不稳定风险以及民间借贷风险逻辑调整
     """
 
     def __init__(self, trans_flow):
@@ -43,9 +45,13 @@ class TransSingleLabel:
         """
         length = len(self.query_data_array)
         self.relation_dict = dict()
+        self.spouse_name = None
         for i in range(length):
             temp = self.query_data_array[i]
-            self.relation_dict[temp['name']] = base_type_mapping.get(temp['baseTypeDetail'])
+            base_type_detail = base_type_mapping.get(temp['baseTypeDetail'])
+            self.relation_dict[temp['name']] = base_type_detail
+            if base_type_detail in ['借款人配偶', '借款企业实际控制人配偶']:
+                self.spouse_name = temp['name']
 
     def _loan_type_label(self):
         """
@@ -57,6 +63,7 @@ class TransSingleLabel:
         self.df[concat_list] = self.df[concat_list].fillna('').astype(str)
         # 交易对手标签赋值,1个人,2企业,其他为空
         self.df['opponent_type'] = self.df['opponent_name'].apply(self._opponent_type)
+        self.df['year_month'] = self.df['trans_time'].apply(lambda x: format(x, '%Y-%m'))
         self.df['year'] = self.df['trans_time'].apply(lambda x: x.year)
         self.df['month'] = self.df['trans_time'].apply(lambda x: x.month)
         self.df['day'] = self.df['trans_time'].apply(lambda x: x.day)
@@ -79,8 +86,58 @@ class TransSingleLabel:
         self.df.loc[
             (self.df['concat_str'].str.contains('信托|小微|信贷.*过渡户|过渡户.*信贷|财务.*公司|公司.*财务|资金互助社|金融.*公司|公司.*金融|经济合作社')) &
             (pd.isnull(self.df.loan_type)), 'loan_type'] = '其他金融'
-        self.df.loc[(self.df['concat_str'].str.contains('信贷|融资|垫款|放款|个人.*贷|抵押|现金分期')) &
+        self.df.loc[(self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING) &
+                    (((self.df['concat_str'].str.contains('信贷|融资|垫款|放款|个人.*贷|抵押|现金分期|借|还|本金')) &
+                      (~self.df['concat_str'].str.contains('借支'))) |
+                     ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')))) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
+        amt_group = self.df[
+            self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING
+        ].groupby(['opponent_name', 'trans_amt'], as_index=False).agg({'month': len})
+        amt_group = amt_group[amt_group['month'] >= MIN_CONTI_MONTHS]
+        if amt_group.shape[0] > 0:
+            for row in amt_group.itertuples():
+                temp_name = getattr(row, 'opponent_name')
+                temp_amt = getattr(row, 'trans_amt')
+                temp_df = self.df[(self.df['opponent_name'] == temp_name) &
+                                  (self.df['trans_amt'] == temp_amt)]
+                temp_df.reset_index(drop=False, inplace=True)
+                last_month = temp_df['trans_time'].tolist()[0]
+                temp_df.loc[0, 'conti'] = 1
+                conti_list = set()
+                temp_cnt = 1
+                now_index = 1
+                for index in temp_df.index.tolist()[1:]:
+                    this_month = temp_df.loc[index, 'trans_time']
+                    temp_interval = (this_month.year - last_month.year) * 12 + this_month.month - last_month.month
+                    if temp_interval <= 1:
+                        temp_df.loc[index, 'conti'] = now_index
+                        if temp_interval == 1:
+                            temp_cnt += 1
+                            if temp_cnt >= MIN_CONTI_MONTHS:
+                                conti_list.add(now_index)
+                    else:
+                        now_index += 1
+                        temp_df.loc[index, 'conti'] = now_index
+                        temp_cnt = 1
+                    last_month = this_month
+                conti_list = list(conti_list)
+                if len(conti_list) == 0:
+                    continue
+                for i in conti_list:
+                    conti_df = temp_df[temp_df['conti'] == i]
+                    max_interval = conti_df['day'].max() - conti_df['day'].min()
+                    if max_interval <= MAX_INTERVAL_DAYS:
+                        if 'loan_type' not in conti_df.columns:
+                            loan_type = '民间借贷'
+                        else:
+                            conti_type_df = conti_df[pd.notna(conti_df['loan_type'])]
+                            if conti_type_df.shape[0] > 0:
+                                loan_type = conti_type_df['loan_type'].tolist()[0]
+                            else:
+                                loan_type = '民间借贷'
+                        self.df.loc[conti_df['index'].tolist(), 'loan_type'] = loan_type
+
         # 是否还款标签
         self.df.loc[(pd.notnull(self.df['loan_type'])) & (self.df['trans_amt'] < 0), 'is_repay'] = 1
 
@@ -138,6 +195,21 @@ class TransSingleLabel:
         trans_amt_std = self.df[(self.df['trans_amt'] > 0) &
                                 (pd.isnull(self.df['loan_type']))]['trans_amt'].std()
         self.df.loc[self.df.trans_amt > trans_amt_mean + 2 * trans_amt_std, 'accidental_big'] = 1
+
+        # 异常交易之家庭不稳定标签
+        unstable_df = self.df[(~self.df['opponent_name'].str.contains(self.spouse_name)) &
+                              (self.df['trans_amt'].apply(lambda x: abs(x)).isin(UNUSUAL_TRANS_AMT))]
+        unstable_count = unstable_df.groupby('opponent_name', as_index=False).agg({'trans_amt': len})
+        unstable_name_list = list(set(unstable_df['opponent_name']))
+        unstable_total = self.df[
+            self.df['opponent_name'].isin(unstable_name_list)
+        ].groupby('opponent_name', as_index=False).agg({'trans_time': len})
+        unstable_count = pd.merge(unstable_count, unstable_total, how='left', on='opponent_name')
+        if unstable_count.shape[0] > 0:
+            unstable_count['density'] = unstable_count['trans_amt'] / unstable_count['trans_time']
+            unstable_name_list = unstable_count[unstable_count['density'] >= UNSTABLE_DENSITY]['opponent_name'].tolist()
+            unstable_index_list = unstable_df[unstable_df['opponent_name'].isin(unstable_name_list)].index.tolist()
+            self.df.loc[unstable_index_list, 'unstable'] = 1
 
     @staticmethod
     def _opponent_type(op_name):
@@ -274,9 +346,11 @@ class TransSingleLabel:
                 unusual_type.append('逾期')
             if re.search(r'(证券|银证转账|基金)', concat_str):
                 unusual_type.append('股票投机')
-            if ('21:00:00' <= temp_dict['trans_time'] <= '23:59:59' and
-                re.search(r'(ATM|atm)', op_name) is not None) or \
-                    '00:00:01' <= temp_dict['trans_time'] <= '04:00:00':
+            if ('21:00:00' <= temp_dict['trans_time'] <= '23:59:59' or
+                '00:00:01' <= temp_dict['trans_time'] <= '04:00:00') and \
+                    re.search(r'(ATM|atm)', op_name) is not None and trans_amt < 0 and trans_amt % 100 == 0:
+                unusual_type.append('夜间不良交易')
+            if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
                 unusual_type.append('夜间交易')
             if trans_amt < 0 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', concat_str):
                 unusual_type.append('医院')
@@ -292,13 +366,8 @@ class TransSingleLabel:
                 unusual_type.append('预收款')
             if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str):
                 unusual_type.append('分红退股')
-            if not temp_dict.__contains__('relationship') or temp_dict['relationship'] != '配偶':
-                opponent_type = temp_dict.get('opponent_type')
-                if opponent_type is not None and opponent_type == 1 and \
-                        abs(trans_amt) in [5.20, 5.21, 13.14, 14.13, 20.20, 20.13, 20.14, 131.4, 201.3, 201.4, 520,
-                                           520.20, 521, 1314, 1314.2, 1413, 1413.2, 2013.14, 2014.13, 201314, 2020.2,
-                                           202020.2, 13145.2, 1314520, 52013.14, 5201314]:
-                    unusual_type.append('家庭不稳定')
+            if hasattr(row, 'unstable') and pd.notnull(getattr(row, 'unstable')):
+                unusual_type.append('家庭不稳定')
             if hasattr(row, 'big_in_out') and pd.notnull(getattr(row, 'big_in_out')):
                 unusual_type.append('整进整出')
             if hasattr(row, 'fast_in_out') and pd.notnull(getattr(row, 'fast_in_out')):
