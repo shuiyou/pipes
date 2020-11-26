@@ -1,7 +1,7 @@
 import inspect
 from fileparser.trans_flow.trans_config import MAX_TITLE_NUMBER
 from openpyxl.utils import get_column_letter as colref
-from util.pyheaderfile import Xlsx, Xls, Csv, guess_type
+from util.pyheaderfile import Xlsx, Xls, Csv
 from fileparser.trans_flow.trans_z04_time_standardization import dttime_apply
 import datetime
 import openpyxl
@@ -71,12 +71,12 @@ class TransProfile:
     def _load_worksheet(self):
         logger.info("%s-----------------------%s" % (1, '_load_worksheet begin'))
         new_file = False
-        if "xlsx" not in str(self.file)[-5:]:
+        if "xlsx" not in str(self.file.filename)[-5:]:
             xlsx = Xlsx()
             now_timestamp = datetime.datetime.timestamp(datetime.datetime.now())
             file_name = '%d.xlsx' % (now_timestamp * 1000)
 
-            temp = guess_type(self.file)
+            temp = self._guess_type(self.file, file_name)
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
