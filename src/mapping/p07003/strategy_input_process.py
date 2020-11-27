@@ -68,11 +68,11 @@ class StrategyInputProcessor(ModuleProcessor):
                        left_on="id",right_on="biz_id"
                        )
         # 未结清部分
-        bal1 = df1[df1.settle_status.str.contains("未结清|被追偿")][['balance']].sum()
+        bal1 = df1[df1.settle_status.str.contains("未结清|被追偿")]['balance'].sum()
         bal2 =df2[(df2.settle_status.str.contains("未结清"))
-                &(df2.biz_type.str.contains("贴现"))][['balance']].sum()
+                &(df2.biz_type.str.contains("贴现"))]['balance'].sum()
 
-        if self.cached_data["mamage_amt"] is not None:
+        if self.cached_data["mamage_amt"] is not None and self.cached_data["mamage_amt"] > 0:
             self.variables["on_loan_prop"]  = (bal1 + bal2) / self.cached_data["mamage_amt"]
 
 

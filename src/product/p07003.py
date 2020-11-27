@@ -55,7 +55,7 @@ class P07003(Generate):
             for data in query_data_array:
                 index = index + 1
                 logger.info("P07003_process------------" + str(index) + "/" + str(total))
-                data["preReportReqNo"] = pre_report_req_no;
+                data["preReportReqNo"] = pre_report_req_no
                 resp = self.strategy(self.df_client, data, product_code, req_no)
                 subject.append(resp)
 
