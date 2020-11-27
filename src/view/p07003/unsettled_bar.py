@@ -24,8 +24,10 @@ class UnsettledBar(GroupedTransformer):
         self.df = df
 
     def transform(self):
-
         data = self.df
+        if  data is None:
+            return
+
         self.variables["guar_type"] = ['信用/免担保','保证','质押','抵押','组合']
         guar_amt = []
         guar_bal = []

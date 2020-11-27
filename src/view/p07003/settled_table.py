@@ -25,7 +25,6 @@ class SettledTable(GroupedTransformer):
         }
 
     def transform(self):
-
         loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','loan_date','end_date',
                                                       'category','last_payment_type']]
         loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")].drop(columns='settle_status')
@@ -58,7 +57,8 @@ class SettledTable(GroupedTransformer):
 
         loan_list = loan_total[loan_total.settle_status.str.contains("被追偿|未结清")]['account_org'].drop_duplicates().tolist()
 
-        df['finish_coop_date'] = df.finish_coop_date.apply(lambda x : "在贷" if x in loan_list else x)
+        df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x) )
+        df['finish_coop_date'] = df.finish_coop_date.apply(lambda x : "在贷" if x in loan_list else str(x))
 
         self.variables["inst"] = df.inst.tolist()
         self.variables["coop_cnt"] = df.coop_cnt.tolist()

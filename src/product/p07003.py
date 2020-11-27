@@ -19,7 +19,7 @@ from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
 from product.p_config import product_codes_dict
 from product.p_utils import _relation_risk_subject, _append_rules, score_to_int, _get_biz_types, _build_request
-from util.type_converter import echo_var_type
+from util.type_converter import echo_var_type, format_var
 from view.grouped_mapper_detail import view_variables_scheduler
 from view.mapper_detail import translate_for_report_detail
 
@@ -60,7 +60,7 @@ class P07003(Generate):
                 subject.append(resp)
 
             self.response = self.create_strategy_resp(product_code, req_no, step_req_no, version_no, subject)
-            echo_var_type(None, None, self.response)
+            format_var(None, None, -1,self.response)
             logger.info(self.response)
             logger.info("2. 企业征信报告，应答：%s", json.dumps(self.response, cls=NpEncoder))
         except Exception as err:

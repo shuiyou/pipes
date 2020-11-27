@@ -65,7 +65,7 @@ class EcInform(GroupedTransformer):
                                  } ,
                       inplace = True)
 
-        table3 = self.cached_data['ecredit_controls_person'][['cust_name','cert_no','update_date']]
+        table3 = self.cached_data['ecredit_controls_person'][['cust_name','cert_no','update_date']].dropna()
         table3['relation'] = "实际控制人"
         table3.rename(columns = {'cust_name':'related_name',
                                  'cert_no':'id_code'
@@ -83,6 +83,8 @@ class EcInform(GroupedTransformer):
                           columns=['related_name','relation','id_code','update_date','remark'])
 
         df = pd.concat([df,table1,table2,table3,table4],ignore_index=True)
+
+        df['update_date'] = df.update_date.apply(lambda x:str(x))
 
         self.variables['related_name'] = df['related_name'].tolist()
         self.variables['relation'] = df['relation'].tolist()

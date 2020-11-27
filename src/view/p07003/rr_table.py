@@ -32,7 +32,6 @@ class RrTable(GroupedTransformer):
         }
 
     def transform(self):
-
         col_list = [
             'inst_name',
             'guar_type',
@@ -93,6 +92,9 @@ class RrTable(GroupedTransformer):
                             inplace = True)
 
         df = pd.concat([df,repay_duty1,repay_duty2] , ignore_index= True)
+        df['start_date'] = df.start_date.apply(lambda x : str(x))
+        df['due_date'] = df.due_date.apply(lambda x: str(x))
+
 
         self.variables["inst_name"] = df.inst_name.tolist()
         self.variables["guar_type"] = df.guar_type.tolist()

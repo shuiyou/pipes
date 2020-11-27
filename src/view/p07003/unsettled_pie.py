@@ -28,8 +28,11 @@ class UnsettledPie(GroupedTransformer):
 
 
     def transform(self):
-
+        data = self.df
+        if data is None:
+            return
         data = self.df[~self.df.bus_type.str.contains("贴现")]
+
         # data['margin_ratio']  = data['margin_ratio'].fillna(0)
         data['margin_ratio_c'] = 1 - data['margin_ratio'].fillna(0)
         self.variables["debt_bal"] = np.dot(data.cur_bal.tolist(),

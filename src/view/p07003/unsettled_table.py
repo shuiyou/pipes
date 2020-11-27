@@ -60,7 +60,9 @@ class UnsettledTable(GroupedTransformer):
         ]
         df =  pd.DataFrame(data=None,
                            columns=col_list)
-        loan_data = self.cached_data["ecredit_loan"][['account_org','occur_type','account_type','biz_type','loan_guarantee_type',
+        loan_data = self.cached_data["ecredit_loan"][['settle_status',
+                                                      'account_org','occur_type','account_type',
+                                                      'biz_type','loan_guarantee_type',
                                                   'amount','balance','loan_date','end_date','category',
                                                   'special_briefgv','overdue_amt','overdue_principal',
                                                   'overdue_period','last_repay_date','last_repay_amt']]
@@ -81,19 +83,20 @@ class UnsettledTable(GroupedTransformer):
             'last_repay_amt':'recent_repay_amt'
         }
         loan_data.rename(columns = rename_loan,
-                        replace = True)
+                         inplace = True)
 
-        loan1 = loan_data[loan_data.settle_status.str.contains("被追偿业务")]
+        loan1 = loan_data[loan_data.settle_status.str.contains("被追偿业务")].drop(columns='settle_status')
         loan1['chased'] = "被追偿"
-        loan2 = loan_data[loan_data.settle_status.str.contains("未结清信贷")]
+        loan2 = loan_data[loan_data.settle_status.str.contains("未结清信贷")].drop(columns='settle_status')
 
-        open1 = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id']],
+        open1 = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id','account_type']],
                        self.cached_data.get("ecredit_draft_lc"),
                        left_on="id",right_on="biz_id"
-                       )[['account_org','biz_type','account_type',
+                       )[['settle_status',
+                          'account_org','biz_type','account_type',
                           'counter_guarantee_type','amount','balance','deposit_rate',
                           'loan_date','end_date','category']]
-        open1 = open1[open1.settle_status.str.contains("未结清信贷")]
+        open1 = open1[open1.settle_status.str.contains("未结清信贷")].drop(columns='settle_status')
         rename_open = {
             'account_org':'inst_name',
             'biz_type':'bus_type',
@@ -106,10 +109,13 @@ class UnsettledTable(GroupedTransformer):
             'end_date':'due_date'
         }
         open1.rename(columns = rename_open,
-                     inpalce = True)
+                     inplace = True)
 
         df = pd.concat([df,loan2,loan1,open1] , ignore_index = True)
-        df['overdued'] = df.overdue_amt.apply(lambda x :  "逾期" if x>0 else None)
+        df['overdued'] = df.fillna(0).overdue_amt.apply(lambda x :  "逾期" if x>0 else "")
+        df['start_date'] = df.start_date.apply(lambda x: str(x))
+        df['due_date'] = df.due_date.apply(lambda x: str(x))
+
 
         self.variables['inst_name'] = df.inst_name.tolist()
         self.variables['grant_type'] = df.grant_type.tolist()
