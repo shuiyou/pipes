@@ -173,11 +173,11 @@ class Unsettled(GroupedTransformer):
         if data is None:
             return
 
-        self.variables["guar_type"] = ['信用/免担保', '保证', '质押', '抵押', '组合']
+        self.variables["bar_guar_type"] = ['信用/免担保', '保证', '质押', '抵押', '组合']
         guar_amt = []
         guar_bal = []
         guar_cnt = []
-        for guar in self.variables["guar_type"]:
+        for guar in self.variables["bar_guar_type"]:
             guar_amt.append(
                 data[data.guar_type == guar].grant_amt.sum()
             )
@@ -256,9 +256,9 @@ class Unsettled(GroupedTransformer):
             return
 
         data['margin_ratio_c'] = 1 - data['margin_ratio'].fillna(0)
-        self.variables["debt_bal"] = np.dot(data.cur_bal.tolist(),
+        self.variables["pie_debt_bal"] = np.dot(data.cur_bal.tolist(),
                                             data.margin_ratio_c.tolist())
-        self.variables["debt_cnt"] = data.shape[0]
+        self.variables["pie_debt_cnt"] = data.shape[0]
 
         self.variables["inst_pie_name"] = list(set(data.inst_name.tolist()))
         inst_pie_loan_bal = []
@@ -281,7 +281,7 @@ class Unsettled(GroupedTransformer):
         self.variables["inst_pie_loan_bal"] = inst_pie_loan_bal
         self.variables["inst_pie_open_bal"] = inst_pie_open_bal
         self.variables["inst_pie_debt_prop"] = list(
-            (np.array(inst_pie_loan_bal) + np.array(inst_pie_open_bal)) / self.variables["debt_bal"]
+            (np.array(inst_pie_loan_bal) + np.array(inst_pie_open_bal)) / self.variables["pie_debt_bal"]
         )
 
         self.variables["bus_pie_type"] = list(set(data.bus_type.tolist()))
@@ -294,7 +294,7 @@ class Unsettled(GroupedTransformer):
             )
 
         self.variables["bus_pie_debt_prop"] = list(
-            np.array(bus_pie_debt_bal) / self.variables["debt_bal"]
+            np.array(bus_pie_debt_bal) / self.variables["pie_debt_bal"]
         )
 
         bins = [0, 50, 100, 200, 500, 1000, 10e8]

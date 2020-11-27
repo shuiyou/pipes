@@ -67,9 +67,9 @@ class EcFinPress(GroupedTransformer):
 
         open_df = open_data.fillna(0)
         open_df['deposit_rate_c'] = 1 - open_df['deposit_rate']
-
-        self.variables['open_total_bal'] = np.dot(open_df.amount.tolist(),
-                                                  open_df.deposit_rate_c.tolist())
+        if not open_df.empty:
+            self.variables['open_total_bal'] = np.dot(open_df.amount.tolist(),
+                                                      open_df.deposit_rate_c.tolist())
 
         repay_duty_biz = self.cached_data["ecredit_repay_duty_biz"]
         self.variables['rr_total_bal'] = repay_duty_biz.balance.sum()
@@ -175,7 +175,8 @@ class EcFinPress(GroupedTransformer):
                             ignore_index=True)
         debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
 
-        debt_df['abnorm_debt_prop'] = (debt_df['care_debt'] + debt_df['bad_debt'] ) / debt_df['total_debt']
+        # debt_df['abnorm_debt_prop'] = (debt_df['care_debt'] + debt_df['bad_debt'] ) / debt_df['total_debt'].replace(0,np.nan)
+        debt_df['abnorm_debt_prop'] = debt_df.apply(lambda x : (x['care_debt'] + x['bad_debt'])/x['total_debt'] if x['total_debt'] > 0 else 0,axis=1)
 
         temp_df = pd.concat([ loan_data[['account_org','loan_date','end_date']],
                            open_data[['account_org','loan_date','end_date']] ],
