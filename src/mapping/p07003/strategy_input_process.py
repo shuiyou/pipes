@@ -37,8 +37,10 @@ class StrategyInputProcessor(ModuleProcessor):
 
         if industry in risk_industy_list:
             self.variables["care_industry"] = 1
-        if launch_year is not None:
+        try:
             self.variables["keep_year"] =  datetime.datetime.now().year - int(launch_year)
+        except:
+            self.variables['keep_year'] = None
         if life_status == "非正常营业":
             self.variables["abnorm_status"] = 1
 

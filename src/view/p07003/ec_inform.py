@@ -1,5 +1,6 @@
 from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 import pandas as pd
+import numpy as np
 
 class EcInform(GroupedTransformer):
 
@@ -85,6 +86,8 @@ class EcInform(GroupedTransformer):
         df = pd.concat([df,table1,table2,table3,table4],ignore_index=True)
 
         df['update_date'] = df.update_date.apply(lambda x:str(x))
+
+        df = df.where(df.notnull(), None)
 
         self.variables['related_name'] = df['related_name'].tolist()
         self.variables['relation'] = df['relation'].tolist()

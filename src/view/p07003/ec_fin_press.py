@@ -138,12 +138,20 @@ class EcFinPress(GroupedTransformer):
             ],
             axis=1,
             ignore_index=True
-        ).reset_index()
+        ).sort_index(ascending=True).reset_index()
 
         debt_cols = ['history_debt_month','total_debt','debt_cnt','care_debt','bad_debt']
         debt_df.set_axis(debt_cols,
                          axis=1,
                          inplace = True)
+        for index,row in debt_df.iterrows():
+            if row['total_debt'] == 0 and row['debt_cnt'] == 0 :
+                debt_df.ix[index,'history_debt_month'] = None
+            else:
+                break
+
+        debt_df = debt_df.dropna()
+
         info_outline = self.cached_data["ecredit_info_outline"]
         assets_outline = self.cached_data["ecredit_assets_outline"]
         uncleared_outline = self.cached_data["ecredit_uncleared_outline"]
@@ -155,16 +163,18 @@ class EcFinPress(GroupedTransformer):
         else:
             account_num_now = uncleared_outline.ix[0, 'account_num']
 
-        debt_df = pd.concat([pd.DataFrame(data=["截止报告日",
+        debt_df = pd.concat([debt_df ,
+                               pd.DataFrame(data=["截止报告日",
                                                 info_outline.ix[0,'loan_bal'],
                                                 account_num_now,
                                                 info_outline.ix[0,'loan_special_mentioned_bal'],
                                                 info_outline.ix[0,'loan_non_performing_bal']
                                                 ],
-                                          index=debt_cols).T,
-                             debt_df],
+                                          index=debt_cols).T
+                             ],
                             ignore_index=True)
         debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
+
         debt_df['abnorm_debt_prop'] = (debt_df['care_debt'] + debt_df['bad_debt'] ) / debt_df['total_debt']
 
         temp_df = pd.concat([ loan_data[['account_org','loan_date','end_date']],
