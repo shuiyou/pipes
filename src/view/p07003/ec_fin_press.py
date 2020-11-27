@@ -116,12 +116,12 @@ class EcFinPress(GroupedTransformer):
             temp_month = temp_month.replace( day = m_r(temp_month.year,temp_month.month)[1]) + timedelta(days=1)
 
 
-        self.variables["last_6_month"] = last_6_month
-        self.variables["loan_due_amt"] = loan_due_amt
-        self.variables["open_due_amt"] = open_due_amt
-        self.variables["loan_flow"] = loan_flow
-        self.variables["open_flow"] = open_flow
-        self.variables["add_issuance"] = add_issuance
+        self.variables["last_6_month"] = last_6_month.reverse()
+        self.variables["loan_due_amt"] = loan_due_amt.reverse()
+        self.variables["open_due_amt"] = open_due_amt.reverse()
+        self.variables["loan_flow"] = loan_flow.reverse()
+        self.variables["open_flow"] = open_flow.reverse()
+        self.variables["add_issuance"] = add_issuance.reverse()
         self.variables["future_12_month"] = future_12_month
         self.variables["loan_f_due_amt"] = loan_f_due_amt
         self.variables["open_f_due_amt"] = open_f_due_amt
