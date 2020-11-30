@@ -201,7 +201,7 @@ class Unsettled(GroupedTransformer):
             temp_dict['bus_bal'] = temp_df.cur_bal.sum()
             temp_dict['bus_cnt'] = temp_df.shape[0]
             temp_dict['bus_bal_detail'] = temp_df.groupby('bus_sup')['cur_bal'].agg(
-                {'sup_amt': 'sum'}).reset_index().to_dict(orient='list')
+                {'sup_amt': 'sum'}).reset_index().to_dict(orient='records')
             bus_bar.append(temp_dict)
         self.variables["bus_bar"] = bus_bar
 
@@ -222,28 +222,28 @@ class Unsettled(GroupedTransformer):
                 "grant_total": data[data.start_date_year == year_list[0]].grant_amt.sum(),
                 "bus_detail": data[data.start_date_year == year_list[0]] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
-                    orient='list')
+                    orient='records')
             }
             temp_dict["year_two"] = {
                 "year": year_list[1],
                 "grant_total": data[data.start_date_year == year_list[1]].grant_amt.sum(),
                 "bus_detail": data[data.start_date_year == year_list[1]] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
-                    orient='list')
+                    orient='records')
             }
             temp_dict["year_three"] = {
                 "year": year_list[2],
                 "grant_total": data[data.start_date_year == year_list[2]].grant_amt.sum(),
                 "bus_detail": data[data.start_date_year == year_list[2]] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
-                    orient='list')
+                    orient='records')
             }
             temp_dict["year_four"] = {
                 "year": year_list[3],
                 "grant_total": data[data.start_date_year == year_list[3]].grant_amt.sum(),
                 "bus_detail": data[data.start_date_year == year_list[3]] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
-                    orient='list')
+                    orient='records')
             }
             grant_history_bar.append(temp_dict)
 
@@ -310,7 +310,7 @@ class Unsettled(GroupedTransformer):
             temp_dict['amt_pie_cnt'] = temp_df.shape[0]
             temp_dict['amt_pie_debt_prop'] = temp_df.shape[0] / data.shape[0]
             temp_dict['remark'] = temp_df.groupby('grant_amt')['bin'].agg(
-                {'remark_cnt': 'count'}).reset_index().to_dict(orient='list')
+                {'remark_cnt': 'count'}).reset_index().to_dict(orient='records')
             amt_pie.append(temp_dict)
 
         self.variables["amt_pie"] = amt_pie
