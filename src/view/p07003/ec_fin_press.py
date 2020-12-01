@@ -91,7 +91,7 @@ class EcFinPress(GroupedTransformer):
         loan_flow = []
         open_flow = []
         add_issuance = []
-        for i in range(1,6):
+        for i in range(1,7):
             temp_month =  temp_month - timedelta(days=1)
             last_6_month.append(temp_month.strftime("%Y-%m"))
             loan_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
@@ -109,19 +109,25 @@ class EcFinPress(GroupedTransformer):
         future_12_month = []
         loan_f_due_amt = []
         open_f_due_amt = []
-        for i in range(1,12):
+        for i in range(1,13):
             future_12_month.append(temp_month.strftime("%Y-%m"))
             loan_f_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
             open_f_due_amt.append(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
             temp_month = temp_month.replace( day = m_r(temp_month.year,temp_month.month)[1]) + timedelta(days=1)
 
+        last_6_month.reverse()
+        loan_due_amt.reverse()
+        open_due_amt.reverse()
+        loan_flow.reverse()
+        open_flow.reverse()
+        add_issuance.reverse()
 
-        self.variables["last_6_month"] = last_6_month.reverse()
-        self.variables["loan_due_amt"] = loan_due_amt.reverse()
-        self.variables["open_due_amt"] = open_due_amt.reverse()
-        self.variables["loan_flow"] = loan_flow.reverse()
-        self.variables["open_flow"] = open_flow.reverse()
-        self.variables["add_issuance"] = add_issuance.reverse()
+        self.variables["last_6_month"] = last_6_month
+        self.variables["loan_due_amt"] = loan_due_amt
+        self.variables["open_due_amt"] = open_due_amt
+        self.variables["loan_flow"] = loan_flow
+        self.variables["open_flow"] = open_flow
+        self.variables["add_issuance"] = add_issuance
         self.variables["future_12_month"] = future_12_month
         self.variables["loan_f_due_amt"] = loan_f_due_amt
         self.variables["open_f_due_amt"] = open_f_due_amt
