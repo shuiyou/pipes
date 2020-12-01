@@ -58,8 +58,8 @@ class SettledTable(GroupedTransformer):
 
         loan_list = loan_total[loan_total.settle_status.str.contains("被追偿|未结清")]['account_org'].drop_duplicates().tolist()
 
-        df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x) )
-        df['finish_coop_date'] = df.finish_coop_date.apply(lambda x : "在贷" if x in loan_list else str(x))
+        df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x.date()) if pd.notna(x) else None )
+        df['finish_coop_date'] = df.finish_coop_date.apply(lambda x : "在贷" if x in loan_list else str(x.date()))
 
         self.variables["inst"] = df.inst.tolist()
         self.variables["coop_cnt"] = df.coop_cnt.tolist()

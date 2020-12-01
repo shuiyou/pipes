@@ -141,8 +141,8 @@ class Unsettled(GroupedTransformer):
 
         df = pd.concat([df,loan2,loan1,open1] , ignore_index = True)
         df['overdued'] = df.fillna(0).overdue_amt.apply(lambda x :  "逾期" if x>0 else "")
-        df['start_date'] = df.start_date.apply(lambda x: str(x))
-        df['due_date'] = df.due_date.apply(lambda x: str(x))
+        df['start_date'] = df.start_date.apply(lambda x: str(x.date()) if pd.notna(x) else None)
+        df['due_date'] = df.due_date.apply(lambda x: str(x.date()) if pd.notna(x) else None)
 
         df = df.where(df.notnull(), None)
 
