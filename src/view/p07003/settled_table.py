@@ -32,7 +32,8 @@ class SettledTable(GroupedTransformer):
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
-                                                       'loan_date':['min','max']})
+                                                                           'loan_date':['min'],
+                                                                            'end_date':['max']})
         group1.set_axis(['coop_cnt', 'grant_total',
                          'grant_max', 'grant_min',
                          'first_coop_date', 'finish_coop_date'],

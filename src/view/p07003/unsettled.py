@@ -219,29 +219,37 @@ class Unsettled(GroupedTransformer):
             temp_dict["inst_name"] = inst
             temp_dict["year_one"] = {
                 "year": year_list[0],
-                "grant_total": data[data.start_date_year == year_list[0]].grant_amt.sum(),
-                "bus_detail": data[data.start_date_year == year_list[0]] \
+                "grant_total": data[(data.start_date_year == year_list[0])
+                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "bus_detail": data[(data.start_date_year == year_list[0])
+                                   &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
                     orient='records')
             }
             temp_dict["year_two"] = {
                 "year": year_list[1],
-                "grant_total": data[data.start_date_year == year_list[1]].grant_amt.sum(),
-                "bus_detail": data[data.start_date_year == year_list[1]] \
+                "grant_total": data[(data.start_date_year == year_list[1])
+                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "bus_detail": data[(data.start_date_year == year_list[1])
+                                   &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
                     orient='records')
             }
             temp_dict["year_three"] = {
                 "year": year_list[2],
-                "grant_total": data[data.start_date_year == year_list[2]].grant_amt.sum(),
-                "bus_detail": data[data.start_date_year == year_list[2]] \
+                "grant_total": data[(data.start_date_year == year_list[2])
+                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "bus_detail": data[(data.start_date_year == year_list[2])
+                                   &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
                     orient='records')
             }
             temp_dict["year_four"] = {
                 "year": year_list[3],
-                "grant_total": data[data.start_date_year == year_list[3]].grant_amt.sum(),
-                "bus_detail": data[data.start_date_year == year_list[3]] \
+                "grant_total": data[(data.start_date_year == year_list[3])
+                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "bus_detail": data[(data.start_date_year == year_list[3])
+                                   &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
                     orient='records')
             }
@@ -293,6 +301,7 @@ class Unsettled(GroupedTransformer):
                        temp_df.margin_ratio_c.tolist())
             )
 
+        self.variables["bus_pie_debt_bal"] = bus_pie_debt_bal
         self.variables["bus_pie_debt_prop"] = list(
             np.array(bus_pie_debt_bal) / self.variables["pie_debt_bal"]
         )
