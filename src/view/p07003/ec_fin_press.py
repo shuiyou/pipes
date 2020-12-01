@@ -160,14 +160,18 @@ class EcFinPress(GroupedTransformer):
 
         info_outline = self.cached_data["ecredit_info_outline"]
         assets_outline = self.cached_data["ecredit_assets_outline"]
-        uncleared_outline = self.cached_data["ecredit_uncleared_outline"]
+        uncleared_outline = self.cached_data["ecredit_uncleared_outline"].query('status_type == "合计" & loan_type == "借贷合计" ')
 
-        if not assets_outline.empty:
-            account_num_now = uncleared_outline.ix[0, 'account_num']  \
-                              + assets_outline.ix[0,'dispose_account_num'] \
-                              + assets_outline.ix[0,'advance_account_num']
+
+        if not uncleared_outline.empty:
+            if not assets_outline.empty:
+                account_num_now = uncleared_outline.ix[0, 'account_num']  \
+                                  + assets_outline.ix[0,'dispose_account_num'] \
+                                  + assets_outline.ix[0,'advance_account_num']
+            else:
+                account_num_now = uncleared_outline['account_num'].values[0]
         else:
-            account_num_now = uncleared_outline.ix[0, 'account_num']
+            account_num_now = None
 
         debt_df = pd.concat([debt_df ,
                                pd.DataFrame(data=["截止报告日",
