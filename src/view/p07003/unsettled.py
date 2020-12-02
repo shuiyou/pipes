@@ -184,10 +184,10 @@ class Unsettled(GroupedTransformer):
         guar_cnt = []
         for guar in self.variables["bar_guar_type"]:
             guar_amt.append(
-                data[data.guar_type == guar].grant_amt.sum()
+                round(data[data.guar_type == guar].grant_amt.sum(),2)
             )
             guar_bal.append(
-                data[data.guar_type == guar].cur_bal.sum()
+                round(data[data.guar_type == guar].cur_bal.sum(),2)
             )
             guar_cnt.append(
                 data[data.guar_type == guar].shape[0]
@@ -202,17 +202,16 @@ class Unsettled(GroupedTransformer):
             temp_dict = {}
             temp_df = data[data.bus_type == biz]
             temp_dict['bus_type'] = biz
-            temp_dict['bus_amt'] = temp_df.grant_amt.sum()
-            temp_dict['bus_bal'] = temp_df.cur_bal.sum()
+            temp_dict['bus_amt'] = round(temp_df.grant_amt.sum(),2)
+            temp_dict['bus_bal'] = round(temp_df.cur_bal.sum(),2)
             temp_dict['bus_cnt'] = temp_df.shape[0]
             temp_dict['bus_bal_detail'] = temp_df.groupby('bus_sup')['cur_bal'].agg(
                 {'sup_amt': 'sum'}).reset_index().to_dict(orient='records')
             bus_bar.append(temp_dict)
         self.variables["bus_bar"] = bus_bar
 
-        self.variables["discount_total_recent"] = data[(data.bus_sup.str.contains("贴现"))
-                                                       & (pd.to_datetime(data.start_date) > datetime.now() - timedelta(
-            days=365))].cur_bal.sum()
+        self.variables["discount_total_recent"] = round(data[(data.bus_sup.str.contains("贴现"))
+             & (pd.to_datetime(data.start_date) > datetime.now() - timedelta(days=365))].cur_bal.sum(),2)
 
         report_year = pd.to_datetime(self.cached_data["report_time"]).year
         year_list = [report_year - 3, report_year - 2, report_year - 1, report_year]
@@ -224,8 +223,8 @@ class Unsettled(GroupedTransformer):
             temp_dict["inst_name"] = inst
             temp_dict["year_one"] = {
                 "year": year_list[0],
-                "grant_total": data[(data.start_date_year == year_list[0])
-                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "grant_total": round(data[(data.start_date_year == year_list[0])
+                                    &(data.inst_name == inst)].grant_amt.sum(),2),
                 "bus_detail": data[(data.start_date_year == year_list[0])
                                    &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
@@ -233,8 +232,8 @@ class Unsettled(GroupedTransformer):
             }
             temp_dict["year_two"] = {
                 "year": year_list[1],
-                "grant_total": data[(data.start_date_year == year_list[1])
-                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "grant_total": round(data[(data.start_date_year == year_list[1])
+                                    &(data.inst_name == inst)].grant_amt.sum(),2),
                 "bus_detail": data[(data.start_date_year == year_list[1])
                                    &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
@@ -242,8 +241,8 @@ class Unsettled(GroupedTransformer):
             }
             temp_dict["year_three"] = {
                 "year": year_list[2],
-                "grant_total": data[(data.start_date_year == year_list[2])
-                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "grant_total": round(data[(data.start_date_year == year_list[2])
+                                    &(data.inst_name == inst)].grant_amt.sum(),2),
                 "bus_detail": data[(data.start_date_year == year_list[2])
                                    &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
@@ -251,8 +250,8 @@ class Unsettled(GroupedTransformer):
             }
             temp_dict["year_four"] = {
                 "year": year_list[3],
-                "grant_total": data[(data.start_date_year == year_list[3])
-                                    &(data.inst_name == inst)].grant_amt.sum(),
+                "grant_total": round(data[(data.start_date_year == year_list[3])
+                                    &(data.inst_name == inst)].grant_amt.sum(),2),
                 "bus_detail": data[(data.start_date_year == year_list[3])
                                    &(data.inst_name == inst)] \
                     .groupby('bus_type')['grant_amt'].agg({'bus_grant_total': 'sum'}).reset_index().to_dict(
@@ -269,8 +268,7 @@ class Unsettled(GroupedTransformer):
             return
 
         data['margin_ratio_c'] = 1 - data['margin_ratio'].fillna(0)
-        self.variables["pie_debt_bal"] = np.dot(data.cur_bal.tolist(),
-                                            data.margin_ratio_c.tolist())
+        self.variables["pie_debt_bal"] = round(np.dot( data.cur_bal.tolist(),data.margin_ratio_c.tolist() ),2)
         self.variables["pie_debt_cnt"] = data.shape[0]
 
         self.variables["inst_pie_name"] = list(set(data.inst_name.tolist()))
@@ -278,8 +276,8 @@ class Unsettled(GroupedTransformer):
         inst_pie_open_bal = []
         for inst in self.variables["inst_pie_name"]:
             inst_pie_loan_bal.append(
-                data[(data.inst_name == inst)
-                     & (pd.isnull(data.margin_ratio))].cur_bal.sum()
+                round(data[(data.inst_name == inst)
+                     & (pd.isnull(data.margin_ratio))].cur_bal.sum(),2)
             )
 
             temp_df = data[(data.inst_name == inst)
@@ -288,13 +286,13 @@ class Unsettled(GroupedTransformer):
                 inst_pie_open_bal.append(0)
             else:
                 inst_pie_open_bal.append(
-                    np.dot(temp_df.cur_bal.tolist(),
-                           temp_df.margin_ratio_c.tolist())
+                    round(np.dot(temp_df.cur_bal.tolist(),
+                           temp_df.margin_ratio_c.tolist() ),2 )
             )
         self.variables["inst_pie_loan_bal"] = inst_pie_loan_bal
         self.variables["inst_pie_open_bal"] = inst_pie_open_bal
         self.variables["inst_pie_debt_prop"] = list(
-            (np.array(inst_pie_loan_bal) + np.array(inst_pie_open_bal)) / self.variables["pie_debt_bal"]
+            np.round((np.array(inst_pie_loan_bal) + np.array(inst_pie_open_bal)) / self.variables["pie_debt_bal"], decimals=4)
         )
 
         self.variables["bus_pie_type"] = list(set(data.bus_type.tolist()))
@@ -302,13 +300,13 @@ class Unsettled(GroupedTransformer):
         for biz in self.variables["bus_pie_type"]:
             temp_df = data[data.bus_type == biz][['cur_bal', 'margin_ratio_c']]
             bus_pie_debt_bal.append(
-                np.dot(temp_df.cur_bal.tolist(),
-                       temp_df.margin_ratio_c.tolist())
+                round(np.dot(temp_df.cur_bal.tolist(),
+                       temp_df.margin_ratio_c.tolist()),2)
             )
 
         self.variables["bus_pie_debt_bal"] = bus_pie_debt_bal
         self.variables["bus_pie_debt_prop"] = list(
-            np.array(bus_pie_debt_bal) / self.variables["pie_debt_bal"]
+            np.round(np.array(bus_pie_debt_bal) / self.variables["pie_debt_bal"], decimals=4)
         )
 
         bins = [0, 50, 100, 200, 500, 1000, 10e8]
@@ -322,7 +320,7 @@ class Unsettled(GroupedTransformer):
             temp_df = data[(data.bin == col)][['grant_amt', 'bin']]
             temp_dict['amt_pie_amt_range'] = col
             temp_dict['amt_pie_cnt'] = temp_df.shape[0]
-            temp_dict['amt_pie_debt_prop'] = temp_df.shape[0] / data.shape[0]
+            temp_dict['amt_pie_debt_prop'] = round(temp_df.shape[0] / data.shape[0] ,4)
             temp_dict['remark'] = temp_df.groupby('grant_amt')['bin'].agg(
                 {'remark_cnt': 'count'}).reset_index().to_dict(orient='records')
             amt_pie.append(temp_dict)

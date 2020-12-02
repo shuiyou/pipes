@@ -94,13 +94,13 @@ class EcFinPress(GroupedTransformer):
         for i in range(1,7):
             temp_month =  temp_month - timedelta(days=1)
             last_6_month.append(temp_month.strftime("%Y-%m"))
-            loan_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
-            open_due_amt.append(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
-            loan_flow.append(loan_data[(loan_data.loan_date<=temp_month.date())
-                                       &(loan_data.end_date>temp_month.date())].balance.sum())
-            open_flow.append(open_data[(open_data.loan_date<=temp_month.date())
-                                       &(open_data.end_date>temp_month.date())].balance.sum())
-            add_issuance.append(loan_data[loan_data.loan_date_month == temp_month.strftime("%Y-%m")].amount.sum())
+            loan_due_amt.append(round(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
+            open_due_amt.append(round(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
+            loan_flow.append(round(loan_data[(loan_data.loan_date<=temp_month.date())
+                                       &(loan_data.end_date>temp_month.date())].balance.sum(),2))
+            open_flow.append(round(open_data[(open_data.loan_date<=temp_month.date())
+                                       &(open_data.end_date>temp_month.date())].balance.sum(),2))
+            add_issuance.append(round(loan_data[loan_data.loan_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
 
             temp_month = temp_month.replace(day = 1)
 
@@ -111,8 +111,8 @@ class EcFinPress(GroupedTransformer):
         open_f_due_amt = []
         for i in range(1,13):
             future_12_month.append(temp_month.strftime("%Y-%m"))
-            loan_f_due_amt.append(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
-            open_f_due_amt.append(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum())
+            loan_f_due_amt.append(round(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
+            open_f_due_amt.append(round(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
             temp_month = temp_month.replace( day = m_r(temp_month.year,temp_month.month)[1]) + timedelta(days=1)
 
         last_6_month.reverse()
@@ -165,28 +165,29 @@ class EcFinPress(GroupedTransformer):
 
         if not uncleared_outline.empty:
             if not assets_outline.empty:
-                account_num_now = uncleared_outline.ix[0, 'account_num']  \
+                account_num_now = round(uncleared_outline.ix[0, 'account_num']  \
                                   + assets_outline.ix[0,'dispose_account_num'] \
-                                  + assets_outline.ix[0,'advance_account_num']
+                                  + assets_outline.ix[0,'advance_account_num'],2)
             else:
-                account_num_now = uncleared_outline['account_num'].values[0]
+                account_num_now = round(uncleared_outline['account_num'].values[0],2)
         else:
             account_num_now = None
 
         debt_df = pd.concat([debt_df ,
                                pd.DataFrame(data=["截止报告日",
-                                                info_outline.ix[0,'loan_bal'],
+                                                round(info_outline.ix[0,'loan_bal'],2),
                                                 account_num_now,
-                                                info_outline.ix[0,'loan_special_mentioned_bal'],
-                                                info_outline.ix[0,'loan_non_performing_bal']
+                                                round(info_outline.ix[0,'loan_special_mentioned_bal'],2),
+                                                round(info_outline.ix[0,'loan_non_performing_bal'],2)
                                                 ],
                                           index=debt_cols).T
                              ],
                             ignore_index=True)
-        debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
+        # debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
+        debt_df['norm_debt'] = debt_df.apply(lambda x: round(x['total_debt'] - x['care_debt'] - x['bad_debt'],2) ,axis = 1 )
 
         # debt_df['abnorm_debt_prop'] = (debt_df['care_debt'] + debt_df['bad_debt'] ) / debt_df['total_debt'].replace(0,np.nan)
-        debt_df['abnorm_debt_prop'] = debt_df.apply(lambda x : (x['care_debt'] + x['bad_debt'])/x['total_debt'] if x['total_debt'] > 0 else 0,axis=1)
+        debt_df['abnorm_debt_prop'] = debt_df.apply(lambda x : round((x['care_debt'] + x['bad_debt'])/x['total_debt'],4) if x['total_debt'] > 0 else 0,axis=1)
 
         temp_df = pd.concat([ loan_data[['account_org','loan_date','end_date']],
                            open_data[['account_org','loan_date','end_date']] ],
