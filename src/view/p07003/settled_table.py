@@ -61,6 +61,16 @@ class SettledTable(GroupedTransformer):
         df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x.date()) if pd.notna(x) else None )
         df['finish_coop_date'] = df.finish_coop_date.apply(lambda x : "在贷" if x in loan_list else str(x.date()))
 
+        if loan_data[loan_data.category.str.contains("关注")].shape[0] > 0 :
+            df['category'] = "关注"
+        elif loan_data[loan_data.category.str.contains("次级")].shape[0] > 0 :
+            df['category'] = "次级"
+        elif loan_data[loan_data.category.str.contains("可疑")].shape[0] > 0 :
+            df['category'] = "可疑"
+        elif loan_data[loan_data.category.str.contains("损失")].shape[0] > 0 :
+            df['category'] = "损失"
+
+
         self.variables["inst"] = df.inst.tolist()
         self.variables["coop_cnt"] = df.coop_cnt.tolist()
         self.variables["grant_total"] = df.grant_total.tolist()
