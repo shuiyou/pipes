@@ -175,7 +175,7 @@ class Unsettled(GroupedTransformer):
 
     def unsettled_bar(self):
         data = self.unsettled_table_df
-        if data is None:
+        if data is None or data.empty:
             return
 
         self.variables["bar_guar_type"] = ['信用/免担保', '保证', '质押', '抵押', '组合']
@@ -264,7 +264,7 @@ class Unsettled(GroupedTransformer):
     def unsettled_pie(self):
 
         data = self.unsettled_table_df[~self.unsettled_table_df.bus_type.str.contains("贴现")]
-        if data is None:
+        if data is None or data.empty:
             return
 
         data['margin_ratio_c'] = 1 - data['margin_ratio'].fillna(0)

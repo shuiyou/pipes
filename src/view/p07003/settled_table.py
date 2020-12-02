@@ -29,6 +29,9 @@ class SettledTable(GroupedTransformer):
                                                       'category','last_payment_type']]
         loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")].drop(columns='settle_status')
 
+        if loan_data.empty:
+            return
+
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
