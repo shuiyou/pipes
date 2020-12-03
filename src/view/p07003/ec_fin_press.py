@@ -65,7 +65,7 @@ class EcFinPress(GroupedTransformer):
                               &(uncleared_outline.status_type == "合计")].balance.sum()
 
 
-        open_df = open_data.fillna(0)
+        open_df = open_data[open_data.settle_status.str.contains("未结清")].fillna(0)
         open_df['deposit_rate_c'] = 1 - open_df['deposit_rate']
         if not open_df.empty:
             self.variables['open_total_bal'] = np.dot(open_df.amount.tolist(),
