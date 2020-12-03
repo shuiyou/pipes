@@ -9,7 +9,7 @@ class UnionCounterpartyPortrait:
     联合账户画像表_主要交易对手交易信息汇总
     author:汪腾飞
     created_time:20200708
-    updated_time_v1:
+    updated_time_v1:补充进账第4,第5的交易对手月贡献率
     """
 
     def __init__(self, trans_flow):
@@ -85,8 +85,8 @@ class UnionCounterpartyPortrait:
                 temp_dict['income_amt_order'] = i + 1
                 temp_dict['trans_amt'] = temp_income_month_df['trans_amt'].sum()
                 temp_dict['trans_cnt'] = temp_income_month_df.shape[0]
-                # 进账排名前三的需要计算贡献率
-                if i <= 2:
+                # 进账排名前五的需要计算贡献率
+                if i <= 4:
                     total_amt_months_m = flow_df[(flow_df['calendar_month'] == m) &
                                                  (flow_df['trans_amt'] > 0)]['trans_amt'].sum()
                     temp_dict['income_amt_proportion'] = temp_income_month_df['trans_amt'].sum() / total_amt_months_m \
