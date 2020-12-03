@@ -69,6 +69,9 @@ class SettledTable(GroupedTransformer):
 
         df['category'] = df.apply(lambda x : self.clean_category(x , loan_data) , axis = 1)
 
+        df['grant_total'] = df.grant_total.apply(lambda x:round(x,2))
+        df['grant_max']  = df.grant_max.apply(lambda x:round(x,2))
+        df['grant_min']  = df.grant_min.apply(lambda x:round(x,2))
 
         self.variables["inst"] = df.inst.tolist()
         self.variables["coop_cnt"] = df.coop_cnt.tolist()
