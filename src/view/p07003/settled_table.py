@@ -67,14 +67,7 @@ class SettledTable(GroupedTransformer):
 
         df['finish_coop_date'] = df.apply(lambda x : "在贷" if x['inst'] in loan_list else str(x['finish_coop_date'].date()) , axis = 1)
 
-        if loan_data[loan_data.category.str.contains("关注")].shape[0] > 0 :
-            df['category'] = "关注"
-        elif loan_data[loan_data.category.str.contains("次级")].shape[0] > 0 :
-            df['category'] = "次级"
-        elif loan_data[loan_data.category.str.contains("可疑")].shape[0] > 0 :
-            df['category'] = "可疑"
-        elif loan_data[loan_data.category.str.contains("损失")].shape[0] > 0 :
-            df['category'] = "损失"
+        df['category'] = df.apply(lambda x : self.clean_category(x , loan_data) , axis = 1)
 
 
         self.variables["inst"] = df.inst.tolist()
@@ -87,3 +80,18 @@ class SettledTable(GroupedTransformer):
         self.variables["finish_coop_date"] = df.finish_coop_date.tolist()
         self.variables["grant_max"] = df.grant_max.tolist()
         self.variables["grant_min"] = df.grant_min.tolist()
+
+
+    def clean_category(self, s , loan_data):
+        temp_data = loan_data[loan_data.account_org == s['inst']]
+
+        if temp_data[temp_data.category.str.contains("关注")].shape[0] > 0 :
+            return "关注"
+        elif temp_data[temp_data.category.str.contains("次级")].shape[0] > 0 :
+            return "次级"
+        elif temp_data[temp_data.category.str.contains("可疑")].shape[0] > 0 :
+            return "可疑"
+        elif temp_data[temp_data.category.str.contains("损失")].shape[0] > 0 :
+            return "损失"
+        else:
+            return "正常"
