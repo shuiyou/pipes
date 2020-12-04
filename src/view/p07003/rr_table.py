@@ -93,6 +93,8 @@ class RrTable(GroupedTransformer):
 
         df = pd.concat([df,repay_duty1,repay_duty2] , ignore_index= True)
 
+        df = df.sort_values(by =['inst_name','due_date'] , ascending= [True,True])
+
         df['start_date'] = df.start_date.apply(lambda x : str(x) if pd.notna(x) else None)
         df['due_date'] = df.due_date.apply(lambda x: str(x) if pd.notna(x) else None)
         df = df.where(df.notnull(), None)
