@@ -111,7 +111,7 @@ class Fraud(GroupedTransformer):
             'fraud_msg_loan_3_cnt': 0,
             'fraud_msg_fin_9_cnt': 0,
             'fraud_msg_loan_9_cnt': 0,
-            'msg_risks_conclusion': '客户近期金融类短信接收相对正常。'
+            'msg_risk_conclusion': '客户近期金融类短信接收相对正常。'
         }
 
     def _info_risk_cts_item(self):
