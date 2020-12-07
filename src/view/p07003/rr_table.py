@@ -93,7 +93,7 @@ class RrTable(GroupedTransformer):
         repay_duty2.rename( columns = rename_rr2,
                             inplace = True)
 
-        repay_duty2['account_type'] = "贴现账户"
+        repay_duty2['guar_type'] = "贴现账户"
 
         df = pd.concat([df,repay_duty1,repay_duty2] , ignore_index= True)
 
