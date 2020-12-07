@@ -220,17 +220,15 @@ class Owner(GroupedTransformer):
                 df = df[pd.notna(df['es_date'])]
                 if df.shape[0] == 0:
                     return
+                df['industry_phy_code'] = df['industry_phy_code'].fillna('').astype(str)
+                df['industry_code'] = df['industry_code'].fillna('').astype(str)
+                df['industry'] = df['industry_phy_code'] + df['industry_code']
                 min_es_date = df['es_date'].min()
                 self.variables['owner_job_year'] = datetime.datetime.now().year - min_es_date.year
-                industry = temp_idno['industry']
-                temp_index = [i for i in range(len(industry)) if industry[i] == main_indu]
-                if len(temp_index) == 0:
+                main_df = df[df['industry'] == main_indu]
+                if main_df.shape[0] == 0:
                     return
-                temp_code = [str(temp_idno['idno'][x]) for x in temp_index]
-                temp_df = df[df['credit_code'].isin(temp_code)]
-                if temp_df.shape[0] == 0:
-                    return
-                temp_min_es_date = df['es_date'].min()
+                temp_min_es_date = main_df['es_date'].min()
                 self.variables['owner_major_job_year'] = datetime.datetime.now().year - temp_min_es_date.year
 
     # 获取对应客户的极光数据
