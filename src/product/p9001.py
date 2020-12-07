@@ -43,6 +43,7 @@ class P09001(Generate, ABC):
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
             industry = json_data.get("industry")
+            passthrough_msg = json_data("passthroughMsg")
             base_type_service = BaseTypeServiceV2(query_data_array)
 
             response_array = []
@@ -54,7 +55,8 @@ class P09001(Generate, ABC):
                 'reqNo': req_no,
                 'step_req_no': step_req_no,
                 'industry': industry,
-                'queryData': response_array
+                'queryData': response_array,
+                'passthroughMsg': passthrough_msg
             }
             self.response = resp
         except Exception as err:
@@ -96,7 +98,9 @@ class P09001(Generate, ABC):
 
     @staticmethod
     def _create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data):
+        passthrough_msg = json_data("passthroughMsg")
         resp = {
+            'passthroughMsg':passthrough_msg,
             'strategyInputVariables': variables,
             'strategyResult': strategy_resp,
             'commonDetail': common_detail,
