@@ -74,11 +74,13 @@ class RrTable(GroupedTransformer):
 
         repay_duty1.rename( columns = rename_rr1,
                                inplace = True)
-        repay_duty1['guar_type'] = "除贴现外其他业务"
+        repay_duty1['guar_type'] = "借贷账户(不含贴现)"
 
         repay_duty2  = self.cached_data["ecredit_repay_duty_discount"][['account_org','account_type','duty_type',
                                                                         'biz_type','duty_amt','balance','category',
                                                                         'overdue_amt','overdue_principal']]
+        repay_duty2 = repay_duty2[repay_duty2.account_type.str.contains("贴现")]
+
         rename_rr2 = {
             'account_org':'inst_name',
             'account_type':'guar_type',
@@ -90,6 +92,8 @@ class RrTable(GroupedTransformer):
         }
         repay_duty2.rename( columns = rename_rr2,
                             inplace = True)
+
+        repay_duty2['account_type'] = "贴现账户"
 
         df = pd.concat([df,repay_duty1,repay_duty2] , ignore_index= True)
 
