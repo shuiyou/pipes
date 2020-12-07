@@ -58,6 +58,13 @@ def _get_biz_types(input_json):
     return biz_types, categories
 
 
+def _get_resp_field_value(resp_json, json_path):
+    res = jsonpath(resp_json, json_path)
+    if isinstance(res, list) and len(res) > 0:
+        return res[0]
+    return "N/A"
+
+
 def _get_thread_id():
     return threading.currentThread().ident
 

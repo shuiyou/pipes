@@ -19,7 +19,8 @@ from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
-from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
+from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules, \
+    _get_resp_field_value
 from service.base_type_service_v2 import BaseTypeServiceV2
 from util.type_converter import format_var
 from view.grouped_mapper_detail import view_variables_scheduler
@@ -168,10 +169,14 @@ class P09001(Generate, ABC):
         origin_input['out_strategyBranch'] = ','.join(filter(lambda e: e != "00000", codes))
         # 合并新的转换变量
         origin_input.update(variables)
+        origin_input["segment_name"] = data.get("segmentName")
 
         strategy_resp = self.invoke_strategy(origin_input, product_code, req_no)
         score_to_int(strategy_resp)
         biz_types, categories = _get_biz_types(strategy_resp)
+        segment_name = _get_resp_field_value(strategy_resp, "$..segment_name")
+        data["segmentName"] = segment_name
+        data["bizType"] = biz_types
 
         resp = {}
         self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone,
@@ -274,6 +279,7 @@ class P09001(Generate, ABC):
 
         resp_json = self.invoke_strategy(variables, product_code, req_no)
         biz_types, categories = _get_biz_types(resp_json)
+        segment_name = _get_resp_field_value(resp_json, "$..segment_name")
         rules = _append_rules(biz_types)
 
         resp = {}
@@ -282,6 +288,7 @@ class P09001(Generate, ABC):
         resp['bizType'] = biz_types
         resp['rules'] = rules
         resp['categories'] = categories
+        resp['segmentName'] = segment_name
 
         return resp
 
