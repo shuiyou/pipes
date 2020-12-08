@@ -136,8 +136,16 @@ def flask_global_exception_handler(e):
 
 
 def _get_product_handler(product_code) -> Generate:
+    model = None
     try:
         model = importlib.import_module("product.p" + str(product_code))
+    except ModuleNotFoundError as err:
+        try:
+            model = importlib.import_module("product.P" + str(product_code))
+        except ModuleNotFoundError as err:
+            logger.error(str(err))
+            return Generate()
+    try:
         api_class = getattr(model, "P" + str(product_code))
         api_instance = api_class()
         return api_instance
