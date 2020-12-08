@@ -55,8 +55,8 @@ class StrategyInputProcessor(ModuleProcessor):
 
         df = self.cached_data.get("ecredit_assets_outline")
         if not df.empty:
-            self.variables["asset_dispose_amt"] = df.ix[0,'dispose_blanace']
-            self.variables["advance_amt"] = df.ix[0,'advance_blanace']
+            self.variables["asset_dispose_amt"] = df.ix[0,'dispose_balance']
+            self.variables["advance_amt"] = df.ix[0,'advance_balance']
             self.variables["overdue_prin"] = df.ix[0,'overdue_principal']
             self.variables["overdue_interest"] = df.ix[0,'overdue_interest']
 
