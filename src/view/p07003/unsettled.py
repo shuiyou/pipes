@@ -150,7 +150,8 @@ class Unsettled(GroupedTransformer):
         df = df.sort_values(by=['due_date','inst_name'] , ascending= [True,True])
 
         df['start_date'] = df.start_date.apply(lambda x: str(x) )
-        df['due_date'] = df.due_date.apply(lambda x: str(x) )
+        df['due_date'] = df.due_date.apply(lambda x:  str(x) if pd.notnull(x) else None )
+        df['recent_repay_date'] = df.recent_repay_date.apply(lambda x: str(x) if pd.notnull(x) else None)
 
         df = df.where(df.notnull(), None)
 
