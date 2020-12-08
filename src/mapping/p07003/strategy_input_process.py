@@ -58,7 +58,7 @@ class StrategyInputProcessor(ModuleProcessor):
             self.variables["asset_dispose_amt"] = df.ix[0,'dispose_balance']
             self.variables["advance_amt"] = df.ix[0,'advance_balance']
             self.variables["overdue_prin"] = df.ix[0,'overdue_principal']
-            self.variables["overdue_interest"] = df.ix[0,'overdue_interest']
+            self.variables["overdue_interest"] = df.ix[0,'overdue_interest'] * 10000
 
 
     def loan_detail_info(self):
