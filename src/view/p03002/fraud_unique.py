@@ -144,7 +144,8 @@ class Fraud(GroupedTransformer):
                                  'FIN_Payment_all_0M_1M', 'FIN_Payment_all_1M_2M', 'FIN_Payment_all_2M_3M',
                                  'FIN_Tool_all_0M_1M', 'FIN_Tool_all_1M_2M', 'FIN_Tool_all_2M_3M',
                                  'FIN_Investing_all_0M_1M', 'FIN_Investing_all_1M_2M', 'FIN_Investing_all_2M_3M'])
-        self.variables['fraud_app_cnt'] = 1 if not df_temp.empty and df_temp['field_value'].sum() > 0 else 0
+        self.variables['fraud_app_cnt'] = \
+            1 if not df_temp.empty and df_temp['field_value'].astype(float).sum() > 0 else 0
 
         fin_risk_conclusion = []
         self.variables['fraud_bank_app_0_30_score'] = get_factor_field_value(df, 'FIN_Bank_all_0M_1M')
@@ -222,18 +223,22 @@ class Fraud(GroupedTransformer):
         if df.empty:
             return
         df_temp = cts_match(df, ['cts_lbs_014', 'cts_lbs_021', 'cts_lbs_007'])
-        self.variables['fraud_trace_cnt'] = 1 if not df_temp.empty and df_temp['field_value'].sum() > 0 else 0
+        self.variables['fraud_trace_cnt'] = \
+            1 if not df_temp.empty and df_temp['field_value'].astype(float).sum() > 0 else 0
 
         df_temp = cts_match(df, ['cts_lbs_001', 'cts_lbs_023', 'cts_lbs_028'])
-        self.variables['fraud_wifi_cnt'] = 1 if not df_temp.empty and df_temp['field_value'].sum() > 0 else 0
+        self.variables['fraud_wifi_cnt'] = \
+            1 if not df_temp.empty and df_temp['field_value'].astype(float).sum() > 0 else 0
 
         df_temp = cts_match(df, ['cts_lbs_004', 'cts_lbs_010'])
-        self.variables['fraud_act_cnt'] = 1 if not df_temp.empty and df_temp['field_value'].sum() > 0 else 0
+        self.variables['fraud_act_cnt'] = \
+            1 if not df_temp.empty and df_temp['field_value'].astype(float).sum() > 0 else 0
 
         df_temp = cts_match(df, ['cts_app_032', 'cts_app_029', 'cts_app_094', 'cts_app_075', 'cts_app_058',
                                  'cts_app_056', 'cts_app_006', 'cts_app_004', 'cts_app_041', 'cts_app_038',
                                  'cts_app_099', 'cts_app_081', 'cts_app_064', 'cts_app_010'])
-        self.variables['fraud_loan_app_cnt'] = 1 if not df_temp.empty and df_temp['field_value'].sum() > 0 else 0
+        self.variables['fraud_loan_app_cnt'] = \
+            1 if not df_temp.empty and df_temp['field_value'].astype(float).sum() > 0 else 0
 
         df_temp = cts_match(df, ['cts_msg_002', 'cts_msg_006', 'cts_msg_018', 'cts_msg_017'])
         if not df_temp.empty:
