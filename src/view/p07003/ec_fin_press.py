@@ -76,6 +76,7 @@ class EcFinPress(GroupedTransformer):
 
     def repay_predict(self,loan_data,open_data):
 
+        loan_data = loan_data[loan_data.settle_status.str.contains("未结清")]
         loan_data['end_date'] = pd.to_datetime(loan_data['end_date'])
         open_data['end_date'] = pd.to_datetime(open_data['end_date'])
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
@@ -134,22 +135,26 @@ class EcFinPress(GroupedTransformer):
 
     def debt_history(self,loan_data,open_data):
 
-        debt_history = self.cached_data["ecredit_debt_histor"][['stats_date' , 'status_type', 'balance', 'account_num']]
+        debt_history = self.cached_data["ecredit_debt_histor"][['stats_date' , 'status_type', 'balance', 'account_num']].fillna(0)
 
         debt_df = pd.concat(
             [
                 debt_history[debt_history.status_type == "全部负债"].set_index(['stats_date'])[['balance', 'account_num']],
                 debt_history[debt_history.status_type == "关注类负债"].set_index(['stats_date'])[['balance']],
-                debt_history[debt_history.status_type == "不良类负债"].set_index(['stats_date'])[['balance']]
+                debt_history[debt_history.status_type == "不良类负债"].set_index(['stats_date'])[['balance']],
+                debt_history[debt_history.status_type == "逾期类负债"].set_index(['stats_date'])[['balance']]
             ],
             axis=1,
             ignore_index=True
         ).sort_index(ascending=True).reset_index()
 
-        debt_cols = ['history_debt_month','total_debt','debt_cnt','care_debt','bad_debt']
+        debt_cols = ['history_debt_month','total_debt','debt_cnt','care_debt','bad_debt','overdue_debt']
         debt_df.set_axis(debt_cols,
                          axis=1,
                          inplace = True)
+
+        debt_df['bad_debt'] = debt_df['bad_debt'] + debt_df['overdue_debt']
+        debt_df  =  debt_df.drop(columns = 'overdue_debt')
         for index,row in debt_df.iterrows():
             if row['total_debt'] == 0 and row['debt_cnt'] == 0 :
                 debt_df.ix[index,'history_debt_month'] = None
@@ -176,9 +181,9 @@ class EcFinPress(GroupedTransformer):
                                                 round(info_outline.ix[0,'loan_bal'],2),
                                                 account_num_now,
                                                 round(info_outline.ix[0,'loan_special_mentioned_bal'],2),
-                                                round(info_outline.ix[0,'loan_non_performing_bal'],2)
+                                                round(info_outline.ix[0,'loan_non_performing_bal'] + info_outline.ix[0,'loan_recover_bal'], 2)
                                                 ],
-                                          index=debt_cols).T
+                                          index=debt_cols[:-1]).T
                              ],
                             ignore_index=True)
         # debt_df['norm_debt'] = debt_df['total_debt'] - debt_df['care_debt'] - debt_df['bad_debt']
