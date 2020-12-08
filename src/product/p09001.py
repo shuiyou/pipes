@@ -29,7 +29,7 @@ from view.mapper_detail import STRATEGE_DONE
 logger = LoggerUtil().logger(__name__)
 
 
-class P09001(Generate, ABC):
+class P09001(Generate):
     def __init__(self):
         super().__init__()
         self.response: {}
@@ -43,7 +43,7 @@ class P09001(Generate, ABC):
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
             industry = json_data.get("industry")
-            passthrough_msg = json_data("passthroughMsg")
+            passthrough_msg = json_data.get("passthroughMsg")
             base_type_service = BaseTypeServiceV2(query_data_array)
 
             response_array = []
