@@ -8,7 +8,7 @@ logger = LoggerUtil().logger(__name__)
 
 class BusinessInfo(Transformer):
 
-    def __init__(self):
+    def __init__(self, credit_guar_bal):
         super().__init__()
         self.variables = {
             'bus_total_accounts_payable_debt_amt': None,  # 企业应付账款总负债
@@ -28,6 +28,7 @@ class BusinessInfo(Transformer):
         self.com_sale_info = None
         self.com_asset_info = None
         self.com_debt_info = None
+        self.credit_guar_bal = credit_guar_bal
 
     def all_variables(self):
         per_total_debt_amt = 0
@@ -38,8 +39,9 @@ class BusinessInfo(Transformer):
             self.per_debt_info['indiv_debt_amt_bal'] = self.per_debt_info.apply(
                 lambda x: x['indiv_debt_amt_bal'] if x['indiv_debt_typ'] != '4' else x['indiv_debt_amt_bal'] / 2,
                 axis=1)
-            self.variables['per_guar_debt_balance'] = \
-                self.per_debt_info[self.per_debt_info['indiv_debt_typ'] == '4']['indiv_debt_amt_bal'].sum()
+            per_guar_debt_balance = self.per_debt_info[
+                self.per_debt_info['indiv_debt_typ'] == '4']['indiv_debt_amt_bal'].sum()
+            self.variables['per_guar_debt_balance'] = max(per_guar_debt_balance, self.credit_guar_bal)
 
             per_total_debt_amt = self.per_debt_info['indiv_debt_amt_bal'].sum()
             per_total_bank_debt_amt = self.per_debt_info[

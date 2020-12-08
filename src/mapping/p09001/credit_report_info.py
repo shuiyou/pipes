@@ -23,7 +23,8 @@ class CreditInfo(Transformer):
             'single_business_loan_overdue_cnt_6m': 0,  # 6个月内单笔经营性贷款逾期次数
             'query_cnt_3m': 0,  # 3个月内贷款+贷记卡审批查询次数
             'loan_cnt_inc_6m': 0,  # 6个月内新增贷款笔数
-            'credit_card_max_overdue_month_60m': 0  # 5年内单张信用卡最大逾期期数
+            'credit_card_max_overdue_month_60m': 0,  # 5年内单张信用卡最大逾期期数
+            'credit_guar_bal': 0  # 个人对外担保总负债余额
         }
         self.full_msg = None
         self.report_id = None
@@ -72,6 +73,8 @@ class CreditInfo(Transformer):
                                                                               'revolloan_totalcredit',
                                                                               'undestroy_limit',
                                                                               'undestory_semi_limit']].sum(), 2)
+                    self.variables['credit_guar_bal'] = \
+                        round(self.pcredit_info.loc[0, ['ind_repay_balance', 'ent_repay_balance']].sum(), 2)
                 guar_type_1_4_amt = loan_df[loan_df['loan_guarantee_type'].isin(['01', '04'])]['loan_amount'].sum()
                 self.variables['guar_type_1_4_amt_prop'] = round(guar_type_1_4_amt / total_bank_credit_limit, 2) \
                     if total_bank_credit_limit > 0 else 0
