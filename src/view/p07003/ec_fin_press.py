@@ -165,9 +165,7 @@ class EcFinPress(GroupedTransformer):
 
         if not uncleared_outline.empty:
             if not assets_outline.empty:
-                account_num_now = round(uncleared_outline.ix[0, 'account_num']  \
-                                  + assets_outline.ix[0,'dispose_account_num'] \
-                                  + assets_outline.ix[0,'advance_account_num'],2)
+                account_num_now = round( uncleared_outline['account_num'].values[0]  + assets_outline.ix[0,'dispose_account_num'] + assets_outline.ix[0,'advance_account_num'] , 2)
             else:
                 account_num_now = round(uncleared_outline['account_num'].values[0],2)
         else:
