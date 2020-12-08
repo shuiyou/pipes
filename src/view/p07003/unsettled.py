@@ -139,10 +139,10 @@ class Unsettled(GroupedTransformer):
         open1.rename(columns = rename_open,
                      inplace = True)
 
-        loan1['start_date'] = loan1.start_date.apply(lambda x: x.date())
-        loan1['due_date'] = loan1.due_date.apply(lambda x: x.date())
-        loan2['start_date'] = loan2.start_date.apply(lambda x: x.date())
-        loan2['due_date'] = loan2.due_date.apply(lambda x : x.date())
+        # loan1['start_date'] = loan1.start_date.apply(lambda x: x.date())
+        # loan1['due_date'] = loan1.due_date.apply(lambda x: x.date())
+        # loan2['start_date'] = loan2.start_date.apply(lambda x: x.date())
+        # loan2['due_date'] = loan2.due_date.apply(lambda x : x.date())
 
         df = pd.concat([df,loan2,loan1,open1] , ignore_index = True)
         df['overdued'] = df.fillna(0).overdue_amt.apply(lambda x :  "逾期" if x>0 else "")
