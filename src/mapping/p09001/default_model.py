@@ -4,13 +4,13 @@ import pandas as pd
 from pandas.tseries import offsets
 
 from logger.logger_util import LoggerUtil
-from mapping.tranformer import Transformer
+from mapping.module_processor import ModuleProcessor
 from util.mysql_reader import sql_to_df
 
 logger = LoggerUtil().logger(__name__)
 
 
-class DefaultModel(Transformer):
+class DefaultModel(ModuleProcessor):
 
     def __init__(self):
         super().__init__()
@@ -25,6 +25,7 @@ class DefaultModel(Transformer):
         self.jg_data = None
         self.yf_backtracking = None
         self.yf_statistic = None
+        self.phone = None  # todo:需要传
 
     def basic_data(self):
         qh_sql = """
@@ -108,6 +109,6 @@ class DefaultModel(Transformer):
             if df2.shape[0] > 0:
                 self.variables['app_platform_month6'] = df2['field_value'].astype(float).tolist()[0]
 
-    def transform(self):
+    def process(self):
         self.basic_data()
         self.model_variables()
