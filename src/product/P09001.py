@@ -173,13 +173,14 @@ class P09001(Generate):
         origin_input['out_strategyBranch'] = ','.join(filter(lambda e: e != "00000", codes))
         # 合并新的转换变量
         origin_input.update(variables)
-        origin_input["segment_name"] = data.get("segmentName")
+        origin_input["segment_name"] = data.get("nextSegmentName")
 
         strategy_resp = self.invoke_strategy(origin_input, product_code, req_no)
         score_to_int(strategy_resp)
         biz_types, categories = _get_biz_types(strategy_resp)
         segment_name = _get_resp_field_value(strategy_resp, "$..segment_name")
-        data["segmentName"] = segment_name
+        data["segmentName"] = data.get("nextSegmentName")
+        data["nextSegmentName"] = segment_name
         data["bizType"] = biz_types
 
         resp = {}
@@ -292,7 +293,8 @@ class P09001(Generate):
         resp['bizType'] = biz_types
         resp['rules'] = rules
         resp['categories'] = categories
-        resp['segmentName'] = segment_name
+        resp['segmentName'] = "HAND_SHAKE"
+        resp['nextSegmentName'] = segment_name
 
         return resp
 
