@@ -63,9 +63,11 @@ class SettledTable(GroupedTransformer):
 
         df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x.date()) if pd.notna(x) else None )
 
-        df = df.sort_values(by = 'finish_coop_date' , ascending = False)
+        # df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
         df['finish_coop_date'] = df.apply(lambda x : "在贷" if x['inst'] in loan_list else str(x['finish_coop_date']) , axis = 1)
+
+        df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
         df['category'] = df.apply(lambda x : self.clean_category(x , loan_data) , axis = 1)
 

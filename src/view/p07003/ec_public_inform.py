@@ -31,7 +31,7 @@ class EcPublicInform(GroupedTransformer):
                                                                 'case_subject','case_no',
                                                                 'target_amt','settle_type',
                                                                 'lawsuit_standi']]
-        judgment['lawsuit_standi'] = judgment.lawsuit_standi.apply(lambda x:  ("诉讼地位:" + x) if x != ""
+        judgment['lawsuit_standi'] = judgment.lawsuit_standi.apply(lambda x:  ("诉讼地位:" + x) if x is not None
                                                                                             else None)
 
         execution = self.cached_data["ecredit_force_execution"][['court','filing_date',
@@ -40,7 +40,7 @@ class EcPublicInform(GroupedTransformer):
                                                                  'execution_target_amt']]
         execution["execution_target_amt"] = execution.execution_target_amt.apply(lambda x: ("已执行标的金额"
                                                                                             +str(x)
-                                                                                            +"元") )
+                                                                                            +"元") if x is not None else None)
 
         punishment = self.cached_data["ecredit_punishment"][['org_name','penalty_date',
                                                              'illegal_act','wird_no',
@@ -66,6 +66,8 @@ class EcPublicInform(GroupedTransformer):
 
         df = pd.concat( [judgment, execution, punishment],
                         ignore_index= True)
+
+        df = df.where(df.notnull(), None)
 
         self.variables["handle_inst"] = df.handle_inst.tolist()
         self.variables["handle_date"] = df.handle_date.tolist()

@@ -61,18 +61,18 @@ class EcFinPress(GroupedTransformer):
 
         uncleared_outline = self.cached_data['ecredit_uncleared_outline']
 
-        self.variables['loan_total_bal'] = info_outline.ix[0, 'loan_bal'] - uncleared_outline[(uncleared_outline.loan_type == "贴现")
-                              &(uncleared_outline.status_type == "合计")].balance.sum()
+        self.variables['loan_total_bal'] = round(info_outline.ix[0, 'loan_bal'] - uncleared_outline[(uncleared_outline.loan_type == "贴现")
+                              &(uncleared_outline.status_type == "合计")].balance.sum() , 2)
 
 
         open_df = open_data[open_data.settle_status.str.contains("未结清")].fillna(0)
         open_df['deposit_rate_c'] = 1 - open_df['deposit_rate']
         if not open_df.empty:
-            self.variables['open_total_bal'] = np.dot(open_df.amount.tolist(),
-                                                      open_df.deposit_rate_c.tolist())
+            self.variables['open_total_bal'] = round(np.dot(open_df.amount.tolist(),
+                                                      open_df.deposit_rate_c.tolist()),2)
 
         repay_duty_biz = self.cached_data["ecredit_repay_duty_biz"]
-        self.variables['rr_total_bal'] = repay_duty_biz.balance.sum()
+        self.variables['rr_total_bal'] = round(repay_duty_biz.balance.sum() , 2)
 
     def repay_predict(self,loan_data,open_data):
 
