@@ -101,6 +101,9 @@ class RrTable(GroupedTransformer):
 
         df['start_date'] = df.start_date.apply(lambda x : str(x) if pd.notna(x) else None)
         df['due_date'] = df.due_date.apply(lambda x: str(x) if pd.notna(x) else None)
+        df['chased'] = df.bus_type.apply(lambda x : "被追偿" if "垫款" in x or "资产处置" in x else None)
+        df['overdued'] = df.overdue_amt.apply(lambda x : "逾期" if pd.notnull(x) else None)
+
         df = df.where(df.notnull(), None)
 
         self.variables["inst_name"] = df.inst_name.tolist()
