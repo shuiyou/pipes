@@ -67,6 +67,10 @@ class EcPublicInform(GroupedTransformer):
         df = pd.concat( [judgment, execution, punishment],
                         ignore_index= True)
 
+
+        df['handle_date'] = df.handle_date.apply(lambda x: str(x) if x is not None else None)
+        df['handle_amt'] = df.handle_amt.apply( lambda x: round( x/10000 , 2) if pd.notnull(x) else None)
+
         df = df.where(df.notnull(), None)
 
         self.variables["handle_inst"] = df.handle_inst.tolist()
@@ -82,5 +86,5 @@ class EcPublicInform(GroupedTransformer):
         if not house_fund.empty:
             self.variables["staff_size"] = house_fund.ix[0,"staff_num"]
             self.variables["pay_status"] = house_fund.ix[0,"pay_status"]
-            self.variables["arrears"] = house_fund.ix[0,"arrearage_amt"]
-            self.variables["recent_pay_date"] = house_fund.ix[0,"last_date"]
+            self.variables["arrears"] = round(house_fund.ix[0,"arrearage_amt"] / 10000 , 2)
+            self.variables["recent_pay_date"] = str(house_fund.ix[0,"last_date"])
