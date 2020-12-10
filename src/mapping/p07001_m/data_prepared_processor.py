@@ -90,9 +90,11 @@ class DataPreparedProcessor(ModuleProcessor):
     def obtain_credit_parse_req_no(self):
         pre_report_req_no = self.origin_data.get("preReportReqNo")
         if pre_report_req_no is None:
-            passthrough_msg = self.origin_data.get("passthroughMsg")
-            if passthrough_msg:
-                pre_report_req_no = passthrough_msg.get("creditParseReqNo")
+            extra_param = self.origin_data.get("extraParam")
+            if extra_param:
+                passthrough_msg = extra_param.get("passthroughMsg")
+                if passthrough_msg:
+                    pre_report_req_no = passthrough_msg.get("creditParseReqNo")
 
         if pre_report_req_no:
             return pre_report_req_no
