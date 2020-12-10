@@ -9,7 +9,7 @@ class SingleTransProtrait:
     单账户画像表汇总信息
     author:汪腾飞
     created_time:20200707
-    updated_time_v1:
+    updated_time_v1:20201126,修复int值nan的问题
     """
 
     def __init__(self, trans_flow):
@@ -57,7 +57,8 @@ class SingleTransProtrait:
         self.role['normal_income_amt'] = df.trans_amt.sum() if df.shape[0] > 0 else 0
         self.role['normal_income_cnt'] = df.shape[0]
         self.role['normal_income_mean'] = df.trans_amt.mean() if df.shape[0] > 0 else 0
-        self.role['normal_income_d_mean'] = df.groupby(by='trans_date').agg({'trans_amt': sum})['trans_amt'].mean()
+        self.role['normal_income_d_mean'] = \
+            df.groupby(by='trans_date').agg({'trans_amt': sum})['trans_amt'].mean() if df.shape[0] > 0 else 0
 
         month_mean_income = df.groupby(by=['trans_year', 'trans_month']).\
             agg({'trans_amt': sum})['trans_amt'].mean()

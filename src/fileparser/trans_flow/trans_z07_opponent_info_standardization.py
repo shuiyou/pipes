@@ -8,6 +8,7 @@ class OpponentInfo:
     author:汪腾飞
     created_time:20200630
     updated_time_v1:20200818,去除所有列中无意义字符
+    updated_time_v2:20201125,去除所有列中的引号
     """
 
     def __init__(self, trans_data, col_mapping):
@@ -51,7 +52,7 @@ class OpponentInfo:
     def _opinfo_match(self, opponent_info, col_name):
         self._remove_opinfo_col(opponent_info)
         length = len(self.col_mapping[opponent_info])
-        comp = re.compile(r'[\s^-]')
+        comp = re.compile(r'[\"\'\s^-]')
         self.df[self.col_mapping[opponent_info]] = self.df[self.col_mapping[opponent_info]].fillna('').astype(str)
         if length == 1:
             self.df[col_name] = self.df[self.col_mapping[opponent_info][0]].apply(lambda x: re.sub(comp, '', x))

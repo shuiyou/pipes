@@ -1,6 +1,32 @@
 
+from fileparser.trans_flow.trans_config import MIN_IMPORT_INTERVAL, MIN_QUERY_INTERVAL, MIN_TRANS_INTERVAL
 import datetime
 import re
+
+
+def dttime_apply(time):
+    # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
+    temp = ''.join([_ for _ in time if _.isdigit()])
+    if temp[0] == '2':
+        temp += '000000'
+        temp = temp[:14]
+        result = datetime.datetime.strptime(temp, '%Y%m%d%H%M%S')
+    # 首位是'4',形如'43562.125',表示'2019-04-07 03:00:00'
+    elif temp[0] == '4':
+        # temp = ''.join([_ for _ in time if _.isdigit()])
+        date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
+        date_str = datetime.datetime.strftime(date, '%Y%m%d')
+        time_str = '000000'
+        if len(temp) > 5:
+            time_value = int(temp[5:]) / 10 ** (len(temp) - 5)
+            if time != 0:
+                time_str = str(int(time_value * 24)).rjust(2, '0') + \
+                           str(int(time_value * 1440) % 60).rjust(2, '0') + \
+                           str(int(time_value * 86400) % 60).rjust(2, '0')
+        result = datetime.datetime.strptime(date_str + time_str, '%Y%m%d%H%M%S')
+    else:
+        raise ValueError("交易日期列有不符合格式的值t001")
+    return result
 
 
 class TransactionTime:
@@ -11,6 +37,7 @@ class TransactionTime:
     updated_time_v1:20200819找到时间列后不再进行排序,排序放到余额验真里面进行,且若交易时间列存在空值则用上面的值填充,
             不再删除交易时间列含有部门空值的情况
     updated_time_v2:20200911,导入间隔校验时间扩充为45天,相应的导入失败提示也更改为45天
+    updated_time_v3:20201125,导入间隔,查询间隔,交易间隔现在都是可配置的,修改起始截止时间校验逻辑
     """
 
     def __init__(self, trans_data, col_mapping, title_param):
@@ -31,8 +58,8 @@ class TransactionTime:
 
     def _query_date_transform(self):
         try:
-            self.query_start = self._dttime_apply(self.title_param.get('start_date'))
-            self.query_end = self._dttime_apply(self.title_param.get('end_date'))
+            self.query_start = dttime_apply(self.title_param.get('start_date'))
+            self.query_end = dttime_apply(self.title_param.get('end_date'))
         except (ValueError, TypeError):
             self.query_start = None
             self.query_end = None
@@ -70,30 +97,30 @@ class TransactionTime:
             return False
         return True
 
-    @staticmethod
-    def _dttime_apply(time):
-        # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
-        temp = ''.join([_ for _ in time if _.isdigit()])
-        if temp[0] == '2':
-            temp += '000000'
-            temp = temp[:14]
-            result = datetime.datetime.strptime(temp, '%Y%m%d%H%M%S')
-        # 首位是'4',形如'43562.125',表示'2019-04-07 03:00:00'
-        elif temp[0] == '4':
-            # temp = ''.join([_ for _ in time if _.isdigit()])
-            date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
-            date_str = datetime.datetime.strftime(date, '%Y%m%d')
-            time_str = '000000'
-            if len(temp) > 5:
-                time_value = int(temp[5:]) / 10 ** (len(temp) - 5)
-                if time != 0:
-                    time_str = str(int(time_value * 24)).rjust(2, '0') + \
-                               str(int(time_value * 1440) % 60).rjust(2, '0') + \
-                               str(int(time_value * 86400) % 60).rjust(2, '0')
-            result = datetime.datetime.strptime(date_str + time_str, '%Y%m%d%H%M%S')
-        else:
-            raise ValueError("交易日期列有不符合格式的值t001")
-        return result
+    # @staticmethod
+    # def _dttime_apply(time):
+    #     # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
+    #     temp = ''.join([_ for _ in time if _.isdigit()])
+    #     if temp[0] == '2':
+    #         temp += '000000'
+    #         temp = temp[:14]
+    #         result = datetime.datetime.strptime(temp, '%Y%m%d%H%M%S')
+    #     # 首位是'4',形如'43562.125',表示'2019-04-07 03:00:00'
+    #     elif temp[0] == '4':
+    #         # temp = ''.join([_ for _ in time if _.isdigit()])
+    #         date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
+    #         date_str = datetime.datetime.strftime(date, '%Y%m%d')
+    #         time_str = '000000'
+    #         if len(temp) > 5:
+    #             time_value = int(temp[5:]) / 10 ** (len(temp) - 5)
+    #             if time != 0:
+    #                 time_str = str(int(time_value * 24)).rjust(2, '0') + \
+    #                            str(int(time_value * 1440) % 60).rjust(2, '0') + \
+    #                            str(int(time_value * 86400) % 60).rjust(2, '0')
+    #         result = datetime.datetime.strptime(date_str + time_str, '%Y%m%d%H%M%S')
+    #     else:
+    #         raise ValueError("交易日期列有不符合格式的值t001")
+    #     return result
 
     @staticmethod
     def _date_apply(time):
@@ -148,12 +175,12 @@ class TransactionTime:
         x1 = self._match_time_head(col, dttime_pat, 14)
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
-            self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[col].astype(str).apply(dttime_apply)
             self.sort_list = [col]
             # self.df.sort_values(by=col, ascending=True, inplace=True)
             # self.df.reset_index(drop=True, inplace=True)
         elif x2:
-            self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[col].astype(str).apply(dttime_apply)
         else:
             raise ValueError("交易日期列有不符合格式的值t004")
 
@@ -167,7 +194,7 @@ class TransactionTime:
         time_col = ''
         for col in res:
             if self._match_time_head(col, dttime_pat, 14):
-                self.df['trans_time'] = self.df[col].astype(str).apply(self._dttime_apply)
+                self.df['trans_time'] = self.df[col].astype(str).apply(dttime_apply)
                 self.sort_list = [col]
                 # self.df.reset_index(drop=False, inplace=True)
                 # self.df.sort_values(by=[col, 'index'], ascending=True, inplace=True)
@@ -192,11 +219,11 @@ class TransactionTime:
                 break
         if date_col != '' and time_col != '':
             self.df['trans_time'] = self.df[date_col] + self.df[time_col]
-            self.df['trans_time'] = self.df['trans_time'].apply(self._dttime_apply)
+            self.df['trans_time'] = self.df['trans_time'].apply(dttime_apply)
             # self.df.reset_index(drop=False, inplace=True)
             # self.df.sort_values(by=[date_col, time_col, 'index'], ascending=True, inplace=True)
         elif date_col != '' and time_col == '':
-            self.df['trans_time'] = self.df[date_col].apply(self._dttime_apply)
+            self.df['trans_time'] = self.df[date_col].apply(dttime_apply)
         else:
             raise ValueError("没有找到交易日期列t005")
         self.df.reset_index(drop=True, inplace=True)
@@ -232,9 +259,10 @@ class TransactionTime:
         trans_max = max(self.df['trans_time'])
         trans_min = min(self.df['trans_time'])
         if self.query_end is not None and self.query_start is not None:
-            x1 = self.query_end < trans_max
+            x1 = self.query_end < trans_max - datetime.timedelta(days=1)
             x2 = self.query_start > trans_min
             if x1 or x2:
+                self.basic_status = False
                 self.resp['resCode'] = '22'
                 self.resp['resMsg'] = '验真失败'
                 if x1:
@@ -249,29 +277,29 @@ class TransactionTime:
             max_date = trans_max
         trans_interval = (trans_max - trans_min).days
         import_interval = (datetime.datetime.now() - max_date).days
-        y2 = trans_interval < 160
-        y3 = import_interval > 45
+        y2 = trans_interval < MIN_TRANS_INTERVAL
+        y3 = import_interval > MIN_IMPORT_INTERVAL
         if query_interval != -1:
-            y1 = query_interval < 180
+            y1 = query_interval < MIN_QUERY_INTERVAL
             if (y1 or y3) and (y2 or y3):
                 self.basic_status = False
                 self.resp['resCode'] = '21'
                 self.resp['resMsg'] = '校验失败'
                 if y1:
-                    self.resp['data']['warningMsg'].append('查询间隔小于180天')
+                    self.resp['data']['warningMsg'].append('查询间隔小于%d天' % MIN_QUERY_INTERVAL)
                 if y2:
-                    self.resp['data']['warningMsg'].append('交易间隔小于160天')
+                    self.resp['data']['warningMsg'].append('交易间隔小于%d天' % MIN_TRANS_INTERVAL)
                 if y3:
-                    self.resp['data']['warningMsg'].append('导入间隔大于45天')
+                    self.resp['data']['warningMsg'].append('导入间隔大于%d天' % MIN_IMPORT_INTERVAL)
         else:
             if y2 or y3:
                 self.basic_status = False
                 self.resp['resCode'] = '21'
                 self.resp['resMsg'] = '校验失败'
                 if y2:
-                    self.resp['data']['warningMsg'].append('交易间隔小于160天')
+                    self.resp['data']['warningMsg'].append('交易间隔小于%d天' % MIN_TRANS_INTERVAL)
                 if y3:
-                    self.resp['data']['warningMsg'].append('导入间隔大于45天')
+                    self.resp['data']['warningMsg'].append('导入间隔大于%d天' % MIN_IMPORT_INTERVAL)
         return
 
     # 可能不需要

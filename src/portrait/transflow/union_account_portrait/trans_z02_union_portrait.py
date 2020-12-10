@@ -10,7 +10,7 @@ class UnionTransProtrait:
     联合账户画像表汇总信息
     author:汪腾飞
     created_time:20200708
-    updated_time_v1:
+    updated_time_v1:20201126,修复int值nan的问题
     """
 
     def __init__(self, trans_flow):
@@ -60,20 +60,23 @@ class UnionTransProtrait:
                      (flow_df.trans_amt > 0)]
         df['trans_year'] = df['trans_date'].apply(lambda x: x.year)
         df['trans_month'] = df['trans_date'].apply(lambda x: x.month)
-        self.role['normal_income_amt'] = df.trans_amt.sum()
+        self.role['normal_income_amt'] = df.trans_amt.sum() if df.shape[0] > 0 else 0
         self.role['normal_income_cnt'] = df.shape[0]
-        self.role['normal_income_mean'] = df.trans_amt.mean()
-        self.role['normal_income_d_mean'] = df.groupby(by='trans_date').agg({'trans_amt': sum})['trans_amt'].mean()
+        self.role['normal_income_mean'] = df.trans_amt.mean() if df.shape[0] > 0 else 0
+        self.role['normal_income_d_mean'] = \
+            df.groupby(by='trans_date').agg({'trans_amt': sum})['trans_amt'].mean() if df.shape[0] > 0 else 0
 
         month_mean_income = df.groupby(by=['trans_year', 'trans_month']).\
             agg({'trans_amt': sum})['trans_amt'].mean()
+        if pd.isnull(month_mean_income):
+            month_mean_income = 0
         self.role['normal_income_m_mean'] = month_mean_income
         self.role['income_amt_y_pred'] = month_mean_income * 12
-        self.role['normal_income_m_std'] = df.groupby(by=['trans_year', 'trans_month']).\
-            agg({'trans_amt': sum})['trans_amt'].std()
+        normal_income_m_std = df.groupby(by=['trans_year', 'trans_month']).agg({'trans_amt': sum})['trans_amt'].std()
+        self.role['normal_income_m_std'] = normal_income_m_std if pd.notnull(normal_income_m_std) else 0
 
         expense_df = flow_df[pd.notnull(flow_df['cost_type'])]
-        self.role['normal_expense_amt'] = expense_df.trans_amt.sum()
+        self.role['normal_expense_amt'] = expense_df.trans_amt.sum() if expense_df.shape[0] > 0 else 0
         self.role['normal_expense_cnt'] = expense_df.shape[0]
 
     def _relationship_risk(self):

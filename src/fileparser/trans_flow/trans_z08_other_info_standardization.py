@@ -1,4 +1,18 @@
 import re
+import pandas as pd
+
+
+def str_transfer(ustring):
+    """全角转半角"""
+    rstring = ""
+    for uchar in ustring:
+        inside_code = ord(uchar)
+        if inside_code == 12288:
+            inside_code = 32
+        elif 65281 <= inside_code <= 65374:
+            inside_code -= 65248
+        rstring += chr(inside_code)
+    return rstring
 
 
 class TransactionOtherInfo:
@@ -7,6 +21,7 @@ class TransactionOtherInfo:
     author:汪腾飞
     created_time:20200630
     updated_time_v1:20200818,去除所有列中无意义字符
+    updated_time_v2:20201125,取出所有列中的引号,并删除交易币种是人民币以外的流水,并将所有全角字符转为半角字符
     """
 
     def __init__(self, trans_data, col_mapping):
@@ -23,7 +38,7 @@ class TransactionOtherInfo:
     def _trans_info_match(self, trans_info, col_name):
         length = len(self.col_mapping[trans_info])
         if length:
-            comp = re.compile(r'[\s^-]')
+            comp = re.compile(r'[\"\'\s^-]')
             string = ''
             for col in self.col_mapping[trans_info]:
                 string += "self.df['" + col + "'].fillna('').astype(str)+"
@@ -31,12 +46,17 @@ class TransactionOtherInfo:
             self.df[col_name] = eval(string).apply(lambda x: re.sub(comp, '', x))
         else:
             self.df[col_name] = ''
+        if col_name == 'currency':
+            self.df = self.df[(self.df[col_name].str.contains('¥|人|RMB|rmb|Rmb')) |
+                              (pd.isna(self.df[col_name])) |
+                              (self.df[col_name] == '')]
+            self.df.reset_index(drop=True, inplace=True)
         return
 
     def _remark_match(self):
         length = len(self.col_mapping['mark_col'])
         if length:
-            comp = re.compile(r'[\s^-]')
+            comp = re.compile(r'[\"\'\s^-]')
             string = ''
             for col in self.col_mapping['mark_col']:
                 if '对方信息' not in col:
@@ -47,7 +67,7 @@ class TransactionOtherInfo:
                         self.df['opponent_name'] = self.df[col].fillna('').astype(str).\
                             apply(lambda x: re.sub(comp, '', x.split(':', 1)[0]))
             string = string[:-1]
-            self.df['remark'] = eval(string).apply(lambda x: re.sub(comp, '', x))
+            self.df['remark'] = eval(string).apply(lambda x: str_transfer(re.sub(comp, '', x)))
         else:
             self.df['remark'] = ''
         return

@@ -1,5 +1,6 @@
 
 from portrait.transflow.single_account_portrait.trans_flow import transform_class_str, months_ago
+from fileparser.trans_flow.trans_config import INTEREST_MULTIPLIER
 import pandas as pd
 import datetime
 
@@ -89,7 +90,8 @@ class SingleSummaryPortrait:
             else:
                 interest_amt = flow_df[(flow_df.trans_date > year_ago) &
                                        (flow_df.is_interest == 1)]['trans_amt'].fillna(0).mean()
-            interest_amt = interest_amt * 4 / 0.003 if pd.notna(interest_amt) else 0
+            interest_amt = interest_amt * 4 / INTEREST_MULTIPLIER \
+                if pd.notna(interest_amt) and INTEREST_MULTIPLIER != 0 else 0
             if i <= 4:
                 end_date_list = flow_df[flow_df.month == i * 3]['trans_date'].to_list()
                 if len(end_date_list) == 0:
