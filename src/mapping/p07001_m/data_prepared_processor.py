@@ -88,7 +88,7 @@ class DataPreparedProcessor(ModuleProcessor):
         return report_id
 
     def obtain_credit_parse_req_no(self):
-        pre_report_req_no = self.origin_data["preReportReqNo"]
+        pre_report_req_no = self.origin_data.get("preReportReqNo")
         if pre_report_req_no is None:
             passthrough_msg = self.origin_data.get("passthroughMsg")
             if passthrough_msg:
