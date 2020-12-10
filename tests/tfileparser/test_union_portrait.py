@@ -9,17 +9,17 @@ query_data_array = [
         "extraParam": {
             "accounts": [
                 {
-                    "bankAccount": "6228480038574396172",
+                    "bankAccount": "6228450438020639272",
                     "bankName": "工商银行"
-                },
-                {
-                    "bankAccount": "66666688888888",
-                    "bankName": "农业银行"
-                },
-                {
-                    "bankAccount": "88888888666666",
-                    "bankName": "建设银行"
                 }
+                # {
+                #     "bankAccount": "66666688888888",
+                #     "bankName": "农业银行"
+                # },
+                # {
+                #     "bankAccount": "88888888666666",
+                #     "bankName": "建设银行"
+                # }
             ],
             "industry": "E20",
             "industryName": "xx行业",
@@ -30,8 +30,8 @@ query_data_array = [
         },
         "fundratio": 0,
         "id": 11879,
-        "idno": "202007091402563453",
-        "name": "王伟明",
+        "idno": "666666888888",
+        "name": "娄远超",
         "parentId": 0,
         "phone": "13611647802",
         "relation": "MAIN",
@@ -43,10 +43,10 @@ query_data_array = [
         "applyAmo": 66600,
         "extraParam": {
             "accounts": [
-                {
-                    "bankAccount": "6222620110014694302",
-                    "bankName": "交通银行",
-                }
+                # {
+                #     "bankAccount": "6222620110014694302",
+                #     "bankName": "交通银行",
+                # }
             ],
             "industry": "E20",
             "industryName": "xx行业",
@@ -72,7 +72,7 @@ public_param = {
     "reportReqNo": 'PQR202007091645',
     "productCode": '',
     "isUnion": '',
-    "outApplyNo": 'IQP202007090123456',
+    "outApplyNo": 'IQP202011090123456',
     "applyAmt": '666000',
     "renewLoans": '',
     "historicalBiz": '',
@@ -83,6 +83,6 @@ def test_union():
     u = UnionPortrait()
     u.query_data_array = query_data_array
     u.public_param = public_param
-    u.user_name = '王伟明'
+    u.user_name = '娄远超'
     u.sql_db = sql_db()
     u.process()

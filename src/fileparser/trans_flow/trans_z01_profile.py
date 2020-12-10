@@ -1,7 +1,8 @@
 import inspect
-
+from fileparser.trans_flow.trans_config import MAX_TITLE_NUMBER
 from openpyxl.utils import get_column_letter as colref
 from util.pyheaderfile import Xlsx, Xls, Csv
+from fileparser.trans_flow.trans_z04_time_standardization import dttime_apply
 import datetime
 import openpyxl
 import pandas as pd
@@ -22,6 +23,8 @@ class TransProfile:
     created_time:20200630
     updated_time_v1:20200706,表头搜索到银行名将不再更改客户所填入参,而直接将该银行名存入account表中
     updated_time_v2:20200817,读取其他类型流水文件,包括xls,csv, 无法体现户名,账户信息话术统一
+    updated_time_v3:20201126,流水起始日期和截止日期都进行标准化转换,即若日期格式是形如43832的数字,也将其转化为日期
+                             同时户名新增模糊校验,即若姓名做了脱敏处理,只要未脱敏的部分能匹配则算匹配上
     """
 
     def __init__(self, file, param):
@@ -77,7 +80,8 @@ class TransProfile:
             header_list = temp.header
             length = len(header_list)
             # 这一步是因为pyheaderfile读取文件时如果第一行存在太多空值,就会忽略掉第一个空值往后的所有列,因此需要给第一行赋值
-            temp.header = [header_list[i] if header_list[i] != '' and header_list[i] is not None else 'Title%d' % i for i in range(length)]
+            temp.header = [header_list[i] if header_list[i] != '' and header_list[i] is not None
+                           else 'Title%d' % i for i in range(length)]
             temp.name = file_name
             # 将csv, xls文件都另存为xlsx文件
             logger.info("%s-----------------------%s" % (2, '_load_worksheet xlsx'))
@@ -101,7 +105,7 @@ class TransProfile:
         max_cell = colref(self.maxcol) + str(self.maxrow)
         min_cell = colref(self.mincol) + str(self.minrow)
         rng = ws[min_cell:max_cell]
-        min_search = min(self.maxrow - self.minrow + 1, 30)
+        min_search = min(self.maxrow - self.minrow + 1, MAX_TITLE_NUMBER)
         col_len = 0
         title = -1
         for i in range(min_search):
@@ -194,16 +198,25 @@ class TransProfile:
             # if self.title_params.__contains__('bank'):
             #     self.param['bankName'] = self.title_params['bank']
             if self.title_params.__contains__('account_no'):
-                if self.param['bankAccount'] not in self.title_params['account_no']:
-                    self.basic_status = False
-                    self.resp['resCode'] = '10'
-                    self.resp['resMsg'] = '参数错误'
-                    self.resp['data']['warningMsg'] = ['上传失败,流水账号信息与客户所填账号信息不匹配,请重新填写']
-                    return
-            else:
-                self.resp['data']['warningMsg'].append('该流水无法体现账号信息,请线下核实')
+                self.param['bankAccount'] = self.title_params['account_no'][0]
+            #     if self.param['bankAccount'] not in self.title_params['account_no']:
+            #         self.basic_status = False
+            #         self.resp['resCode'] = '10'
+            #         self.resp['resMsg'] = '参数错误'
+            #         self.resp['data']['warningMsg'] = ['上传失败,流水账号信息与客户所填账号信息不匹配,请重新填写']
+            #         return
+            # else:
+            #     self.resp['data']['warningMsg'].append('该流水无法体现账号信息,请线下核实')
             if self.title_params.__contains__('opponent_name'):
-                if self.param['cusName'] not in self.title_params['opponent_name']:
+                temp_name = self.param['cusName']
+                name_status = False
+                for v in self.title_params['opponent_name']:
+                    temp_v = re.sub(r'[*?\s]+', '.*', v)
+                    temp_comp = re.compile(temp_v)
+                    if re.search(temp_comp, temp_name):
+                        name_status = True
+                        break
+                if not name_status:
                     self.basic_status = False
                     self.resp['resCode'] = '10'
                     self.resp['resMsg'] = '参数错误'
@@ -239,13 +252,14 @@ class TransProfile:
             return
         if cell_type == "raw":
             for val in cell_list:
-                sub_temp = re.sub(r'[^:：0-9\u4e00-\u9fa5]', '', val)
+                sub_temp = re.sub(r'[^*?:：0-9\u4e00-\u9fa5]', '', val)
                 # todo 除银行外还有其他信息 如xx银行交易明细之类
                 # if '银行' in sub_temp and not self.title_params.__contains__('bank'):
                 #     self.title_params['bank'] = sub_temp
                 # todo 关键字卡号/卡号被空格隔开
                 if '账号' in sub_temp or '卡号' in sub_temp:
-                    acc_temp = re.search(r'[3-9]\d{12,18}', sub_temp)
+                    acc_temp = re.sub(r'[*?]', '', sub_temp)
+                    acc_temp = re.search(r'[3-9]\d{12,18}', acc_temp)
                     if acc_temp is not None:
                         if self.title_params.__contains__('account_no'):
                             self.title_params['account_no'].append(acc_temp.group(0))
@@ -253,24 +267,25 @@ class TransProfile:
                             self.title_params['account_no'] = [acc_temp.group(0)]
                 # todo 关键字户名/户名和姓名被空格隔开
                 if '户名' in sub_temp or '姓名' in sub_temp:
-                    name_temp = re.search(r'(?<=[\u4e00-\u9fa5][:：])[\u4e00-\u9fa5]{2,4}', sub_temp)
+                    name_temp = re.search(r'(?<=[\u4e00-\u9fa5][:：])[*?\u4e00-\u9fa5]{2,4}', sub_temp)
                     if name_temp is not None:
                         if self.title_params.__contains__('opponent_name'):
                             self.title_params['opponent_name'].append(name_temp.group(0))
                         else:
                             self.title_params['opponent_name'] = [name_temp.group(0)]
                 # todo 关键字 本次查询时间段
+                sub_temp = re.sub(r'[*?]', '', sub_temp)
                 if re.search(r'[起|开]始', sub_temp):
                     start_temp = re.search(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', sub_temp)
                     if start_temp is not None:
-                        self.title_params['start_date'] = start_temp.group(0)
+                        self.title_params['start_date'] = format(dttime_apply(start_temp.group(0)), '%Y-%m-%d')
                 if re.search(r'(截止|结束|终止)', sub_temp):
                     end_temp = re.search(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', sub_temp)
                     if end_temp is not None:
-                        self.title_params['end_date'] = end_temp.group(0)
+                        self.title_params['end_date'] = format(dttime_apply(end_temp.group(0)), '%Y-%m-%d')
         else:
             cell_value = ''.join(cell_list)
-            cell_value = re.sub(r'[^\d\u4e00-\u9fa5]', '', cell_value)
+            cell_value = re.sub(r'[^*?\d\u4e00-\u9fa5]', '', cell_value)
             if cell_type == 'account_no':
                 if re.match(r'[3-9]\d{12,18}', cell_value):
                     if self.title_params.__contains__('account_no'):
@@ -278,17 +293,19 @@ class TransProfile:
                     else:
                         self.title_params['account_no'] = [cell_value]
             elif cell_type == 'opponent_name':
-                if re.match(r'[\u4e00-\u9fa5]{2,}', cell_value):
+                if re.match(r'[*?\u4e00-\u9fa5]{2,}', cell_value):
                     if self.title_params.__contains__('opponent_name'):
                         self.title_params['opponent_name'].append(cell_value)
                     else:
                         self.title_params['opponent_name'] = [cell_value]
             elif cell_type == 'start_date':
+                cell_value = re.sub(r'[*?]', '', cell_value)
                 if re.match(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', cell_value):
-                    self.title_params['start_date'] = cell_value
+                    self.title_params['start_date'] = format(dttime_apply(cell_value), '%Y-%m-%d')
             elif cell_type == 'end_date':
+                cell_value = re.sub(r'[*?]', '', cell_value)
                 if re.match(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', cell_value):
-                    self.title_params['end_date'] = cell_value
+                    self.title_params['end_date'] = format(dttime_apply(cell_value), '%Y-%m-%d')
         return
 
     @staticmethod
