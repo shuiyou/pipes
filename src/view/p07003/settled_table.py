@@ -75,6 +75,12 @@ class SettledTable(GroupedTransformer):
         df['grant_max']  = df.grant_max.apply(lambda x:round(x,2))
         df['grant_min']  = df.grant_min.apply(lambda x:round(x,2))
 
+        history = self.cached_data["ecredit_histor_perfo"][self.cached_data["ecredit_histor_perfo"].account_org.isin(df.inst.tolist())]
+        df['overdued_history'] = df.apply(lambda x : history[(history.account_org == x["inst"])
+                                                             &(pd.notnull(history.overdue_amt) ) ].shape[0] , axis=1)
+        df['overdued']  = df.overdued_history.apply(lambda x: "有逾期历史" if x>0 else None)
+
+
         self.variables["inst"] = df.inst.tolist()
         self.variables["coop_cnt"] = df.coop_cnt.tolist()
         self.variables["grant_total"] = df.grant_total.tolist()
