@@ -1,4 +1,5 @@
 
+import math
 from logger.logger_util import LoggerUtil
 from mapping.module_processor import ModuleProcessor
 
@@ -36,4 +37,4 @@ class ModelPredInfo(ModuleProcessor):
             else:
                 continue
         self.variables['main_spouse_gap'] = main_level - spouse_level
-        self.variables['loan_amt_pred_avg'] = round((main_amt_pred + spouse_amt_pred) / 2)
+        self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
