@@ -125,7 +125,8 @@ class Unsettled(GroupedTransformer):
                           'counter_guarantee_type','amount','balance','deposit_rate',
                           'loan_date','end_date','category','loan_guarantee_type']]
         open1 = open1[open1.settle_status.str.contains("未结清信贷")]
-        open1['counter_guarantee_type'] = open1.apply(lambda x : x['counter_guarantee_type'] if pd.notnull(x['counter_guarantee_type']) else x['loan_guarantee_type'] , axis = 1)
+        if not open1.empty:
+            open1['counter_guarantee_type'] = open1.apply(lambda x : x['counter_guarantee_type'] if pd.notnull(x['counter_guarantee_type']) else x['loan_guarantee_type'] , axis = 1)
         open1 = open1.drop(columns=['settle_status','loan_guarantee_type'])
 
         rename_open = {
