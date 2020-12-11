@@ -36,10 +36,11 @@ class EcInform(GroupedTransformer):
         self.variables["soci_credict_code"] = base_info.ix[0,'unify_credit_code']
         self.variables["capital"] = base_info.ix[0, 'registered_capital']
         generalize_info = self.cached_data['ecredit_generalize_info']
-        self.variables["industry"] = generalize_info.ix[0,'industry']
-        self.variables["launch_year"] = generalize_info.ix[0, 'launch_year']
-        self.variables["address"] = generalize_info.ix[0, 'office_site']
-        self.variables["status"] = generalize_info.ix[0, 'life_status']
+        if not generalize_info.empty:
+            self.variables["industry"] = generalize_info.ix[0,'industry']
+            self.variables["launch_year"] = generalize_info.ix[0, 'launch_year']
+            self.variables["address"] = generalize_info.ix[0, 'office_site']
+            self.variables["status"] = generalize_info.ix[0, 'life_status']
 
         self.e_relation()
 
