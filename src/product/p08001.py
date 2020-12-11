@@ -170,7 +170,7 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no):
+    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no, clean_view_var=True):
         user_name = main_query_data.get('name')
         id_card_no = main_query_data.get('idno')
         phone = main_query_data.get('phone')
@@ -216,9 +216,10 @@ class P08001(Generate):
         main_query_data["baseType"] = base_type
         main_query_data['strategyInputVariables'] = variables
         # 最后返回报告详情
-        detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
+        if clean_view_var:
+            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
                                              base_type, main_query_data, data_repository)
-        resp['reportDetail'] = [detail]
+            resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp
