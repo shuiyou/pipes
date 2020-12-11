@@ -65,7 +65,7 @@ class StrategyInputProcessor(ModuleProcessor):
 
     def loan_detail_info(self):
 
-        df1 = self.cached_data.get("ecredit_loan")
+        df1 = self.cached_data.get("ecredit_loan")[self.cached_data.get("ecredit_loan").balance > 0]
 
         df2 = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id']],
                        self.cached_data.get("ecredit_draft_lc"),

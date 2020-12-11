@@ -113,7 +113,8 @@ class Unsettled(GroupedTransformer):
         loan_data.rename(columns = rename_loan,
                          inplace = True)
 
-        loan1 = loan_data[loan_data.settle_status.str.contains("被追偿业务")].drop(columns='settle_status')
+        loan1 = loan_data[(loan_data.settle_status.str.contains("被追偿业务"))
+                          &(loan_data.cur_bal > 0 )].drop(columns='settle_status')
         loan1['chased'] = "被追偿"
         loan2 = loan_data[loan_data.settle_status.str.contains("未结清信贷")].drop(columns='settle_status')
 
