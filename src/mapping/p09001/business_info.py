@@ -1,12 +1,12 @@
 import pandas as pd
 
 from logger.logger_util import LoggerUtil
-from mapping.module_processor import ModuleProcessor
+from mapping.tranformer import Transformer
 
 logger = LoggerUtil().logger(__name__)
 
 
-class BusinessInfo(ModuleProcessor):
+class BusinessInfo(Transformer):
 
     def __init__(self, credit_guar_bal):
         super().__init__()
@@ -135,7 +135,7 @@ class BusinessInfo(ModuleProcessor):
                 (per_total_bank_debt_amt + bus_total_bank_debt_amt) / last_total_sale_amt \
                 if last_total_sale_amt != 0 else -999
 
-    def process(self):
+    def transform(self):
         per_msg = self.full_msg.get('ruskSubject')
         com_msg = self.full_msg.get('passthroughMsg')
         if per_msg is None or com_msg is None:

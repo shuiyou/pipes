@@ -2,13 +2,13 @@ import pandas as pd
 from pandas.tseries import offsets
 
 from logger.logger_util import LoggerUtil
-from mapping.module_processor import ModuleProcessor
+from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
 
 logger = LoggerUtil().logger(__name__)
 
 
-class TransFlowInfo(ModuleProcessor):
+class TransFlowInfo(Transformer):
 
     def __init__(self):
         super().__init__()
@@ -51,6 +51,6 @@ class TransFlowInfo(ModuleProcessor):
                 self.variables['balance_day_avg_6m'] = balance_day_avg_6m / 10000
                 self.variables['flow_limit_amt'] = round(max(operating_income_6m / 15, balance_day_avg_6m * 5))
 
-    def process(self):
+    def transform(self):
         self.basic_data()
         self.flow_variables()

@@ -2,13 +2,13 @@ import pandas as pd
 from pandas.tseries import offsets
 
 from logger.logger_util import LoggerUtil
-from mapping.module_processor import ModuleProcessor
+from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
 
 logger = LoggerUtil().logger(__name__)
 
 
-class CreditInfo(ModuleProcessor):
+class CreditInfo(Transformer):
 
     def __init__(self):
         super().__init__()
@@ -122,7 +122,7 @@ class CreditInfo(ModuleProcessor):
                 (self.pcredit_query['jhi_time'] >= before_3m.date)
             ].groupby(['operator', 'reason']).agg({'report_id': len}).shape[0]
 
-    def process(self):
+    def transform(self):
         per_msg = self.full_msg.get('riskSubject')
         if per_msg is None:
             return

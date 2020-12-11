@@ -1,12 +1,12 @@
 
 import math
 from logger.logger_util import LoggerUtil
-from mapping.module_processor import ModuleProcessor
+from mapping.tranformer import Transformer
 
 logger = LoggerUtil().logger(__name__)
 
 
-class ModelPredInfo(ModuleProcessor):
+class ModelPredInfo(Transformer):
 
     def __init__(self):
         super().__init__()
@@ -16,7 +16,7 @@ class ModelPredInfo(ModuleProcessor):
         }
         self.full_msg = None
 
-    def process(self):
+    def transform(self):
         main_level = 0
         spouse_level = 0
         main_amt_pred = 0
