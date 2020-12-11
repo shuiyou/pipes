@@ -3,7 +3,6 @@
 # @File : micro_loan_flowable.py 
 # @Software: PyCharm
 
-import pandas as pd
 from jsonpath import jsonpath
 
 from logger.logger_util import LoggerUtil
@@ -35,58 +34,15 @@ class MicroLoanFlow(object):
         passthrough_msg = json_data.get("passthroughMsg")
         resp = {
             'passthroughMsg': passthrough_msg,
-            'strategyInputVariables': variables,
-            'strategyResult': strategy_resp,
             'commonDetail': common_detail,
             'subject': subject
         }
+
+        if strategy_resp:
+            resp['strategyResult'] = strategy_resp
+        if variables:
+            resp['strategyInputVariables'] = variables
         return resp
-
-    @staticmethod
-    def _create_strategy_second_request(cache_array):
-        """
-        :param cache_array:
-        :return:
-        """
-        df = pd.DataFrame(cache_array)
-        # 取前10行数据
-        df_person = df.query('userType=="PERSONAL" and strategy=="01"') \
-            .sort_values(by=["fundratio"], ascending=False)
-
-        # 删除重复的数据
-        df_person.drop_duplicates(subset=["name", "idno"], inplace=True)
-
-        logger.info("-------df_person\n%s", df_person)
-
-        # 拼接入参variables
-        variables = {}
-        person_index = 0
-        for index, row in df_person.iterrows():
-            if row["phantomRelation"]:
-                continue
-
-            person_index = person_index + 1
-            variables['score_p' + str(person_index)] = row['score']
-            variables['score_fraud_p' + str(person_index)] = row['score_fraud']
-            variables['score_owner_p' + str(person_index)] = row['score_owner']
-            variables['score_bus_p' + str(person_index)] = row['score_bus']
-            variables['score_black_p' + str(person_index)] = row['score_black']
-            variables['score_fin_p' + str(person_index)] = row['score_fin']
-            variables['model_pred_p' + str(person_index)] = row['model_pred']
-            variables['td_pred_p' + str(person_index)] = row['td_pred']
-        # 公司作为入参参与报告分
-        df_company = df.query('userType=="COMPANY" and strategy=="01"')
-        logger.info("-------df_company\n%s", df_company)
-        company_index = 0
-        for index, row in df_company.iterrows():
-            if row["phantomRelation"] or row['score'] <= 0:
-                continue
-
-            company_index = company_index + 1
-            variables['score_c' + str(company_index)] = row['score']
-            variables['model_pred_c' + str(company_index)] = row['model_pred']
-        variables['base_type'] = 'UNION'
-        return variables
 
     def _strategy_hand(self, json_data, data, product_code, req_no):
         user_name = data.get('name')
@@ -121,40 +77,29 @@ class MicroLoanFlow(object):
         self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone,
                                   product_code,
                                   resp, strategy_resp, user_name, user_type, variables)
-        array = self._get_strategy_second_array(data, fund_ratio, relation, strategy_resp, user_name, user_type,
-                                                variables)
+        array = self._get_strategy_second_array(data, fund_ratio, relation, strategy_resp, user_name, user_type)
         return array, resp
 
-
-    def _get_strategy_second_array(self, data, fundratio, relation, strategy_resp, user_name, user_type,
-                                   variables):
+    def _get_strategy_second_array(self, data, fundratio, relation, strategy_resp, user_name, user_type):
         array = {
             'name': user_name,
             'idno': data.get('idno'),
-            'userType': user_type,
-            'strategy': data.get("extraParam").get("strategy"),
-            'phantomRelation': data.get("extraParam").get("phantomRelation")
+            'userType': user_type
         }
+
         if fundratio is None or fundratio == '':
             array['fundratio'] = 0.00
         else:
             array['fundratio'] = float(fundratio)
 
         array['relation'] = relation
-        array['per_face_relent_indusCode1'] = self._get_json_path_value(variables, '$..per_face_relent_indusCode1')
-        array['com_bus_face_outwardindusCode1'] = self._get_json_path_value(variables,
-                                                                            '$..com_bus_face_outwardindusCode1')
-        array['com_bus_industrycode'] = self._get_json_path_value(variables, '$..com_bus_industrycode')
-        array['score_black'] = self._get_json_path_value(strategy_resp, '$..score_black')
-        array['score_owner'] = self._get_json_path_value(strategy_resp, '$..score_owner')
-        array['score_fin'] = self._get_json_path_value(strategy_resp, '$..score_fin')
-        array['score_fraud'] = self._get_json_path_value(strategy_resp, '$..score_fraud')
-        array['score_bus'] = self._get_json_path_value(strategy_resp, '$..score_bus')
-        array['score'] = self._get_json_path_value(strategy_resp, '$..score')
-        array['model_pred'] = self._get_json_path_value(strategy_resp, '$..model_pred')
-        array['td_pred'] = self._get_json_path_value(strategy_resp, '$..td_pred')
         array["id"] = data.get("id")
         array["parentId"] = data.get("parentId")
+
+        resp_vars = jsonpath(strategy_resp, "$..Variables")
+        if resp_vars and len(resp_vars) > 0:
+            array.update(resp_vars[0])
+
         return array
 
     @staticmethod

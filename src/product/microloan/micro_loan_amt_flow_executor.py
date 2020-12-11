@@ -2,8 +2,14 @@
 # @Author : lixiaobo
 # @File : micro_loan_amt_flow_executor.py 
 # @Software: PyCharm
+import json
+
 from logger.logger_util import LoggerUtil
+from mapping.tp0002 import Tp0002
+from mapping.utils.np_encoder import NpEncoder
 from product.microloan.abs_micro_loan_flow import MicroLoanFlow
+from util.strategy_invoker import invoke_strategy
+from util.type_converter import format_var
 
 logger = LoggerUtil().logger(__name__)
 
@@ -14,4 +20,27 @@ class MicroLoanAmtFlowExecutor(MicroLoanFlow):
         self.response = None
 
     def execute(self):
-        pass
+        subject = []
+        cache_array = []
+
+        # 遍历query_data_array调用strategy
+        for data in self.query_data_array:
+            segment_name = data.get("nextSegmentName")
+            if segment_name == "loan_amt":
+                array, resp = self._strategy_hand(self.json_data, data, self.product_code, self.req_no)
+                subject.append(resp)
+                cache_array.append(array)
+            else:
+                subject.append(data)
+
+        # 封装第二次调用参数
+        trans_result = Tp0002().run(None, None, None, None, None, cache_array, None)
+        variables = trans_result.get("variables")
+        variables["segment_name"] = "loan_amt"
+
+        strategy_resp = invoke_strategy(variables, self.product_code, self.req_no)
+        resp_end = self._create_strategy_resp(strategy_resp, variables, None, subject, self.json_data)
+
+        format_var(None, None, -1, resp_end)
+        logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
+        self.response = resp_end
