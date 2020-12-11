@@ -16,6 +16,8 @@ class StrategyInputProcessor(ModuleProcessor):
 
     def general_info(self):
         df = self.cached_data.get("ecredit_generalize_info")
+        if df.empty:
+            return
 
         industry = df.ix[0,'industry']
         launch_year = df.ix[0,'launch_year']

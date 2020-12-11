@@ -11,7 +11,7 @@ class T41003(Transformer):
         super().__init__()
         self.variables = {
             "care_industry": 0,
-            "keep_year": 0,
+            "keep_year": None,
             "abnorm_status": 0,
             "on_loan_cnt": 0,
             "on_loan_prop": 0,
