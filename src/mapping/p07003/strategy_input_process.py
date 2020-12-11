@@ -41,7 +41,7 @@ class StrategyInputProcessor(ModuleProcessor):
             self.variables["keep_year"] =  datetime.datetime.now().year - int(launch_year)
         except:
             self.variables['keep_year'] = None
-        if life_status == "非正常营业":
+        if life_status not in ["正常营业","正常"]:
             self.variables["abnorm_status"] = 1
 
 
@@ -155,7 +155,7 @@ class StrategyInputProcessor(ModuleProcessor):
                        left_on="id",right_on="loan_id"
                        )
 
-        self.variables["history_prin_overdue"]  = df3[(df3.settle_status.str.contains("已结清"))].overdue_amt.sum()
+        self.variables["history_prin_overdue"]  = df3[(df3.settle_status.str.contains("已结清"))].overdue_principal.sum()
 
 
     # 对外担保
