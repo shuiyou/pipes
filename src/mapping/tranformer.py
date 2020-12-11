@@ -125,8 +125,9 @@ class Transformer(object):
         self.df_client = None
         self.origin_data = None
         self.cached_data = None
+        self.full_msg = None
 
-    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, origin_data=None, cached_data=None) -> dict:
+    def run(self, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, origin_data=None, cached_data=None, full_msg=None) -> dict:
         self.input(id_card_no, phone, user_name, user_type, base_type, origin_data, cached_data)
         self.transform()
         return {
@@ -134,7 +135,7 @@ class Transformer(object):
             "out_decision_code": self.out_decision_code
         }
 
-    def input(self, id_card_no, phone, user_name, user_type=None, base_type=None, origin_data=None, cached_data=None):
+    def input(self, id_card_no, phone, user_name, user_type=None, base_type=None, origin_data=None, cached_data=None, full_msg=None):
         self.id_card_no = id_card_no
         self.user_name = user_name
         self.phone = phone

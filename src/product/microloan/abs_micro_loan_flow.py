@@ -56,7 +56,7 @@ class MicroLoanFlow(object):
         biz_types = codes.copy()
         biz_types.append('00000')
         variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
-                                                              user_type, base_type, self.df_client, data)
+                                                              user_type, base_type, self.df_client, data, json_data)
         origin_input = data.get('strategyInputVariables')
         if origin_input is None:
             origin_input = {}

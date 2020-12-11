@@ -34,13 +34,13 @@ class MicroLoanDefaultFlowExecutor(MicroLoanFlow):
                 subject.append(data)
 
         # 封装第二次调用参数
-        trans_result = Tp0001().run(None, None, None, None, None, cache_array, None)
+        trans_result = Tp0001().run(None, None, None, None, None, cache_array, None, self.json_data)
         variables = trans_result.get("variables")
         variables["segment_name"] = "default"
 
         strategy_resp = invoke_strategy(variables, self.product_code, self.req_no)
         resp_end = self._create_strategy_resp(strategy_resp, variables, None, subject, self.json_data)
-        
+
         format_var(None, None, -1, resp_end)
         logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
         self.response = resp_end

@@ -8,7 +8,7 @@ from mapping.tranformer import Transformer, fix_cannot_to_json
 logger = LoggerUtil().logger(__name__)
 
 
-def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None, data_repository=None):
+def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, df_client=None, origin_data=None, data_repository=None, full_msg=None):
     """
     根据产品编码对应的excel文件从Gears数据库里获取数据做转换处理。
     处理后的结果作为决策需要的变量。
@@ -41,7 +41,8 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
                                      user_type=user_type,
                                      base_type=base_type,
                                      origin_data=origin_data,
-                                     cached_data=cached_data)
+                                     cached_data=cached_data,
+                                     full_msg=full_msg)
             variables.update(trans_result['variables'])
             out_decision_code.update(trans_result['out_decision_code'])
 

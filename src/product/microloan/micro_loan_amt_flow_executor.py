@@ -34,7 +34,8 @@ class MicroLoanAmtFlowExecutor(MicroLoanFlow):
                 subject.append(data)
 
         # 封装第二次调用参数
-        trans_result = Tp0002().run(None, None, None, None, None, cache_array, None)
+        trans_result = Tp0002().run(None, None, None, None, None, cache_array, None, self.json_data)
+
         variables = trans_result.get("variables")
         variables["segment_name"] = "loan_amt"
 
