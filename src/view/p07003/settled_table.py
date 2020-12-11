@@ -25,9 +25,11 @@ class SettledTable(GroupedTransformer):
         }
 
     def transform(self):
-        loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','loan_date','end_date',
+        loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','balance','loan_date','end_date',
                                                       'category','last_payment_type']]
-        loan_data = loan_total[loan_total.settle_status.str.contains("已结清信贷")].drop(columns='settle_status')
+        loan_data = loan_total[(loan_total.settle_status.str.contains("已结清信贷"))
+                               |((loan_total.settle_status.str.contains("被追偿"))
+                                 &(loan_total.balance==0))].drop(columns=['settle_status','balance'])
 
         if loan_data.empty:
             return

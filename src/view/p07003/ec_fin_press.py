@@ -43,7 +43,7 @@ class EcFinPress(GroupedTransformer):
         }
 
     def transform(self):
-        loan_data = self.cached_data["ecredit_loan"]
+        loan_data = self.cached_data["ecredit_loan"][self.cached_data["ecredit_loan"].balance > 0]
         open_data = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id']],
                              self.cached_data.get("ecredit_draft_lc"),
                              left_on="id", right_on="biz_id"
