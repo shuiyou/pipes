@@ -44,7 +44,7 @@ class MicroLoanTransFlowExecutor(MicroLoanFlow):
 
             # 决策调用及view变量清洗
             p = P08001()
-            resp = p.strategy(False, self.df_client, subjects, main_query_data, self.product_code, self.req_no, code_info="51001",
+            resp = p.strategy(False, self.df_client, subjects, main_query_data, self.product_code, self.req_no, code_info=["51001"],
                               clean_view_var=False)
             item_data_list = []
             for subject in subjects:
