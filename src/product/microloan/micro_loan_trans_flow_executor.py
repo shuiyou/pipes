@@ -53,7 +53,7 @@ class MicroLoanTransFlowExecutor(MicroLoanFlow):
                 }
 
                 if subject.get("relation") == "MAIN":
-                    del resp["strategyInputVariables"]["single"]
+                    del subject["strategyInputVariables"]["single"]
                     item_data.update(resp)
                     subject["segmentName"] = subject.get("nextSegmentName")
                     subject["nextSegmentName"] = _get_resp_field_value(resp, "$..segment_name")
