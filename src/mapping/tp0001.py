@@ -121,9 +121,8 @@ class Tp0001(Transformer):
             self.model_variables()
         else:
             if self.origin_data is not None:
-                subject = json.loads(self.origin_data)
-                if len(subject) == 2:
-                    main_level = subject[0].get('default_risk_level')
-                    spouse_level = subject[1].get('default_risk_level')
+                if len(self.origin_data) == 2:
+                    main_level = self.origin_data[0].get('default_risk_level')
+                    spouse_level = self.origin_data[1].get('default_risk_level')
                     if main_level is not None and spouse_level is not None:
                         self.variables['main_spouse_gap'] = main_level - spouse_level

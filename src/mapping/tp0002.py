@@ -318,9 +318,8 @@ class Tp0002(Transformer):
             self.trans_transform()
         else:
             if self.origin_data is not None:
-                subject = json.loads(self.origin_data)
-                if len(subject) == 2:
-                    main_amt_pred = subject[0].get('loan_amt_pred')
-                    spouse_amt_pred = subject[1].get('loan_amt_pred')
+                if len(self.origin_data) == 2:
+                    main_amt_pred = self.origin_data[0].get('loan_amt_pred')
+                    spouse_amt_pred = self.origin_data[1].get('loan_amt_pred')
                     if main_amt_pred is not None and spouse_amt_pred is not None:
                         self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
