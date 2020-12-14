@@ -128,7 +128,7 @@ class Transformer(object):
         self.full_msg = None
 
     def run(self, user_name=None, id_card_no=None, phone=None, user_type=None, base_type=None, origin_data=None, cached_data=None, full_msg=None) -> dict:
-        self.input(id_card_no, phone, user_name, user_type, base_type, origin_data, cached_data)
+        self.input(id_card_no, phone, user_name, user_type, base_type, origin_data, cached_data, full_msg)
         self.transform()
         return {
             "variables": self.variables,
@@ -143,6 +143,7 @@ class Transformer(object):
         self.base_type = base_type
         self.origin_data = origin_data
         self.cached_data = cached_data
+        self.full_msg = full_msg
 
     @abstractmethod
     def transform(self):
