@@ -63,7 +63,7 @@ class MicroLoanFlow(object):
         origin_input['out_strategyBranch'] = ','.join(filter(lambda e: e != "00000", codes))
         # 合并新的转换变量
         variables["segment_name"] = data.get("nextSegmentName")
-        variables["tracking_" + variables["segment_name"]] = 1
+        origin_input["tracking_" + variables["segment_name"]] = 1
         origin_input.update(variables)
 
         strategy_resp = invoke_strategy(origin_input, product_code, req_no)
@@ -77,7 +77,7 @@ class MicroLoanFlow(object):
         resp = {}
         self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone,
                                   product_code,
-                                  resp, strategy_resp, user_name, user_type, variables)
+                                  resp, strategy_resp, user_name, user_type, origin_input)
         array = self._get_strategy_second_array(data, fund_ratio, relation, strategy_resp, user_name, user_type)
         return array, resp
 

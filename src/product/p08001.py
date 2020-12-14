@@ -193,7 +193,7 @@ class P08001(Generate):
             # 合并新的转换变量
             origin_input.update(variables)
             origin_input['segment_name'] = 'trans'
-            variables["tracking_trans"] = 1
+            origin_input["tracking_trans"] = 1
 
             logger.info("1. 流水报告-开始策略引擎封装入参")
             strategy_request = _build_request(req_no, product_code, origin_input)
@@ -214,11 +214,11 @@ class P08001(Generate):
             logger.info(biz_types)
             main_query_data['bizType'] = biz_types
 
-        variables["single"] = is_single
+        origin_input["single"] = is_single
         resp = {}
 
         main_query_data["baseType"] = base_type
-        main_query_data['strategyInputVariables'] = variables
+        main_query_data['strategyInputVariables'] = origin_input
         # 最后返回报告详情
         if clean_view_var:
             detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
