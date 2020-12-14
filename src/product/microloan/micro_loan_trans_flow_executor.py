@@ -101,7 +101,7 @@ class MicroLoanTransFlowExecutor(MicroLoanFlow):
         }
 
         var_item = {
-            "bizType": product_codes_dict[self.product_code]
+            "bizType": product_codes_dict.get(self.product_code)
         }
 
         var_item.update(main_node)
