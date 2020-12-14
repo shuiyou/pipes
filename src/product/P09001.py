@@ -64,7 +64,8 @@ class P09001(Generate):
             query_data_array = strategy_param.get('queryData')
 
             flow_handler = self.find_process_flow(json_data, query_data_array)
-            self.response = flow_handler.execute()
+            flow_handler.execute()
+            self.response = flow_handler.response
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
