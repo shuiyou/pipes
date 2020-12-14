@@ -4,6 +4,8 @@
 # @Software: PyCharm
 import json
 
+from jsonpath import jsonpath
+
 from logger.logger_util import LoggerUtil
 from mapping.tp0001 import Tp0001
 from mapping.utils.np_encoder import NpEncoder
@@ -46,6 +48,9 @@ class MicroLoanDefaultFlowExecutor(MicroLoanFlow):
         logger.info("response:%s", json.dumps(resp_end, cls=NpEncoder))
         self.response = resp_end
 
+    def resp_vars_to_input_vars(self, strategy_resp, variables):
+        resp_vars = jsonpath(strategy_resp, "$..Variables")
+        variables.update(resp_vars)
 
 
 

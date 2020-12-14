@@ -75,9 +75,11 @@ class MicroLoanFlow(object):
         data["bizType"] = biz_types
 
         resp = {}
+        self.resp_vars_to_input_vars(strategy_resp, variables)
         self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone,
                                   product_code,
                                   resp, strategy_resp, user_name, user_type, origin_input)
+
         array = self._get_strategy_second_array(data, fund_ratio, relation, strategy_resp, user_name, user_type)
         return array, resp
 
@@ -111,8 +113,7 @@ class MicroLoanFlow(object):
         else:
             return 0
 
-    @staticmethod
-    def _calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone, product_code,
+    def _calc_view_variables(self, base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone, product_code,
                              resp, strategy_resp, user_name, user_type, variables):
         """
         每次循环后封装每个主体的resp信息
@@ -128,3 +129,8 @@ class MicroLoanFlow(object):
         resp['strategyResult'] = strategy_resp
         resp['rules'] = _append_rules(biz_types)
         resp['queryData'] = data
+
+    def resp_vars_to_input_vars(self, strategy_resp, variables):
+        pass
+
+
