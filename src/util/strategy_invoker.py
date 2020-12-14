@@ -16,7 +16,7 @@ def invoke_strategy(variables, product_code, req_no):
     strategy_request = _build_request(req_no, product_code, variables)
     logger.info("strategy_request:%s", strategy_request)
     strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
-    logger.debug("strategy_response%s", strategy_response)
+    logger.debug("strategy_response%s", strategy_response.text)
     if strategy_response.status_code != 200:
         raise Exception("strategyOne错误:" + strategy_response.text)
     strategy_resp = strategy_response.json()
