@@ -62,8 +62,8 @@ class MicroLoanFlow(object):
             origin_input = {}
         origin_input['out_strategyBranch'] = ','.join(filter(lambda e: e != "00000", codes))
         # 合并新的转换变量
+        variables["segment_name"] = data.get("nextSegmentName")
         origin_input.update(variables)
-        origin_input["segment_name"] = data.get("nextSegmentName")
 
         strategy_resp = invoke_strategy(origin_input, product_code, req_no)
         score_to_int(strategy_resp)
