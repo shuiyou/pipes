@@ -220,7 +220,7 @@ class Unsettled(GroupedTransformer):
         self.variables["bus_bar"] = bus_bar
 
         self.variables["discount_total_recent"] = round(data[(data.bus_sup.str.contains("贴现"))
-             & (pd.to_datetime(data.start_date) > datetime.now() - timedelta(days=365))].cur_bal.sum(),2)
+             & (pd.to_datetime(data.start_date) > datetime.now() - timedelta(days=365))].grant_amt.sum(),2)
 
         report_year = pd.to_datetime(self.cached_data["report_time"]).year
         year_list = [report_year - 3, report_year - 2, report_year - 1, report_year]
