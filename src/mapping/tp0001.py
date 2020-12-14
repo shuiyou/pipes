@@ -22,7 +22,7 @@ class Tp0001(Transformer):
         super().__init__()
         self.variables = {
             'performance_amount_index': None,  # 履约金额综合指数
-            'oth_loan_reason_else_6m': None,  # 6个月内其他查询原因查询次数
+            'oth_loan_reason_else_6m': 0,  # 6个月内其他查询原因查询次数
             'overdue_biggest_money_history_day': None,  # 逾期最大金额距今最早天数
             'cts_app_145': None,  # 9个月内贷款类APP卸载数量
             'app_platform_month6': None,  # 近6月申请机构数
