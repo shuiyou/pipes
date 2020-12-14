@@ -112,6 +112,6 @@ def _relation_risk_subject(strategy_resp, out_decision_code):
         return
 
     for c in branch_code:
-        code_key = c['out_decisionBranchCode']
+        code_key = c.get('out_decisionBranchCode')
         if code_key is not None and code_key in out_decision_code.keys():
             c['queryData'] = out_decision_code[code_key]
