@@ -37,6 +37,7 @@ class MicroLoanDefaultFlowExecutor(MicroLoanFlow):
         trans_result = Tp0001().run(None, None, None, None, None, cache_array, None, self.json_data)
         variables = trans_result.get("variables")
         variables["segment_name"] = "default"
+        variables["tracking_default"] = 1
 
         strategy_resp = invoke_strategy(variables, self.product_code, self.req_no)
         resp_end = self._create_strategy_resp(strategy_resp, variables, None, subject, self.json_data)

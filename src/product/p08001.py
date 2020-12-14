@@ -193,6 +193,7 @@ class P08001(Generate):
             # 合并新的转换变量
             origin_input.update(variables)
             origin_input['segment_name'] = 'trans'
+            variables["tracking_trans"] = 1
 
             logger.info("1. 流水报告-开始策略引擎封装入参")
             strategy_request = _build_request(req_no, product_code, origin_input)
