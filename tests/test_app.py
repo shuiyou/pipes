@@ -161,3 +161,7 @@ def test_shake_hand_09001(client):
 
 def test_strategy_09001(client):
     strategy_request(client, "09001")
+
+
+def test_strategy_09001(client):
+    strategy_request(client, "09001_1")
