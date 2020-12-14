@@ -189,7 +189,10 @@ class P08001(Generate):
         if not is_single:
             variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, df_client, main_query_data, data_repository)
-            origin_input = {'out_strategyBranch': ','.join(codes)}
+            origin_input = main_query_data.get("strategyInputVariables")
+            if not origin_input:
+                origin_input = {}
+            origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
             origin_input['segment_name'] = 'trans'
