@@ -228,4 +228,4 @@ class StrategyInputProcessor(ModuleProcessor):
 
         self.variables["risk_case_cnt"]  = df1[df1.case_subject.isin(loan_case_list)].shape[0] + \
                             df2[(df2.case_subject.isin(loan_case_list))
-                                &(df2.case_status.str.contains("失信|限制"))].shape[0]
+                                |(df2.case_status.str.contains("失信|限制"))].shape[0]

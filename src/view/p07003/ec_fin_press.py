@@ -80,9 +80,9 @@ class EcFinPress(GroupedTransformer):
         loan_data['end_date'] = pd.to_datetime(loan_data['end_date'])
         open_data['end_date'] = pd.to_datetime(open_data['end_date'])
         loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
-        loan_data['end_date_month'] = loan_data.end_date.apply(lambda x: x.strftime("%Y-%m"))
-        open_data['end_date_month'] = open_data.end_date.apply(lambda x: x.strftime("%Y-%m"))
-        loan_data['loan_date_month'] = loan_data.loan_date.apply(lambda x: x.strftime("%Y-%m") )
+        loan_data['end_date_month'] = loan_data.end_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
+        open_data['end_date_month'] = open_data.end_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
+        loan_data['loan_date_month'] = loan_data.loan_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
 
         report_date = pd.to_datetime(self.cached_data["report_time"])
         temp_month = report_date.replace(day=1)
