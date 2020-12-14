@@ -75,7 +75,7 @@ class MicroLoanFlow(object):
         data["bizType"] = biz_types
 
         resp = {}
-        self.resp_vars_to_input_vars(strategy_resp, variables)
+        self.resp_vars_to_input_vars(strategy_resp, origin_input)
         self._calc_view_variables(base_type, biz_types, json_data, data, id_card_no, out_decision_code, phone,
                                   product_code,
                                   resp, strategy_resp, user_name, user_type, origin_input)
