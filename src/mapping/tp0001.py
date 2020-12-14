@@ -50,7 +50,7 @@ class Tp0001(Transformer):
             unix_timestamp(NOW()) < unix_timestamp(expired_at)  order by id  desc limit 1)
         """
         yf_statistic_sql = """
-            select * from info_loan_statistics_item where loan_statistic_id = 
+            select * from info_loan_statistics_item where loan_statistics_id = 
             (select id from info_loan_statistics where mobile = %(mobile)s and
             id_card_no = %(id_card_no)s and 
             unix_timestamp(NOW()) < unix_timestamp(expired_at)  order by id  desc limit 1)
