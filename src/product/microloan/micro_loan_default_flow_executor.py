@@ -50,7 +50,8 @@ class MicroLoanDefaultFlowExecutor(MicroLoanFlow):
 
     def resp_vars_to_input_vars(self, strategy_resp, variables):
         resp_vars = jsonpath(strategy_resp, "$..Variables")
-        variables.update(resp_vars)
+        if resp_vars and len(resp_vars) > 0:
+            variables.update(resp_vars[0])
 
 
 
