@@ -170,12 +170,14 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no, clean_view_var=True):
+    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no, code_info=None, clean_view_var=True):
         user_name = main_query_data.get('name')
         id_card_no = main_query_data.get('idno')
         phone = main_query_data.get('phone')
         user_type = main_query_data.get('userType')
-        codes = product_codes_dict[product_code]
+        codes = product_codes_dict.get(product_code)
+        if code_info:
+            codes = code_info
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
         biz_types.append('00000')
