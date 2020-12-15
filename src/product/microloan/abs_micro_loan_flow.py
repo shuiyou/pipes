@@ -31,9 +31,7 @@ class MicroLoanFlow(object):
 
     @staticmethod
     def _create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data):
-        passthrough_msg = json_data.get("passthroughMsg")
         resp = {
-            'passthroughMsg': passthrough_msg,
             'commonDetail': common_detail,
             'subject': subject
         }

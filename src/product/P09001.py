@@ -36,7 +36,7 @@ class P09001(Generate):
             product_code = json_data.get('productCode')
             query_data_array = json_data.get('queryData')
             industry = json_data.get("industry")
-            passthrough_msg = json_data.get("passthroughMsg")
+            extra_param = json_data.get("extraParam")
             base_type_service = BaseTypeServiceV2(query_data_array)
 
             response_array = []
@@ -49,7 +49,7 @@ class P09001(Generate):
                 'step_req_no': step_req_no,
                 'industry': industry,
                 'queryData': response_array,
-                'passthroughMsg': passthrough_msg
+                'extraParam': extra_param
             }
             self.response = resp
         except Exception as err:
@@ -62,10 +62,12 @@ class P09001(Generate):
             json_data = request.get_json()
             strategy_param = json_data.get('strategyParam')
             query_data_array = strategy_param.get('queryData')
+            extra_param = strategy_param.get("extraParam")
 
             flow_handler = self.find_process_flow(json_data, query_data_array)
             flow_handler.execute()
             self.response = flow_handler.response
+            self.response["extraParam"] = extra_param
         except Exception as err:
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
