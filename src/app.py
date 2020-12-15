@@ -22,8 +22,7 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-
-logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+logging.getLogger('sqlalchemy.engine.base.Engine').setLevel(logging.WARNING)
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 eureka_client.init(eureka_server=EUREKA_SERVER,
@@ -163,7 +162,7 @@ def sql_db():
     db_url = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:%(port)s/%(db)s' % GEARS_DB
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_ECHO'] = False
     db = SQLAlchemy(app)
     return db
 
