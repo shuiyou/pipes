@@ -157,6 +157,7 @@ class Unsettled(GroupedTransformer):
         df['start_date'] = df.start_date.apply(lambda x: str(x) )
         df['due_date'] = df.due_date.apply(lambda x:  str(x) if pd.notnull(x) else None )
         df['recent_repay_date'] = df.recent_repay_date.apply(lambda x: str(x) if pd.notnull(x) else None)
+        df['margin_percent'] = df.margin_ratio.apply(lambda x: str(round(x*100))+"%" if pd.notnull(x) else None)
 
         df = df.where(df.notnull(), None)
 
@@ -167,7 +168,7 @@ class Unsettled(GroupedTransformer):
         self.variables['table_guar_type'] = df.guar_type.tolist()
         self.variables['table_grant_amt'] = df.grant_amt.tolist()
         self.variables['table_cur_bal'] = df.cur_bal.tolist()
-        self.variables['table_margin_ratio'] = df.margin_ratio.tolist()
+        self.variables['table_margin_ratio'] = df.margin_percent.tolist()
         self.variables['table_start_date'] = df.start_date.tolist()
         self.variables['table_due_date'] = df.due_date.tolist()
         self.variables['table_category'] = df.category.tolist()
