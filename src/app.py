@@ -22,7 +22,7 @@ app = Flask(__name__)
 app.register_blueprint(base_type_api)
 start_time = time.localtime()
 
-logging.getLogger('sqlalchemy.engine.base.Engine').setLevel(logging.WARNING)
+# logging.getLogger('sqlalchemy.engine.base.Engine').setLevel(logging.WARNING)
 logger.info("init eureka client...")
 logger.info("EUREKA_SERVER:%s", EUREKA_SERVER)
 eureka_client.init(eureka_server=EUREKA_SERVER,
