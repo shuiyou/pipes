@@ -238,7 +238,7 @@ class Unsettled(GroupedTransformer):
         report_year = pd.to_datetime(self.cached_data["report_time"]).year
         year_list = [report_year - 3, report_year - 2, report_year - 1, report_year]
 
-        data['start_date_year'] = data.start_date.apply( lambda x: pd.to_datetime(x).year)
+        data['start_date_year'] = data.start_date.apply( lambda x: x.year)
         grant_history_bar = []
         for inst in set(data.inst_name.tolist()):
             temp_dict = {}

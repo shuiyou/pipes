@@ -43,7 +43,7 @@ class EcFinPress(GroupedTransformer):
         }
 
     def transform(self):
-        loan_data = self.cached_data["ecredit_loan"]
+        loan_data = self.cached_data.get("ecredit_loan")
         open_data = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id']],
                              self.cached_data.get("ecredit_draft_lc"),
                              left_on="id", right_on="biz_id"
@@ -77,9 +77,9 @@ class EcFinPress(GroupedTransformer):
     def repay_predict(self,loan_data,open_data):
 
         loan_data['balance'] = loan_data['balance'].fillna(0)
-        loan_data['end_date'] = pd.to_datetime(loan_data['end_date'])
-        open_data['end_date'] = pd.to_datetime(open_data['end_date'])
-        loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
+        # loan_data['end_date'] = pd.to_datetime(loan_data['end_date'])
+        # open_data['end_date'] = pd.to_datetime(open_data['end_date'])
+        # loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
         loan_data['end_date_month'] = loan_data.end_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
         open_data['end_date_month'] = open_data.end_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
         loan_data['loan_date_month'] = loan_data.loan_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
