@@ -62,19 +62,27 @@ class Tp0002(Transformer):
         self.trans_u_flow = None
 
     def all_variables(self):
-        per_msg = self.full_msg.get('ruskSubject')
-        com_msg = self.full_msg.get('passthroughMsg')
+        strategy_param = self.full_msg.get('strategyParam')
+        query_data = strategy_param.get('queryData')
+        if query_data is None or len(query_data) == 0:
+            return
+        per_msg = None
+        for i in range(len(query_data)):
+            if query_data[i].get('idno') == self.id_card_no:
+                per_msg = query_data[i].get('extraParam')
+        com_msg = strategy_param.get('extraParam')
         if per_msg is None or com_msg is None:
             return
         per_passthrough_msg = per_msg.get('passthroughMsg')
-        if per_passthrough_msg is None:
+        com_passthrough_msg = com_msg.get('passthroughMsg')
+        if per_passthrough_msg is None or com_passthrough_msg is None:
             return
         self.per_asset_info = pd.DataFrame(per_passthrough_msg.get('iqp_indiv_ass'))
         self.per_debt_info = pd.DataFrame(per_passthrough_msg.get('iqp_indiv_fam_lby'))
-        self.com_busi_info = pd.DataFrame(com_msg.get('iqp_busi_info'))
-        self.com_sale_info = pd.DataFrame(com_msg.get('iqp_sale_info'))
-        self.com_asset_info = pd.DataFrame(com_msg.get('iqp_asset_info'))
-        self.com_debt_info = pd.DataFrame(com_msg.get('iqp_debt_info'))
+        self.com_busi_info = pd.DataFrame(com_passthrough_msg.get('iqp_busi_info'))
+        self.com_sale_info = pd.DataFrame(com_passthrough_msg.get('iqp_sale_info'))
+        self.com_asset_info = pd.DataFrame(com_passthrough_msg.get('iqp_asset_info'))
+        self.com_debt_info = pd.DataFrame(com_passthrough_msg.get('iqp_debt_info'))
 
         per_total_debt_amt = 0
         per_total_bank_debt_amt = 0
@@ -269,7 +277,14 @@ class Tp0002(Transformer):
             ].groupby(['operator', 'reason']).agg({'report_id': len}).shape[0]
 
     def credit_transform(self):
-        per_msg = self.full_msg.get('riskSubject')
+        strategy_param = self.full_msg.get('strategyParam')
+        query_data = strategy_param.get('queryData')
+        if query_data is None or len(query_data) == 0:
+            return
+        per_msg = None
+        for i in range(len(query_data)):
+            if query_data[i].get('idno') == self.id_card_no:
+                per_msg = query_data[i].get('extraParam')
         if per_msg is None:
             return
         req_no = per_msg.get('creditParseReqNo')
@@ -277,7 +292,11 @@ class Tp0002(Transformer):
         self.credit_variables()
 
     def basic_data(self):
-        app_no = self.full_msg.get('outApplyNo')
+        strategy_param = self.full_msg.get('strategyParam')
+        extra_param = strategy_param.get('extraParam')
+        if extra_param is None:
+            return
+        app_no = extra_param.get('outApplyNo')
         if app_no is not None:
             sql = """select * from trans_u_flow_portrait where report_req_no = 
             (select report_req_no from trans_apply where app_no = %(app_no)s order by id desc limimt 1)"""
