@@ -65,7 +65,8 @@ class StrategyInputProcessor(ModuleProcessor):
 
     def loan_detail_info(self):
 
-        df1 = self.cached_data.get("ecredit_loan")[self.cached_data.get("ecredit_loan").balance > 0]
+        df1 = self.cached_data.get("ecredit_loan")
+        df1['balance'] =  df1["balance"].fillna(0)
 
         df2 = pd.merge(self.cached_data.get("ecredit_credit_biz")[['id']],
                        self.cached_data.get("ecredit_draft_lc"),
@@ -157,7 +158,9 @@ class StrategyInputProcessor(ModuleProcessor):
                        left_on="id",right_on="loan_id"
                        )
 
-        self.variables["history_prin_overdue"]  = df3[(df3.settle_status.str.contains("已结清"))].overdue_principal.sum()
+        self.variables["history_prin_overdue"]  = df3[(df3.settle_status.str.contains("已结清"))
+                                                      |((df3.settle_status.str.contains("被追偿"))
+                                                        &(df3.balance == 0))].overdue_principal.sum()
 
 
     # 对外担保
