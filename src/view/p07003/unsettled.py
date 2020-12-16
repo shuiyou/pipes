@@ -223,6 +223,18 @@ class Unsettled(GroupedTransformer):
         self.variables["discount_total_recent"] = round(data[(data.bus_sup.str.contains("贴现"))
              & (pd.to_datetime(data.start_date) > datetime.now() - timedelta(days=365))].grant_amt.sum(),2)
 
+        data = self.cached_data["ecredit_loan"]
+        rename_dict = {
+            "account_type":"bus_sup",
+            "biz_type":"bus_type",
+            "account_org":"inst_name",
+            "loan_date":"start_date",
+            "end_date":"due_date",
+            "amount":"grant_amt",
+            "balance":"cur_bal"
+        }
+        data.rename(columns = rename_dict , inplace = True)
+
         report_year = pd.to_datetime(self.cached_data["report_time"]).year
         year_list = [report_year - 3, report_year - 2, report_year - 1, report_year]
 
