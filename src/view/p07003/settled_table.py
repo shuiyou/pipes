@@ -34,7 +34,7 @@ class SettledTable(GroupedTransformer):
         if loan_data.empty:
             return
 
-        loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
+        # loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
                                                                            'loan_date':['min'],
@@ -63,7 +63,7 @@ class SettledTable(GroupedTransformer):
 
         loan_list = loan_total[loan_total.settle_status.str.contains("被追偿|未结清")]['account_org'].drop_duplicates().tolist()
 
-        df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x.date()) if pd.notna(x) else None )
+        df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x) if pd.notna(x) else None )
 
         # df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
