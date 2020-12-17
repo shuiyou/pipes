@@ -184,7 +184,7 @@
             }
         ],
         "preReportReqNo":"PR495224414825250816",
-        "single":true,
+        "single":false,
         "outApplyNo":"IQP2020502400717008",
         "applyAmt":7000000,
         "renewLoans":false,

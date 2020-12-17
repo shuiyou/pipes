@@ -12,6 +12,8 @@ product_code_process_dict = {
     "08001": "TRANS_FLOW",     # 流水报告
     "08002": "TRANS_FLOW",      # 流水拦截
     "03002": "LEVEL_ONE",  # 新版一级联合报告
+    "04002": "LEVEL_ONE",  # 新版一级联合报告
+    "09001": "S_QUICK_LOAN",  # 小额快贷风险拦截
 }
 
 # 在这个dict里针对不同的产品设置他的详情字段转换

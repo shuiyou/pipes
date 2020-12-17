@@ -170,12 +170,14 @@ class P08001(Generate):
             logger.error(traceback.format_exc())
             raise ServerException(code=500, description=str(err))
 
-    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no):
+    def strategy(self, is_single, df_client, subjects, main_query_data, product_code, req_no, code_info=None, clean_view_var=True):
         user_name = main_query_data.get('name')
         id_card_no = main_query_data.get('idno')
         phone = main_query_data.get('phone')
         user_type = main_query_data.get('userType')
-        codes = product_codes_dict[product_code]
+        codes = product_codes_dict.get(product_code)
+        if code_info:
+            codes = code_info
         base_type = self.calc_base_type(user_type)
         biz_types = codes.copy()
         biz_types.append('00000')
@@ -187,9 +189,14 @@ class P08001(Generate):
         if not is_single:
             variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, df_client, main_query_data, data_repository)
-            origin_input = {'out_strategyBranch': ','.join(codes)}
+            origin_input = main_query_data.get("strategyInputVariables")
+            if not origin_input:
+                origin_input = {}
+            origin_input['out_strategyBranch'] = ','.join(codes)
             # 合并新的转换变量
             origin_input.update(variables)
+            origin_input['segment_name'] = 'trans'
+            origin_input["tracking_trans"] = 1
 
             logger.info("1. 流水报告-开始策略引擎封装入参")
             strategy_request = _build_request(req_no, product_code, origin_input)
@@ -210,15 +217,16 @@ class P08001(Generate):
             logger.info(biz_types)
             main_query_data['bizType'] = biz_types
 
-        variables["single"] = is_single
+        origin_input["single"] = is_single
         resp = {}
 
         main_query_data["baseType"] = base_type
-        main_query_data['strategyInputVariables'] = variables
+        main_query_data['strategyInputVariables'] = origin_input
         # 最后返回报告详情
-        detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
+        if clean_view_var:
+            detail = translate_for_report_detail(product_code, user_name, id_card_no, phone, user_type,
                                              base_type, main_query_data, data_repository)
-        resp['reportDetail'] = [detail]
+            resp['reportDetail'] = [detail]
         # 处理关联人
         _relation_risk_subject(strategy_resp, out_decision_code)
         resp['strategyResult'] = strategy_resp
