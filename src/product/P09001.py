@@ -73,21 +73,25 @@ class P09001(Generate):
             raise ServerException(code=500, description=str(err))
 
     def find_process_flow(self, json_data, query_data_array):
+        executor = None
         for item in query_data_array:
             segment_name = item.get("nextSegmentName")
-            executor = None
             if segment_name == "trans":
                 executor = MicroLoanTransFlowExecutor(json_data)
+                break
             elif segment_name == "default":
                 executor = MicroLoanDefaultFlowExecutor(json_data)
+                break
             elif segment_name == "loan_amt":
                 executor = MicroLoanAmtFlowExecutor(json_data)
-            else:
-                executor = MicroLoanCommonFlowExecutor(json_data)
+                break
 
-            executor.sql_db = self.sql_db
-            executor.df_client = self.df_client
-            return executor
+        if not executor:
+            executor = MicroLoanCommonFlowExecutor(json_data)
+
+        executor.sql_db = self.sql_db
+        executor.df_client = self.df_client
+        return executor
 
     def _shake_hand_response(self, base_type_service, data, product_code, req_no):
         """

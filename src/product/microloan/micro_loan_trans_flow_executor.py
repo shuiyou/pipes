@@ -88,7 +88,8 @@ class MicroLoanTransFlowExecutor(MicroLoanFlow):
         user_type = main_node.get('userType')
         base_type = main_node.get("baseType")
 
-        report_req_no = self.json_data.get("preReportReqNo")
+        strategy_param = self.json_data.get('strategyParam')
+        report_req_no = strategy_param.get('preReportReqNo')
 
         public_param = {
             "reqNo": self.req_no,
