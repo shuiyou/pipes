@@ -1,11 +1,12 @@
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
 import numpy as np
+import pandas as pd
 
 
 def get_field_value(df, key):
     df_temp = df[df['field_name'] == key]
-    if not df_temp.empty:
+    if not df_temp.empty and pd.notna(df_temp['field_value'].to_list()[0]):
         return np.round(float(df_temp['field_value'].to_list()[0]),4)
     else:
         return 0
