@@ -39,8 +39,10 @@ class MicroLoanAmtFlowExecutor(MicroLoanFlow):
         variables = trans_result.get("variables")
         variables["segment_name"] = "loan_amt"
         variables["tracking_loan_amt"] = 1
+        variables["call_type"] = "aggregate"
 
         strategy_resp = invoke_strategy(variables, self.product_code, self.req_no)
+        del variables["call_type"]
         resp_end = self._create_strategy_resp(strategy_resp, variables, None, subject, self.json_data)
 
         format_var(None, None, -1, resp_end)
