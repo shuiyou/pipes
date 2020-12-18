@@ -198,7 +198,7 @@ class Tp0002(Transformer):
         sql = """select report_id, report_time from credit_base_info where report_id = 
             (select report_id from credit_parse_request where biz_req_no = %(biz_req_no)s)"""
         base_df = sql_to_df(sql=sql, params={'biz_req_no': req_no})
-        if base_df.shape[0] > 0:
+        if base_df.shape[0] == 0:
             return
         self.report_id = base_df['report_id'].tolist()[0]
         self.report_time = pd.to_datetime(base_df['report_time'].tolist()[0])
