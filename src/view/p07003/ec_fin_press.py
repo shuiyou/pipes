@@ -84,6 +84,11 @@ class EcFinPress(GroupedTransformer):
         open_data['end_date_month'] = open_data.end_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
         loan_data['loan_date_month'] = loan_data.loan_date.apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
 
+        loan_history =  pd.merge( self.cached_data["ecredit_loan"][['account_no','settle_status','account_type','loan_date','end_date']],
+                                  self.cached_data["ecredit_histor_perfo"][['account_no','balance','stats_date']],
+                                  on = 'account_no')
+
+
         report_date = pd.to_datetime(self.cached_data["report_time"])
         temp_month = report_date.replace(day=1)
         last_6_month = []
@@ -97,10 +102,11 @@ class EcFinPress(GroupedTransformer):
             last_6_month.append(temp_month.strftime("%Y-%m"))
             loan_due_amt.append(round(loan_data[loan_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
             open_due_amt.append(round(open_data[open_data.end_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
-            loan_flow.append(round(loan_data[(loan_data.loan_date<=temp_month.date())
-                                       &(loan_data.end_date>temp_month.date())].balance.sum(),2))
-            open_flow.append(round(open_data[(open_data.loan_date<=temp_month.date())
-                                       &(open_data.end_date>temp_month.date())].balance.sum(),2))
+
+            temp_df = loan_history[loan_history.stats_date <= temp_month.date()].drop_duplicates(subset= ['account_no'] , keep='first')
+            loan_flow.append(round(temp_df.balance.sum(),2))
+            # open_flow.append(round(open_data[(open_data.loan_date<=temp_month.date())
+            #                            &(open_data.end_date>temp_month.date())].balance.sum(),2))
             add_issuance.append(round(loan_data[loan_data.loan_date_month == temp_month.strftime("%Y-%m")].amount.sum(),2))
 
             temp_month = temp_month.replace(day = 1)
@@ -120,7 +126,7 @@ class EcFinPress(GroupedTransformer):
         loan_due_amt.reverse()
         open_due_amt.reverse()
         loan_flow.reverse()
-        open_flow.reverse()
+        # open_flow.reverse()
         add_issuance.reverse()
 
         self.variables["last_6_month"] = last_6_month
