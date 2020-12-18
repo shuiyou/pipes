@@ -299,7 +299,7 @@ class Tp0002(Transformer):
         app_no = extra_param.get('outApplyNo')
         if app_no is not None:
             sql = """select * from trans_u_flow_portrait where report_req_no = 
-            (select report_req_no from trans_apply where app_no = %(app_no)s order by id desc limit 1)"""
+            (select report_req_no from trans_apply where apply_no = %(app_no)s order by id desc limit 1)"""
             self.trans_u_flow = sql_to_df(sql=sql, params={'app_no': app_no})
 
     def flow_variables(self):
