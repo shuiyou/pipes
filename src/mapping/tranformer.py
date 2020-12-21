@@ -143,7 +143,8 @@ class Transformer(object):
         self.base_type = base_type
         self.origin_data = origin_data
         self.cached_data = cached_data
-        self.full_msg = full_msg
+        if not self.full_msg:
+            self.full_msg = full_msg
 
     @abstractmethod
     def transform(self):
