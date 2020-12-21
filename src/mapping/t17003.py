@@ -32,8 +32,11 @@ def get_left_field_value1(df, key):
             if value == '-999' or value == '-1111':
                 return float(value)
             else:
-                value = re.findall(r"\d+\.?\d*", value)[0]
-                return float(value)
+                find_list = re.findall(r"\d+\.?\d*", value)
+                if len(find_list) > 0:
+                    return float(find_list[0])
+                else:
+                    return 0
         else:
             return 0
     else:
