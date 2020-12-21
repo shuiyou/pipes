@@ -3,12 +3,13 @@
 # @File : owner.py.py 
 # @Software: PyCharm
 import datetime
+import json
 import re
 import pandas as pd
 
 from mapping.grouped_tranformer import GroupedTransformer, invoke_each
 from util.mysql_reader import sql_to_df
-from util.common_util import get_query_data, get_all_related_company
+from util.common_util import get_query_data, get_all_related_company, logger
 
 
 def translate_marry_state(marry_state):
@@ -314,6 +315,7 @@ class Owner(GroupedTransformer):
         self.variables['owner_app_cnt'] = 1 if cnt > 0 else 0
 
     def transform(self):
+        logger.info("full_msg :%s", json.dumps(self.full_msg))
         self.person_list = get_query_data(self.full_msg, 'PERSONAL', '01')
         self.company_list = get_query_data(self.full_msg, 'COMPANY', '01')
         self.per_type = get_all_related_company(self.full_msg)
