@@ -315,6 +315,7 @@ class Owner(GroupedTransformer):
         self.variables['owner_app_cnt'] = 1 if cnt > 0 else 0
 
     def transform(self):
+        logger.info("owner_unique_debug start")
         try:
             logger.info("full_msg :%s", json.dumps(self.full_msg))
         except:
