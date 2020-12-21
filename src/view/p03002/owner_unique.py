@@ -315,7 +315,11 @@ class Owner(GroupedTransformer):
         self.variables['owner_app_cnt'] = 1 if cnt > 0 else 0
 
     def transform(self):
-        logger.info("full_msg :%s", json.dumps(self.full_msg))
+        try:
+            logger.info("full_msg :%s", json.dumps(self.full_msg))
+        except:
+            logger.info("full_msg exception")
+            logger.info(self.full_msg)
         self.person_list = get_query_data(self.full_msg, 'PERSONAL', '01')
         self.company_list = get_query_data(self.full_msg, 'COMPANY', '01')
         self.per_type = get_all_related_company(self.full_msg)
