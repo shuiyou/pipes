@@ -67,7 +67,7 @@ class SettledTable(GroupedTransformer):
 
         # df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
-        df['finish_coop_date'] = df.apply(lambda x : "在贷" if x['inst'] in loan_list else str(x['finish_coop_date']) , axis = 1)
+        df['finish_coop_date'] = df.apply(lambda x : "该机构目前仍在合作" if x['inst'] in loan_list else str(x['finish_coop_date']) , axis = 1)
 
         df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
