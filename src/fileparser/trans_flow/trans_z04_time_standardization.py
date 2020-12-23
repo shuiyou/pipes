@@ -1,5 +1,6 @@
 
-from fileparser.trans_flow.trans_config import MIN_IMPORT_INTERVAL, MIN_QUERY_INTERVAL, MIN_TRANS_INTERVAL
+from fileparser.trans_flow.trans_config import MIN_IMPORT_INTERVAL, MIN_QUERY_INTERVAL, MIN_TRANS_INTERVAL, \
+    DTTIME_PATTERN, TIME_PATTERN, DATE_PATTERN, TIME_S_PATTERN
 import datetime
 import re
 
@@ -7,6 +8,8 @@ import re
 def dttime_apply(time):
     # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
     temp = ''.join([_ for _ in time if _.isdigit()])
+    if len(temp) == 0:
+        raise ValueError("交易日期列存在不符合格式的值t001")
     if temp[0] == '2':
         temp += '000000'
         temp = temp[:14]
@@ -97,34 +100,11 @@ class TransactionTime:
             return False
         return True
 
-    # @staticmethod
-    # def _dttime_apply(time):
-    #     # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
-    #     temp = ''.join([_ for _ in time if _.isdigit()])
-    #     if temp[0] == '2':
-    #         temp += '000000'
-    #         temp = temp[:14]
-    #         result = datetime.datetime.strptime(temp, '%Y%m%d%H%M%S')
-    #     # 首位是'4',形如'43562.125',表示'2019-04-07 03:00:00'
-    #     elif temp[0] == '4':
-    #         # temp = ''.join([_ for _ in time if _.isdigit()])
-    #         date = datetime.datetime(1900, 1, 1) + datetime.timedelta(days=int(temp[:5]) - 2)
-    #         date_str = datetime.datetime.strftime(date, '%Y%m%d')
-    #         time_str = '000000'
-    #         if len(temp) > 5:
-    #             time_value = int(temp[5:]) / 10 ** (len(temp) - 5)
-    #             if time != 0:
-    #                 time_str = str(int(time_value * 24)).rjust(2, '0') + \
-    #                            str(int(time_value * 1440) % 60).rjust(2, '0') + \
-    #                            str(int(time_value * 86400) % 60).rjust(2, '0')
-    #         result = datetime.datetime.strptime(date_str + time_str, '%Y%m%d%H%M%S')
-    #     else:
-    #         raise ValueError("交易日期列有不符合格式的值t001")
-    #     return result
-
     @staticmethod
     def _date_apply(time):
         temp = ''.join([_ for _ in time if _.isdigit()])
+        if len(temp) == 0:
+            raise ValueError("交易日期列有不符合格式的值t002")
         if temp[0] == '2':
             # temp = ''.join([_ for _ in time if _.isdigit()])
             result = temp[:8]
@@ -169,9 +149,8 @@ class TransactionTime:
         self.df.reset_index(drop=True, inplace=True)
 
     def _one_col_match(self, col):
-        dttime_pat = re.compile(
-            r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])([0-5]\d){1,2}|^4\d{4}\d*[1-9]+\d*')
-        date_pat = re.compile(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}')
+        dttime_pat = re.compile(DTTIME_PATTERN)
+        date_pat = re.compile(DATE_PATTERN)
         x1 = self._match_time_head(col, dttime_pat, 14)
         x2 = self._match_time_head(col, date_pat, 8)
         if x1:
@@ -185,11 +164,10 @@ class TransactionTime:
             raise ValueError("交易日期列有不符合格式的值t004")
 
     def _multi_col_match(self, res):
-        dttime_pat = re.compile(
-            r"""^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])([0-5]\d){2}|^4\d{4}\d*[^0]+\d*""")
-        date_pat = re.compile(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}')
-        time_pat = re.compile(r'^([01]\d|2[0-3])([0-5]\d){2}$|0\d*[1-9]+\d*')
-        time_s_pat = re.compile(r'^([01]\d|2[0-3])[0-5]\d$')
+        dttime_pat = re.compile(DTTIME_PATTERN)
+        date_pat = re.compile(DATE_PATTERN)
+        time_pat = re.compile(TIME_PATTERN)
+        time_s_pat = re.compile(TIME_S_PATTERN)
         date_col = ''
         time_col = ''
         for col in res:
