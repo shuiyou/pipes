@@ -163,9 +163,3 @@ class TransCsv:
                 if re.match(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}', cell_value):
                     self.title_params['end_date'] = format(dttime_apply(cell_value), '%Y-%m-%d')
         return
-
-
-# file_path = r'E:\installplace\git project\pipes\tests\resource\trans_flow\temp_test\2020(1).csv'
-# c = TransCsv(file_path)
-# c.process()
-# print(c.trans_data.shape)

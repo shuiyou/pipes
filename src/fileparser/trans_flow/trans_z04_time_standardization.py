@@ -41,6 +41,7 @@ class TransactionTime:
             不再删除交易时间列含有部门空值的情况
     updated_time_v2:20200911,导入间隔校验时间扩充为45天,相应的导入失败提示也更改为45天
     updated_time_v3:20201125,导入间隔,查询间隔,交易间隔现在都是可配置的,修改起始截止时间校验逻辑
+    updated_time_v4:20201223,时间日期格式和日期格式匹配加入了字符串为空的判断，之后不会再出现下标越界的提示
     """
 
     def __init__(self, trans_data, col_mapping, title_param):

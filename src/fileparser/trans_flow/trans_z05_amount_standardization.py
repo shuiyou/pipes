@@ -1,4 +1,5 @@
 
+from fileparser.trans_flow.trans_config import INCOME_PATTERN, OUTCOME_PATTERN
 import pandas as pd
 import re
 
@@ -10,6 +11,7 @@ class TransactionAmt:
     created_time:20200630
     updated_time_v1:20200911,搜索标签列时,要同时包含进账关键字和出账关键字,避免只有一类关键字;去除金额列不符合要求的字符的时候
         先删除空格,再删除负号结尾的字符
+    updated_time_v2:20201223,将所有正则匹配格式都纳入配置文件
     """
 
     def __init__(self, trans_data, col_mapping):
@@ -34,9 +36,9 @@ class TransactionAmt:
             col = self.amt_col[index]
             temp = self.df[col].value_counts()
             index = ''.join([str(_) for _ in temp.index])
-            if len(temp) == 2 and re.search(r'[收入存贷进]|Credit', index) and re.search('[支出取借付]|Debit', index):
+            if len(temp) == 2 and re.search(INCOME_PATTERN, index) and re.search(OUTCOME_PATTERN, index):
                 tag = col
-                self.df['tag'] = self.df[tag].astype(str).apply(lambda x: re.sub(r'.*[借出支往取付].*', '1', x)).\
+                self.df['tag'] = self.df[tag].astype(str).apply(lambda x: re.sub(INCOME_PATTERN, '1', x)).\
                     apply(lambda x: 1 if x != '1' else -1)
                 self.amt_col.remove(col)
                 return 1
@@ -63,10 +65,10 @@ class TransactionAmt:
         # 若金额列依然包含两列以上,则筛选其中的对立列
         if len(self.amt_col) > 2:
             string = ''.join([str(x) for x in self.amt_col])
-            if re.search(r'[收入存贷进]|Credit', string) and re.search(r'[支出取借付]|Debit', string):
+            if re.search(INCOME_PATTERN, string) and re.search(OUTCOME_PATTERN, string):
                 for index in range(-len(self.amt_col), 0):
                     col = self.amt_col[index]
-                    if not (re.search(r'(收|入|存|贷|进|Credit)', col) or re.search(r'(支|出|取|借|付|Debit)', col)):
+                    if not (re.search(INCOME_PATTERN, col) or re.search(OUTCOME_PATTERN, col)):
                         self.amt_col.remove(col)
                     elif len(self.df[col].value_counts().index) == 1:
                         self.amt_col.remove(col)
@@ -108,12 +110,12 @@ class TransactionAmt:
                 if self.df.loc[self.df['tag'] == -1]['trans_amt'].sum() >= 0:
                     self.df['trans_amt'] = self.df['tag'] * self.df['trans_amt']
             else:
-                if re.search(r'(借|出|支|往|Debit)', self.amt_col[0]):
+                if re.search(OUTCOME_PATTERN, self.amt_col[0]):
                     # neg = len(self.df.loc[self.df[self.amt_col[0]] < 0])
                     neg = self.df[self.amt_col[0]].sum()
                     multi = 1 if neg < 0 else -1
                     self.df['trans_amt'] = multi * self.df[self.amt_col[0]] + self.df[self.amt_col[1]]
-                elif re.search(r'(借|出|支|往|Debit)', self.amt_col[1]):
+                elif re.search(OUTCOME_PATTERN, self.amt_col[1]):
                     # neg = len(self.df.loc[self.df[self.amt_col[1]] < 0])
                     neg = self.df[self.amt_col[1]].sum()
                     multi = 1 if neg < 0 else -1

@@ -80,10 +80,3 @@ class TransXls:
             self.resp['resMsg'] = '失败'
             self.resp['data']['warningMsg'] = ['文件读取异常']
         return df
-
-
-# file_path = r'E:\installplace\git project\pipes\tests\resource\trans_flow' \
-#             r'\temp_test\建设1.xlsx'
-# x = TransXls(file_path)
-# x.process()
-# print(x.trans_data.shape)

@@ -1,4 +1,3 @@
-
 import decimal
 import re
 
@@ -68,6 +67,17 @@ class TransactionBalance:
             self.resp['resMsg'] = '解析失败'
             self.resp['data']['warningMsg'] = ['该流水中未找到交易余额列,请检查后再上传']
         return
+
+    def balance_check(self):
+        self.df = self.df[self.df['trans_amt'] != 0]
+        self.df['last_trans_amt'] = self.df.apply(
+            lambda x: float(decimal.Decimal(str(x['account_balance'])) - decimal.Decimal(str(x['trans_amt']))), axis=1)
+        sort_df = self.df.sort_values(by=self.sort_list, ascending=True)
+        sort_df['trans_date'] = sort_df['trans_time'].apply(lambda x: x.date())
+        date_list = sort_df['trans_date'].unique()
+        for d in date_list:
+            temp_date_df = sort_df[sort_df['trans_date'] == d]
+            pass
 
     # 流水验真逻辑
     def _balance_check(self, df):

@@ -1,5 +1,6 @@
 
-from fileparser.trans_flow.trans_config import DTTIME_PATTERN, DATE_PATTERN
+from fileparser.trans_flow.trans_config import DTTIME_PATTERN, DATE_PATTERN, AMT_PATTERN, IGNORE_PATTERN, \
+    INCOME_PATTERN, OUTCOME_PATTERN
 import pandas as pd
 import re
 
@@ -39,8 +40,8 @@ class TransDataStandardization:
             if '发生额' in col_list[col_index]:
                 c1 = str(df.iloc[0, col_index]).strip()
                 c2 = str(df.iloc[0, col_index + 1]).strip()
-                if (re.search(r'[借出支往]', c1) and re.search(r'[收入进来贷]', c2)) or \
-                        (re.search(r'[借出支往]', c2) and re.search(r'[收入进来贷]', c1)):
+                if (re.search(OUTCOME_PATTERN, c1) and re.search(INCOME_PATTERN, c2)) or \
+                        (re.search(OUTCOME_PATTERN, c2) and re.search(INCOME_PATTERN, c1)):
                     df.rename(columns={col_list[col_index]: c1, col_list[col_index+1]: c2}, inplace=True)
                     self.title_status = True
                     df.drop(0, axis=0, inplace=True)
@@ -96,12 +97,9 @@ class TransDataStandardization:
     @staticmethod
     def _entire_row_values_match(value):
         dttime_pat = re.compile(DTTIME_PATTERN)
-
         date_pat = re.compile(DATE_PATTERN)
-
-        amt_pat = re.compile(r'^[1-9]\d*|0\d*[^0]+\d*')
-        # 忽略的格式,一旦某行包含"合计/累计/总计/总笔数/总额/记录数/参考/承前"字样就忽略该行
-        sum_pat = re.compile(r'.*(合计|累计|总计|总笔数|总额|记录数|参考|承前).*')
+        amt_pat = re.compile(AMT_PATTERN)
+        sum_pat = re.compile(IGNORE_PATTERN)
         # 时间格式计数,累计到1停止,即至少需要包含一列交易时间
         time_cnt = 0
         # 金额格式计数,累计到2停止,即至少需要包含一列交易金额和一列余额
