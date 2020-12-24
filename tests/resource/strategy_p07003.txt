@@ -1,0 +1,26 @@
+{
+        "strategyParam": {
+                "appId": "0000000000",
+                "reqNo": "Q527132506160529408",
+                "stepReqNo": "S527132506441547776",
+                "productCode": "07003",
+                "queryData": [{
+                        "id": 13902,
+                        "parentId": 0,
+                        "name": "上海水石贸易有限公司",
+                        "idno": "3101150001138802",
+                        "userType": "COMPANY",
+                        "applyAmo": 11.0000,
+                        "extraParam": {
+                                "mamageAmt": null,
+                                "manageAddress": "江场西路299弄49号701C",
+                                "registeredCapital": null
+                        }
+                }],
+                "preReportReqNo": "Q526817079811276800",
+                "single": false,
+                "renewLoans": false,
+                "versionNo": "1.0"
+        },
+        "strategyResult": null
+}
