@@ -2,7 +2,6 @@
 # @Author : lixiaobo
 # @File : tp00001.py.py 
 # @Software: PyCharm
-import json
 import math
 import pandas as pd
 
@@ -46,7 +45,7 @@ class Tp0002(Transformer):
             'balance_day_avg_6m': 0,  # 6个月余额日均
             'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
-            'model_pred': 0, # 违约模型
+            'model_pred': 0  # 违约模型
         }
         self.per_asset_info = None
         self.per_debt_info = None
@@ -216,7 +215,7 @@ class Tp0002(Transformer):
                 self.variables['loan_amount_min_amt'] = \
                     0 if pd.isna(loan_df['loan_amount'].min()) else round(loan_df['loan_amount'].min(), 2)
                 loan_amount_df = loan_df[
-                    loan_df['loan_date'] >= self.report_time.date + offsets.DateOffset(months=-6)]
+                    pd.to_datetime(loan_df['loan_date']) >= self.report_time.date() + offsets.DateOffset(months=-6)]
                 self.variables['loan_cnt_inc_6m'] = loan_amount_df.shape[0]
                 loan_amount_avg_6m = loan_amount_df['loan_amount'].mean()
                 self.variables['loan_amount_avg_6m'] = loan_amount_avg_6m \
