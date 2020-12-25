@@ -33,6 +33,7 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
                 product_trans.append(agg_trans)
 
         for trans in product_trans:
+            logger.info("transformer begin: %s", str(trans))
             trans.df_client = df_client
             trans.product_code = product_code
             trans_result = trans.run(user_name=user_name,
@@ -42,6 +43,7 @@ def translate_for_strategy(product_code, codes, user_name=None, id_card_no=None,
                                      base_type=base_type,
                                      origin_data=origin_data,
                                      cached_data=cached_data)
+            logger.info("transformer end: %s", str(trans))
             variables.update(trans_result['variables'])
             out_decision_code.update(trans_result['out_decision_code'])
 

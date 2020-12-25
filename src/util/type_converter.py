@@ -2,6 +2,7 @@
 # @Author : lixiaobo
 # @File : type_converter.py 
 # @Software: PyCharm
+from datetime import date
 import pandas as pd
 from numpy import int64
 from pandas import Series
@@ -55,8 +56,8 @@ def format_var(parent, key, index, val):
         elif isinstance(val, dict):
             for k, v in val.items():
                 format_var(val, k, -1, v)
-        elif isinstance(val, Timestamp):
-            logger.warn(str(key) + "----------------Timestamp----------------" + str(val))
+        elif isinstance(val, Timestamp) or isinstance(val, date):
+            logger.warn(str(key) + "----------------Timestamp/date----------------" + str(val))
             if pd.isna(val):
                 logger.warn(str(key) + "----------------NaT----------------" + str(val))
                 if isinstance(parent, list):

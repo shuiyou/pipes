@@ -1,6 +1,6 @@
-# @Time : 2020/10/14 9:42 AM 
+# @Time : 2020/10/14 9:42 AM
 # @Author : lixiaobo
-# @File : p03002.py 
+# @File : p03002.py
 # @Software: PyCharm
 import json
 import traceback
@@ -72,18 +72,28 @@ class P03002(Generate):
             subject = []
             cache_array = []
             # 遍历query_data_array调用strategy
+            logger.info("loop invoke begin: %s", req_no)
+            index = -1
+            count = len(query_data_array)
             for data in query_data_array:
+                index = index + 1
+                logger.info("loop %s index %d//%d begin", req_no, index, count)
                 array, resp = self._strategy_hand(json_data, data, product_code, req_no)
+                logger.info("loop %s index %d//%d end", req_no, index, count)
                 subject.append(resp)
                 cache_array.append(array)
                 # 最后返回报告详情
+            logger.info("view_variables_scheduler begin :%s", req_no)
             common_detail = view_variables_scheduler(product_code, json_data,
                                                      None, None, None, None, None,None, invoke_union)
 
+            logger.info("view_variables_scheduler end :%s", req_no)
             # 封装第二次调用参数
             variables = self._create_strategy_second_request(cache_array)
 
+            logger.info("final invoke_strategy begin :%s ", req_no)
             strategy_resp = self.invoke_strategy(variables, product_code, req_no)
+            logger.info("final invoke_strategy end :%s ", req_no)
             score_to_int(strategy_resp)
             # 封装最终返回json
             resp_end = self._create_strategy_resp(strategy_resp, variables, common_detail, subject, json_data)
