@@ -1,5 +1,5 @@
 
-from fileparser.trans_flow.trans_config import INCOME_PATTERN, OUTCOME_PATTERN
+from fileparser.trans_flow.trans_config import INCOME_PATTERN, OUTCOME_PATTERN, OUTCOME_FULL_PATTERN
 import pandas as pd
 import re
 
@@ -38,7 +38,7 @@ class TransactionAmt:
             index = ''.join([str(_) for _ in temp.index])
             if len(temp) == 2 and re.search(INCOME_PATTERN, index) and re.search(OUTCOME_PATTERN, index):
                 tag = col
-                self.df['tag'] = self.df[tag].astype(str).apply(lambda x: re.sub(INCOME_PATTERN, '1', x)).\
+                self.df['tag'] = self.df[tag].astype(str).apply(lambda x: re.sub(OUTCOME_FULL_PATTERN, '1', x)).\
                     apply(lambda x: 1 if x != '1' else -1)
                 self.amt_col.remove(col)
                 return 1

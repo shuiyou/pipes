@@ -49,7 +49,9 @@ IGNORE_PATTERN = r'.*(合计|累计|总计|总笔数|总额|记录数|参考|承
 # 进账关键字
 INCOME_PATTERN = r'[收入存贷进来]|Credit'
 # 出账关键字
-OUTCOME_PATTERN = '[支出取借付往]|Debit'
+OUTCOME_PATTERN = r'[支出取借付往]|Debit'
+# 出账全匹配
+OUTCOME_FULL_PATTERN = r'.*[借出支往取付].*'
 
 # 二.返回信息枚举
 # resp_mapping = {
@@ -99,3 +101,5 @@ MAX_INTERVAL_DAYS = 5
 # 四.二进制类型枚举
 # csv文件分隔符类型枚举值
 CSV_DELIMITER = [',', ';', '|', '\t', ':']
+# csv文件编码格式
+CSV_ENCODING = ['utf-8', 'gbk', 'gb2312', 'gb18030', 'cp936', 'big5']

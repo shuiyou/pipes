@@ -88,9 +88,14 @@ class TransactionTime:
         sample = list(self.df[column][:10])
         cnt = 0
         for x in sample:
-            x = str(x)
+            if type(x) == float:
+                x = str(int(x))
+            else:
+                x = str(x)
             y = [_ for _ in x if _.isdigit()]
             z = ''.join(y)[:number]
+            if number == 6 or number == 4:
+                z = z.rjust(number, '0')
             # 一旦出现不匹配的时间格式则返回False
             if re.match(pattern, z) is None:
                 return False
@@ -120,18 +125,21 @@ class TransactionTime:
     @staticmethod
     def _time_apply(time):
         if ':' in time or '：' in time:
-            temp = ''.join([_ for _ in time if _.isdigit()]) + '000000'
-            result = temp[:6]
+            temp = '000000' + ''.join([_ for _ in time if _.isdigit()])
+            result = temp[-6:]
         elif '.' in time:
             try:
                 temp = float(time)
             except ValueError:
                 raise ValueError("交易时间列有不符合格式的值t003")
-            result = str(int(temp * 24)).rjust(2, '0') + str(int(temp * 1440) % 60).rjust(2, '0') + str(
-                int(temp * 86400) % 60).rjust(2, '0')
-        elif len(time) == 6 or len(time) == 4:
-            temp = time + '000000'
-            result = temp[:6]
+            if temp < 1:
+                result = str(int(temp * 24)).rjust(2, '0') + str(int(temp * 1440) % 60).rjust(2, '0') + str(
+                    int(temp * 86400) % 60).rjust(2, '0')
+            else:
+                result = str(int(temp)).rjust(6, '0')
+        elif len(time) >= 1:
+            temp = '000000' + time
+            result = temp[-6:]
         else:
             result = '000000'
         return result
@@ -188,12 +196,12 @@ class TransactionTime:
         for col in res:
             if self._match_time_head(col, time_pat, 6):
                 time_col = col
-                self.df[time_col] = self.df[time_col].fillna(method='ffill').astype(str).apply(self._time_apply)
+                self.df[time_col] = self.df[time_col].fillna(0).astype(str).apply(self._time_apply)
                 self.sort_list.append(time_col)
                 break
             elif self._match_time_head(col, time_s_pat, 4):
                 time_col = col
-                self.df[time_col] = self.df[time_col].fillna(method='ffill').astype(str).apply(self._time_apply)
+                self.df[time_col] = self.df[time_col].fillna(0).astype(str).apply(self._time_apply)
                 self.sort_list.append(time_col)
                 break
         if date_col != '' and time_col != '':

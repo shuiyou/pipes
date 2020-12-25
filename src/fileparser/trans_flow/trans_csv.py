@@ -1,5 +1,5 @@
 from fileparser.trans_flow.trans_config import MAX_TITLE_NUMBER, CSV_DELIMITER, TRANS_TIME_PATTERN, \
-    TRANS_AMT_PATTERN, TRANS_BAL_PATTERN, TRANS_OPNAME_PATTERN
+    TRANS_AMT_PATTERN, TRANS_BAL_PATTERN, TRANS_OPNAME_PATTERN, CSV_ENCODING
 from fileparser.trans_flow.trans_z04_time_standardization import dttime_apply
 import pandas as pd
 import re
@@ -24,6 +24,7 @@ class TransCsv:
         self.trans_data = None
         self.basic_status = True
         self.delimiter = b','
+        self.csv_encoding = 'utf-8'
         self.resp = {
             "resCode": "0",
             "resMsg": "成功",
@@ -54,17 +55,25 @@ class TransCsv:
                 if len(line) == 0:
                     continue
                 if cnt == 0:  # 第一个非空行里面寻找本csv文件的分隔符
+                    for enco in CSV_ENCODING:
+                        try:
+                            line.decode(encoding=enco)
+                            self.csv_encoding = enco
+                            break
+                        except:
+                            continue
                     deli_max_len = 0
                     for deli in CSV_DELIMITER:
-                        deli_len = line.count(deli.encode(encoding='utf-8'))
+                        deli_len = line.count(deli.encode(encoding=self.csv_encoding))
                         if deli_len > deli_max_len:
                             deli_max_len = deli_len
-                            self.delimiter = deli.encode(encoding='utf-8')
+                            self.delimiter = deli.encode(encoding=self.csv_encoding)
+                    
                 temp_len = line.count(self.delimiter)
-                if re.search(TRANS_TIME_PATTERN.encode(encoding='utf-8'), line) and \
-                        re.search(TRANS_AMT_PATTERN.encode(encoding='utf-8'), line) and \
-                        re.search(TRANS_BAL_PATTERN.encode(encoding='utf-8'), line) and \
-                        re.search(TRANS_OPNAME_PATTERN.encode(encoding='utf-8'), line):
+                if re.search(TRANS_TIME_PATTERN.encode(encoding=self.csv_encoding), line) and \
+                        re.search(TRANS_AMT_PATTERN.encode(encoding=self.csv_encoding), line) and \
+                        re.search(TRANS_BAL_PATTERN.encode(encoding=self.csv_encoding), line) and \
+                        re.search(TRANS_OPNAME_PATTERN.encode(encoding=self.csv_encoding), line):
                     if temp_len > max_len:
                         title = cnt
                         max_len = temp_len
@@ -72,10 +81,10 @@ class TransCsv:
         return title
 
     def _convert_to_dataframe(self):
-        deli = self.delimiter.decode(encoding='utf-8')
+        deli = self.delimiter.decode(encoding=self.csv_encoding)
         df = None
         try:
-            df = pd.read_csv(self.file, delimiter=deli, header=self.title, index_col=False, encoding='utf-8')
+            df = pd.read_csv(self.file, delimiter=deli, header=self.title, index_col=False, encoding=self.csv_encoding)
             self.basic_status = True
         except:
             self.basic_status = False
