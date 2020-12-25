@@ -18,6 +18,7 @@ class Tp0001(Transformer):
     """
     违约模型
     """
+
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
@@ -83,12 +84,13 @@ class Tp0001(Transformer):
                 other_loan_df.sort_values(by='date', inplace=True)
                 other_loan_df = other_loan_df[(~other_loan_df['org_code'].str.contains('806460')) &
                                               (other_loan_df['date'] >= query_date + offsets.DateOffset(years=-2))]
-                other_loan_df['month_from_now'] = \
-                    other_loan_df['date'].apply(lambda x: (query_date.year - x.year) * 12 + query_date.month - x.month +
-                                                          (query_date.day - x.day) // 100)
-                self.variables['oth_loan_reason_else_6m'] = \
-                    other_loan_df.loc[(other_loan_df['month_from_now'] <= 5) &
-                                      (other_loan_df['reason_code'] != '01')].shape[0]
+                if other_loan_df.shape[0] > 0:
+                    other_loan_df['month_from_now'] = \
+                        other_loan_df['date'].apply(lambda x: (query_date.year - x.year) * 12 + query_date.month -
+                                                    x.month + (query_date.day - x.day) // 100)
+                    self.variables['oth_loan_reason_else_6m'] = \
+                        other_loan_df.loc[(other_loan_df['month_from_now'] <= 5) &
+                                          (other_loan_df['reason_code'] != '01')].shape[0]
 
         if self.jg_data is not None and self.jg_data.shape[0] > 0:
             jg_df = self.jg_data[self.jg_data['field_name'] == 'cts_app_145']
