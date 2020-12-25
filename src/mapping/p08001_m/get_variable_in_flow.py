@@ -92,5 +92,5 @@ class GetVariableInFlow(TransModuleProcessor):
         if self.trans_u_flow_portrait is not None and self.trans_u_flow_portrait.shape[0] > 0:
             max_time = self.trans_u_flow_portrait['trans_date'].max()
             min_time = self.trans_u_flow_portrait['trans_date'].min()
-            self.variables['import_interval'] = (datetime.now().date() - max_time).day
+            self.variables['import_interval'] = (datetime.now().date() - max_time).days
             self.variables['trans_interval'] = (max_time - min_time).day
