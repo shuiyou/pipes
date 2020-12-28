@@ -186,6 +186,7 @@ class P08001(Generate):
         strategy_resp = {}
 
         data_repository = {"input_param": subjects, "single": is_single}
+        origin_input = {}
         if not is_single:
             variables, out_decision_code = translate_for_strategy(product_code, biz_types, user_name, id_card_no, phone,
                                                               user_type, base_type, df_client, main_query_data, data_repository)
