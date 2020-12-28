@@ -169,3 +169,7 @@ def test_strategy_09001_1(client):
 
 def test_strategy_07003(client):
     strategy_request(client, "07003")
+
+
+def test_strategy_07003(client):
+    strategy_request(client, "07003")
