@@ -90,13 +90,14 @@ class MicroLoanTransFlowExecutor(MicroLoanFlow):
 
         strategy_param = self.json_data.get('strategyParam')
         report_req_no = strategy_param.get('preReportReqNo')
+        extra_param = strategy_param.get('extraParam')
 
         public_param = {
             "reqNo": self.req_no,
             "reportReqNo": report_req_no,
             "productCode": self.product_code,
             "isSingle": False,
-            "outApplyNo": self.json_data.get("outApplyNo"),
+            "outApplyNo": extra_param.get("outApplyNo"),
             "applyAmt": self.json_data.get("applyAmt"),
             "renewLoans": self.json_data.get("renewLoans"),
             "historicalBiz": self.json_data.get("historicalBiz")
