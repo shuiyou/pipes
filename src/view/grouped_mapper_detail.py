@@ -28,6 +28,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
         if view_transformers and len(view_transformers) > 0:
             filtered_view_trans = filter(lambda x: x.invoke_style() & invoke_style > 0, view_transformers)
             for product_view_tran in filtered_view_trans:
+                logger.info("product_view_tran begin :%s", str(product_view_tran))
                 product_view_tran.full_msg = full_msg
                 trans_result = product_view_tran.run(user_name=user_name,
                                                      id_card_no=id_card_no,
@@ -36,6 +37,7 @@ def view_variables_scheduler(product_code, full_msg=None, user_name=None, id_car
                                                      base_type=base_type,
                                                      origin_data=origin_data,
                                                      cached_data=cached_data)
+                logger.info("product_view_tran end :%s", str(product_view_tran))
                 group_name = product_view_tran.group_name()
                 variables[group_name] = trans_result['variables']
 

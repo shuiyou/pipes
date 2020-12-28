@@ -153,8 +153,7 @@ def test_003():
     print(float('-999') == -999)
 
 def test_004():
-    idno = '320681198807233019'
-    print(idno[0:4])
+    print(np.round(float('0.43087915501708607'), 4))
 
 
 def test_score_to_int():
