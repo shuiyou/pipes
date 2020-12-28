@@ -304,13 +304,13 @@ class Tp0002(Transformer):
 
     def flow_variables(self):
         if self.trans_u_flow is not None and self.trans_u_flow.shape[0] > 0:
-            self.trans_u_flow['trans_date'] = self.trans_u_flow['trans_time'].apply(lambda x: x.date)
-            trans_max = self.trans_u_flow['trans_time'].max()
+            # self.trans_u_flow['trans_date'] = self.trans_u_flow['trans_time'].apply(lambda x: x.date)
+            trans_max = self.trans_u_flow['trans_date'].max()
             # 剔除强关联关系及异常交易类型
             temp_trans_detail = self.trans_u_flow[
                 (pd.isnull(self.trans_u_flow['relationship'])) &
                 (pd.isnull(self.trans_u_flow['unusual_trans_type'])) &
-                (self.trans_u_flow['trans_time'] >= trans_max + offsets.DateOffset(months=-6))]
+                (self.trans_u_flow['trans_date'] >= trans_max + offsets.DateOffset(months=-6))]
             if temp_trans_detail.shape[0] > 0:
                 operating_income_6m = temp_trans_detail[
                     temp_trans_detail['trans_amt'] > 0]['trans_amt'].sum()
