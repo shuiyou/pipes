@@ -217,8 +217,7 @@ class TransactionTime:
         return
 
     def time_match(self):
-        self.df.loc[:, self.time_col] = self.df.loc[:, self.time_col].replace('', None).fillna(method='ffill').\
-            fillna(method='bfill')
+        self.df.loc[:, self.time_col] = self.df.loc[:, self.time_col].replace('', None).fillna('000000')
         res = self.time_col
         # res = self._notnull_cnt(self.time_col)
         length = len(res)
