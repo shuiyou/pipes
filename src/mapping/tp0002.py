@@ -3,13 +3,14 @@
 # @File : tp00001.py.py 
 # @Software: PyCharm
 import math
+
 import pandas as pd
 from jsonpath import jsonpath
+from pandas.tseries import offsets
 
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
 from util.mysql_reader import sql_to_df
-from pandas.tseries import offsets
 
 logger = LoggerUtil().logger(__name__)
 
@@ -351,6 +352,6 @@ class Tp0002(Transformer):
                         self.variables['model_pred'] = max(main_model_pred, spouse_model_pred)
 
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
-            if is_first_loan:
-                self.variables["is_first_loan"] = is_first_loan
+            if is_first_loan and len(is_first_loan) > 0:
+                self.variables["is_first_loan"] = is_first_loan[0]
 
