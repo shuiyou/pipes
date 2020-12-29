@@ -74,7 +74,7 @@ class TransProfile:
         #     self.resp['resMsg'] = '失败'
         #     self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持csv,xls,xlsx格式文件']
         #     return
-        file_type = self.file[-5:]
+        file_type = str(self.file.filename)[-5:]
         if 'csv' in file_type:
             trans_class = TransCsv(self.file)
         elif 'xls' in file_type:
