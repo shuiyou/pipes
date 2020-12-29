@@ -4,6 +4,7 @@
 # @Software: PyCharm
 import math
 import pandas as pd
+from jsonpath import jsonpath
 
 from logger.logger_util import LoggerUtil
 from mapping.tranformer import Transformer
@@ -349,9 +350,7 @@ class Tp0002(Transformer):
                         self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
                         self.variables['model_pred'] = max(main_model_pred, spouse_model_pred)
 
-            extra_param = self.full_msg.get("extraParam")
-            if extra_param:
-                is_first_loan = extra_param.get("isFirstLoan")
-                if is_first_loan:
-                    self.variables["is_first_loan"] = is_first_loan
+            is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
+            if is_first_loan:
+                self.variables["is_first_loan"] = is_first_loan
 
