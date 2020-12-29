@@ -117,6 +117,8 @@ class Tp0002(Transformer):
                                    (self.com_busi_info['cll_typ'] != '')]['cll_typ'].apply(lambda x: x[:3]).nunique()
 
             self.com_busi_info['opera_year'].replace('', 0, inplace=True)
+            self.com_busi_info['opera_year'] = self.com_busi_info.apply(
+                lambda x: 0 if pd.isna(x['opera_year']) else int(x['opera_year']), axis=1)
 
             last_total_sale_amt = 0
             last_total_profit_amt = 0
