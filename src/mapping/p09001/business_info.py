@@ -13,12 +13,12 @@ class BusinessInfo(Transformer):
         self.variables = {
             'bus_total_accounts_payable_debt_amt': None,  # 企业应付账款总负债
             'operating_cycle': 0,  # 营业周期
-            'main_business_running_years': None,  # 主营企业经营年限
+            'main_business_running_years': -999,  # 主营企业经营年限
             'bus_total_assets_amt': None,  # 企业总资产
-            'total_currency_assets_amt': None,  # 个人_企业货币资金总资产
-            'quick_debt_to_assets_ratio': None,  # 速动比率
-            'sale_to_loan_ratio': None,  # 销贷比
-            'bus_industry_2nd_cnt': None,  # 二类行业数
+            'total_currency_assets_amt': 0,  # 个人_企业货币资金总资产
+            'quick_debt_to_assets_ratio': -999,  # 速动比率
+            'sale_to_loan_ratio': -999,  # 销贷比
+            'bus_industry_2nd_cnt': 0,  # 二类行业数
             'per_guar_debt_balance': None  # 个人对外担保总负债余额
         }
         self.full_msg = None
