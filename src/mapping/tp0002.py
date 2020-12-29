@@ -45,7 +45,8 @@ class Tp0002(Transformer):
             'balance_day_avg_6m': 0,  # 6个月余额日均
             'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
-            'model_pred': 0  # 违约模型
+            'model_pred': 0,  # 违约模型,
+            'is_first_loan': "N"  # 是否为首次贷款
         }
         self.per_asset_info = None
         self.per_debt_info = None
@@ -345,3 +346,10 @@ class Tp0002(Transformer):
                     if main_amt_pred is not None and spouse_amt_pred is not None:
                         self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
                         self.variables['model_pred'] = max(main_model_pred, spouse_model_pred)
+
+            extra_param = self.full_msg.get("extraParam")
+            if extra_param:
+                is_first_loan = extra_param.get("isFirstLoan")
+                if is_first_loan:
+                    self.variables["is_first_loan"] = is_first_loan
+
