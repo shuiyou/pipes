@@ -98,6 +98,9 @@ MIN_CONTI_MONTHS = 6
 # 最大民间借贷日期差别
 MAX_INTERVAL_DAYS = 5
 
+# 多久内导入的流水视为同一笔业务的流水
+MONTH_LIMIT = 2
+
 # 四.二进制类型枚举
 # csv文件分隔符类型枚举值
 CSV_DELIMITER = [',', ';', '|', '\t', ':']

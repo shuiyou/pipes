@@ -1,13 +1,17 @@
 
 from fileparser.trans_flow.trans_config import MIN_IMPORT_INTERVAL, MIN_QUERY_INTERVAL, MIN_TRANS_INTERVAL, \
     DTTIME_PATTERN, TIME_PATTERN, DATE_PATTERN, TIME_S_PATTERN
+import pandas as pd
 import datetime
 import re
 
 
 def dttime_apply(time):
     # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
-    temp = ''.join([_ for _ in time if _.isdigit()])
+    try:
+        temp = format(pd.to_datetime(time), '%Y%m%d%H%M%S')
+    except:
+        temp = ''.join([_ for _ in time if _.isdigit()])
     if len(temp) == 0:
         raise ValueError("交易日期列存在不符合格式的值t001")
     if temp[0] == '2':
@@ -88,10 +92,13 @@ class TransactionTime:
         sample = list(self.df[column][:10])
         cnt = 0
         for x in sample:
-            if type(x) == float:
-                x = str(int(x))
-            else:
-                x = str(x)
+            try:
+                x = format(pd.to_datetime(x), '%Y%m%d%H%M%S')
+            except:
+                if type(x) == float:
+                    x = str(int(x))
+                else:
+                    x = str(x)
             y = [_ for _ in x if _.isdigit()]
             z = ''.join(y)[:number]
             if number == 6 or number == 4:
@@ -108,7 +115,10 @@ class TransactionTime:
 
     @staticmethod
     def _date_apply(time):
-        temp = ''.join([_ for _ in time if _.isdigit()])
+        try:
+            temp = format(pd.to_datetime(time), '%Y%m%d')
+        except:
+            temp = ''.join([_ for _ in time if _.isdigit()])
         if len(temp) == 0:
             raise ValueError("交易日期列有不符合格式的值t002")
         if temp[0] == '2':
