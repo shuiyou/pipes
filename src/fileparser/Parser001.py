@@ -121,7 +121,7 @@ class Parser001(Parser):
 
         # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
         logger.info("%d-----------------------%s" % (9, '进行数据落库'))
-        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params, trans_profile.resp,
+        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params, transaction_bal.resp,
                                     transaction_bal.basic_status)
         raw_data.df = raw_data.remove_duplicate_data(transaction_bal.df)
         # 若没有新增数据将不进行落库操作
