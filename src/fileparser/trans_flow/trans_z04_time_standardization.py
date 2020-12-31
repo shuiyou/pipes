@@ -9,7 +9,7 @@ import re
 def dttime_apply(time):
     # 首位是'2',形如'2020-01-01 05:02:04',末尾加上'000000'是为了防止出现秒钟缺失情况
     try:
-        temp = format(pd.to_datetime(time), '%Y%m%d%H%M%S')
+        temp = format(pd.to_datetime(str(time)), '%Y%m%d%H%M%S')
     except:
         temp = ''.join([_ for _ in time if _.isdigit()])
     if len(temp) == 0:
@@ -93,7 +93,7 @@ class TransactionTime:
         cnt = 0
         for x in sample:
             try:
-                x = format(pd.to_datetime(x), '%Y%m%d%H%M%S')
+                x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
             except:
                 if type(x) == float:
                     x = str(int(x))
@@ -116,7 +116,7 @@ class TransactionTime:
     @staticmethod
     def _date_apply(time):
         try:
-            temp = format(pd.to_datetime(time), '%Y%m%d')
+            temp = format(pd.to_datetime(str(time)), '%Y%m%d')
         except:
             temp = ''.join([_ for _ in time if _.isdigit()])
         if len(temp) == 0:
