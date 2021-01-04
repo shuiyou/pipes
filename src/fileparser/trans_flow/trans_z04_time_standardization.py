@@ -92,9 +92,8 @@ class TransactionTime:
         sample = list(self.df[column][:10])
         cnt = 0
         for x in sample:
-            valid_num_cnt = len(re.sub(r'[^\d]', '', str(x)))
             try:
-                if valid_num_cnt >= 9 and number == 14:
+                if "/" in x:
                     x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
                 else:
                     raise ValueError
