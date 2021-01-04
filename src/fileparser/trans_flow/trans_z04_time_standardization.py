@@ -138,6 +138,7 @@ class TransactionTime:
     @staticmethod
     def _time_apply(time):
         if ':' in time or '：' in time:
+            time = time.split('.')[0]
             temp = '000000' + ''.join([_ for _ in time if _.isdigit()])
             result = temp[-6:]
         elif '.' in time:
@@ -151,7 +152,7 @@ class TransactionTime:
             else:
                 result = str(int(temp)).rjust(6, '0')
         elif len(time) >= 1:
-            temp = '000000' + time
+            temp = '000000' + time.split('.')[0]
             result = temp[-6:]
         else:
             result = '000000'
