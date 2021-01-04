@@ -49,27 +49,27 @@ class TransBasic:
         use_pat = re.compile(TRANS_USE_PATTERN)
         mark_pat = re.compile(TRANS_REMARK_PATTERN)
         for col in self.df.columns:
-            col = str(col)
-            if re.search(time_pat, col):
+            temp_col = re.sub(r'\s', '', str(col))
+            if re.search(time_pat, temp_col):
                 self.col_mapping['time_col'].append(col)
-            elif re.search(amt_pat, col):
+            elif re.search(amt_pat, temp_col):
                 self.col_mapping['amt_col'].append(col)
-            elif re.search(bal_pat, col):
+            elif re.search(bal_pat, temp_col):
                 self.col_mapping['bal_col'].append(col)
-            elif re.search(cur_pat, col):
+            elif re.search(cur_pat, temp_col):
                 self.col_mapping['cur_col'].append(col)
-            elif re.search(opname_pat, col):
+            elif re.search(opname_pat, temp_col):
                 self.col_mapping['opname_col'].append(col)
-            elif re.search(opacc_pat, col):
+            elif re.search(opacc_pat, temp_col):
                 self.col_mapping['opacc_col'].append(col)
-            elif re.search(opbank_pat, col):
+            elif re.search(opbank_pat, temp_col):
                 self.col_mapping['opbank_col'].append(col)
-            elif re.search(chn_pat, col):
+            elif re.search(chn_pat, temp_col):
                 self.col_mapping['chn_col'].append(col)
-            elif re.search(typ_pat, col):
+            elif re.search(typ_pat, temp_col):
                 self.col_mapping['typ_col'].append(col)
-            elif re.search(use_pat, col):
+            elif re.search(use_pat, temp_col):
                 self.col_mapping['use_col'].append(col)
-            elif re.search(mark_pat, col):
+            elif re.search(mark_pat, temp_col):
                 self.col_mapping['mark_col'].append(col)
         return
