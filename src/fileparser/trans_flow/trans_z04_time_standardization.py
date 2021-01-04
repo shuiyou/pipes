@@ -92,8 +92,12 @@ class TransactionTime:
         sample = list(self.df[column][:10])
         cnt = 0
         for x in sample:
+            valid_num_cnt = len(re.sub(r'[^\d]', '', str(x)))
             try:
-                x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
+                if valid_num_cnt >= 9 and number == 14:
+                    x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
+                else:
+                    raise ValueError
             except:
                 if type(x) == float:
                     x = str(int(x))
