@@ -114,6 +114,7 @@ class Tp0002(Transformer):
             per_total_flow_assets_amt = self.per_asset_info[
                 self.per_asset_info['indiv_ass_type'].isin(['05', '06', '07'])]['indiv_ass_val'].sum()
 
+        bus_total_busi_currency_assets_amt = 0
         if self.com_busi_info is not None and self.com_busi_info.shape[0] > 0:
             self.variables['bus_industry_2nd_cnt'] = \
                 self.com_busi_info[(pd.notna(self.com_busi_info['cll_typ'])) &
@@ -151,8 +152,6 @@ class Tp0002(Transformer):
                 self.variables['bus_total_assets_amt'] = temp_asset_info['cost_perc'].sum()
                 bus_total_busi_currency_assets_amt = \
                     temp_asset_info[temp_asset_info['asset_typ'] == '1']['cost_perc'].sum()
-                self.variables['total_currency_assets_amt'] = \
-                    per_currency_assets_amt + bus_total_busi_currency_assets_amt
 
                 bus_total_stock_assets_amt = temp_asset_info[temp_asset_info['asset_typ'] == '4']['cost_perc'].sum()
                 bus_total_receivables_assets_amt = \
@@ -192,6 +191,8 @@ class Tp0002(Transformer):
             self.variables['sale_to_loan_ratio'] = \
                 (per_total_bank_debt_amt + bus_total_bank_debt_amt) / last_total_sale_amt \
                 if last_total_sale_amt != 0 else -999
+        self.variables['total_currency_assets_amt'] = \
+            per_currency_assets_amt + bus_total_busi_currency_assets_amt
 
     def fetch_info(self, table_name):
         sql = """select * from %(table_name)s where report_id = %(report_id)s"""
@@ -329,7 +330,7 @@ class Tp0002(Transformer):
                 total_amt_list = [diff_days[j] * amt_list[j] for j in range(len(date_list))]
                 balance_day_avg_6m = sum(total_amt_list) / total_days if total_days != 0 else 0
                 self.variables['balance_day_avg_6m'] = balance_day_avg_6m / 10000
-                self.variables['flow_limit_amt'] = round(max(operating_income_6m / 15, balance_day_avg_6m * 5))
+                self.variables['flow_limit_amt'] = round(max(operating_income_6m / 150000, balance_day_avg_6m * 50000))
 
     def trans_transform(self):
         self.basic_data()
@@ -354,4 +355,3 @@ class Tp0002(Transformer):
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
             if is_first_loan and len(is_first_loan) > 0:
                 self.variables["is_first_loan"] = is_first_loan[0]
-
