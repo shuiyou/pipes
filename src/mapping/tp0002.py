@@ -330,7 +330,7 @@ class Tp0002(Transformer):
                 total_amt_list = [diff_days[j] * amt_list[j] for j in range(len(date_list))]
                 balance_day_avg_6m = sum(total_amt_list) / total_days if total_days != 0 else 0
                 self.variables['balance_day_avg_6m'] = balance_day_avg_6m / 10000
-                self.variables['flow_limit_amt'] = round(max(operating_income_6m / 15, balance_day_avg_6m * 5))
+                self.variables['flow_limit_amt'] = round(max(operating_income_6m / 150000, balance_day_avg_6m * 50000))
 
     def trans_transform(self):
         self.basic_data()
