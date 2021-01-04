@@ -93,7 +93,10 @@ class TransactionTime:
         cnt = 0
         for x in sample:
             try:
-                x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
+                if "/" in x:
+                    x = format(pd.to_datetime(str(x)), '%Y%m%d%H%M%S')
+                else:
+                    raise ValueError
             except:
                 if type(x) == float:
                     x = str(int(x))
