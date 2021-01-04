@@ -39,11 +39,11 @@ GEARS_DB = {
 
 
 GEARS_DB = {
-    'user': os.getenv('DB_USER', 'root'),
-    'pw': os.getenv('DB_PW', 'root.123'),
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'port': os.getenv('DB_PORT', 3306),
-    'db': os.getenv('DB_NAME', 'gears'),
+    'user': os.getenv('DB_USER', 'gears_dev'),
+    'pw': os.getenv('DB_PW', 'x2cqpau4'),
+    'host': os.getenv('DB_HOST', '192.168.1.9'),
+    'port': os.getenv('DB_PORT', 3360),
+    'db': os.getenv('DB_NAME', 'gears_dev'),
 }
 
 """
