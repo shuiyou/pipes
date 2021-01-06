@@ -59,8 +59,7 @@ class TransXls:
                 string = ''.join(temp)
                 if re.search(TRANS_TIME_PATTERN, string) and \
                         re.search(TRANS_AMT_PATTERN, string) and \
-                        re.search(TRANS_BAL_PATTERN, string) and \
-                        re.search(TRANS_OPNAME_PATTERN, string):
+                        re.search(TRANS_BAL_PATTERN, string):
                     if temp_len > max_len:
                         title = cnt
                         max_len = temp_len

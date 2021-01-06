@@ -72,8 +72,7 @@ class TransCsv:
                 temp_len = line.count(self.delimiter)
                 if re.search(TRANS_TIME_PATTERN.encode(encoding=self.csv_encoding), line) and \
                         re.search(TRANS_AMT_PATTERN.encode(encoding=self.csv_encoding), line) and \
-                        re.search(TRANS_BAL_PATTERN.encode(encoding=self.csv_encoding), line) and \
-                        re.search(TRANS_OPNAME_PATTERN.encode(encoding=self.csv_encoding), line):
+                        re.search(TRANS_BAL_PATTERN.encode(encoding=self.csv_encoding), line):
                     if temp_len > max_len:
                         title = cnt
                         max_len = temp_len
