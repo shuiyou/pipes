@@ -20,4 +20,4 @@ scipy
 aurora-common-utils
 flask_sqlalchemy
 xlwt
-xlrd
+xlrd==0.9.3
