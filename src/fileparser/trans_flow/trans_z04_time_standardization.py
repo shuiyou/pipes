@@ -208,6 +208,9 @@ class TransactionTime:
                 res.remove(col)
                 break
         for col in res:
+            # 如果已经找到日期列，且在寻找时间列时，时间列与日期列完全一致，则不考虑该列
+            if date_col != '' and list(self.df[date_col].astype(str)[:10]) == list(self.df[col].astype(str)[:10]):
+                continue
             if self._match_time_head(col, time_pat, 6):
                 time_col = col
                 self.df[time_col] = self.df[time_col].fillna(0).astype(str).apply(self._time_apply)
