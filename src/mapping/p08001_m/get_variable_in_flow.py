@@ -15,6 +15,7 @@ class GetVariableInFlow(TransModuleProcessor):
         self._opponent()
         self._related()
         self._normal()
+        self._interval()
 
     # 异常交易类 计数
     def _unusual_trans_cnt(self):
@@ -85,3 +86,11 @@ class GetVariableInFlow(TransModuleProcessor):
         df['month(trans_date)'] = df['trans_date'].apply(lambda x: x.month)
         self.variables['normal_expense_amt_m_std'] = round(nan_to_zero(df.groupby(['year(trans_date)', 'month(trans_date)'])[
             'trans_amt'].sum().std()),4)
+
+    # 导入间隔和交易间隔
+    def _interval(self):
+        if self.trans_u_flow_portrait is not None and self.trans_u_flow_portrait.shape[0] > 0:
+            max_time = self.trans_u_flow_portrait['trans_date'].max()
+            min_time = self.trans_u_flow_portrait['trans_date'].min()
+            self.variables['import_interval'] = (datetime.now().date() - max_time).days
+            self.variables['trans_interval'] = (max_time - min_time).days

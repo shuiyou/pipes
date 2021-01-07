@@ -1334,6 +1334,27 @@ class TransFlow(Base):
     update_time = Column(DateTime)
 
 
+class TransFlowException(Base):
+    __tablename__ = 'trans_flow_exception'
+
+    id = Column(BIGINT(20), primary_key=True)
+    account_id = Column(BIGINT(20))
+    out_req_no = Column(String(32))
+    trans_time = Column(DateTime)
+    opponent_name = Column(String(255))
+    trans_amt = Column(DECIMAL(16, 4))
+    account_balance = Column(DECIMAL(16, 4))
+    currency = Column(String(16))
+    opponent_account_no = Column(String(32))
+    opponent_account_bank = Column(String(16))
+    trans_channel = Column(String(16))
+    trans_type = Column(String(16))
+    trans_use = Column(String(16))
+    remark = Column(String(32))
+    create_time = Column(DateTime)
+    update_time = Column(DateTime)
+
+
 class TransFlowPortrait(Base):
     __tablename__ = 'trans_flow_portrait'
 

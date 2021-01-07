@@ -85,9 +85,9 @@ class Parser001(Parser):
         if not transaction_time.basic_status:
             return transaction_time.resp
         # 计算查询间隔,交易间隔,导入间隔,查看三者是否满足要求,若不满足,则直接返回相应的回应报文
-        transaction_time.time_interval_check()
-        if not transaction_time.basic_status:
-            return transaction_time.resp
+        # transaction_time.time_interval_check()
+        # if not transaction_time.basic_status:
+        #     return transaction_time.resp
 
         # 5.将4中得到的流水数据传入交易金额列处理类
         logger.info("%d-----------------------%s" % (5, '进行交易金额列校验'))
@@ -116,15 +116,16 @@ class Parser001(Parser):
             return transaction_bal.resp
         # 从头检查上一行交易余额+本行交易金额是否等于本行交易余额,若出现不匹配则直接返回相应报文
         transaction_bal.balance_sequence_check()
-        if not transaction_bal.basic_status:
-            return transaction_bal.resp
+        # if not transaction_bal.basic_status:
+        #     return transaction_bal.resp
 
         # 9.将8中的到的最终数据传入流水账户表和原始数据表中落库
         logger.info("%d-----------------------%s" % (9, '进行数据落库'))
-        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params, trans_profile.resp)
+        raw_data = TransFlowRawData(self.sql_db, self.param, trans_profile.title_params, transaction_bal.resp,
+                                    transaction_bal.basic_status)
         raw_data.df = raw_data.remove_duplicate_data(transaction_bal.df)
         # 若没有新增数据将不进行落库操作
-        if raw_data.new_data:
+        if raw_data.df is not None and raw_data.df.shape[0] > 0 and raw_data.new_data:
             raw_data.save_raw_data()
 
         return raw_data.resp

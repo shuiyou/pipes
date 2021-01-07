@@ -47,7 +47,7 @@ class TransactionOtherInfo:
         else:
             self.df[col_name] = ''
         if col_name == 'currency':
-            self.df = self.df[(self.df[col_name].str.contains('¥|人|RMB|rmb|Rmb')) |
+            self.df = self.df[(self.df[col_name].str.contains('¥|人|RMB|rmb|Rmb|CNY|cny')) |
                               (pd.isna(self.df[col_name])) |
                               (self.df[col_name] == '')]
             self.df.reset_index(drop=True, inplace=True)

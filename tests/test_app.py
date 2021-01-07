@@ -94,7 +94,7 @@ def test_shake_hand_06001(client):
     shake_hand_request(client, "06001")
 
 
-# ---------------------------新版一级联合报告握手---------------------------
+# 新版一级联合报告
 def test_shake_hand_03002(client):
     shake_hand_request(client, "03002")
 
@@ -149,11 +149,26 @@ def test_strategy_08001_2(client):
     strategy_request(client, "08001_2")
 
 
-# ---------------------------新版一级联合报告---------------------------
+# 新版一级联合报告
 def test_strategy_03002(client):
     strategy_request(client, "03002")
 
 
+# --------------小额快贷风险拦截------------------
+def test_shake_hand_09001(client):
+    shake_hand_request(client, "09001")
+
+
+def test_strategy_09001(client):
+    strategy_request(client, "09001")
+
+
+def test_strategy_09001_1(client):
+    strategy_request(client, "09001_1")
+
+
+def test_strategy_07003(client):
+    strategy_request(client, "07003")
 
 
 def test_strategy_07003(client):

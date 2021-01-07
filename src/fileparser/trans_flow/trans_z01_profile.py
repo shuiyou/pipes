@@ -3,6 +3,8 @@ from fileparser.trans_flow.trans_config import MAX_TITLE_NUMBER
 from openpyxl.utils import get_column_letter as colref
 from util.pyheaderfile import Xlsx, Xls, Csv
 from fileparser.trans_flow.trans_z04_time_standardization import dttime_apply
+from fileparser.trans_flow.trans_csv import TransCsv
+from fileparser.trans_flow.trans_xls import TransXls
 import datetime
 import openpyxl
 import pandas as pd
@@ -21,10 +23,16 @@ class TransProfile:
     属性校验:包括银行名称,银行账号,户名校验
     author:汪腾飞
     created_time:20200630
+    v1.0
     updated_time_v1:20200706,表头搜索到银行名将不再更改客户所填入参,而直接将该银行名存入account表中
     updated_time_v2:20200817,读取其他类型流水文件,包括xls,csv, 无法体现户名,账户信息话术统一
     updated_time_v3:20201126,流水起始日期和截止日期都进行标准化转换,即若日期格式是形如43832的数字,也将其转化为日期
                              同时户名新增模糊校验,即若姓名做了脱敏处理,只要未脱敏的部分能匹配则算匹配上
+    v2.0
+    updated_time_v4:20201223,
+        1.不再进行户名，账号，银行名称校验，且不再更改客户所填银行名称与账号
+        2.csv和xls现在均可以正常读取，不再需要另存为xlsx后再读取，且无论流水数据放在第几页都可进行识别
+        3.流水标题行需要同时识别到：交易时间，交易金额，交易余额，交易对手这几列的关键字，即新增了交易对手这个列的识别
     """
 
     def __init__(self, file, param):
@@ -49,23 +57,38 @@ class TransProfile:
         }
 
     def process(self):
-        try:
-            self.ws = self._load_worksheet()
-            self.maxcol = self.ws.max_column
-            self.maxrow = self.ws.max_row
-            self.mincol = self.ws.min_column
-            self.minrow = self.ws.min_row
-            self.title = self._find_title()
-            self.trans_title_check()
-            if self.basic_status:
-                self.trans_data = self._trans_data()
-        except Exception as e:
-            logger.error(e)
+        # try:
+        #     self.ws = self._load_worksheet()
+        #     self.maxcol = self.ws.max_column
+        #     self.maxrow = self.ws.max_row
+        #     self.mincol = self.ws.min_column
+        #     self.minrow = self.ws.min_row
+        #     self.title = self._find_title()
+        #     self.trans_title_check()
+        #     if self.basic_status:
+        #         self.trans_data = self._trans_data()
+        # except Exception as e:
+        #     logger.error(e)
+        #     self.basic_status = False
+        #     self.resp['resCode'] = '1'
+        #     self.resp['resMsg'] = '失败'
+        #     self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持csv,xls,xlsx格式文件']
+        #     return
+        file_type = str(self.file.filename)[-5:]
+        if 'csv' in file_type:
+            trans_class = TransCsv(self.file)
+        elif 'xls' in file_type:
+            trans_class = TransXls(self.file)
+        else:
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
             self.resp['data']['warningMsg'] = ['上传文件类型错误,仅支持csv,xls,xlsx格式文件']
             return
+        trans_class.process()
+        self.basic_status = trans_class.basic_status
+        self.trans_data = trans_class.trans_data
+        self.resp = trans_class.resp
 
     # 将流水所在整个工作表读到内存中
     def _load_worksheet(self):

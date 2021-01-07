@@ -6,7 +6,7 @@ from portrait.transflow.single_account_portrait.models import TransAccount, Tran
     TransSinglePortrait, TransSingleSummaryPortrait, TransSingleRemarkPortrait, TransSingleCounterpartyPortrait, \
     TransSingleRelatedPortrait, TransSingleLoanPortrait, TransApply, TransUFlowPortrait, TransULoanPortrait, \
     TransUModelling, TransUPortrait, TransUCounterpartyPortrait, TransURelatedPortrait, TransURemarkPortrait, \
-    TransUSummaryPortrait
+    TransUSummaryPortrait, TransFlowException
 from util.mysql_reader import sql_to_df
 
 

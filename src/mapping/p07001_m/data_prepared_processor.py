@@ -69,9 +69,7 @@ class DataPreparedProcessor(ModuleProcessor):
 
     # credit_parse_request表信息提取
     def _credit_parse_request_extract(self):
-        pre_report_req_no = self.origin_data["preReportReqNo"]
-        if pre_report_req_no is None:
-            raise DataPreparedException(description="入参数字段preReportReqNo为空")
+        pre_report_req_no = self.obtain_credit_parse_req_no()
 
         sql = "select * from credit_parse_request where out_req_no = %(pre_report_req_no)s"
 
@@ -88,6 +86,19 @@ class DataPreparedProcessor(ModuleProcessor):
         self.cached_data["credit_parse_request"] = record
         self.cached_data["report_id"] = df.iloc[0]["report_id"]
         return report_id
+
+    def obtain_credit_parse_req_no(self):
+        pre_report_req_no = self.origin_data.get("preReportReqNo")
+        if pre_report_req_no is None:
+            extra_param = self.origin_data.get("extraParam")
+            if extra_param:
+                passthrough_msg = extra_param.get("passthroughMsg")
+                if passthrough_msg:
+                    pre_report_req_no = passthrough_msg.get("creditParseReqNo")
+
+        if pre_report_req_no:
+            return pre_report_req_no
+        raise DataPreparedException(description="入参数字段preReportReqNo为空")
 
     # report_id对应的各表的记录获取
     def table_record_to_df(self, table_name, report_id):
