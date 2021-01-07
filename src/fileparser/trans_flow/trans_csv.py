@@ -39,44 +39,50 @@ class TransCsv:
             self.basic_status = False
             self.resp['resCode'] = '20'
             self.resp['resMsg'] = '解析失败'
-            self.resp['data']['warningMsg'] = ['上传失败,无法找到标题行,流水文件内容有误']
+            if self.title == -1:
+                self.resp['data']['warningMsg'] = ['上传失败,无法找到标题行,流水文件内容有误']
+            else:
+                self.resp['data']['warningMsg'] = ['文件读取失败,请检查文件是否损坏']
             return
         self.trans_data = self._convert_to_dataframe()
 
     def _find_title(self):
-        with open(self.file, 'rb') as f:
-            # 读取前n行数据，查找标题行所在
-            lines = f.readlines()[:MAX_TITLE_NUMBER]
-            max_len = 0  # 最大列
-            title = -1  # 标题行号
-            cnt = 0  # 非空行计数
-            for line in lines:
-                line = re.sub(rb'\s', b'', line)
-                if len(line) == 0:
-                    continue
-                if cnt == 0:  # 第一个非空行里面寻找本csv文件的分隔符
-                    for enco in CSV_ENCODING:
-                        try:
-                            line.decode(encoding=enco)
-                            self.csv_encoding = enco
-                            break
-                        except:
-                            continue
-                    deli_max_len = 0
-                    for deli in CSV_DELIMITER:
-                        deli_len = line.count(deli.encode(encoding=self.csv_encoding))
-                        if deli_len > deli_max_len:
-                            deli_max_len = deli_len
-                            self.delimiter = deli.encode(encoding=self.csv_encoding)
-                    
-                temp_len = line.count(self.delimiter)
-                if re.search(TRANS_TIME_PATTERN.encode(encoding=self.csv_encoding), line) and \
-                        re.search(TRANS_AMT_PATTERN.encode(encoding=self.csv_encoding), line) and \
-                        re.search(TRANS_BAL_PATTERN.encode(encoding=self.csv_encoding), line):
-                    if temp_len > max_len:
-                        title = cnt
-                        max_len = temp_len
-                cnt += 1
+        try:
+            with open(self.file, 'rb') as f:
+                # 读取前n行数据，查找标题行所在
+                lines = f.readlines()[:MAX_TITLE_NUMBER]
+        except:
+            return
+        max_len = 0  # 最大列
+        title = -1  # 标题行号
+        cnt = 0  # 非空行计数
+        for line in lines:
+            line = re.sub(rb'\s', b'', line)
+            if len(line) == 0:
+                continue
+            if cnt == 0:  # 第一个非空行里面寻找本csv文件的分隔符
+                for enco in CSV_ENCODING:
+                    try:
+                        line.decode(encoding=enco)
+                        self.csv_encoding = enco
+                        break
+                    except:
+                        continue
+                deli_max_len = 0
+                for deli in CSV_DELIMITER:
+                    deli_len = line.count(deli.encode(encoding=self.csv_encoding))
+                    if deli_len > deli_max_len:
+                        deli_max_len = deli_len
+                        self.delimiter = deli.encode(encoding=self.csv_encoding)
+
+            temp_len = line.count(self.delimiter)
+            if re.search(TRANS_TIME_PATTERN.encode(encoding=self.csv_encoding), line) and \
+                    re.search(TRANS_AMT_PATTERN.encode(encoding=self.csv_encoding), line) and \
+                    re.search(TRANS_BAL_PATTERN.encode(encoding=self.csv_encoding), line):
+                if temp_len > max_len:
+                    title = cnt
+                    max_len = temp_len
+            cnt += 1
         return title
 
     def _convert_to_dataframe(self):

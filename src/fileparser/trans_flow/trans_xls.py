@@ -32,11 +32,14 @@ class TransXls:
 
     def process(self):
         self.sheet_name, self.title = self._find_title()
-        if self.sheet_name is None or self.title is None:
+        if self.sheet_name is None or self.sheet_name == '' or self.title is None:
             self.basic_status = False
             self.resp['resCode'] = '20'
             self.resp['resMsg'] = '解析失败'
-            self.resp['data']['warningMsg'] = ['上传失败,无法找到标题行,流水文件内容有误']
+            if self.sheet_name is None:
+                self.resp['data']['warningMsg'] = ['文件读取异常']
+            else:
+                self.resp['data']['warningMsg'] = ['上传失败,无法找到标题行,流水文件内容有误']
             return
         self.trans_data = self._convert_to_dataframe()
 
@@ -45,7 +48,10 @@ class TransXls:
         从文件中的所有sheet中寻找存在流水标题行的文件，如果存在则跳出循环
         :return:
         """
-        title_df = pd.read_excel(self.file, nrows=MAX_TITLE_NUMBER, header=None, sheet_name=None)
+        try:
+            title_df = pd.read_excel(self.file, nrows=MAX_TITLE_NUMBER, header=None, sheet_name=None)
+        except:
+            return None, None
         # 遍历所有sheet
         for k, v in title_df.items():
             if v.shape[0] == 0:
@@ -66,7 +72,7 @@ class TransXls:
                 cnt += 1
             if title != -1:
                 return k, title
-        return None, None
+        return '', None
 
     def _convert_to_dataframe(self):
         df = None
