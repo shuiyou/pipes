@@ -24,24 +24,24 @@ class Tp0002(Transformer):
         self.variables = {
             'bus_total_accounts_payable_debt_amt': None,  # 企业应付账款总负债
             'operating_cycle': 0,  # 营业周期
-            'main_business_running_years': None,  # 主营企业经营年限
+            'main_business_running_years': 0,  # 主营企业经营年限
             'bus_total_assets_amt': None,  # 企业总资产
-            'total_currency_assets_amt': None,  # 个人_企业货币资金总资产
-            'quick_debt_to_assets_ratio': None,  # 速动比率
-            'sale_to_loan_ratio': None,  # 销贷比
-            'bus_industry_2nd_cnt': None,  # 二类行业数
+            'total_currency_assets_amt': 0,  # 个人_企业货币资金总资产
+            'quick_debt_to_assets_ratio': 0,  # 速动比率
+            'sale_to_loan_ratio': 0,  # 销贷比
+            'bus_industry_2nd_cnt': 0,  # 二类行业数
             'per_guar_debt_balance': None,  # 个人对外担保总负债余额
             'loan_amount_min_amt': 0,  # 授信金额最小值
-            'loan_amount_avg_6m': 0,  # 6个月内新增贷款金额笔均
-            'guar_type_1_4_amt_prop': 0,  # 信用保证类贷款金额占比
-            'single_business_loan_overdue_cnt_3m': 0,  # 3个月内单笔经营性贷款逾期次数
-            'credit_min_payed_number': 0,  # 信用卡最低还款张数
-            'guar_type_4_avg_amt': 0,  # 信用类贷款平均授信金额
-            'credit_card_max_overdue_amt_60m': 0,  # 5年内信用卡最大逾期金额
-            'single_business_loan_overdue_cnt_6m': 0,  # 6个月内单笔经营性贷款逾期次数
+            'loan_amount_avg_6m': None,  # 6个月内新增贷款金额笔均
+            'guar_type_1_4_amt_prop': None,  # 信用保证类贷款金额占比
+            'single_business_loan_overdue_cnt_3m': None,  # 3个月内单笔经营性贷款逾期次数
+            'credit_min_payed_number': None,  # 信用卡最低还款张数
+            'guar_type_4_avg_amt': None,  # 信用类贷款平均授信金额
+            'credit_card_max_overdue_amt_60m': None,  # 5年内信用卡最大逾期金额
+            'single_business_loan_overdue_cnt_6m': None,  # 6个月内单笔经营性贷款逾期次数
             'query_cnt_3m': 0,  # 3个月内贷款+贷记卡审批查询次数
             'loan_cnt_inc_6m': 0,  # 6个月内新增贷款笔数
-            'credit_card_max_overdue_month_60m': 0,  # 5年内单张信用卡最大逾期期数
+            'credit_card_max_overdue_month_60m': None,  # 5年内单张信用卡最大逾期期数
             'credit_guar_bal': 0,  # 个人对外担保总负债余额
             'operating_income_6m': 0,  # 6个月经营收入
             'balance_day_avg_6m': 0,  # 6个月余额日均
