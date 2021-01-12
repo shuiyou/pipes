@@ -1,4 +1,6 @@
 
+from fileparser.trans_flow.trans_config import DTTIME_PATTERN, DATE_PATTERN, AMT_PATTERN, IGNORE_PATTERN, \
+    INCOME_PATTERN, OUTCOME_PATTERN
 import pandas as pd
 import re
 
@@ -9,7 +11,9 @@ class TransDataStandardization:
     将流水数据中与标题行相同的数据删除,将流水数据中头部和尾部不符合规范的数据删除
     author:汪腾飞
     created_time:20200630
-    updated_time_v1:
+    updated_time_v1:20201223
+        1.现在会将整行只有<=3个非空单元格的行删除，而不是整行为空的才删除，这样可以直接删除掉存在统计信息的行，同时也可以将多行标题的第二行删除
+        2.现在会正确删除掉所有与标题行完全一致的行，不会再造成有标题行没有删掉而存在时间列存在空值的情况
     """
 
     def __init__(self, trans_data):
@@ -36,13 +40,13 @@ class TransDataStandardization:
             if '发生额' in col_list[col_index]:
                 c1 = str(df.iloc[0, col_index]).strip()
                 c2 = str(df.iloc[0, col_index + 1]).strip()
-                if (re.search(r'[借出支往]', c1) and re.search(r'[收入进来贷]', c2)) or \
-                        (re.search(r'[借出支往]', c2) and re.search(r'[收入进来贷]', c1)):
+                if (re.search(OUTCOME_PATTERN, c1) and re.search(INCOME_PATTERN, c2)) or \
+                        (re.search(OUTCOME_PATTERN, c2) and re.search(INCOME_PATTERN, c1)):
                     df.rename(columns={col_list[col_index]: c1, col_list[col_index+1]: c2}, inplace=True)
                     self.title_status = True
                     df.drop(0, axis=0, inplace=True)
                 break
-        df.dropna(axis=0, how='all', inplace=True)
+        df.dropna(axis=0, inplace=True, thresh=3)
         df.reset_index(drop=True, inplace=True)
         self.trans_data = df
 
@@ -73,35 +77,29 @@ class TransDataStandardization:
 
     def _remove_title_row(self):
         col = self.trans_data.columns
-        col = [x for x in col if 'Na' not in x]
+        col = [x for x in col if 'Unnamed' not in x]
         remove_list = []
-        next_row = False
+        # next_row = False
         for index in self.trans_data.index:
             row = self.trans_data.loc[index, :]
-            if next_row:
-                next_row = False
-                continue
-            value = row.values[1:]
+            # if next_row:
+            #     next_row = False
+            #     continue
+            value = row.values
             value = [y for y in value if pd.notna(y)]
             if value == col:
-                remove_list.append(row.index.tolist()[0])
-                if self.title_status:
-                    remove_list.append(row.index.tolist()[0] + 1)
-                    next_row = True
+                remove_list.append(index)
+                # if self.title_status:
+                #     remove_list.append(index + 1)
+                #     next_row = True
         self.trans_data.drop(remove_list, axis=0, inplace=True)
 
     @staticmethod
     def _entire_row_values_match(value):
-        # 时间+日期格式,年份20开头(00-20结尾)即2000年到2020年,月份01-12,日期01-31(暂时不区分大小月),小时00-23,分钟00-59
-        # 秒钟00-59,秒钟可以不存在,或者excel表示的日期40000-49999之间的数字
-        dttime_pat = re.compile(
-            r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])([01]\d|2[0-3])([0-5]\d){1,2}|^4\d{4}\d*[^0]+\d*')
-        # 日期格式,仅有年份,月份,日期,含义同上
-        date_pat = re.compile(r'^20([01]\d|20)(0[1-9]|1[012])(0[1-9]|[12]\d|3[01])|^4\d{4}')
-        # 金额格式,以非0数字开头的整数,或者以0开头的小数
-        amt_pat = re.compile(r'^[1-9]\d*|0\d*[^0]+\d*')
-        # 忽略的格式,一旦某行包含"合计/累计/总计/总笔数/总额/记录数/参考/承前"字样就忽略该行
-        sum_pat = re.compile(r'.*(合计|累计|总计|总笔数|总额|记录数|参考|承前).*')
+        dttime_pat = re.compile(DTTIME_PATTERN)
+        date_pat = re.compile(DATE_PATTERN)
+        amt_pat = re.compile(AMT_PATTERN)
+        sum_pat = re.compile(IGNORE_PATTERN)
         # 时间格式计数,累计到1停止,即至少需要包含一列交易时间
         time_cnt = 0
         # 金额格式计数,累计到2停止,即至少需要包含一列交易金额和一列余额
