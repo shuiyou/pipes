@@ -49,6 +49,7 @@ class SinglePortrait(PortraitProcessor):
             if accounts is None:
                 trans_flow.object_k += 1
                 continue
+            accounts = list(set(accounts))
             length = len(accounts)
             for i in range(length):
                 trans_flow.object_k_k = i
