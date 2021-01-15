@@ -50,7 +50,8 @@ class TransXls:
         """
         try:
             title_df = pd.read_excel(self.file, nrows=MAX_TITLE_NUMBER, header=None, sheet_name=None)
-        except:
+        except Exception as e:
+            logger.info("----读取失败原因r1:%s----" % str(e))
             return None, None
         # 遍历所有sheet
         for k, v in title_df.items():
@@ -79,7 +80,8 @@ class TransXls:
         try:
             df = pd.read_excel(self.file, header=self.title, sheet_name=self.sheet_name)
             self.basic_status = True
-        except:
+        except Exception as e:
+            logger.info("----读取失败原因r2:%s----" % str(e))
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'

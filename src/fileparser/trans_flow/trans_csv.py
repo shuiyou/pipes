@@ -91,7 +91,8 @@ class TransCsv:
         try:
             df = pd.read_csv(self.file, delimiter=deli, header=self.title, index_col=False, encoding=self.csv_encoding)
             self.basic_status = True
-        except:
+        except Exception as e:
+            logger.info("----读取失败原因r3:%s----" % str(e))
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
