@@ -48,6 +48,7 @@ class EcFinPress(GroupedTransformer):
                              self.cached_data.get("ecredit_draft_lc"),
                              left_on="id", right_on="biz_id"
                              )
+        open_data = open_data[~open_data.biz_type.str.contains("贴现")]
         self.credit_prompt(open_data)
         self.repay_predict(loan_data,open_data)
         self.debt_history(loan_data,open_data)

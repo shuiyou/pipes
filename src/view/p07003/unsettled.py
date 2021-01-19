@@ -35,6 +35,11 @@ class Unsettled(GroupedTransformer):
             "table_recent_repay_date": [],
             "table_recent_repay_amt": [],
 
+            "add_app_1m":0,
+            "add_app_3m":0,
+            "add_app_6m":0,
+            "add_app_1y":0,
+
             "bar_guar_type": [],
             "bar_guar_amt": [],
             "bar_guar_bal": [],
@@ -42,7 +47,6 @@ class Unsettled(GroupedTransformer):
             "bus_bar": [],
             "grant_history_bar": [],
             "discount_total_recent": 0,
-
 
             "pie_debt_bal": 0,
             "pie_debt_cnt": 0,

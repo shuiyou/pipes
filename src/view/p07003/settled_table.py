@@ -21,7 +21,8 @@ class SettledTable(GroupedTransformer):
             "first_coop_date": [],
             "finish_coop_date": [],
             "grant_max": [],
-            "grant_min": []
+            "grant_min": [],
+            "coop_now" : []
         }
 
     def transform(self):
@@ -64,10 +65,9 @@ class SettledTable(GroupedTransformer):
         loan_list = loan_total[loan_total.settle_status.str.contains("被追偿|未结清")]['account_org'].drop_duplicates().tolist()
 
         df['first_coop_date'] = df.first_coop_date.apply(lambda x: str(x) if pd.notna(x) else None )
+        df['finish_coop_date'] = df.finish_coop_date.apply(lambda x: str(x) if pd.notna(x) else None)
 
-        # df = df.sort_values(by = 'finish_coop_date' , ascending = False)
-
-        df['finish_coop_date'] = df.apply(lambda x : "该机构目前仍在合作" if x['inst'] in loan_list else str(x['finish_coop_date']) , axis = 1)
+        df['coop_now'] = df.apply(lambda x : "是" if x['inst'] in loan_list else "否" , axis = 1)
 
         df = df.sort_values(by = 'finish_coop_date' , ascending = False)
 
@@ -87,6 +87,7 @@ class SettledTable(GroupedTransformer):
         self.variables["finish_coop_date"] = df.finish_coop_date.tolist()
         self.variables["grant_max"] = df.grant_max.tolist()
         self.variables["grant_min"] = df.grant_min.tolist()
+        self.variables["coop_now"] = df.coop_now.tolist()
 
 
     def clean_category(self, s , loan_data):
