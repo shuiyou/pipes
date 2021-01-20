@@ -14,6 +14,8 @@ import datetime
 import json
 import numpy as np
 
+from util.id_card_info import GetInformation
+
 
 def test_ps_name_id():
     ps = T05002()
@@ -123,6 +125,9 @@ def test_datetime():
 def get_credit_min_repay(df,repay_amount,amount_replay_amount):
     return ['否','是'][df[repay_amount]*2>df[amount_replay_amount]]
 
+def test_get_age_by_id_card_no():
+    information = GetInformation("430181197102010345")
+    print(information.get_age())
 
 def test_get_data():
     msg = file_content("./resource", "unin_level1_001.json")
