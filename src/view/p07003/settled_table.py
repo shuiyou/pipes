@@ -26,7 +26,7 @@ class SettledTable(GroupedTransformer):
         }
 
     def transform(self):
-        loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','balance','loan_date','end_date',
+        loan_total = self.cached_data["ecredit_loan"][['id','settle_status','account_org','amount','balance','loan_date','last_repay_date',
                                                       'category','last_payment_type']]
         loan_data = loan_total[(loan_total.settle_status.str.contains("已结清信贷"))
                                |((loan_total.settle_status.str.contains("被追偿"))
@@ -39,7 +39,7 @@ class SettledTable(GroupedTransformer):
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
                                                                            'loan_date':['min'],
-                                                                            'end_date':['max']})
+                                                                            'last_repay_date':['max']})
         group1.set_axis(['coop_cnt', 'grant_total',
                          'grant_max', 'grant_min',
                          'first_coop_date', 'finish_coop_date'],
