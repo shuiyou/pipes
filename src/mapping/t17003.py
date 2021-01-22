@@ -105,7 +105,7 @@ class T17003(Transformer):
         self.variables['m_max_cnt_partner_daily_all_Unconsumerfinance_365day'] = get_left_field_value1(df,
                                                                             'm_max_cnt_partner_daily_all_Unconsumerfinance_365day')
         self.variables['m_ratio_cnt_grp_id_Loan_all_all'] = get_left_field_value1(df,
-                                                                            'field_origin_name=m_ratio_cnt_grp_id_Loan_all_all')
+                                                                            'm_ratio_cnt_grp_id_Loan_all_all')
         self.variables['m_length_first_last_all_Imbank_60day'] = get_left_field_value1(df,
                                                                             'm_length_first_last_all_Imbank_60day')
         self.variables['i_length_first_last_all_Imbank_365day'] = get_left_field_value1(df,
