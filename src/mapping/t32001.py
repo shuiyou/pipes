@@ -6,9 +6,9 @@ def get_filed_value(df, key):
     df_temp = df[df['field_name'] == key]
     if not df_temp.empty:
         v = df_temp['field_value'].to_list()[0]
-        return v if v and v != "" else 0
+        return v if v and v != "" else None
     else:
-        return 0
+        return None
 
 
 class T32001(Transformer):
@@ -22,7 +22,7 @@ class T32001(Transformer):
             'yf_overdue_cnt': 0,
             'yf_non_bank_apply_org_cnt': 0,
             'yf_loan_org_24m_cnt': 0,
-            'reg_unbank_history_day': 0
+            'reg_unbank_history_day': None
         }
 
     def _info_loan_statistics_item(self):

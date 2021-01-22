@@ -15,7 +15,7 @@ class T35001(Transformer):
     def __init__(self) -> None:
         super().__init__()
         self.variables = {
-            'FIN_Loan_uninstall_0M_1M':0,
+            'FIN_Loan_uninstall_0M_1M':None,
             'FIN_Loan_all_0M_1M': 0,
             'FIN_Debit_PCT_all_1M_2M': 0,
             'FIN_Loan_Small_uninstall_0M_1M': 0,
