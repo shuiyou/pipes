@@ -95,7 +95,7 @@ class BasicInfoProcessor(ModuleProcessor):
         # 1.从pcredit_loan中选择所有report_id=report_id且account_type=01,02,03且(loan_type=01,07,99或者包含"融资租赁"或者(loan_type=04且loan_amount>200000))且(repay_period>0或者(loan_date非空且loan_end_date非空))且loan_amount非空的记录,
         # 2.对于每一条记录,计算loan_amount/repay_period(若repay_period为空则计算loan_end_date和loan_date之间间隔的月份数当做repay_period,间隔月份数对月对日且向上取整)
         # 3.对于2中每一个id,从pcredit_repayment中选取所有record_id=id且repayment_amt>2中对应的loan_amount/repay_period且repayment_amt<loan_amount/3的记录
-        # 4.取3中每一个id对应的记录中最大连续月份数
+        # 4.取3中每一个id对应的记录中最大连续月份数,逾期状态递增或者金额倍增视为连续,即要么逾期状态为1,2。。。，要么连续两个1，但金额倍增
         # 5.取4中所有最大连续月份的最大值
         df = self.cached_data["pcredit_loan"]
         overdue_df = self.cached_data["pcredit_repayment"]
@@ -121,24 +121,34 @@ class BasicInfoProcessor(ModuleProcessor):
         if temp_overdue_df.shape[0] == 0:
             self.variables["business_loan_average_overdue_cnt"] = 0
             return
+        temp_overdue_df.sort_values(by=['record_id', 'jhi_year', 'month'], inplace=True)
         temp_overdue_df.reset_index(drop=True, inplace=True)
         temp_overdue_df.loc[0, 'conti_month'] = 1
         if temp_overdue_df.shape[0] > 1:
             last_repayment_year = temp_overdue_df.loc[0, 'jhi_year']
             last_repayment_month = temp_overdue_df.loc[0, 'month']
+            last_status = temp_overdue_df.loc[0, 'status']
+            last_amt = temp_overdue_df.loc[0, 'repayment_amt']
             last_record_id = temp_overdue_df.loc[0, 'record_id']
             for index in temp_overdue_df.index[1:]:
                 this_repayment_year = temp_overdue_df.loc[index, 'jhi_year']
                 this_repayment_month = temp_overdue_df.loc[index, 'month']
+                this_status = temp_overdue_df.loc[index, 'status']
+                this_amt = temp_overdue_df.loc[index, 'repayment_amt']
                 this_record_id = temp_overdue_df.loc[index, 'record_id']
-                if this_record_id == last_record_id and \
-                        abs((int(this_repayment_year) - int(last_repayment_year)) * 12 -
-                            int(this_repayment_month) + int(last_repayment_month)) == 1:
+                diff_month = (int(this_repayment_year) - int(last_repayment_year)) * 12 + int(this_repayment_month) - \
+                    int(last_repayment_month)
+                # 此处表示必须满足条件：1.同一笔贷款；2.间隔一个月份；3.逾期状态递增且只增加1或者逾期金额近乎倍增；才被视为连续逾期
+                if this_record_id == last_record_id and diff_month == 1 and \
+                        (this_amt > last_amt * 1.9 or (last_status.isdigit() and this_status.isdigit() and
+                                                       int(this_status) - int(last_status) == 1)):
                     temp_overdue_df.loc[index, 'conti_month'] = temp_overdue_df.loc[index - 1, 'conti_month'] + 1
                 else:
                     temp_overdue_df.loc[index, 'conti_month'] = 1
                 last_repayment_year = this_repayment_year
                 last_repayment_month = this_repayment_month
+                last_status = this_status
+                last_amt = this_amt
                 last_record_id = this_record_id
         business_loan_average_overdue_cnt = temp_overdue_df['conti_month'].nunique()
 
