@@ -100,8 +100,9 @@ class EcInform(GroupedTransformer):
 
         df = df.where(df.notnull(), None)
 
-        self.variables['related_name'] = df['related_name'].tolist()
-        self.variables['relation'] = df['relation'].tolist()
-        self.variables['id_code'] = df['id_code'].tolist()
-        self.variables['update_date'] = df['update_date'].tolist()
+        if not df.empty:
+            self.variables['related_name'] = df['related_name'].tolist()
+            self.variables['relation'] = df['relation'].tolist()
+            self.variables['id_code'] = df['id_code'].tolist()
+            self.variables['update_date'] = df['update_date'].tolist()
         # self.variables['remark'] = df['remark'].tolist()
