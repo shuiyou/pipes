@@ -37,7 +37,7 @@ class T13001(Transformer):
             'hd_loan_month_std_12m': 0,
             'hd_regi_non_bank_3m': 0,
             'hd_loan_total_weight_amt_9m': 0,
-            'regi_month_interval_max_2m': 0
+            'regi_month_interval_max_2m': None
         }
         self.two_years_ago = ''
         self.sms_id = ''
