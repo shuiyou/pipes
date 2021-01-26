@@ -1,6 +1,6 @@
-# @Time : 2020/10/21 3:31 PM 
+# @Time : 2020/10/21 3:31 PM
 # @Author : lixiaobo
-# @File : fin_com.py.py 
+# @File : fin_com.py.py
 # @Software: PyCharm
 
 
@@ -137,7 +137,7 @@ class FinCom(GroupedTransformer):
     # 读取 info_com_bus_mort_registe 数据
     def _load_info_com_bus_mort_registe_df(self, id_list):
         sql = '''
-            SELECT b.mort_gager,b.reg_date,a.mab_guar_amt,a.mab_guar_type,a.pef_per_from,a.pef_per_to FROM info_com_bus_mort_registe a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+            SELECT a.mort_id,a.mort_reg_no,a.mab_guar_amt,a.mab_guar_type,a.pef_per_from,a.pef_per_to FROM info_com_bus_mort_registe a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
 			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效'
         '''
         df = sql_to_df(sql=sql, params={"id_list": id_list})
@@ -146,7 +146,7 @@ class FinCom(GroupedTransformer):
     # 读取 info_com_bus_mort_collateral 数据
     def _load_info_com_bus_mort_collateral_df(self, id_list):
         sql = '''
-            SELECT b.mort_gager,b.reg_date,a.gua_name,a.gua_own,a.gua_des FROM info_com_bus_mort_collateral a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+            SELECT a.mort_id,a.mort_reg_no,a.gua_name,a.gua_own,a.gua_des FROM info_com_bus_mort_collateral a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
 			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
         '''
         df = sql_to_df(sql=sql, params={"id_list": id_list})
@@ -155,7 +155,7 @@ class FinCom(GroupedTransformer):
     # 读取 info_com_bus_mort_cancel 数据
     def _load_info_com_bus_mort_cancel_df(self, id_list):
         sql = '''
-            SELECT b.mort_gager,b.reg_date,a.can_date FROM info_com_bus_mort_cancel a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+            SELECT a.mort_id,a.can_date,a.mort_reg_no FROM info_com_bus_mort_cancel a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
 			where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
         '''
         df = sql_to_df(sql=sql, params={"id_list": id_list})
@@ -264,23 +264,31 @@ class FinCom(GroupedTransformer):
             if item:
                 com_id_list.append(int(item))
         if len(com_id_list) > 0:
-            df = self._load_info_com_bus_mort_basic_df(com_id_list)
-            self._fin_mort(df)
+            df1 = self._load_info_com_bus_mort_basic_df(com_id_list)
+            if not df1.empty:
+                # df1 = df1.drop_duplicates().sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+                # df1['reg_date'] = df1['reg_date'].map(
+                #     lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
+                self.variables['fin_mort_cnt'] += len(df1)
+            # self._fin_mort(df)
+                df2 = self._load_info_com_bus_mort_registe_df(com_id_list)
+                df3 = self._load_info_com_bus_mort_collateral_df(com_id_list)
+                df4 = self._load_info_com_bus_mort_cancel_df(com_id_list)
+                df_temp1 = pd.merge(df1,df2,how="left",left_on="id",right_on="mort_id")
+                df_temp2 = pd.merge(df1, df3, how="left", left_on="id", right_on="mort_id")
+                df_temp3 = pd.merge(df1, df4, how="left", left_on="id", right_on="mort_id")
+                df = pd.merge(df_temp1,df_temp2,how="outer",on=["mort_id","mort_reg_no"])
+                df = pd.merge(df, df_temp3, how="outer", on=["mort_id", "mort_reg_no"])
+                self._fin_mort(df)
+                self._fin_mab(df)
+                self._fin_gua(df)
+                self._fin_cancle(df)
 
             df = self._load_info_com_bus_shares_impawn_df(com_id_list)
             self._fin_impawn(df)
 
             df = self._load_info_com_bus_alter_df(com_id_list)
             self._fin_alt(df)
-
-            df = self._load_info_com_bus_mort_registe_df(com_id_list)
-            self._fin_mab(df)
-
-            df = self._load_info_com_bus_mort_collateral_df(com_id_list)
-            self._fin_gua(df)
-
-            df = self._load_info_com_bus_mort_cancel_df(com_id_list)
-            self._fin_cancle(df)
 
             df = self._load_info_com_bus_mort_holder_df(com_id_list)
             self._fin_holder(df)
