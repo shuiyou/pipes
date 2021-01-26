@@ -164,7 +164,7 @@ class FinCom(GroupedTransformer):
     # 读取 info_com_bus_mort_holder 数据
     def _load_info_com_bus_mort_holder_df(self, id_list):
         sql = '''
-            SELECT b.mort_gager,b.reg_date,a.mort_org FROM info_com_bus_mort_holder a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
+            SELECT a.mort_id,a.mort_reg_no,a.mort_org FROM info_com_bus_mort_holder a LEFT JOIN info_com_bus_mort_basic b on a.mort_id = b.id
             where b.basic_id in %(id_list)s and b.jhi_role = '抵押人' and b.mort_status = '有效';
         '''
         df = sql_to_df(sql=sql, params={"id_list": id_list})
@@ -173,10 +173,10 @@ class FinCom(GroupedTransformer):
     # 计算 fin_mort 相关字段
     def _fin_mort(self, df=None):
         if not df.empty:
-            df = df.drop_duplicates().sort_values(by=['mort_gager', 'reg_date'], ascending=False)
-            self.variables['fin_mort_cnt'] += len(df)
+            # df = df.drop_duplicates().sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            # self.variables['fin_mort_cnt'] += len(df)
             self.variables['fin_mort_name'] += df['mort_gager'].to_list()
-            self.variables['fin_mort_reg_no'] += df['mort_reg_no'].to_list()
+            self.variables['fin_mort_reg_no'] += df['mort_reg_no_x'].to_list()
             self.variables['fin_mort_reg_date'] += df['reg_date'].map(
                 lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
             self.variables['fin_mort_status'] += df['mort_status'].to_list()
@@ -223,7 +223,7 @@ class FinCom(GroupedTransformer):
     # 计算 info_com_bus_mort_registe 相关字段
     def _fin_mab(self, df=None):
         if not df.empty:
-            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            # df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
             self.variables['fin_mab_guar_amt'] += df['mab_guar_amt'].to_list()
             self.variables['fin_mab_guar_type'] += df['mab_guar_type'].to_list()
             self.variables['fin_pef_date_range'] += (
@@ -233,7 +233,7 @@ class FinCom(GroupedTransformer):
     # 计算 fin_cancle_date 字段
     def _fin_gua(self, df=None):
         if not df.empty:
-            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            # df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
             self.variables['fin_gua_name'] += df['gua_name'].to_list()
             self.variables['fin_gua_own'] += df['gua_own'].to_list()
             self.variables['fin_gua_des'] += df['gua_des'].to_list()
@@ -241,13 +241,13 @@ class FinCom(GroupedTransformer):
     # 计算 fin_cancle_date 相关字段
     def _fin_cancle(self, df=None):
         if not df.empty:
-            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            # df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
             self.variables['fin_cancle_date'] += df['can_date'].to_list()
 
     # 计算 fin_cancle_date 相关字段
     def _fin_holder(self, df=None):
         if not df.empty:
-            df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+            # df = df.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
             self.variables['fin_mort_to_name'] += df['mort_org'].to_list()
 
     def transform(self):
@@ -274,15 +274,26 @@ class FinCom(GroupedTransformer):
                 df2 = self._load_info_com_bus_mort_registe_df(com_id_list)
                 df3 = self._load_info_com_bus_mort_collateral_df(com_id_list)
                 df4 = self._load_info_com_bus_mort_cancel_df(com_id_list)
+                df5 = self._load_info_com_bus_mort_holder_df(com_id_list)
+
                 df_temp1 = pd.merge(df1,df2,how="left",left_on="id",right_on="mort_id")
                 df_temp2 = pd.merge(df1, df3, how="left", left_on="id", right_on="mort_id")
+                df_temp2 = df_temp2.drop(columns=['mort_gager','reg_date','mort_status','reg_org'])
                 df_temp3 = pd.merge(df1, df4, how="left", left_on="id", right_on="mort_id")
-                df = pd.merge(df_temp1,df_temp2,how="outer",on=["mort_id","mort_reg_no"])
-                df = pd.merge(df, df_temp3, how="outer", on=["mort_id", "mort_reg_no"])
-                self._fin_mort(df)
-                self._fin_mab(df)
-                self._fin_gua(df)
-                self._fin_cancle(df)
+                df_temp3 = df_temp3.drop(columns=['mort_gager','reg_date','mort_status','reg_org'])
+                df_temp4 = pd.merge(df1, df5, how="left", left_on="id", right_on="mort_id")
+                df_temp4 = df_temp4.drop(columns=['mort_gager','reg_date','mort_status','reg_org'])
+                df_final = pd.merge(df_temp1,df_temp2,how="outer",on=["mort_id","mort_reg_no_x"])
+                df_final = pd.merge(df_final, df_temp3, how="outer", on=["mort_id", "mort_reg_no_x"])
+                df_final = pd.merge(df_final, df_temp4, how="outer", on=["mort_id", "mort_reg_no_x"])
+                if not df_final.empty:
+                    df_final = df_final.fillna("-")
+                    df_final = df_final.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+                    self._fin_mort(df_final)
+                    self._fin_mab(df_final)
+                    self._fin_gua(df_final)
+                    self._fin_cancle(df_final)
+                    self._fin_holder(df_final)
 
             df = self._load_info_com_bus_shares_impawn_df(com_id_list)
             self._fin_impawn(df)
@@ -290,5 +301,4 @@ class FinCom(GroupedTransformer):
             df = self._load_info_com_bus_alter_df(com_id_list)
             self._fin_alt(df)
 
-            df = self._load_info_com_bus_mort_holder_df(com_id_list)
-            self._fin_holder(df)
+
