@@ -68,7 +68,8 @@ class EcInform(GroupedTransformer):
                       inplace = True)
 
         if not table2.empty:
-            table2['relation'] = table2.apply( lambda x : x['relation'] + "(占股" + str(round(x['remark']*100,2)) + "%)" ,
+            table2['relation'] = table2.apply( lambda x : x['relation'] + "(占股" + str(round(x['remark']*100,2)) + "%)"
+                                                if x['remark'] is not None else x['relation'],
                                                 axis = 1 )
 
 
