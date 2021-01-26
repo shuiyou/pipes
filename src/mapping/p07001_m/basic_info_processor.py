@@ -150,7 +150,7 @@ class BasicInfoProcessor(ModuleProcessor):
                 last_status = this_status
                 last_amt = this_amt
                 last_record_id = this_record_id
-        business_loan_average_overdue_cnt = temp_overdue_df['conti_month'].nunique()
+        business_loan_average_overdue_cnt = temp_overdue_df[temp_overdue_df['conti_month'] == 2].shape[0]
 
         self.variables["business_loan_average_overdue_cnt"] = business_loan_average_overdue_cnt
 
