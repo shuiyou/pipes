@@ -1,16 +1,16 @@
 {
     "strategyParam": {
         "appId": "0000000000",
-        "reqNo": "Q549788284847554560",
-        "stepReqNo": "S549788284910469120",
+        "reqNo": "Q551481249848524800",
+        "stepReqNo": "S551481249877884928",
         "productCode": "03002",
         "queryData": [
             {
-                "id": 494582,
+                "id": 85394,
                 "parentId": 0,
-                "name": "苏银瑟",
-                "idno": "430123196804303320",
-                "phone": "13077305328",
+                "name": "卓忠伟",
+                "idno": "332502197612195313",
+                "phone": "18301722079",
                 "userType": "PERSONAL",
                 "authorStatus": "AUTHORIZED",
                 "fundratio": 0.0,
@@ -66,11 +66,11 @@
                 }
             },
             {
-                "id": 494580,
+                "id": 85393,
                 "parentId": 0,
-                "name": "汤永锋",
-                "idno": "430123196211073312",
-                "phone": "13574108908",
+                "name": "方莲菊",
+                "idno": "332527197811011246",
+                "phone": "13564544832",
                 "userType": "PERSONAL",
                 "authorStatus": "AUTHORIZED",
                 "fundratio": 0.0,
@@ -113,7 +113,7 @@
                     "industryName": null,
                     "mamageAmt": null,
                     "manageAddress": null,
-                    "marryState": "MARRIED",
+                    "marryState": "UNKNOWN",
                     "passthroughMsg": null,
                     "phantomRelation": false,
                     "priority": 2.0,
@@ -126,12 +126,12 @@
                 }
             },
             {
-                "id": 494583,
+                "id": 85392,
                 "parentId": 0,
-                "name": "湖南银丰塑料包装有限公司",
-                "idno": "91430181790311101U",
+                "name": "上海金苑宾馆",
+                "idno": "9131011306255392XW",
                 "userType": "COMPANY",
-                "fundratio": 1.0,
+                "fundratio": 0.0,
                 "applyAmo": 0.0,
                 "baseType": "U_PER_CT_COMPANY",
                 "relation": "CONTROLLER",
@@ -160,240 +160,15 @@
                     "passthroughMsg": null,
                     "phantomRelation": false,
                     "priority": 3.0,
-                    "regCapAmt": 0.0,
-                    "seasonOffMonth": null,
-                    "seasonOnMonth": null,
-                    "seasonable": null,
-                    "strategy": "01",
-                    "totalSalesLastYear": null
-                }
-            },
-            {
-                "id": 494578,
-                "parentId": 0,
-                "name": "长沙市芙蓉区苏银瑟货运服务部",
-                "idno": "92430102MA4L8LG81X",
-                "userType": "COMPANY",
-                "fundratio": 0.0,
-                "applyAmo": 0.0,
-                "baseType": "U_PER_LG_COMPANY",
-                "relation": "LEGAL",
-                "bizType": [
-                    "00000",
-                    "00001",
-                    "16002",
-                    "24001",
-                    "f0004",
-                    "f0005"
-                ],
-                "rules": [
-
-                ],
-                "extraParam": {
-                    "accounts": [
-
-                    ],
-                    "comStrDate": null,
-                    "education": null,
-                    "industry": null,
-                    "industryName": null,
-                    "mamageAmt": null,
-                    "manageAddress": null,
-                    "marryState": "UNKNOWN",
-                    "passthroughMsg": null,
-                    "phantomRelation": false,
-                    "priority": 7.0,
                     "regCapAmt": null,
                     "seasonOffMonth": null,
                     "seasonOnMonth": null,
                     "seasonable": null,
                     "strategy": "01",
-                    "totalSalesLastYear": null
-                }
-            },
-            {
-                "id": 494584,
-                "parentId": 0,
-                "name": "长沙市科维塑料有限公司",
-                "idno": "91430102779010316Y",
-                "userType": "COMPANY",
-                "fundratio": 0.2,
-                "applyAmo": 0.0,
-                "baseType": "U_PER_LG_COMPANY",
-                "relation": "LEGAL",
-                "bizType": [
-                    "00000",
-                    "27001"
-                ],
-                "rules": [
-
-                ],
-                "extraParam": {
-                    "accounts": [
-
-                    ],
-                    "comStrDate": null,
-                    "education": null,
-                    "industry": null,
-                    "industryName": null,
-                    "mamageAmt": null,
-                    "manageAddress": null,
-                    "marryState": "UNKNOWN",
-                    "passthroughMsg": null,
-                    "phantomRelation": true,
-                    "priority": 7.0,
-                    "regCapAmt": null,
-                    "seasonOffMonth": null,
-                    "seasonOnMonth": null,
-                    "seasonable": null,
-                    "strategy": "02",
-                    "totalSalesLastYear": null
-                }
-            },
-            {
-                "id": 494588,
-                "parentId": 494580,
-                "name": "长沙市科维塑料有限公司",
-                "idno": "91430102779010316Y",
-                "userType": "COMPANY",
-                "fundratio": 0.8,
-                "applyAmo": 0.0,
-                "baseType": "U_PER_SP_SH_H_COMPANY",
-                "relation": "SHAREHOLDER",
-                "bizType": [
-                    "00000",
-                    "00001",
-                    "16002",
-                    "24001",
-                    "f0004",
-                    "f0005"
-                ],
-                "rules": [
-
-                ],
-                "extraParam": {
-                    "accounts": [
-
-                    ],
-                    "comStrDate": null,
-                    "education": null,
-                    "industry": null,
-                    "industryName": null,
-                    "mamageAmt": null,
-                    "manageAddress": null,
-                    "marryState": "UNKNOWN",
-                    "passthroughMsg": null,
-                    "phantomRelation": false,
-                    "priority": 6.199999809265137,
-                    "regCapAmt": null,
-                    "seasonOffMonth": null,
-                    "seasonOnMonth": null,
-                    "seasonable": null,
-                    "strategy": "01",
-                    "totalSalesLastYear": null
-                }
-            },
-            {
-                "id": 494579,
-                "parentId": 0,
-                "name": "汤栋",
-                "idno": "430105198701034312",
-                "phone": "18229885001",
-                "userType": "PERSONAL",
-                "authorStatus": "AUTHORIZED",
-                "fundratio": 0.0,
-                "applyAmo": 0.0,
-                "baseType": "U_PER_CHILDREN_PERSONAL",
-                "relation": "CHILDREN",
-                "bizType": [
-                    "00000",
-                    "00001",
-                    "01001",
-                    "02001",
-                    "05001",
-                    "05002",
-                    "06001",
-                    "10001",
-                    "11001",
-                    "13001",
-                    "16001",
-                    "18001",
-                    "31001",
-                    "12002",
-                    "12003",
-                    "17003",
-                    "32001",
-                    "33001",
-                    "34001",
-                    "35001",
-                    "36001"
-                ],
-                "rules": [
-
-                ],
-                "extraParam": {
-                    "accounts": [
-
-                    ],
-                    "comStrDate": null,
-                    "education": null,
-                    "industry": null,
-                    "industryName": null,
-                    "mamageAmt": null,
-                    "manageAddress": null,
-                    "marryState": "MARRIED",
-                    "passthroughMsg": null,
-                    "phantomRelation": false,
-                    "priority": 9.0,
-                    "regCapAmt": null,
-                    "seasonOffMonth": null,
-                    "seasonOnMonth": null,
-                    "seasonable": null,
-                    "strategy": "01",
-                    "totalSalesLastYear": null
-                }
-            },
-            {
-                "id": 494589,
-                "parentId": 494580,
-                "name": "湖南银丰塑料包装有限公司",
-                "idno": "91430181790311101U",
-                "userType": "COMPANY",
-                "fundratio": 0.48,
-                "applyAmo": 0.0,
-                "baseType": "U_PER_SP_SH_M_COMPANY",
-                "relation": "SHAREHOLDER",
-                "bizType": [
-                    "00000",
-                    "27001"
-                ],
-                "rules": [
-
-                ],
-                "extraParam": {
-                    "accounts": [
-
-                    ],
-                    "comStrDate": null,
-                    "education": null,
-                    "industry": null,
-                    "industryName": null,
-                    "mamageAmt": null,
-                    "manageAddress": null,
-                    "marryState": "UNKNOWN",
-                    "passthroughMsg": null,
-                    "phantomRelation": true,
-                    "priority": 13.520000457763672,
-                    "regCapAmt": null,
-                    "seasonOffMonth": null,
-                    "seasonOnMonth": null,
-                    "seasonable": null,
-                    "strategy": "02",
                     "totalSalesLastYear": null
                 }
             }
         ],
-        "industry": "C3021",
         "single": false,
         "renewLoans": false,
         "versionNo": "1.0"
