@@ -22,6 +22,7 @@ class TransXls:
         self.title_params = {}
         self.trans_data = None
         self.basic_status = True
+        self.read_type = 'xls'
         self.resp = {
             "resCode": "0",
             "resMsg": "成功",
@@ -50,11 +51,19 @@ class TransXls:
         """
         try:
             title_df = pd.read_excel(self.file, nrows=MAX_TITLE_NUMBER, header=None, sheet_name=None)
+            index_list = title_df.keys()
         except Exception as e:
             logger.info("----读取失败原因r1:%s----" % str(e))
-            return None, None
+            try:
+                title_df = pd.read_html(self.file, skiprows=range(MAX_TITLE_NUMBER, 100000), header=None)
+                self.read_type = 'html'
+                index_list = range(len(title_df))
+            except Exception as e:
+                logger.info("----读取失败原因r2:%s----" % str(e))
+                return None, None
         # 遍历所有sheet
-        for k, v in title_df.items():
+        for k in index_list:
+            v = title_df[k]
             if v.shape[0] == 0:
                 continue
             max_len = 0  # 最大列
@@ -78,10 +87,13 @@ class TransXls:
     def _convert_to_dataframe(self):
         df = None
         try:
-            df = pd.read_excel(self.file, header=self.title, sheet_name=self.sheet_name)
+            if self.read_type == 'xls':
+                df = pd.read_excel(self.file, header=self.title, sheet_name=self.sheet_name)
+            else:
+                df = pd.read_html(self.file, header=self.title)[self.sheet_name]
             self.basic_status = True
         except Exception as e:
-            logger.info("----读取失败原因r2:%s----" % str(e))
+            logger.info("----读取失败原因r3:%s----" % str(e))
             self.basic_status = False
             self.resp['resCode'] = '1'
             self.resp['resMsg'] = '失败'
