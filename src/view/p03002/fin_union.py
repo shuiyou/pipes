@@ -269,7 +269,7 @@ class FinCom(GroupedTransformer):
                 # df1 = df1.drop_duplicates().sort_values(by=['mort_gager', 'reg_date'], ascending=False)
                 # df1['reg_date'] = df1['reg_date'].map(
                 #     lambda x: "" if pd.isna(x) else x.strftime('%Y-%m-%d')).to_list()
-                self.variables['fin_mort_cnt'] += len(df1)
+
             # self._fin_mort(df)
                 df2 = self._load_info_com_bus_mort_registe_df(com_id_list)
                 df3 = self._load_info_com_bus_mort_collateral_df(com_id_list)
@@ -289,6 +289,7 @@ class FinCom(GroupedTransformer):
                 if not df_final.empty:
                     df_final = df_final.fillna("-")
                     df_final = df_final.sort_values(by=['mort_gager', 'reg_date'], ascending=False)
+                    self.variables['fin_mort_cnt'] += len(df_final)
                     self._fin_mort(df_final)
                     self._fin_mab(df_final)
                     self._fin_gua(df_final)
