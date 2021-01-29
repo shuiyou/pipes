@@ -36,6 +36,8 @@ class SettledTable(GroupedTransformer):
             return
 
         # loan_data['loan_date'] = pd.to_datetime(loan_data['loan_date'])
+        loan_data['last_repay_date'] = loan_data.apply(lambda  x:  x['loan_date'] if x['last_repay_date'] is None else x['last_repay_date'],
+                                                       axis = 1)
 
         group1 = loan_data.drop(columns = 'id').groupby('account_org').agg({'amount':['count','sum','max','min'],
                                                                            'loan_date':['min'],
