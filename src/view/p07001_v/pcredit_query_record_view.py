@@ -52,7 +52,7 @@ class PcreditQueryRecordView(ModuleProcessor):
                     jhi_time = row['jhi_time']
                     operator = row['operator']
                     df_temp = loan_df[(loan_df['account_type'].isin(['01', '02', '03', '04', '05'])) & (
-                                loan_df['loan_date'] > jhi_time) & (loan_df['account_org'] == operator)]
+                                loan_df['loan_date'] >= jhi_time) & (loan_df['account_org'] == operator)]
                     if not df_temp.empty:
                         df_1_year_reason.loc[index, 'if_loan'] = "是"
                     else:

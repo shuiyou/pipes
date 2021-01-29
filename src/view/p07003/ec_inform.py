@@ -68,7 +68,8 @@ class EcInform(GroupedTransformer):
                       inplace = True)
 
         if not table2.empty:
-            table2['relation'] = table2.apply( lambda x : x['relation'] + "(占股" + str(round(x['remark']*100,2)) + "%)" ,
+            table2['relation'] = table2.apply( lambda x : x['relation'] + "(占股" + str(round(x['remark']*100,2)) + "%)"
+                                                if x['remark'] is not None else x['relation'],
                                                 axis = 1 )
 
 
@@ -100,8 +101,9 @@ class EcInform(GroupedTransformer):
 
         df = df.where(df.notnull(), None)
 
-        self.variables['related_name'] = df['related_name'].tolist()
-        self.variables['relation'] = df['relation'].tolist()
-        self.variables['id_code'] = df['id_code'].tolist()
-        self.variables['update_date'] = df['update_date'].tolist()
+        if not df.empty:
+            self.variables['related_name'] = df['related_name'].tolist()
+            self.variables['relation'] = df['relation'].tolist()
+            self.variables['id_code'] = df['id_code'].tolist()
+            self.variables['update_date'] = df['update_date'].tolist()
         # self.variables['remark'] = df['remark'].tolist()
