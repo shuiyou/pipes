@@ -267,9 +267,7 @@ class Black(GroupedTransformer):
 
         #black_overt_cnt
         if not process_df.empty:
-            process_df1 = process_df[(pd.notna(process_df.case_no)) & (
-                   process_df.diff_day < 180
-            )].drop_duplicates()
+            process_df1 = process_df[pd.notna(process_df.case_no)].drop_duplicates()
             if not process_df1.empty:
                 self.variables['black_overt_cnt'] = process_df1.shape[0]
                 process_df2 = process_df1.sort_values(by='specific_date',ascending=False)
@@ -285,9 +283,7 @@ class Black(GroupedTransformer):
 
         #black_judge_cnt
         if not pape_df.empty:
-            pape_df1 = pape_df[(~pape_df.legal_status.str.contains('原告|申请执行人|第三人')) & (
-                    pape_df.diff_day < 730)
-            ]
+            pape_df1 = pape_df[~pape_df.legal_status.str.contains('原告|申请执行人|第三人')]
             if not pape_df1.empty:
                 self.variables['black_judge_cnt'] = pape_df1.shape[0]
                 pape_df2 = pape_df1.sort_values(by='closed_time', ascending=False)
