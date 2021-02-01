@@ -21,3 +21,6 @@ aurora-common-utils
 flask_sqlalchemy
 xlwt
 xlrd==1.0.0
+lxml==4.6.2
+html5lib==1.0.1
+beautifulsoup4==4.6.3

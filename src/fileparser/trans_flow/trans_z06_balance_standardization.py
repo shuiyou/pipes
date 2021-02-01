@@ -78,7 +78,7 @@ class TransactionBalance:
         self.df['concat_str'] = self.df.apply(
             lambda x: x['trans_channel'] + x['trans_type'] + x['trans_use'] + x['remark'], axis=1)
         sort_df = self.df.sort_values(by='trans_time', ascending=True)
-        sort_df.drop_duplicates(subset=['trans_time', 'trans_amt', 'account_balance', 'remark'], inplace=True)
+        # sort_df.drop_duplicates(subset=['trans_time', 'trans_amt', 'account_balance', 'remark'], inplace=True)
         sort_df.reset_index(drop=True, inplace=True)
         sort_df['trans_date'] = sort_df['trans_time'].apply(lambda x: x.date())
         date_list = sort_df['trans_date'].unique()
@@ -92,8 +92,16 @@ class TransactionBalance:
                 axis=1)
             if cnt == 0:
                 sort_date_df = self.trans_sort(temp_date_df)
+                if sort_date_df is False:
+                    drop_duplicate_df = temp_date_df.drop_duplicates(subset=['trans_time', 'trans_amt',
+                                                                             'account_balance', 'remark'])
+                    sort_date_df = self.trans_sort(drop_duplicate_df)
             else:
                 sort_date_df = self.trans_sort(temp_date_df, start=last_bal)
+                if sort_date_df is False:
+                    drop_duplicate_df = temp_date_df.drop_duplicates(subset=['trans_time', 'trans_amt',
+                                                                             'account_balance', 'remark'])
+                    sort_date_df = self.trans_sort(drop_duplicate_df, start=last_bal)
             if sort_date_df is False:
                 if temp_date_df[
                         temp_date_df['concat_str'].str.contains('冲正|抹账|退账|抹帐|退帐|冲帐|冲账')].shape[0] == 0:
@@ -111,8 +119,16 @@ class TransactionBalance:
                     axis=1)
                 if cnt == 0:
                     sort_date_df1 = self.trans_sort(reversed_date_df)
+                    if sort_date_df1 is False:
+                        drop_duplicate_df1 = reversed_date_df.drop_duplicates(subset=['trans_time', 'trans_amt',
+                                                                                      'account_balance', 'remark'])
+                        sort_date_df1 = self.trans_sort(drop_duplicate_df1)
                 else:
                     sort_date_df1 = self.trans_sort(reversed_date_df, start=last_bal)
+                    if sort_date_df1 is False:
+                        drop_duplicate_df1 = reversed_date_df.drop_duplicates(subset=['trans_time', 'trans_amt',
+                                                                                      'account_balance', 'remark'])
+                        sort_date_df1 = self.trans_sort(drop_duplicate_df1, start=last_bal)
                 if sort_date_df1 is False:
                     self.basic_status = False
                     self.resp['resCode'] = '22'
