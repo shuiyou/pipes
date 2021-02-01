@@ -21,3 +21,4 @@ aurora-common-utils
 flask_sqlalchemy
 xlwt
 xlrd==1.0.0
+lxml==4.6.2
