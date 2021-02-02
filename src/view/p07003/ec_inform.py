@@ -67,6 +67,12 @@ class EcInform(GroupedTransformer):
                                  } ,
                       inplace = True)
 
+        if not table2.empty:
+            table2['relation'] = table2.apply( lambda x : x['relation'] + "(占股" + str(round(x['remark']*100,2)) + "%)"
+                                                if x['remark'] is not None else x['relation'],
+                                                axis = 1 )
+
+
         table3 = self.cached_data['ecredit_controls_person'][['cust_name','cert_no','update_date']].dropna()
         table3['relation'] = "实际控制人"
         table3.rename(columns = {'cust_name':'related_name',
@@ -82,16 +88,22 @@ class EcInform(GroupedTransformer):
                       inplace = True)
 
         df = pd.DataFrame(data=None,
-                          columns=['related_name','relation','id_code','update_date','remark'])
+                          columns=['related_name','relation','id_code','update_date'])
 
-        df = pd.concat([df,table1,table2,table3,table4],ignore_index=True)
+
+        df = pd.concat([df,table1,table2.drop(columns= 'remark'),table3,table4],ignore_index=True)
+
+        df = df.sort_values(by = 'update_date' , ascending= False)
 
         df['update_date'] = df.update_date.apply(lambda x:str(x))
 
+        df = df.groupby(['id_code','related_name']).agg(lambda x: x.str.cat(sep = ";")).reset_index()
+
         df = df.where(df.notnull(), None)
 
-        self.variables['related_name'] = df['related_name'].tolist()
-        self.variables['relation'] = df['relation'].tolist()
-        self.variables['id_code'] = df['id_code'].tolist()
-        self.variables['update_date'] = df['update_date'].tolist()
-        self.variables['remark'] = df['remark'].tolist()
+        if not df.empty:
+            self.variables['related_name'] = df['related_name'].tolist()
+            self.variables['relation'] = df['relation'].tolist()
+            self.variables['id_code'] = df['id_code'].tolist()
+            self.variables['update_date'] = df['update_date'].tolist()
+        # self.variables['remark'] = df['remark'].tolist()

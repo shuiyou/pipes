@@ -35,6 +35,11 @@ class Unsettled(GroupedTransformer):
             "table_recent_repay_date": [],
             "table_recent_repay_amt": [],
 
+            "add_app_1m":0,
+            "add_app_3m":0,
+            "add_app_6m":0,
+            "add_app_1y":0,
+
             "bar_guar_type": [],
             "bar_guar_amt": [],
             "bar_guar_bal": [],
@@ -42,7 +47,6 @@ class Unsettled(GroupedTransformer):
             "bus_bar": [],
             "grant_history_bar": [],
             "discount_total_recent": 0,
-
 
             "pie_debt_bal": 0,
             "pie_debt_cnt": 0,
@@ -182,6 +186,34 @@ class Unsettled(GroupedTransformer):
         self.variables['table_recent_repay_date'] = df.recent_repay_date.tolist()
         self.variables['table_recent_repay_amt'] = df.recent_repay_amt.tolist()
         self.unsettled_table_df = df
+
+
+        settled_df = self.cached_data["ecredit_loan"][
+            ['id', 'settle_status', 'account_org', 'amount', 'balance', 'loan_date', 'end_date',
+             'category', 'last_payment_type']]
+        settled_df = settled_df[(settled_df.settle_status.str.contains("已结清信贷"))
+                               | ((settled_df.settle_status.str.contains("被追偿"))
+                                  & (settled_df.balance == 0))].drop(columns=['settle_status', 'balance'])
+
+        self.variables["add_app_1m"] = df[(pd.to_datetime(df.start_date) >= datetime.now() - timedelta(days = 30))
+                                          &(pd.to_datetime(df.start_date) < datetime.now() )].shape[0] \
+                            + settled_df[(pd.to_datetime(settled_df.loan_date)  >= datetime.now() - timedelta(days = 30))
+                                         &(pd.to_datetime(settled_df.loan_date) < datetime.now()) ].shape[0]
+
+        self.variables["add_app_3m"] = df[(pd.to_datetime(df.start_date) >= datetime.now() - timedelta(days = 90))
+                                          &(pd.to_datetime(df.start_date) < datetime.now() )].shape[0] \
+                            + settled_df[(pd.to_datetime(settled_df.loan_date)  >= datetime.now() - timedelta(days = 90))
+                                         &(pd.to_datetime(settled_df.loan_date) < datetime.now()) ].shape[0]
+
+        self.variables["add_app_6m"] = df[(pd.to_datetime(df.start_date) >= datetime.now() - timedelta(days = 180))
+                                          &(pd.to_datetime(df.start_date) < datetime.now() )].shape[0] \
+                            + settled_df[(pd.to_datetime(settled_df.loan_date)  >= datetime.now() - timedelta(days = 180))
+                                         &(pd.to_datetime(settled_df.loan_date) < datetime.now()) ].shape[0]
+
+        self.variables["add_app_1y"] = df[(pd.to_datetime(df.start_date) >= datetime.now() - timedelta(days = 365))
+                                          &(pd.to_datetime(df.start_date) < datetime.now() )].shape[0] \
+                            + settled_df[(pd.to_datetime(settled_df.loan_date)  >= datetime.now() - timedelta(days = 365))
+                                         &(pd.to_datetime(settled_df.loan_date) < datetime.now()) ].shape[0]
 
     def unsettled_bar(self):
         data = self.unsettled_table_df

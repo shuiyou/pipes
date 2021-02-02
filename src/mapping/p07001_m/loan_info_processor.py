@@ -215,26 +215,36 @@ class LoanInfoProcessor(ModuleProcessor):
         if temp_overdue_df.shape[0] == 0:
             self.variables["loan_overdue_2times_cnt"] = 0
             return
+        temp_overdue_df.sort_values(by=['record_id', 'jhi_year', 'month'], inplace=True)
         temp_overdue_df.reset_index(drop=True, inplace=True)
         temp_overdue_df.loc[0, 'conti_month'] = 1
         if temp_overdue_df.shape[0] > 1:
             last_repayment_year = temp_overdue_df.loc[0, 'jhi_year']
             last_repayment_month = temp_overdue_df.loc[0, 'month']
+            last_status = temp_overdue_df.loc[0, 'status']
+            last_amt = temp_overdue_df.loc[0, 'repayment_amt']
             last_record_id = temp_overdue_df.loc[0, 'record_id']
             for index in temp_overdue_df.index[1:]:
                 this_repayment_year = temp_overdue_df.loc[index, 'jhi_year']
                 this_repayment_month = temp_overdue_df.loc[index, 'month']
+                this_status = temp_overdue_df.loc[index, 'status']
+                this_amt = temp_overdue_df.loc[index, 'repayment_amt']
                 this_record_id = temp_overdue_df.loc[index, 'record_id']
-                if this_record_id == last_record_id and \
-                        abs((int(this_repayment_year) - int(last_repayment_year)) * 12 -
-                            int(this_repayment_month) + int(last_repayment_month)) == 1:
+                diff_month = (int(this_repayment_year) - int(last_repayment_year)) * 12 + int(this_repayment_month) - \
+                    int(last_repayment_month)
+                # 此处表示必须满足条件：1.同一笔贷款；2.间隔一个月份；3.逾期状态递增且只增加1或者逾期金额近乎倍增；才被视为连续逾期
+                if this_record_id == last_record_id and diff_month == 1 and \
+                        (this_amt > last_amt * 1.9 or (last_status.isdigit() and this_status.isdigit() and
+                                                       int(this_status) - int(last_status) == 1)):
                     temp_overdue_df.loc[index, 'conti_month'] = temp_overdue_df.loc[index - 1, 'conti_month'] + 1
                 else:
                     temp_overdue_df.loc[index, 'conti_month'] = 1
                 last_repayment_year = this_repayment_year
                 last_repayment_month = this_repayment_month
+                last_status = this_status
+                last_amt = this_amt
                 last_record_id = this_record_id
-        loan_overdue_2times_cnt = temp_overdue_df[temp_overdue_df['conti_month'] == 2]['record_id'].nunique()
+        loan_overdue_2times_cnt = temp_overdue_df[temp_overdue_df['conti_month'] == 2].shape[0]
 
         self.variables["loan_overdue_2times_cnt"] = loan_overdue_2times_cnt
 

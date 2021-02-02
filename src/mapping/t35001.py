@@ -7,6 +7,8 @@ def get_field_value(df, key):
     if not df_temp.empty:
         return float(df_temp['field_value'].to_list()[0])
     else:
+        if key == "FIN_Loan_uninstall_0M_1M":
+            return None
         return 0
 
 
