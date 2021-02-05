@@ -10,7 +10,6 @@ import requests
 from flask import request
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.grouped_tranformer import invoke_each, invoke_union
@@ -20,6 +19,7 @@ from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
 from service.base_type_service_v2 import BaseTypeServiceV2
+from strategy_config import obtain_strategy_url
 from util.type_converter import format_var
 from view.grouped_mapper_detail import view_variables_scheduler
 from view.mapper_detail import STRATEGE_DONE
@@ -195,7 +195,7 @@ class P03002(Generate):
     def invoke_strategy(variables, product_code, req_no):
         strategy_request = _build_request(req_no, product_code, variables)
         logger.info("strategy_request:%s", strategy_request)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        strategy_response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         logger.debug("strategy_response%s", strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)

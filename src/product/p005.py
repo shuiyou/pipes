@@ -4,13 +4,13 @@ import requests
 from flask import request
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
 from mapping.t00000 import T00000
 from product.generate import Generate
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _append_rules, _relation_risk_subject
+from strategy_config import obtain_strategy_url
 
 logger = LoggerUtil().logger(__name__)
 
@@ -106,7 +106,7 @@ class P005(Generate):
         logger.info("productCode:005-_strategy_second_hand begin")
         strategy_request = _build_request(req_no, product_code, origin_input)
         logger.info("productCode:005-_strategy_second_hand strategy_request:%s", strategy_request)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        strategy_response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         logger.debug(strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
@@ -154,7 +154,7 @@ class P005(Generate):
         step_log("2-1", strategy_request)
         # 调用决策引擎
         step_log(3, "开始调用策略引擎")
-        response = requests.post(STRATEGY_URL, json=strategy_request)
+        response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()

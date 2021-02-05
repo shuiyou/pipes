@@ -7,10 +7,10 @@
 import requests
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
+from strategy_config import obtain_strategy_url
 from view.mapper_detail import STRATEGE_DONE, translate_for_report_detail
 
 logger = LoggerUtil().logger(__name__)
@@ -42,7 +42,7 @@ class StrategyService(object):
         logger.info("1. 开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
         logger.info("2. 策略引擎封装入参:%s", strategy_request)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        strategy_response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         logger.info("3. 策略引擎返回结果：%s", strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)
