@@ -14,6 +14,7 @@ class TransSingleLabel:
     author:汪腾飞
     created_time:20200706
     updated_time_v1:20201125,夜间交易风险和家庭不稳定风险以及民间借贷风险逻辑调整
+    updated_time_v2:20210207,民间借贷剔除关联关系，当特殊交易类型命中医院时，将命中医院关键字的字符加到备注列里面
     """
 
     def __init__(self, trans_flow):
@@ -87,12 +88,14 @@ class TransSingleLabel:
             (self.df['concat_str'].str.contains('信托|小微|信贷.*过渡户|过渡户.*信贷|财务.*公司|公司.*财务|资金互助社|金融.*公司|公司.*金融|经济合作社')) &
             (pd.isnull(self.df.loan_type)), 'loan_type'] = '其他金融'
         self.df.loc[(self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING) &
+                    (~self.df['concat_str'].str.contains('|'.join(self.relation_dict.keys()))) &
                     (((self.df['concat_str'].str.contains('信贷|融资|垫款|放款|个人.*贷|抵押|现金分期|借|还|本金')) &
-                      (~self.df['concat_str'].str.contains('借支'))) |
+                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC'))) |
                      ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')))) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
         amt_group = self.df[
-            self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING
+            (self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING) &
+            (~self.df['concat_str'].str.contains('|'.join(self.relation_dict.keys())))
         ].groupby(['opponent_name', 'trans_amt'], as_index=False).agg({'month': len})
         amt_group = amt_group[amt_group['month'] >= MIN_CONTI_MONTHS]
         if amt_group.shape[0] > 0:
@@ -232,6 +235,17 @@ class TransSingleLabel:
                                      cleaned_name) is None:
                         return 1
 
+    @staticmethod
+    def _hospital_check(col_string, amt_type=1):
+        if amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
+                re.search(r'(采购|投标保证金|贷款|工程|工资|加工|材料款|材料费|机械费|运费|装修|保险)', col_string) is None:
+            return True
+        elif amt_type == -1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
+                '保险' in col_string:
+            return True
+        else:
+            return False
+
     def _in_out_order(self):
         income_per_df = self.df[(pd.notnull(self.df.opponent_name)) & (self.df.trans_amt > 0) &
                                 (self.df.opponent_type == 1)]
@@ -352,8 +366,13 @@ class TransSingleLabel:
                 unusual_type.append('夜间不良交易')
             if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
                 unusual_type.append('夜间交易')
-            if trans_amt < 0 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', concat_str):
-                unusual_type.append('医院')
+            for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
+                if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
+                        (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
+                    unusual_type.append('医院')
+                    if hos_col != 'remark':
+                        temp_dict['remark'] = temp_dict['remark'] + ';' + temp_dict[hos_col]
+                    break
             if trans_amt > 0 and re.search(r'投资', no_channel_str):
                 unusual_type.append('收购')
             if (trans_amt < 0 and re.search(r'投资', no_channel_str)) or \
