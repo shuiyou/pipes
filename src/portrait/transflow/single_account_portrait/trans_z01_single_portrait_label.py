@@ -91,7 +91,7 @@ class TransSingleLabel:
         self.df.loc[(self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING) &
                     (~self.df['concat_str'].str.contains('|'.join(self.relation_dict.keys()))) &
                     (((self.df['concat_str'].str.contains('信贷|融资|垫款|放款|个人.*贷|抵押|现金分期|借|还|本金')) &
-                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC'))) |
+                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC|无折借|借支|退还|返还|借记'))) |
                      ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')))) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
         amt_group = self.df[
