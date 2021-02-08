@@ -367,13 +367,14 @@ class TransSingleLabel:
                 unusual_type.append('夜间不良交易')
             if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
                 unusual_type.append('夜间交易')
-            if self.user_type == 'PERSONAL':
+            if self.user_type == 'PERSONAL' and ((trans_amt < 0 and self._hospital_check(concat_str, -1)) or
+                                                 (trans_amt > 0 and self._hospital_check(concat_str))):
                 for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
                     if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
                             (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
                         unusual_type.append('医院')
                         if hos_col != 'remark':
-                            temp_dict['remark'] = temp_dict['remark'] + ';' + temp_dict[hos_col]
+                            temp_dict['remark'] = temp_dict['remark'] + '|' + temp_dict[hos_col]
                         break
             if trans_amt > 0 and re.search(r'投资', no_channel_str):
                 unusual_type.append('收购')
