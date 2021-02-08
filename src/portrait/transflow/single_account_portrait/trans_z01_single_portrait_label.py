@@ -237,13 +237,18 @@ class TransSingleLabel:
                         return 1
 
     @staticmethod
-    def _hospital_check(col_string, amt_type=1):
+    def _hospital_check(col_string, amt_type=1, total_str=0):
         if amt_type == -1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
                 re.search(r'(采购|投标保证金|贷款|工程|工资|加工|材料款|材料费|机械费|运费|装修|保险)', col_string) is None:
             return True
-        elif amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
-                '保险' in col_string:
-            return True
+        elif amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string):
+            if total_str == 1:
+                if re.search(r'保险', col_string):
+                    return True
+                else:
+                    return False
+            else:
+                return True
         else:
             return False
 
@@ -367,8 +372,8 @@ class TransSingleLabel:
                 unusual_type.append('夜间不良交易')
             if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
                 unusual_type.append('夜间交易')
-            if self.user_type == 'PERSONAL' and ((trans_amt < 0 and self._hospital_check(concat_str, -1)) or
-                                                 (trans_amt > 0 and self._hospital_check(concat_str))):
+            if self.user_type == 'PERSONAL' and ((trans_amt < 0 and self._hospital_check(concat_str, -1, 1)) or
+                                                 (trans_amt > 0 and self._hospital_check(concat_str, 1, 1))):
                 for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
                     if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
                             (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
