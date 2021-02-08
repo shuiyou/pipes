@@ -59,12 +59,14 @@ class TransFlowBasic:
         self.trans_u_flow_portrait_df = None
         self.trans_u_flow_portrait_df_2_years = None
         self.db = portrait.sql_db
+        self.user_type = None
 
     def process(self):
         data = self.query_data_array[self.object_k]
         bank_account = None
         user_name = data.get('name')
         id_card_no = data.get('idno')
+        self.user_type = data.get('userType')
         if data.__contains__('extraParam') and data['extraParam'].__contains__('accounts') and \
                 data['extraParam']['accounts'][self.object_k_k].__contains__('bankAccount'):
             bank_account = data['extraParam']['accounts'][self.object_k_k]['bankAccount']

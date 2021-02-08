@@ -24,6 +24,7 @@ class TransSingleLabel:
         self.account_id = trans_flow.account_id
         self.df = trans_flow.trans_flow_df
         self.user_name = trans_flow.user_name
+        self.user_type = trans_flow.user_type
         self.create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
         self.label_list = []
         self.spouse_name = 'None'
@@ -237,10 +238,10 @@ class TransSingleLabel:
 
     @staticmethod
     def _hospital_check(col_string, amt_type=1):
-        if amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
+        if amt_type == -1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
                 re.search(r'(采购|投标保证金|贷款|工程|工资|加工|材料款|材料费|机械费|运费|装修|保险)', col_string) is None:
             return True
-        elif amt_type == -1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
+        elif amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
                 '保险' in col_string:
             return True
         else:
@@ -366,13 +367,14 @@ class TransSingleLabel:
                 unusual_type.append('夜间不良交易')
             if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
                 unusual_type.append('夜间交易')
-            for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
-                if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
-                        (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
-                    unusual_type.append('医院')
-                    if hos_col != 'remark':
-                        temp_dict['remark'] = temp_dict['remark'] + ';' + temp_dict[hos_col]
-                    break
+            if self.user_type == 'PERSONAL':
+                for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
+                    if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
+                            (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
+                        unusual_type.append('医院')
+                        if hos_col != 'remark':
+                            temp_dict['remark'] = temp_dict['remark'] + ';' + temp_dict[hos_col]
+                        break
             if trans_amt > 0 and re.search(r'投资', no_channel_str):
                 unusual_type.append('收购')
             if (trans_amt < 0 and re.search(r'投资', no_channel_str)) or \
