@@ -47,7 +47,7 @@ class Tp0002(Transformer):
             'balance_day_avg_6m': 0,  # 6个月余额日均
             'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
-            'model_pred': 0,  # 违约模型,
+            # 'model_pred': 0,  # 违约模型,
             'is_first_loan': "N"  # 是否为首次贷款
         }
         self.per_asset_info = None
@@ -342,6 +342,7 @@ class Tp0002(Transformer):
             self.credit_transform()
             self.trans_transform()
         else:
+            self.variables['model_pred'] = 0
             if self.origin_data is not None:
                 if len(self.origin_data) == 2:
                     main_amt_pred = self.origin_data[0].get('loan_amt_pred')
