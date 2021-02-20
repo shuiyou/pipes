@@ -15,7 +15,7 @@ logger = LoggerUtil().logger(__name__)
 
 
 class MicroLoanAmtFlowExecutor(MicroLoanFlow):
-    required_vars = ["model_pred"]
+    required_vars = ["model_pred", "flow_limit_amt"]
     def __init__(self, json_data):
         super().__init__(json_data)
         self.response = None
@@ -30,9 +30,11 @@ class MicroLoanAmtFlowExecutor(MicroLoanFlow):
             if segment_name == "loan_amt":
                 previous_vars = self.fetch_input_variables(data)
                 array, resp = self._strategy_hand(self.json_data, data, self.product_code, self.req_no)
+                curr_vars = self.fetch_input_variables(data)
                 subject.append(resp)
                 if len(array) > 0:
                     array.update(previous_vars)
+                    array.update(curr_vars)
                 cache_array.append(array)
             else:
                 subject.append(data)
@@ -55,9 +57,11 @@ class MicroLoanAmtFlowExecutor(MicroLoanFlow):
     @staticmethod
     def fetch_input_variables(data):
         array = {}
-        for var_name in MicroLoanAmtFlowExecutor.required_vars:
-            var_list = data.get("strategyInputVariables")
-            if var_list:
-                array[var_name] = var_list.get(var_name)
+        var_list = data.get("strategyInputVariables")
+        if var_list:
+            for var_name in MicroLoanAmtFlowExecutor.required_vars:
+                val = var_list.get(var_name)
+                if val:
+                    array[var_name] = val
         return array
 
