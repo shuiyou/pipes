@@ -7,10 +7,10 @@
 import requests
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from logger.logger_util import LoggerUtil
 from mapping.t00000 import T00000
 from product.p_utils import _build_request, _append_rules, _get_biz_types
+from strategy_config import obtain_strategy_url
 
 logger = LoggerUtil().logger(__name__)
 
@@ -46,7 +46,7 @@ class HandShakeService(object):
         logger.info("2. 决策调用入参为：%s", strategy_request)
         # 调用决策引擎
         logger.info("3. 开始调用策略引擎")
-        response = requests.post(STRATEGY_URL, json=strategy_request)
+        response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         if response.status_code != 200:
             raise Exception("strategyOne错误:" + response.text)
         resp_json = response.json()

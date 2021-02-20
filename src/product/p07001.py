@@ -10,7 +10,6 @@ import requests
 from flask import request
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from exceptions import ServerException
 from logger.logger_util import LoggerUtil
 from mapping.mapper import translate_for_strategy
@@ -18,6 +17,7 @@ from mapping.utils.np_encoder import NpEncoder
 from product.generate import Generate
 from product.p_config import product_codes_dict
 from product.p_utils import _relation_risk_subject, _append_rules, score_to_int, _get_biz_types, _build_request
+from strategy_config import obtain_strategy_url
 from util.type_converter import echo_var_type
 from view.mapper_detail import translate_for_report_detail
 
@@ -82,7 +82,7 @@ class P07001(Generate):
         logger.info("1. 征信-开始策略引擎封装入参")
         strategy_request = _build_request(req_no, product_code, origin_input)
         logger.info("2. 征信-策略引擎封装入参:%s", strategy_request)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        strategy_response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         logger.info("3. 征信-策略引擎返回结果：%s", strategy_response)
         if strategy_response.status_code != 200:
             raise Exception("strategyOne错误:" + strategy_response.text)

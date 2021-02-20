@@ -11,8 +11,8 @@ import requests
 from file_utils.files import file_content
 from jsonpath import jsonpath
 
-from config import STRATEGY_URL
 from product.p_utils import _build_request
+from strategy_config import obtain_strategy_url
 
 
 @pytest.fixture(name="mock_data")
@@ -42,7 +42,7 @@ def test_strategy_request(mock_data, base_type, val, code):
         origin_input.update(variables)
 
         strategy_request = _build_request(req_no, product_code, origin_input)
-        strategy_response = requests.post(STRATEGY_URL, json=strategy_request)
+        strategy_response = requests.post(obtain_strategy_url(product_code), json=strategy_request)
         codes = jsonpath(strategy_response.json(), "$..out_decisionBranchCode")
         print("base_type:", base_type, " val:", val, "codes:", codes)
         if code and code != '' and codes and len(codes) > 0:

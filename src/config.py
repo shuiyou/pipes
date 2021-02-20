@@ -10,6 +10,8 @@ app_env = os.getenv("ENV", 'dev').lower()
 STRATEGY_URL = os.getenv('STRATEGY_URL',
                          'http://192.168.1.20:8091/rest/S1Public')
 
+OPEN_STRATEGY_URL = os.getenv('OPEN_STRATEGY_URL')
+
 EUREKA_SERVER = os.getenv('EUREKA_SERVER', 'http://192.168.1.27:8030/eureka/')
 
 
