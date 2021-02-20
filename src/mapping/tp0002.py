@@ -45,7 +45,7 @@ class Tp0002(Transformer):
             'credit_guar_bal': 0,  # 个人对外担保总负债余额
             'operating_income_6m': 0,  # 6个月经营收入
             'balance_day_avg_6m': 0,  # 6个月余额日均
-            'flow_limit_amt': 0,  # 流水指标
+            # 'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
             # 'model_pred': 0,  # 违约模型,
             'is_first_loan': "N"  # 是否为首次贷款
@@ -330,7 +330,7 @@ class Tp0002(Transformer):
                 total_amt_list = [diff_days[j] * amt_list[j] for j in range(len(date_list))]
                 balance_day_avg_6m = sum(total_amt_list) / total_days if total_days != 0 else 0
                 self.variables['balance_day_avg_6m'] = balance_day_avg_6m / 10000
-                self.variables['flow_limit_amt'] = round(max(operating_income_6m / 150000, balance_day_avg_6m * 50000))
+                self.variables['flow_limit_amt'] = 5
 
     def trans_transform(self):
         self.basic_data()
@@ -342,16 +342,22 @@ class Tp0002(Transformer):
             self.credit_transform()
             self.trans_transform()
         else:
-            self.variables['model_pred'] = 0
             if self.origin_data is not None:
                 if len(self.origin_data) == 2:
                     main_amt_pred = self.origin_data[0].get('loan_amt_pred')
                     spouse_amt_pred = self.origin_data[1].get('loan_amt_pred')
                     main_model_pred = self.origin_data[0].get('model_pred')
                     spouse_model_pred = self.origin_data[1].get('model_pred')
+                    flow_limit_amt = self.origin_data[0].get('flow_limit_amt')
                     if main_amt_pred is not None and spouse_amt_pred is not None:
                         self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
                         self.variables['model_pred'] = max(main_model_pred, spouse_model_pred)
+                    else:
+                        self.variables['model_pred'] = 0
+                    if flow_limit_amt is not None:
+                        self.variables['flow_limit_amt'] = flow_limit_amt
+                    else:
+                        self.variables['flow_limit_amt'] = 0
 
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
             if is_first_loan and len(is_first_loan) > 0:
