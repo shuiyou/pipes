@@ -45,9 +45,9 @@ class Tp0002(Transformer):
             'credit_guar_bal': 0,  # 个人对外担保总负债余额
             'operating_income_6m': 0,  # 6个月经营收入
             'balance_day_avg_6m': 0,  # 6个月余额日均
-            'flow_limit_amt': 0,  # 流水指标
+            # 'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
-            'model_pred': 0,  # 违约模型,
+            # 'model_pred': 0,  # 违约模型,
             'is_first_loan': "N"  # 是否为首次贷款
         }
         self.per_asset_info = None
@@ -348,9 +348,16 @@ class Tp0002(Transformer):
                     spouse_amt_pred = self.origin_data[1].get('loan_amt_pred')
                     main_model_pred = self.origin_data[0].get('model_pred')
                     spouse_model_pred = self.origin_data[1].get('model_pred')
+                    flow_limit_amt = self.origin_data[0].get('flow_limit_amt')
                     if main_amt_pred is not None and spouse_amt_pred is not None:
                         self.variables['loan_amt_pred_avg'] = math.floor((main_amt_pred + spouse_amt_pred) / 2)
                         self.variables['model_pred'] = max(main_model_pred, spouse_model_pred)
+                    else:
+                        self.variables['model_pred'] = 0
+                    if flow_limit_amt is not None:
+                        self.variables['flow_limit_amt'] = flow_limit_amt
+                    else:
+                        self.variables['flow_limit_amt'] = 0
 
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
             if is_first_loan and len(is_first_loan) > 0:
