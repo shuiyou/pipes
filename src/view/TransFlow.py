@@ -49,6 +49,19 @@ class TransFlow(ModuleProcessor):
             if i["relation"] == "GUARANTOR":
                 self.guarantor_list.append(i["name"])
 
+        sql = '''
+            select distinct related_name as name
+            from trans_apply
+            where report_req_no = %(report_req_no)s
+            and relationship != '担保人'
+        '''
+        relation_list = sql_to_df(sql=sql,
+                                params={"report_req_no": self.reqno})['name'].tolist()
+
+        for name in self.guarantor_list:
+            if name in relation_list:
+                self.guarantor_list.remove(name)
+
 
     def flow_account_clean(self, account_no):
         l = len(account_no)
