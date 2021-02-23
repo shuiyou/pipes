@@ -39,6 +39,7 @@ class TransApply:
         # limit_time = months_ago(datetime.datetime.now(), self.month_interval)
         # limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        apply_exist_id = []
         for i in range(length):
             temp = self.query_data_array[i]
             temp_dict = dict()
@@ -58,6 +59,7 @@ class TransApply:
             id_card_no = self._get_object_attr(temp, 'idno')
             if id_card_no is not None:
                 temp_dict['id_card_no'] = id_card_no
+                apply_exist_id.append(id_card_no)
             id_type = self._get_object_attr(temp, 'userType')
             if id_type is not None:
                 if id_type == 'PERSONAL':
@@ -78,7 +80,7 @@ class TransApply:
                             temp_dict.pop('account_id')
                         temp_data = temp['extraParam']['accounts'][j]
                         bank_no = self._get_object_attr(temp_data, 'bankAccount')
-                        if bank_no is not None and id_card_no is not None:
+                        if bank_no is not None and id_card_no is not None and relationship != 'G_PERSONAL':
                             temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
                             if len(temp_df) > 0:
                                 temp_dict['account_id'] = temp_df['id'].to_list()[0]
