@@ -72,33 +72,34 @@ class TransSingleLabel:
         # 将字符串列合并到一起
         self.df['concat_str'] = self.df.apply(lambda x: ';'.join(x[concat_list]), axis=1)
         # 贷款类型赋值,优先级从上至下
-        self.df.loc[self.df['concat_str'].str.contains('消费金融|消费银企|汽车金融|陆金所|微粒贷|花呗|借呗|360还款|消费贷款'),
+        self.df.loc[self.df['concat_str'].str.contains('消费金融|消费银企|汽车金融|陆金所|微粒贷|花呗|借呗|360还款|消费贷款|消金|京东金融'),
                     'loan_type'] = '消金'
         # self.df.loc[(self.df['concat_str'].str.contains('银行贷款|银行.*放款|放款.*银行')) &
         #             (pd.isnull(self.df.loan_type)), 'loan_type'] = '银行'
-        self.df.loc[(self.df['concat_str'].str.contains('融资租赁|国际租赁|金融租赁')) &
+        self.df.loc[(self.df['concat_str'].str.contains('融资租赁|国际租赁|金融租赁|仲利|诚泰')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '融资租赁'
         self.df.loc[(self.df['concat_str'].str.contains('担保')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '担保'
         self.df.loc[(self.df['concat_str'].str.contains('保理')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '保理'
         self.df.loc[~(self.df['concat_str'].str.contains('小额贷记来账|信用卡')) &
-                    (self.df['concat_str'].str.contains('小额贷|小贷|企业贷|典当|互联网信息咨询|360借条|中安信业')) &
+                    (self.df['concat_str'].str.contains('小额贷|小贷|企业贷|典当|互联网信息咨询|360借条|中安信业|360网络贷款|陕银消费')) &
                     (pd.isnull(self.df.loan_type)), 'loan_type'] = '小贷'
 
-        self.df.loc[((self.df['concat_str'].str.contains('银行贷款|银行.*放款|放款.*银行')) |
+        self.df.loc[((self.df['concat_str'].str.contains('银行贷款|银行.*放款|贷款放款|对公贷款|贷款利息收入|放款过渡户')) |
                      ((pd.isnull(self.df.opponent_type)) & (
                          self.df['concat_str'].str.contains('批量代扣|批量扣款|自动收利|约定还款|受托支付|批扣|贷款扣款|批量还款')))) &
                     (~self.df['concat_str'].str.contains('信用卡|收单|短信服务|工资|电费|缴税|手续费|回单服务|人寿保险|管理费|服务费|信使费|ETC|POS')) &
                     (pd.isnull(self.df.loan_type)),
                     'loan_type'] = '银行'
-        self.df.loc[(self.df['concat_str'].str.contains('支付宝|特约'))
+        self.df.loc[(self.df['concat_str'].str.contains('支付宝|特约|聚合支付|平安付'))
                     & (self.df['concat_str'].str.contains('借|还'))
                     & (pd.isnull(self.df.loan_type)
                        & (~self.df['concat_str'].str.contains('信用卡'))),
                     'loan_type'] = '第三方支付'
         self.df.loc[
-            (((self.df['concat_str'].str.contains('信托|信贷.*过渡户|过渡户.*信贷|财务.*公司|资金互助社|金融.*公司|经济合作社|供应链融资')) &
+            (((self.df['concat_str'].str.contains(
+                '信托|信贷.*过渡户|过渡户.*信贷|财务.*公司|资金互助社|金融.*公司|经济合作社|供应链融资|车贷放款|融资作业|租赁.*还|其他外围.*还')) &
               (~self.df['concat_str'].str.contains('综合金融服务平台|财务咨询'))) | (
                          (self.df['concat_str'].str.contains('车贷|还车款')) &
                          (self.df.opponent_type != 1)))
@@ -108,9 +109,10 @@ class TransSingleLabel:
                     (~self.df['concat_str'].str.contains('|'.join(self.relation_dict.keys()))) &
                     ((((self.df['concat_str'].str.contains('信贷|融资|垫款|放款|个人.*贷|现金分期|借|还|本金|房贷')) |
                        ((self.df['concat_str'].str.contains('抵押')) & (pd.notnull(self.df['opponent_name'])))) &
-                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC|无折借|借支|退还|返还|借记|信用卡|贴现|货款|床垫|消费|POS|钱生钱'))) |
-                     ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')))
-                     ) & (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
+                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC|无折借|借支|退还|返还|借记|信用卡|贴现|货款|床垫|消费|POS|钱生钱|特约|招标|退耕还林'))) |
+                         ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')) & (~self.df['concat_str'].str.contains('计提')) )
+                     ) & (~self.df['opponent_name'].str.contains('银行'))
+                    & (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
 
         amt_group = self.df[
             (self.df['trans_amt'].apply(lambda x: abs(x)) > MIN_PRIVATE_LENDING) &
