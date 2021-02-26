@@ -39,6 +39,7 @@ class TransApply:
         # limit_time = months_ago(datetime.datetime.now(), self.month_interval)
         # limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        apply_exist_id = []
         for i in range(length):
             temp = self.query_data_array[i]
             temp_dict = dict()
@@ -58,6 +59,8 @@ class TransApply:
             id_card_no = self._get_object_attr(temp, 'idno')
             if id_card_no is not None:
                 temp_dict['id_card_no'] = id_card_no
+                # if id_card_no not in apply_exist_id and relationship != 'G_PERSONAL':
+                #     apply_exist_id.append(id_card_no)
             id_type = self._get_object_attr(temp, 'userType')
             if id_type is not None:
                 if id_type == 'PERSONAL':
@@ -73,19 +76,33 @@ class TransApply:
                     temp_dict['industry'] = industry
                 if temp['extraParam'].__contains__('accounts') and \
                         type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
-                    for j in range(len(temp['extraParam']['accounts'])):
-                        if temp_dict.__contains__('account_id'):
-                            temp_dict.pop('account_id')
-                        temp_data = temp['extraParam']['accounts'][j]
-                        bank_no = self._get_object_attr(temp_data, 'bankAccount')
-                        if bank_no is not None and id_card_no is not None:
-                            temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
-                            if len(temp_df) > 0:
-                                temp_dict['account_id'] = temp_df['id'].to_list()[0]
-                        temp_dict['create_time'] = create_time
-                        temp_dict['update_time'] = create_time
-                        role = transform_class_str(temp_dict, 'TransApply')
-                        self.role_list.append(role)
+
+                    if relationship != 'G_PERSONAL' and  id_card_no not in apply_exist_id :
+                        apply_exist_id.append(id_card_no)
+                        for j in range(len(temp['extraParam']['accounts'])):
+                            if temp_dict.__contains__('account_id'):
+                                temp_dict.pop('account_id')
+                            temp_data = temp['extraParam']['accounts'][j]
+                            bank_no = self._get_object_attr(temp_data, 'bankAccount')
+                            if bank_no is not None and id_card_no is not None:
+                                temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
+                                if len(temp_df) > 0:
+                                    temp_dict['account_id'] = temp_df['id'].tolist()[0]
+                            temp_dict['create_time'] = create_time
+                            temp_dict['update_time'] = create_time
+                            role = transform_class_str(temp_dict, 'TransApply')
+                            self.role_list.append(role)
+                    elif relationship == 'G_PERSONAL':
+                        for j in range(len(temp['extraParam']['accounts'])):
+                            if temp_dict.__contains__('account_id'):
+                                temp_dict.pop('account_id')
+                            # temp_data = temp['extraParam']['accounts'][j]
+                            # bank_no = self._get_object_attr(temp_data, 'bankAccount')
+                            temp_dict['create_time'] = create_time
+                            temp_dict['update_time'] = create_time
+                            role = transform_class_str(temp_dict, 'TransApply')
+                            self.role_list.append(role)
+
                 else:
                     temp_dict['create_time'] = create_time
                     temp_dict['update_time'] = create_time

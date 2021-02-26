@@ -55,6 +55,10 @@ class JsonUnionUnusualTrans(TransFlow):
             temp_df = df[df['unusual_trans_type'].str.contains(unusual_dict[risk])].drop(columns=['unusual_trans_type'])
             if not temp_df.empty:
                 temp_df['account_no'] = temp_df['account_no'].fillna("").astype(str)
+                if unusual_dict[risk] == "民间借贷":
+                    temp_df.sort_values(by = ['opponent_name','trans_time'] ,
+                                        ascending= [ True , True ] ,
+                                        inplace = True )
                 temp_df['account_no'] = temp_df['account_no'].apply( lambda x : self.flow_account_clean(x))
             json_str += f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
 

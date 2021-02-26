@@ -54,6 +54,10 @@ class JsonSingleUnusualTrans(TransFlow):
         json_str = ""
         for risk in unusual_dict:
             temp_df = df[df['unusual_trans_type'].str.contains( unusual_dict[risk] )].drop(columns= 'unusual_trans_type')
+            if unusual_dict[risk] == "民间借贷" and not temp_df.empty:
+                temp_df.sort_values(by=['opponent_name', 'trans_time'],
+                                    ascending=[True, True],
+                                    inplace=True)
             json_str +=  f"\"{risk}\":" + temp_df.to_json(orient='records').encode('utf-8').decode("unicode_escape") + ","
 
         json_str = "{" + json_str[:-1] + "}"
