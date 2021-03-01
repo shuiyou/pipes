@@ -44,6 +44,7 @@ class TransSingleLabel:
     def _relationship_dict(self):
         """
         生成姓名和关联关系对应的字典,需要将编码形式的关联关系转化为中文关联关系
+        v1.2,忽略掉全部担保人
         :return:
         """
         length = len(self.query_data_array)
@@ -51,14 +52,16 @@ class TransSingleLabel:
         for i in range(length):
             temp = self.query_data_array[i]
             base_type_detail = base_type_mapping.get(temp['baseTypeDetail'])
-            self.relation_dict[temp['name']] = base_type_detail
-            if base_type_detail in ['借款人配偶', '借款企业实际控制人配偶']:
-                self.spouse_name = str(temp['name'])
+            if base_type_detail != '担保人':
+                self.relation_dict[temp['name']] = base_type_detail
+                if base_type_detail in ['借款人配偶', '借款企业实际控制人配偶']:
+                    self.spouse_name = str(temp['name'])
 
     def _loan_type_label(self):
         """
         包括交易对手类型标签opponent_type,贷款类型标签loan_type,是否还款标签is_repay,是否结息标签is_interest
         是否结息前一周标签is_before_interest_repay
+        v1.1,调整先后顺序，补充部分字符
         :return:
         """
         concat_list = ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']
