@@ -48,7 +48,9 @@ class Tp0002(Transformer):
             # 'flow_limit_amt': 0,  # 流水指标
             'loan_amt_pred_avg': 0,  # 主体配偶预测额度平均值
             # 'model_pred': 0,  # 违约模型,
-            'is_first_loan': "N"  # 是否为首次贷款
+            'is_first_loan': "N",  # 是否为首次贷款
+            'has_house_asset': 0,  # 是否有房产
+            'last_total_sale_amt': 0  # 上年销售总额
         }
         self.per_asset_info = None
         self.per_debt_info = None
@@ -64,7 +66,7 @@ class Tp0002(Transformer):
         self.pcredit_query = None
         self.trans_u_flow = None
 
-    def all_variables(self):
+    def all_variables(self, final_call=0):
         strategy_param = self.full_msg.get('strategyParam')
         query_data = strategy_param.get('queryData')
         if query_data is None or len(query_data) == 0:
@@ -86,6 +88,22 @@ class Tp0002(Transformer):
         self.com_sale_info = pd.DataFrame(com_passthrough_msg.get('iqp_sale_info'))
         self.com_asset_info = pd.DataFrame(com_passthrough_msg.get('iqp_asset_info'))
         self.com_debt_info = pd.DataFrame(com_passthrough_msg.get('iqp_debt_info'))
+
+        if final_call == 1:
+            if self.per_asset_info is not None and self.per_asset_info.shape[0] > 0:
+                if self.per_asset_info[self.per_asset_info['indiv_ass_type'] == '02'].shape[0] > 0:
+                    self.variables['has_house_asset'] = 1
+            if self.com_busi_info is not None and self.com_busi_info.shape[0] > 0:
+                if self.com_sale_info is not None and self.com_sale_info.shape[0] > 0:
+                    temp_sale_info = pd.merge(self.com_sale_info, self.com_busi_info[['serno', 'stock_perc']],
+                                              how='left', left_on='bus_info_serno', right_on='serno')
+                    temp_sale_info['stock_perc'] = temp_sale_info['stock_perc'].fillna(0)
+                    self.variables['last_total_sale_amt'] = \
+                        sum(temp_sale_info['last_sale_total'] * temp_sale_info['stock_perc'])
+                if self.com_asset_info is not None and self.com_asset_info.shape[0] > 0:
+                    if self.com_asset_info[self.com_asset_info['asset_typ'] == '8'].shape[0] > 0:
+                        self.variables['has_house_asset'] = 1
+            return
 
         per_total_debt_amt = 0
         per_total_bank_debt_amt = 0
@@ -358,6 +376,7 @@ class Tp0002(Transformer):
                         self.variables['flow_limit_amt'] = flow_limit_amt
                     else:
                         self.variables['flow_limit_amt'] = 0
+                    self.all_variables(final_call=1)
 
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
             if is_first_loan and len(is_first_loan) > 0:
