@@ -72,9 +72,13 @@ class Tp0002(Transformer):
         if query_data is None or len(query_data) == 0:
             return
         per_msg = None
-        for i in range(len(query_data)):
-            if query_data[i].get('idno') == self.id_card_no:
-                per_msg = query_data[i].get('extraParam')
+        if final_call == 1:
+            if len(query_data) > 0:
+                per_msg = query_data[0].get('extraParam')
+        else:
+            for i in range(len(query_data)):
+                if query_data[i].get('idno') == self.id_card_no:
+                    per_msg = query_data[i].get('extraParam')
         com_msg = strategy_param.get('extraParam')
         if per_msg is None or com_msg is None:
             return
