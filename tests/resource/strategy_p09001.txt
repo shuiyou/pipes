@@ -14,7 +14,7 @@
                 "userType":"PERSONAL",
                 "authorStatus":"AUTHORIZED",
                 "fundratio":0,
-                "applyAmo":0,
+                "applyAmo":350000,
                 "baseType":"U_PERSONAL",
                 "relation":"MAIN",
                 "bizType":[

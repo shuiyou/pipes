@@ -378,6 +378,12 @@ class Tp0002(Transformer):
                         self.variables['flow_limit_amt'] = 0
                     self.all_variables(final_call=1)
 
+
             is_first_loan = jsonpath(self.full_msg, "$.strategyParam.extraParam.isFirstLoan")
+            apply_amt= jsonpath(self.full_msg, '$..strategyParam.queryData[*].applyAmo')
+            if apply_amt and len(apply_amt)>0:
+                self.variables['apply_amt'] = apply_amt[0]
+            else:
+                self.variables['apply_amt'] = 0
             if is_first_loan and len(is_first_loan) > 0:
                 self.variables["is_first_loan"] = is_first_loan[0]
