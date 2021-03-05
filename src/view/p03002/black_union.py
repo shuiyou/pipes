@@ -90,7 +90,11 @@ class Black(GroupedTransformer):
             'black_froz_time': [],
             'black_froz_thaw_date': [],
             'black_froz_invalid_date': [],
-            'black_froz_invalid_reason': []
+            'black_froz_invalid_reason': [],
+            'black_punish_name': [],
+            'black_punish_reason': [],
+            'black_punish_datetime': [],
+            'black_punish_case_no': []
         }
 
     def _info_court(self, user_name, id_card_no):
@@ -197,6 +201,16 @@ class Black(GroupedTransformer):
         sql = '''
                    select * from info_com_bus_shares_frost where basic_id in %(ids)s order by froz_ent,froz_public_date DESC
               '''
+        df = sql_to_df(sql=sql,
+                       params={"ids": ids})
+        return df
+
+    def _info_com_bus_case(self, ids):
+        sql = '''
+           SELECT a.ent_name,b.pendec_no,b.illegact_type_name,b.pen_deciss_date FROM info_com_bus_basic a,info_com_bus_case b
+           where a.id = b.basic_id
+           and b.basic_id in %(ids)s
+        '''
         df = sql_to_df(sql=sql,
                        params={"ids": ids})
         return df
@@ -338,6 +352,7 @@ class Black(GroupedTransformer):
 
         illegal_df = self._info_com_bus_illegal(ids)
         frost_df = self._info_com_bus_shares_frost(ids)
+        case_df = self._info_com_bus_case(ids)
 
         basic_df = pd.DataFrame(basic_dict)
         if not illegal_df.empty:
@@ -367,6 +382,12 @@ class Black(GroupedTransformer):
             self.variables['black_froz_thaw_date'] = frost_df['thaw_date'].to_list()
             self.variables['black_froz_invalid_date'] = frost_df['invalid_time'].to_list()
             self.variables['black_froz_invalid_reason'] = frost_df['invalid_reason'].to_list()
+
+        if not case_df.empty:
+            self.variables['black_punish_name'] = case_df['ent_name'].to_list()
+            self.variables['black_punish_reason'] = case_df['illegact_type_name'].to_list()
+            self.variables['black_punish_datetime'] = case_df['pen_deciss_date'].to_list()
+            self.variables['black_punish_case_no'] = case_df['pendec_no'].to_list()
 
     def transform(self):
         self.clean_variables_court()

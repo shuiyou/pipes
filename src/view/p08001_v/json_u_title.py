@@ -2,7 +2,7 @@ import json
 
 from view.TransFlow import TransFlow
 from util.mysql_reader import sql_to_df
-
+import pandas as pd
 
 class JsonUnionTitle(TransFlow):
 
@@ -32,7 +32,24 @@ class JsonUnionTitle(TransFlow):
             account_df['end_time'] = account_df['end_time'].apply(lambda x: x.strftime('%Y/%m/%d'))
             account_df['startEndDate'] = account_df['start_time'] + "—" + account_df['end_time']
 
-        account_list = account_df.drop(columns=['start_time','end_time']).to_json(orient='records')\
+        cashier = pd.DataFrame(data=None,
+                               columns=['name', 'bank', 'account'])
+        for account in self.cached_data.get('input_param'):
+            if str(account).__contains__('\'ifCashier\': \'是\''):
+                cashier.loc[len(cashier)] = [account.get('name'),
+                                             account.get('extraParam').get('accounts')[0]['bankName'],
+                                             account.get('extraParam').get('accounts')[0]['bankAccount']]
+
+        if not cashier.empty:
+            cashier['account_detail'] = '(出纳)'
+            account_df = pd.merge(account_df,cashier,
+                                  how = 'left',
+                                  left_on=['relatedName','bankName','bankAccount'],
+                                  right_on=['name', 'bank', 'account']).fillna("")
+            account_df['bankAccount'] = account_df['bankAccount'] + account_df['account_detail']
+
+
+        account_list = account_df[['relatedName','relation','bankName','bankAccount','startEndDate']].to_json(orient='records')\
                     .encode('utf-8').decode("unicode_escape")
 
         sql2 = '''
