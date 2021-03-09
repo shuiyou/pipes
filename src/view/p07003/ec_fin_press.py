@@ -163,7 +163,7 @@ class EcFinPress(GroupedTransformer):
         debt_df['bad_debt'] = debt_df['bad_debt'] + debt_df['overdue_debt']
         debt_df  =  debt_df.drop(columns = 'overdue_debt')
         for index,row in debt_df.iterrows():
-            if row['total_debt'] == 0 and row['debt_cnt'] == 0 :
+            if row['total_debt'] == 0 and row['debt_cnt'] == 0 and debt_df['history_debt_month'].nunique() >= 6 :
                 debt_df.ix[index,'history_debt_month'] = None
             else:
                 break
