@@ -264,7 +264,7 @@ class TransSingleLabel:
                 if 2 <= len(cleaned_name) <= 3:
                     if re.search(r'(转|贷|消费|自取|资金|自定义|友宝|分期|肯德基|代付|麦当劳|携程|红包|活期|房租'
                                  r'|过渡|必胜客|理财|缴费|工资|特约|还款|充值|京东|星巴克|银联|拼多多|爱奇艺|采购'
-                                 r'|天猫|租金|提现|淘宝|\*\*|备用|撤销|花呗|借呗)|[费款税账]$', cleaned_name) is None and \
+                                 r'|天猫|租金|提现|淘宝|\*\*|备用|撤销|花呗|借呗|余额宝|全家)|[费款税账]$', cleaned_name) is None and \
                             re.match(r'[财存天停大柜订百本宝网保北电放还好汇结借跨理利内其上深浙税现中微短发卡随有月油退收快取]',
                                      cleaned_name) is None:
                         return 1
