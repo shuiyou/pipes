@@ -71,6 +71,10 @@ class TransFlowBasic:
                 data['extraParam']['accounts'][self.object_k_k].__contains__('bankAccount'):
             bank_account = data['extraParam']['accounts'][self.object_k_k]['bankAccount']
 
+        # 若为担保人，跳过
+        if data.get('relation') == 'GUARANTOR':
+            return
+
         # 若关联人不存在银行卡号,则必然没有上传过流水,跳过此关联人
         if bank_account is None:
             self.account_id = None
