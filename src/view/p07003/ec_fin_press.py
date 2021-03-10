@@ -163,12 +163,15 @@ class EcFinPress(GroupedTransformer):
         debt_df['bad_debt'] = debt_df['bad_debt'] + debt_df['overdue_debt']
         debt_df  =  debt_df.drop(columns = 'overdue_debt')
         for index,row in debt_df.iterrows():
-            if row['total_debt'] == 0 and row['debt_cnt'] == 0 and debt_df['history_debt_month'].nunique() >= 6 :
+            if row['total_debt'] == 0 and row['debt_cnt'] == 0 and debt_df['history_debt_month'].nunique() > 6 :
                 debt_df.ix[index,'history_debt_month'] = None
             else:
                 break
 
         debt_df = debt_df.dropna()
+
+        if debt_df.empty:
+            return
 
         info_outline = self.cached_data["ecredit_info_outline"]
         assets_outline = self.cached_data["ecredit_assets_outline"]
