@@ -54,7 +54,7 @@ class TransFlow(ModuleProcessor):
             select distinct related_name as name
             from trans_apply
             where report_req_no = %(report_req_no)s
-            and relationship != '担保人'
+            and relationship not regexp '担保'
         '''
         relation_list = sql_to_df(sql=sql,
                                 params={"report_req_no": self.reqno})['name'].tolist()
