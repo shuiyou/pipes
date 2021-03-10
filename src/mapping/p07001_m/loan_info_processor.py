@@ -61,7 +61,7 @@ class LoanInfoProcessor(ModuleProcessor):
             (query_record_df['jhi_time'] > report_time - offsets.DateOffset(months=3)) &
             ((query_record_df['reason'].isin(['01', '02', '08'])) |
              (query_record_df['reason'].str.contains('融资审批')))]
-        df.drop_duplicates(subset=['operator', 'reason'], inplace=True)
+        df.drop_duplicates(subset=['operator'], inplace=True)
         self.variables["loan_credit_query_3month_cnt"] = df.shape[0]
 
     # 总计消费性贷款（含车贷、房贷、其他消费性贷款）5年内逾期次数
