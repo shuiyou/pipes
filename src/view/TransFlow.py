@@ -19,6 +19,7 @@ class TransFlow(ModuleProcessor):
 
     def init(self, variables, user_name, id_card_no, origin_data, cached_data):
         super().init(variables, user_name, id_card_no, origin_data, cached_data)
+        guarantor_temp = []
         for i in self.cached_data.get("input_param"):
             if i["relation"] == "MAIN":
                 self.cusName = i["name"]
@@ -47,20 +48,20 @@ class TransFlow(ModuleProcessor):
                     self.account_id =  int(account_df.values[0][0])
 
             if i["relation"] == "GUARANTOR":
-                self.guarantor_list.append(i["name"])
+                guarantor_temp.append(i["name"])
 
         sql = '''
             select distinct related_name as name
             from trans_apply
             where report_req_no = %(report_req_no)s
-            and relationship != '担保人'
+            and relationship not regexp '担保'
         '''
         relation_list = sql_to_df(sql=sql,
                                 params={"report_req_no": self.reqno})['name'].tolist()
 
-        for name in self.guarantor_list:
-            if name in relation_list:
-                self.guarantor_list.remove(name)
+        for name in guarantor_temp:
+            if name not in relation_list:
+                self.guarantor_list.append(name)
 
 
     def flow_account_clean(self, account_no):

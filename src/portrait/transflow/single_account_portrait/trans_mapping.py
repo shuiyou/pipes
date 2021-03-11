@@ -21,6 +21,7 @@ base_type_mapping = {
     "U_COM_CT_SP_LG_COMPANY": "借款企业实际控制人配偶作为企业法定代表人的企业",
     "U_COM_CT_SP_SH_COMPANY": "借款企业实际控制人配偶作为股东的企业",
     "U_COM_LEGAL": "借款企业法定代表人",
-    "G_PERSONAL":"担保人"
+    "G_PERSONAL":"担保人",
+    "G_COMPANY":"担保企业"
 
 }

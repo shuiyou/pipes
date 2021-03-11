@@ -77,7 +77,7 @@ class TransApply:
                 if temp['extraParam'].__contains__('accounts') and \
                         type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
 
-                    if relationship != 'G_PERSONAL' and  id_card_no not in apply_exist_id :
+                    if relationship not in ['G_PERSONAL','G_COMPANY'] and  id_card_no not in apply_exist_id :
                         apply_exist_id.append(id_card_no)
                         for j in range(len(temp['extraParam']['accounts'])):
                             if temp_dict.__contains__('account_id'):
@@ -92,16 +92,11 @@ class TransApply:
                             temp_dict['update_time'] = create_time
                             role = transform_class_str(temp_dict, 'TransApply')
                             self.role_list.append(role)
-                    elif relationship == 'G_PERSONAL':
-                        for j in range(len(temp['extraParam']['accounts'])):
-                            if temp_dict.__contains__('account_id'):
-                                temp_dict.pop('account_id')
-                            # temp_data = temp['extraParam']['accounts'][j]
-                            # bank_no = self._get_object_attr(temp_data, 'bankAccount')
-                            temp_dict['create_time'] = create_time
-                            temp_dict['update_time'] = create_time
-                            role = transform_class_str(temp_dict, 'TransApply')
-                            self.role_list.append(role)
+                    else:
+                        temp_dict['create_time'] = create_time
+                        temp_dict['update_time'] = create_time
+                        role = transform_class_str(temp_dict, 'TransApply')
+                        self.role_list.append(role)
 
                 else:
                     temp_dict['create_time'] = create_time

@@ -286,7 +286,7 @@ class PcreditLoanView(ModuleProcessor):
                 report_time_before_2_year,
                 report_time_before_3_year, pcredit_acc_speculate_df)
             self.variables["total_principal_3y_ago"] = replace_nan(total_principal_list_3)
-            self.variables["max_terms_3y_ago"] = replace_nan(max_terms_list_3)
+            self.variables["max_terms_3y_ago"] = [int(x) for x in replace_nan(max_terms_list_3)]
             self.variables["max_interest_rate_3y_ago"] = replace_nan(max_interest_rate_3y_ago_list)
 
             total_principal_list_2, max_terms_list_2, max_interest_rate_2y_ago_list = self._total_principal(
@@ -294,7 +294,7 @@ class PcreditLoanView(ModuleProcessor):
                 report_time_before_1_year,
                 report_time_before_2_year, pcredit_acc_speculate_df)
             self.variables["total_principal_2y_ago"] = replace_nan(total_principal_list_2)
-            self.variables["max_terms_2y_ago"] = replace_nan(max_terms_list_2)
+            self.variables["max_terms_2y_ago"] = [int(x) for x in replace_nan(max_terms_list_2)]
             self.variables["max_interest_rate_2y_ago"] = replace_nan(max_interest_rate_2y_ago_list)
 
             total_principal_list_1, max_terms_list_1, max_interest_rate_1y_ago_list = self._total_principal(
@@ -302,7 +302,7 @@ class PcreditLoanView(ModuleProcessor):
                 report_time,
                 report_time_before_1_year, pcredit_acc_speculate_df)
             self.variables["total_principal_1y_ago"] = replace_nan(total_principal_list_1)
-            self.variables["max_terms_1y_ago"] = replace_nan(max_terms_list_1)
+            self.variables["max_terms_1y_ago"] = [int(x) for x in replace_nan(max_terms_list_1)]
             self.variables["max_interest_rate_1y_ago"] = replace_nan(max_interest_rate_1y_ago_list)
 
             df_temp = pd.merge(loan_type_df, pcredit_acc_speculate_df, left_on='id', right_on='record_id')
