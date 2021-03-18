@@ -60,8 +60,8 @@ class JsonUnionLoanPortrait(TransFlow):
         flow_df['account_no'] = flow_df['account_no'].fillna("").astype(str)
         flow_df['account_no'] = flow_df['account_no'].apply(lambda x: self.flow_account_clean(x))
 
-        if flow_df.empty:
-            return
+        # if flow_df.empty:
+        #     return
         json_str = []
         loan_type_list = ['消金',
                           '融资租赁',

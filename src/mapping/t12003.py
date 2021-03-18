@@ -32,7 +32,7 @@ class T12003(Transformer):
         sql = '''
             select field_name,field_value from info_stats_item where stats_id = (
                 select id from info_stats where user_name = %(user_name)s and id_card_no = %(id_card_no)s
-                and mobile_hit_type = '1' or cert_no_hit_type = '1'
+                and (mobile_hit_type = '1' or cert_no_hit_type = '1')
                 and unix_timestamp(NOW()) < unix_timestamp(expired_at) order by id desc limit 1 
             )
         '''
