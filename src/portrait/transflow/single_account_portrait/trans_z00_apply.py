@@ -34,7 +34,7 @@ class TransApply:
         :return:
         """
         length = len(self.query_data_array)
-        sql_compile = """select id from trans_account where id_card_no='%s' and account_no='%s'
+        sql_compile = """select id from trans_account where id_card_no='%s'
             order by id desc limit 1"""
         # limit_time = months_ago(datetime.datetime.now(), self.month_interval)
         # limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
@@ -74,29 +74,29 @@ class TransApply:
                 industry = self._get_object_attr(temp['extraParam'], 'industryName')
                 if industry is not None:
                     temp_dict['industry'] = industry
-                if temp['extraParam'].__contains__('accounts') and \
-                        type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
+                # if temp['extraParam'].__contains__('accounts') and \
+                #         type(temp['extraParam']['accounts']) == list and len(temp['extraParam']['accounts']) > 0:
 
-                    if relationship not in ['G_PERSONAL','G_COMPANY'] and  id_card_no not in apply_exist_id :
-                        apply_exist_id.append(id_card_no)
-                        for j in range(len(temp['extraParam']['accounts'])):
-                            if temp_dict.__contains__('account_id'):
-                                temp_dict.pop('account_id')
-                            temp_data = temp['extraParam']['accounts'][j]
-                            bank_no = self._get_object_attr(temp_data, 'bankAccount')
-                            if bank_no is not None and id_card_no is not None:
-                                temp_df = sql_to_df(sql_compile % (id_card_no, bank_no))
-                                if len(temp_df) > 0:
-                                    temp_dict['account_id'] = temp_df['id'].tolist()[0]
-                            temp_dict['create_time'] = create_time
-                            temp_dict['update_time'] = create_time
-                            role = transform_class_str(temp_dict, 'TransApply')
-                            self.role_list.append(role)
-                    else:
-                        temp_dict['create_time'] = create_time
-                        temp_dict['update_time'] = create_time
-                        role = transform_class_str(temp_dict, 'TransApply')
-                        self.role_list.append(role)
+                if relationship not in ['G_PERSONAL', 'G_COMPANY'] and id_card_no not in apply_exist_id:
+                    apply_exist_id.append(id_card_no)
+                    # for j in range(len(temp['extraParam']['accounts'])):
+                    if temp_dict.__contains__('account_id'):
+                        temp_dict.pop('account_id')
+                    # temp_data = temp['extraParam']['accounts'][j]
+                    # bank_no = self._get_object_attr(temp_data, 'bankAccount')
+                    if id_card_no is not None:
+                        temp_df = sql_to_df(sql_compile % id_card_no)
+                        if len(temp_df) > 0:
+                            temp_dict['account_id'] = temp_df['id'].tolist()[0]
+                    temp_dict['create_time'] = create_time
+                    temp_dict['update_time'] = create_time
+                    role = transform_class_str(temp_dict, 'TransApply')
+                    self.role_list.append(role)
+                    # else:
+                    #     temp_dict['create_time'] = create_time
+                    #     temp_dict['update_time'] = create_time
+                    #     role = transform_class_str(temp_dict, 'TransApply')
+                    #     self.role_list.append(role)
 
                 else:
                     temp_dict['create_time'] = create_time

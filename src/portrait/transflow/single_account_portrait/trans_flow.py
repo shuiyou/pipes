@@ -1,5 +1,3 @@
-import datetime
-
 import pandas as pd
 # TODO eval 动态导入，不能删除下面的导入。
 from portrait.transflow.single_account_portrait.models import TransAccount, TransFlow, TransFlowPortrait, \
@@ -8,23 +6,11 @@ from portrait.transflow.single_account_portrait.models import TransAccount, Tran
     TransUModelling, TransUPortrait, TransUCounterpartyPortrait, TransURelatedPortrait, TransURemarkPortrait, \
     TransUSummaryPortrait, TransFlowException
 from util.mysql_reader import sql_to_df
+from pandas.tseries import offsets
 
 
 def months_ago(end_date, months):
-    end_year = end_date.year
-    end_month = end_date.month
-    end_day = end_date.day
-    if end_month < months:
-        res_month = 12 + end_month - months + 1
-        res_year = end_year - 1
-    else:
-        res_month = end_month - months + 1
-        res_year = end_year
-    temp_date = datetime.datetime(res_year, res_month, 1) - datetime.timedelta(days=1)
-    if temp_date.day <= end_day:
-        return temp_date.date()
-    else:
-        return datetime.datetime(temp_date.year, temp_date.month, end_day).date()
+    return (pd.to_datetime(end_date) - offsets.DateOffset(months=months)).date()
 
 
 def transform_class_str(params, class_name):
@@ -60,48 +46,47 @@ class TransFlowBasic:
         self.trans_u_flow_portrait_df_2_years = None
         self.db = portrait.sql_db
         self.user_type = None
+        self.accounts_list = []
 
-    def process(self):
+    def trans_accounts_list(self):
         data = self.query_data_array[self.object_k]
-        bank_account = None
+        # bank_account = None
         user_name = data.get('name')
         id_card_no = data.get('idno')
         self.user_type = data.get('userType')
-        if data.__contains__('extraParam') and data['extraParam'].__contains__('accounts') and \
-                data['extraParam']['accounts'][self.object_k_k].__contains__('bankAccount'):
-            bank_account = data['extraParam']['accounts'][self.object_k_k]['bankAccount']
-
         # 若为担保人，跳过
         if data.get('relation') == 'GUARANTOR':
             return
+        sql = "select * from trans_account where account_name = '%s' and id_card_no = '%s'" % (user_name, id_card_no)
+        df = sql_to_df(sql)
+        accounts_list = df['account_no'].unique().tolist()
+        return accounts_list
 
-        # 若关联人不存在银行卡号,则必然没有上传过流水,跳过此关联人
-        if bank_account is None:
-            self.account_id = None
-            self.trans_flow_df = None
-            self.trans_flow_portrait_df = None
-            self.trans_flow_portrait_df_2_years = None
+    def process(self):
+        data = self.query_data_array[self.object_k]
+        # bank_account = None
+        user_name = data.get('name')
+        id_card_no = data.get('idno')
+        self.user_type = data.get('userType')
+        # 若为担保人，跳过
+        if data.get('relation') == 'GUARANTOR':
             return
+        # 若self.object_k_k超过self.accounts_list的下标限制，则跳过
+        if self.object_k_k >= len(self.accounts_list):
+            return
+
         sql = """select * from trans_flow where account_id in (select id from trans_account where account_name = '%s'
-            and id_card_no = '%s' and account_no = '%s')""" % (user_name, id_card_no, bank_account)
+            and id_card_no = '%s' and account_no = '%s')""" % (user_name, id_card_no,
+                                                               self.accounts_list[self.object_k_k])
         df = sql_to_df(sql)
 
-        # 若数据库里面不存在该银行卡的流水信息,则跳过此关联人
+        # 若数据库里面不存在该主体的流水信息,则跳过此关联人
         if len(df) == 0:
             self.account_id = None
             self.trans_flow_df = None
             self.trans_flow_portrait_df = None
             self.trans_flow_portrait_df_2_years = None
             return
-
-        # 最新流水上传时间必须在限制时间之内,暂定为3个月内,若在限定之间之外,则不重新生成画像表
-        # limit_time = pd.to_datetime(months_ago(datetime.datetime.now(), self.month_interval))
-        # if df['create_time'].max() < limit_time:
-        #     self.account_id = None
-        #     self.trans_flow_df = None
-        #     self.trans_flow_portrait_df = None
-        #     self.trans_flow_portrait_df_2_years = None
-        #     return
         # 上述关系均没有跳过此关联人则正常走余下的流程
         self.trans_flow_df = self._time_interval(df, 2)
         self.account_id = self.trans_flow_df['account_id'].max()
@@ -141,14 +126,7 @@ class TransFlowBasic:
         flow_df[filter_col] = pd.to_datetime(flow_df[filter_col])
         max_date = flow_df[filter_col].max()
         min_date = flow_df[filter_col].min()
-
-        if year != 1:
-            if max_date.month == 12:
-                years_before_first = datetime.datetime(max_date.year - year + 1, 1, 1)
-            else:
-                years_before_first = datetime.datetime(max_date.year - year, max_date.month + 1, 1)
-        else:
-            years_before_first = datetime.datetime(max_date.year - year, max_date.month, 1)
+        years_before_first = pd.to_datetime(max_date) - offsets.DateOffset(months=year*12)
         min_date = max(min_date, years_before_first)
         flow_df = flow_df[(flow_df[filter_col] >= min_date) &
                           (flow_df[filter_col] <= max_date)]
