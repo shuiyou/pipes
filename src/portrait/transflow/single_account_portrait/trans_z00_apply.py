@@ -34,8 +34,7 @@ class TransApply:
         :return:
         """
         length = len(self.query_data_array)
-        sql_compile = """select id from trans_account where id_card_no='%s'
-            order by id desc limit 1"""
+        sql_compile = """select id, account_no from trans_account where id_card_no='%s' order by id"""
         # limit_time = months_ago(datetime.datetime.now(), self.month_interval)
         # limit_time = datetime.datetime.strftime(limit_time, '%Y-%m-%d %H:%M:%S')
         create_time = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
@@ -70,6 +69,7 @@ class TransApply:
                 else:
                     temp_dict['id_type'] = 'OTHER'
 
+            accounts_list = []
             if temp.__contains__('extraParam'):
                 industry = self._get_object_attr(temp['extraParam'], 'industryName')
                 if industry is not None:
@@ -87,23 +87,14 @@ class TransApply:
                     if id_card_no is not None:
                         temp_df = sql_to_df(sql_compile % id_card_no)
                         if len(temp_df) > 0:
-                            temp_dict['account_id'] = temp_df['id'].tolist()[0]
-                    temp_dict['create_time'] = create_time
-                    temp_dict['update_time'] = create_time
-                    role = transform_class_str(temp_dict, 'TransApply')
-                    self.role_list.append(role)
-                    # else:
-                    #     temp_dict['create_time'] = create_time
-                    #     temp_dict['update_time'] = create_time
-                    #     role = transform_class_str(temp_dict, 'TransApply')
-                    #     self.role_list.append(role)
-
-                else:
-                    temp_dict['create_time'] = create_time
-                    temp_dict['update_time'] = create_time
-                    role = transform_class_str(temp_dict, 'TransApply')
-                    self.role_list.append(role)
-            else:
+                            accounts_list = temp_df['account_no'].unique().tolist()
+                            for account in accounts_list:
+                                temp_dict['account_id'] = temp_df[temp_df['account_no'] == account]['id'].tolist()[0]
+                                temp_dict['create_time'] = create_time
+                                temp_dict['update_time'] = create_time
+                                role = transform_class_str(temp_dict, 'TransApply')
+                                self.role_list.append(role)
+            if len(accounts_list) == 0:
                 temp_dict['create_time'] = create_time
                 temp_dict['update_time'] = create_time
                 role = transform_class_str(temp_dict, 'TransApply')
