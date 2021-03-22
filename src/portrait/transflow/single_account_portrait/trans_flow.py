@@ -59,7 +59,10 @@ class TransFlowBasic:
             return
         sql = "select * from trans_account where account_name = '%s' and id_card_no = '%s'" % (user_name, id_card_no)
         df = sql_to_df(sql)
-        accounts_list = df['account_no'].unique().tolist()
+        if df.shape[0] > 0:
+            accounts_list = df['account_no'].unique().tolist()
+        else:
+            accounts_list = []
         return accounts_list
 
     def process(self):
