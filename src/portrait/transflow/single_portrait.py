@@ -40,21 +40,10 @@ class SinglePortrait(PortraitProcessor):
 
         # 开始遍历所有关联关系,若该关联人3个月内上传过流水,则将其对应的单账户画像表清洗落库
         while trans_flow.object_k < trans_flow.object_nums:
-            temp_object = trans_flow.query_data_array[trans_flow.object_k]
-            extra_param = temp_object.get('extraParam')
-            if extra_param is None:
-                trans_flow.object_k += 1
-                continue
-            accounts = extra_param.get('accounts')
-            if accounts is None:
-                trans_flow.object_k += 1
-                continue
-            new_accounts = []
-            for each in accounts:
-                if each not in new_accounts:
-                    new_accounts.append(each)
-            accounts = new_accounts
-            length = len(accounts)
+            # 首先获取该主体名下的所有银行卡号信息
+            accounts_list = trans_flow.trans_accounts_list()
+            trans_flow.accounts_list = accounts_list
+            length = len(accounts_list)
             for i in range(length):
                 trans_flow.object_k_k = i
                 # 首先查找第k个关联人的流水数据第k个账户的信息

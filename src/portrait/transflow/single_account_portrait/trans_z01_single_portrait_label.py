@@ -118,7 +118,7 @@ class TransSingleLabel:
                     (~self.df['concat_str'].str.contains('|'.join(self.relation_dict.keys()))) &
                     ((((self.df['concat_str'].str.contains('信贷|融资|垫款|个人.*贷|现金分期|借|还|本金|房贷|转贷|过桥|民间融资服务中心')) |
                        ((self.df['concat_str'].str.contains('抵押')) & (pd.notnull(self.df['opponent_name'])))) &
-                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC|无折借|借支|退还|返还|借记|信用卡|贴现|货款|床垫|消费|POS|钱生钱|特约|招标|退耕还林|还地桥|物流|退本金'))) |
+                      (~self.df['concat_str'].str.contains('贷款转存|贷记|ETC|无折借|借支|退还|返还|借记|信用卡|贴现|货款|床垫|消费|POS|钱生钱|特约|招标|退耕还林|还地桥|物流|退本金|股本金'))) |
                          ((self.df['trans_amt'] < 0) & (self.df['concat_str'].str.contains('利息|结息')) & (~self.df['concat_str'].str.contains('计提')) )
                      ) & (~self.df['opponent_name'].str.contains('银行'))
                     & (pd.isnull(self.df.loan_type)), 'loan_type'] = '民间借贷'
@@ -234,7 +234,7 @@ class TransSingleLabel:
         self.df.loc[self.df.trans_amt > trans_amt_mean + 2 * trans_amt_std, 'accidental_big'] = 1
 
         # 异常交易之家庭不稳定标签
-        unstable_df = self.df[(~self.df['opponent_name'].str.contains(self.spouse_name)) &
+        unstable_df = self.df[(~self.df['opponent_name'].str.contains(self.spouse_name)) & (self.df.opponent_type == 1 ) &
                               (self.df['trans_amt'].apply(lambda x: abs(x)).isin(UNUSUAL_TRANS_AMT))]
         unstable_count = unstable_df.groupby('opponent_name', as_index=False).agg({'trans_amt': len})
         unstable_name_list = list(set(unstable_df['opponent_name']))
@@ -272,7 +272,7 @@ class TransSingleLabel:
     @staticmethod
     def _hospital_check(col_string, amt_type=1, total_str=0):
         if amt_type == -1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string) and \
-                re.search(r'(采购|投标保证金|贷款|工程|工资|加工|材料款|材料费|机械费|运费|装修|保险)', col_string) is None:
+                re.search(r'(采购|投标保证金|货款|工程|工资|加工|材料款|材料费|机械费|运费|装修|保险)', col_string) is None:
             return True
         elif amt_type == 1 and re.search(r'(医院|药房|医疗|门诊|急诊|住院|医药|寿险)', col_string):
             if total_str == 1:
@@ -368,8 +368,9 @@ class TransSingleLabel:
             # 将合并列拉出来
             concat_str = getattr(row, 'concat_str')
             no_channel_str = op_name + ';' + remark + ';' + temp_dict['trans_use'] + ';' + temp_dict['trans_type']
+            no_oppo_channel_str = remark + ';' + temp_dict['trans_use'] + ';' + temp_dict['trans_type']
             # 是否为理财
-            if re.search(r'(理财|钱生钱|余额宝|零钱通|招财盈|宜人财富)', concat_str):
+            if re.search(r'(理财|钱生钱|余额宝|零钱通|招财盈|宜人财富|基金)', concat_str):
                 temp_dict['is_financing'] = 1
             # 是否结息
             if hasattr(row, 'is_interest') and pd.notnull(getattr(row, 'is_interest')):
@@ -385,28 +386,30 @@ class TransSingleLabel:
                 temp_dict['is_before_interest_repay'] = 1
             # 异常交易类型
             unusual_type = []
-            if re.search(r'(彩票|博彩|夜总会|ktv)', concat_str):
+            if re.search(r'(彩票|博彩|夜总会|ktv)', concat_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('博彩娱乐')
-            if re.search(r'典当', concat_str):
+            if re.search(r'典当', concat_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('典当')
-            if re.search(r'(法院|律师事务所|检察院|诉讼|律师费|开庭公告|鉴定|保全|判决公告|执行|上诉|执.*号|号.*执)', concat_str):
+            if re.search(r'(法院|律师事务所|检察院|诉讼|律师费|开庭公告|鉴定|保全|判决公告|执行|上诉|执.*号|号.*执)', concat_str) is not None \
+                    and re.search(r'(警察|执行力)' , concat_str) is None and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('案件纠纷')
-            if re.search(r'(公安|保释)', concat_str) is not None and re.search(r'交通', concat_str) is None:
+            if re.search(r'(公安|保释)', no_channel_str) is not None and re.search(r'(交通|公安县)', no_channel_str) is None \
+                    and trans_amt < 0 and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('公安')
-            if re.search(r'(保险经纪|保险代理|保险.*理赔|理赔.*保险|赔款)', concat_str):
+            if re.search(r'(保险经纪|保险代理|保险.*理赔|理赔.*保险|赔款)', concat_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('保险理赔')
-            if re.search(r'逾期', concat_str):
+            if re.search(r'逾期', concat_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('逾期')
-            if re.search(r'(证券|银证转账|基金)', concat_str):
+            if re.search(r'(证券|银证转账|基金)', concat_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('股票投机')
             if ('21:00:00' <= temp_dict['trans_time'] <= '23:59:59' or
                 '00:00:01' <= temp_dict['trans_time'] <= '04:00:00') and \
-                    re.search(r'(ATM|atm)', op_name) is not None and trans_amt < 0 and trans_amt % 100 == 0:
+                    re.search(r'(ATM|atm)', op_name) is not None and trans_amt < 0 and trans_amt % 100 == 0 and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('夜间不良交易')
-            if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type:
+            if '00:00:01' <= temp_dict['trans_time'] <= '04:00:00' and '夜间不良交易' not in unusual_type and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('夜间交易')
             if self.user_type == 'PERSONAL' and ((trans_amt < 0 and self._hospital_check(concat_str, -1, 1)) or
-                                                 (trans_amt > 0 and self._hospital_check(concat_str, 1, 1))):
+                                                 (trans_amt > 0 and self._hospital_check(concat_str, 1, 1))) and pd.notna(temp_dict['opponent_name']):
                 for hos_col in ['opponent_name', 'trans_channel', 'trans_type', 'trans_use', 'remark']:
                     if (trans_amt < 0 and self._hospital_check(temp_dict[hos_col], -1)) or \
                             (trans_amt > 0 and self._hospital_check(temp_dict[hos_col])):
@@ -414,17 +417,17 @@ class TransSingleLabel:
                         if hos_col != 'remark':
                             temp_dict['remark'] = temp_dict['remark'] + '|' + temp_dict[hos_col]
                         break
-            if trans_amt > 0 and re.search(r'投资', no_channel_str):
+            if trans_amt > 0 and re.search(r'投资', no_oppo_channel_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('收购')
-            if (trans_amt < 0 and re.search(r'投资', no_channel_str)) or \
-                    (trans_amt > 0 and re.search(r'(分红|退股)', no_channel_str)):
+            if (trans_amt < 0 and re.search(r'投资', no_oppo_channel_str) and pd.notna(temp_dict['opponent_name'])) or \
+                    (trans_amt > 0 and re.search(r'(分红|退股)', no_oppo_channel_str) is not None and re.search(r'基金分红', no_oppo_channel_str) is None and pd.notna(temp_dict['opponent_name'])):
                 unusual_type.append('对外投资')
             if trans_amt > 0 and re.search(r'(购车|购房|首付|车款|房款)', concat_str) is not None and \
-                    re.search(r'评估', concat_str) is None:
+                    re.search(r'(评估|洗车|修车|融资租赁)', concat_str) is None and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('变现')
-            if (trans_amt < 0 and '预收' in no_channel_str) or (trans_amt > 0 and '预付' in no_channel_str):
+            if (trans_amt < 0 and '预收' in no_channel_str and pd.notna(temp_dict['opponent_name'])) or (trans_amt > 0 and '预付' in no_channel_str and pd.notna(temp_dict['opponent_name'])):
                 unusual_type.append('预收款')
-            if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str):
+            if trans_amt < 0 and re.search(r'(分红|退股|分润)', no_channel_str) and pd.notna(temp_dict['opponent_name']):
                 unusual_type.append('分红退股')
             if hasattr(row, 'unstable') and pd.notnull(getattr(row, 'unstable')):
                 unusual_type.append('家庭不稳定')
@@ -434,7 +437,7 @@ class TransSingleLabel:
                 unusual_type.append('快进快出')
             if hasattr(row, 'accidental_big') and pd.notnull(getattr(row, 'accidental_big')):
                 unusual_type.append('偶发大额')
-            if temp_dict.__contains__('loan_type') and temp_dict['loan_type'] == '民间借贷':
+            if temp_dict.__contains__('loan_type') and temp_dict['loan_type'] == '民间借贷' and pd.notna(temp_dict['opponent_name']) :
                 unusual_type.append('民间借贷')
             if temp_dict.__contains__('is_financing'):
                 unusual_type.append('理财')
