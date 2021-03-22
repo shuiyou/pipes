@@ -56,7 +56,7 @@ class TransFlowBasic:
         self.user_type = data.get('userType')
         # 若为担保人，跳过
         if data.get('relation') == 'GUARANTOR':
-            return
+            return []
         sql = "select * from trans_account where account_name = '%s' and id_card_no = '%s'" % (user_name, id_card_no)
         df = sql_to_df(sql)
         if df.shape[0] > 0:
