@@ -1,68 +1,166 @@
 {
     "strategyParam":{
-        "reqNo":"Q478173396073611264",
-        "stepReqNo":"S478173396224606208",
+        "reqNo":"Q579367867464712192",
+        "stepReqNo":"S579367867796062208",
         "productCode":"08001",
         "queryData":[
             {
-                "id":11879,
+                "id":41,
                 "parentId":0,
-                "name":"韩骁頔",
-                "idno":"31011519910503253X",
-                "phone":"13611647802",
+                "name":"潍坊市财政票据服务中心",
+                "idno":"12370700F51078958R",
+                "userType":"COMPANY",
+                "fundratio":0,
+                "applyAmo":1500000,
+                "relation":"MAIN",
+                "extraParam":{
+                    "accounts":[
+
+                    ],
+                    "comStrDate":null,
+                    "education":null,
+                    "industry":null,
+                    "industryName":null,
+                    "mamageAmt":null,
+                    "manageAddress":null,
+                    "passthroughMsg":null,
+                    "phantomRelation":false,
+                    "priority":-1,
+                    "regCapAmt":null,
+                    "seasonOffMonth":null,
+                    "seasonOnMonth":null,
+                    "seasonable":null,
+                    "totalSalesLastYear":null
+                }
+            },
+            {
+                "id":42,
+                "parentId":0,
+                "name":"于晓凤",
+                "idno":"370784198710166909",
+                "phone":"13063338576",
                 "userType":"PERSONAL",
                 "authorStatus":"AUTHORIZED",
                 "fundratio":0,
-                "applyAmo":66600,
+                "applyAmo":1500000,
+                "relation":"LEGAL",
+                "extraParam":{
+                    "accounts":[
+
+                    ],
+                    "comStrDate":null,
+                    "education":null,
+                    "industry":null,
+                    "industryName":null,
+                    "mamageAmt":null,
+                    "manageAddress":null,
+                    "passthroughMsg":null,
+                    "phantomRelation":false,
+                    "priority":-1,
+                    "regCapAmt":null,
+                    "seasonOffMonth":null,
+                    "seasonOnMonth":null,
+                    "seasonable":null,
+                    "totalSalesLastYear":null
+                }
+            },
+            {
+                "id":43,
+                "parentId":0,
+                "name":"刘官军",
+                "idno":"370226196705161230",
+                "phone":"13063338576",
+                "userType":"PERSONAL",
+                "authorStatus":"AUTHORIZED",
+                "fundratio":0,
+                "applyAmo":1500000,
                 "relation":"CONTROLLER",
                 "extraParam":{
-                    "bankName":"银行名",
-                    "bankAccount":"银行账户",
-                    "totalSalesLastYear":23232,
-                    "industry":"E20",
-                    "industryName":"xx行业",
-                    "seasonable":"1",
-                    "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10"
+                    "accounts":[
+
+                    ],
+                    "comStrDate":null,
+                    "education":null,
+                    "industry":null,
+                    "industryName":null,
+                    "mamageAmt":null,
+                    "manageAddress":null,
+                    "passthroughMsg":null,
+                    "phantomRelation":false,
+                    "priority":-1,
+                    "regCapAmt":null,
+                    "seasonOffMonth":null,
+                    "seasonOnMonth":null,
+                    "seasonable":null,
+                    "totalSalesLastYear":null
                 }
             },
             {
-                "id":11880,
-                "parentId":0,
-                "name":"磁石供应链商业保理（深圳）有限公司",
-                "idno":"91440300MA5EEJUR92",
-                "phone":"021-1234567",
+                "id":44,
+                "parentId":42,
+                "name":"山东快跑九州配送服务有限公司",
+                "idno":"91370700MA3U3WN0XC",
                 "userType":"COMPANY",
                 "fundratio":0,
-                "applyAmo":66600,
-                "relation":"MAIN",
+                "applyAmo":1500000,
+                "relation":"SPOUSE_RELATION_ENT",
                 "extraParam":{
-                    "bankName":"银行名",
-                    "bankAccount":"银行账户",
-                    "totalSalesLastYear":23232,
-                    "industry":"E20",
-                    "industryName":"xx行业",
-                    "seasonable":"1",
-                    "seasonOffMonth":"2,3",
-                    "seasonOnMonth":"9,10"
+                    "accounts":[
+
+                    ],
+                    "comStrDate":null,
+                    "education":null,
+                    "industry":null,
+                    "industryName":null,
+                    "mamageAmt":null,
+                    "manageAddress":null,
+                    "passthroughMsg":null,
+                    "phantomRelation":false,
+                    "priority":-1,
+                    "regCapAmt":null,
+                    "seasonOffMonth":null,
+                    "seasonOnMonth":null,
+                    "seasonable":null,
+                    "totalSalesLastYear":null
+                }
+            },
+            {
+                "id":45,
+                "parentId":42,
+                "name":"王鹏",
+                "idno":"370785198702180037",
+                "phone":"13063338576",
+                "userType":"PERSONAL",
+                "authorStatus":"AUTHORIZED",
+                "fundratio":0,
+                "applyAmo":1500000,
+                "relation":"SPOUSE",
+                "extraParam":{
+                    "accounts":[
+
+                    ],
+                    "comStrDate":null,
+                    "education":null,
+                    "industry":null,
+                    "industryName":null,
+                    "mamageAmt":null,
+                    "manageAddress":null,
+                    "passthroughMsg":null,
+                    "phantomRelation":false,
+                    "priority":-1,
+                    "regCapAmt":null,
+                    "seasonOffMonth":null,
+                    "seasonOnMonth":null,
+                    "seasonable":null,
+                    "totalSalesLastYear":null
                 }
             }
         ],
-        "preReportReqNo":"PR478173390256111616",
+        "preReportReqNo":"PR579367865485000704",
         "single":false,
-        "outApplyNo":"IQP202003270000012460",
-        "applyAmt":23233,
+        "outApplyNo":"IQP1618296702",
+        "applyAmt":1500000,
         "renewLoans":false,
-        "historicalBiz":[
-            {
-                "outApplyNo":"8984324748939",
-                "loanDate":"2019-02-01"
-            },
-            {
-                "outApplyNo":"834894932578343",
-                "loanDate":"2020-01-01"
-            }
-        ],
         "versionNo":"1.0"
     },
     "strategyResult":null
