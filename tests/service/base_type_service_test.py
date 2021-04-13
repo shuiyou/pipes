@@ -5,6 +5,7 @@ from jsonpath import jsonpath
 
 from service.base_type_service import BaseTypeService
 from service.base_type_service_v2 import BaseTypeServiceV2
+from service.base_type_service_v3 import BaseTypeServiceV3
 
 
 @pytest.fixture(name="query_data")
@@ -60,3 +61,13 @@ def test_print_subject_base_type_03(query_data_03):
         base_type_v2 = base_type_service_v2.parse_base_type(subject)
         print("subject_v1:", subject["name"], " base_type:", base_type)
         print("subject_v2:", subject["name"], " base_type:", base_type_v2)
+
+
+def test_print_subject_base_type_v3(query_data_03):
+    base_type_service_v3 = BaseTypeServiceV3(query_data_03)
+
+    print("base_type_service v3:", len(BaseTypeServiceV3.BASE_TYPE_MAPPING))
+
+    for subject in query_data_03:
+        base_type_v3 = base_type_service_v3.parse_base_type(subject)
+        print("subject:", subject["name"], " base_type:", base_type_v3)
