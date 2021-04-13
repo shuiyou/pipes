@@ -144,10 +144,17 @@ class TransFlowRawData:
             temp_dict['create_time'] = self.create_time
             temp_dict['update_time'] = self.create_time
             # 将原始数据落库
-            if self.status:
-                role = transform_class_str(temp_dict, 'TransFlow')
-            else:
-                role = transform_class_str(temp_dict, 'TransFlowException')
+            try:
+                if self.status:
+                    role = transform_class_str(temp_dict, 'TransFlow')
+                else:
+                    role = transform_class_str(temp_dict, 'TransFlowException')
+            except Exception as e:
+                self.resp['resCode'] = '1'
+                self.resp['resMsg'] = '失败'
+                logger.info('导入数据库失败,失败原因:%s' % str(e))
+                self.resp['data']['warningMsg'] = ['字符集对应错误']
+                return
             self.raw_list.append(role)
         self.db.session.add_all(self.raw_list)
         try:
