@@ -38,7 +38,7 @@ class TransactionOtherInfo:
     def _trans_info_match(self, trans_info, col_name):
         length = len(self.col_mapping[trans_info])
         if length:
-            comp = re.compile(r'[\"\'\s^-]')
+            comp = re.compile(r'[\"\'\\\s^-]')
             string = ''
             for col in self.col_mapping[trans_info]:
                 string += "self.df['" + col + "'].fillna('').astype(str)+"
@@ -56,7 +56,7 @@ class TransactionOtherInfo:
     def _remark_match(self):
         length = len(self.col_mapping['mark_col'])
         if length:
-            comp = re.compile(r'[\"\'\s^-]')
+            comp = re.compile(r'[\"\'\\\s^-]')
             string = ''
             for col in self.col_mapping['mark_col']:
                 if '对方信息' not in col:
