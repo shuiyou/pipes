@@ -20,6 +20,7 @@ from portrait.transflow.union_portrait import UnionPortrait
 from product.generate import Generate
 from product.p_config import product_codes_dict
 from product.p_utils import _build_request, score_to_int, _get_biz_types, _relation_risk_subject, _append_rules
+from service.base_type_service_v2 import BaseTypeServiceV2
 from service.base_type_service_v3 import BaseTypeServiceV3
 from strategy_config import obtain_strategy_url
 from view.mapper_detail import translate_for_report_detail
@@ -49,7 +50,7 @@ class P08001(Generate):
             is_single = json_data.get("single")
             query_data_array = json_data.get('queryData')
 
-            base_type_service = BaseTypeServiceV3(query_data_array)
+            base_type_service = BaseTypeServiceV2(query_data_array)
 
             main_node = None
             response_array = []
