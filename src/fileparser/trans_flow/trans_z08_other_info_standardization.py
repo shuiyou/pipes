@@ -41,7 +41,9 @@ class TransactionOtherInfo:
             comp = re.compile(r'[\"\'\\\s^-]')
             string = ''
             for col in self.col_mapping[trans_info]:
-                string += "self.df['" + col + "'].fillna('').astype(str)+"
+                temp_col = col.replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r').\
+                    replace('\f', '\\f').replace('\v', '\\v')
+                string += "self.df['" + temp_col + "'].fillna('').astype(str)+"
             string = string[:-1]
             self.df[col_name] = eval(string).apply(lambda x: re.sub(comp, '', x))
         else:
@@ -59,10 +61,12 @@ class TransactionOtherInfo:
             comp = re.compile(r'[\"\'\\\s^-]')
             string = ''
             for col in self.col_mapping['mark_col']:
+                temp_col = col.replace('\n', '\\n').replace('\t', '\\t').replace('\r', '\\r').\
+                    replace('\f', '\\f').replace('\v', '\\v')
                 if '对方信息' not in col:
-                    string += "self.df['" + col + "'].fillna('').astype(str)+"
+                    string += "self.df['" + temp_col + "'].fillna('').astype(str)+"
                 else:
-                    string += "self.df['" + col + "'].fillna('').astype(str).apply(lambda x:x.split(':',1)[-1])+"
+                    string += "self.df['" + temp_col + "'].fillna('').astype(str).apply(lambda x:x.split(':',1)[-1])+"
                     if len(self.df['opponent_name'].value_counts().index) == 1:
                         self.df['opponent_name'] = self.df[col].fillna('').astype(str).\
                             apply(lambda x: re.sub(comp, '', x.split(':', 1)[0]))
